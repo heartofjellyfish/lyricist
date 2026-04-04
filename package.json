@@ -1,0 +1,15 @@
+{
+  "name": "stress-lyric-workshop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dev": "python3 -m http.server 5173",
+    "build:lexicon": "node ./scripts/buildLexicon.js",
+    "build:wordnet": "node ./scripts/buildWordnetMap.js"
+  },
+  "dependencies": {
+    "cmu-pronouncing-dictionary": "^3.0.0",
+    "wordnet-db": "^3.1.14"
+  }
+}
