@@ -67,6 +67,41 @@
             </label>
           </div>
 
+          <section class="hint-shell" aria-label="Creative controls">
+            <div class="hint-shell-head">
+              <h2>Creative Controls</h2>
+              <p>Soft nudges for tone and perspective. Meter still decides what survives.</p>
+            </div>
+
+            <div class="hint-grid">
+              <label class="field hint-field">
+                <span>Mode</span>
+                <select id="orientation-input" name="orientation">
+                  <option value="descriptive" selected>Descriptive</option>
+                  <option value="bridging">Bridging</option>
+                  <option value="confessional">Confessional</option>
+                </select>
+              </label>
+
+              <label class="field hint-field">
+                <span>Tension</span>
+                <select id="stability-input" name="stability">
+                  <option value="stable">Stable</option>
+                  <option value="unstable" selected>Unstable</option>
+                </select>
+              </label>
+
+              <label class="field hint-field">
+                <span>Distance</span>
+                <select id="distance-input" name="distance">
+                  <option value="close" selected>Close</option>
+                  <option value="mid">Mid</option>
+                  <option value="far">Far</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
           <details id="ai-settings" class="ai-settings">
             <summary>OpenAI Drafts</summary>
             <div class="ai-settings-body">

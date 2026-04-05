@@ -20,6 +20,9 @@ const rhymeInput = document.getElementById("rhyme-input");
 const rhymeSuggestions = document.getElementById("rhyme-suggestions");
 const rhymeBrowserElement = document.getElementById("rhyme-browser");
 const rhymeTreeElement = document.getElementById("rhyme-tree");
+const orientationInput = document.getElementById("orientation-input");
+const stabilityInput = document.getElementById("stability-input");
+const distanceInput = document.getElementById("distance-input");
 const aiSettingsElement = document.getElementById("ai-settings");
 const countInput = document.getElementById("count-input");
 const aiEnabledInput = document.getElementById("ai-enabled-input");
@@ -543,7 +546,15 @@ function persistSettings() {
   localStorage.setItem(STORAGE_KEYS.model, modelInput.value.trim());
 }
 
-async function collectOpenAICandidates({ patternText, ideaText, rhymeTarget, candidateCount }) {
+async function collectOpenAICandidates({
+  patternText,
+  ideaText,
+  rhymeTarget,
+  candidateCount,
+  orientation,
+  stability,
+  distance,
+}) {
   const apiKey = apiKeyInput.value.trim();
   if (!aiEnabledInput.checked || !apiKey) {
     lastOpenAIDebug = null;
@@ -621,6 +632,9 @@ async function collectOpenAICandidates({ patternText, ideaText, rhymeTarget, can
       patternText,
       ideaText,
       rhymeTarget,
+      orientation,
+      stability,
+      distance,
       plans,
       countPerPlan,
       strictRetry,
@@ -733,6 +747,9 @@ async function collectOpenAICandidates({ patternText, ideaText, rhymeTarget, can
         model: currentModel,
         ideaText,
         rhymeTarget,
+        orientation,
+        stability,
+        distance,
         candidates: finalSelectionPool.map((candidate) => ({
           mode: candidate.planMode,
           segmentation: candidate.planKey,
@@ -798,6 +815,7 @@ async function collectOpenAICandidates({ patternText, ideaText, rhymeTarget, can
     usage,
     requested: orderedPlanPool.length,
     instructions,
+    hints: { orientation, stability, distance },
     prompt: mergedPlanDrafts.map((item) => `# ${item.mode || "plan"}\n${item.prompt}`).join("\n\n"),
     model: modelInput.value.trim() || "gpt-4.1-mini",
     slotPlans: orderedPlanPool.slice(0, candidateCount),
@@ -860,6 +878,9 @@ async function handleSubmit(event) {
       ideaText: ideaInput.value,
       rhymeTarget: rhymeInput.value,
       candidateCount: Number(countInput.value),
+      orientation: orientationInput.value,
+      stability: stabilityInput.value,
+      distance: distanceInput.value,
     });
     aiCandidates = openAIResult.candidates;
     openAIStats = { ...openAIStats, ...openAIResult.stats };

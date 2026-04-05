@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import {
   extractDraftSegmentLines,
   extractDraftLines,
@@ -88,6 +89,56 @@ test("requestOpenAIPlanDrafts uses model-appropriate verbosity", async () => {
 
   assert.equal(calls[0].text.verbosity, "medium");
   assert.equal(calls[1].text.verbosity, "low");
+});
+
+test("index.html includes default hint dropdown values", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  assert.match(html, /<select id="orientation-input"[\s\S]*?<option value="descriptive" selected>/u);
+  assert.match(html, /<select id="stability-input"[\s\S]*?<option value="unstable" selected>/u);
+  assert.match(html, /<select id="distance-input"[\s\S]*?<option value="close" selected>/u);
+});
+
+test("requestOpenAIPlanDrafts threads hint values into the prompt", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_url, options) => {
+    calls.push(JSON.parse(options.body));
+    return {
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          output: [
+            {
+              type: "message",
+              content: [{ type: "output_text", text: '{"lines":[{"s1":"the"}]}' }],
+            },
+          ],
+          usage: { input_tokens: 1, output_tokens: 1, total_tokens: 2 },
+        }),
+    };
+  };
+
+  try {
+    await requestOpenAIPlanDrafts({
+      apiKey: "test",
+      model: "gpt-4.1-mini",
+      patternText: "DUM",
+      ideaText: "winter room",
+      rhymeTarget: "",
+      orientation: "bridging",
+      stability: "stable",
+      distance: "far",
+      countPerPlan: 1,
+      plans: [{ mode: "short_words", slots: [{ text: "DUM", tokens: ["DUM"], compact: false, kind: "noun" }] }],
+    });
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  assert.match(calls[0].input, /Orientation: bridging/u);
+  assert.match(calls[0].input, /Stability: stable/u);
+  assert.match(calls[0].input, /Distance: far/u);
+  assert.match(calls[0].input, /bridges descriptive and confessional writing/u);
 });
 
 test("requestOpenAIPlanDrafts returns per-plan segment arrays", async () => {

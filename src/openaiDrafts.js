@@ -15,6 +15,67 @@ function buildPlanDraftInstructions() {
   ].join(" ");
 }
 
+function describeOrientationHint(orientation = "descriptive") {
+  if (orientation === "bridging") {
+    return [
+      "Aim for language that bridges descriptive and confessional writing.",
+      "Let metaphor connect outer scene and inner feeling.",
+      "Bridge literal and symbolic, physical and emotional, external and internal.",
+    ].join(" ");
+  }
+
+  if (orientation === "confessional") {
+    return [
+      "Aim for confessional writing.",
+      "Lean more internal, emotional, intimate, subjective, and self-revealing.",
+      "The line may feel more inward or symbolic, but it should stay singable.",
+    ].join(" ");
+  }
+
+  return [
+    "Aim for descriptive writing.",
+    "Lean literal, physical, external, observable, and scene-based.",
+    "Let feeling be implied through concrete details and actions.",
+  ].join(" ");
+}
+
+function describeStabilityHint(stability = "unstable") {
+  if (stability === "stable") {
+    return [
+      "Aim for a stable line.",
+      "Let it feel landed, settled, and more resolved.",
+      "Prefer closure over suspension when the wording allows it.",
+    ].join(" ");
+  }
+
+  return [
+    "Aim for an unstable line.",
+    "Let it feel leaning, suspended, or not fully resolved.",
+    "Prefer a little tension or forward-leaning unease over neat closure.",
+  ].join(" ");
+}
+
+function describeDistanceHint(distance = "close") {
+  if (distance === "far") {
+    return [
+      "Use a far camera distance.",
+      "Pull back toward scene, setting, or more detached observation.",
+    ].join(" ");
+  }
+
+  if (distance === "mid") {
+    return [
+      "Use a mid camera distance.",
+      "Balance observation and intimacy without getting too detached or too exposed.",
+    ].join(" ");
+  }
+
+  return [
+    "Use a close camera distance.",
+    "Stay near the speaker's body, mind, or immediate point of perception.",
+  ].join(" ");
+}
+
 function buildPlanSelectionInstructions() {
   return [
     "# Identity",
@@ -150,10 +211,11 @@ function describePlanSegmentShort(slot) {
   return `${label}: one ${slot.tokens.length}-syllable word matching ${slot.tokens.join(" ")}`;
 }
 
-function buildPlanSelectionPrompt({ plans, ideaText, rhymeTarget, count }) {
+function buildPlanSelectionPrompt({ plans, ideaText, rhymeTarget, count, orientation, stability, distance }) {
   const lines = [
     `Vibe: ${ideaText || "none"}`,
     `Rhyme: ${rhymeTarget || "none"}`,
+    `Hints: ${orientation}, ${stability}, ${distance}`,
     `Choose ${Math.min(count, plans.length)} plans from the candidate list below.`,
     "Prefer plans that are likely to form natural English lyric lines when each segment is one word.",
     "Prefer structural variety across the chosen plans.",
@@ -173,12 +235,14 @@ function buildPlanSelectionPrompt({ plans, ideaText, rhymeTarget, count }) {
   return lines.join("\n");
 }
 
-function buildFinalSelectionPrompt({ candidates, ideaText, rhymeTarget, count }) {
+function buildFinalSelectionPrompt({ candidates, ideaText, rhymeTarget, count, orientation, stability, distance }) {
   const lines = [
     `Vibe: ${ideaText || "none"}`,
     `Rhyme: ${rhymeTarget || "none"}`,
+    `Hints: ${orientation}, ${stability}, ${distance}`,
     `Choose up to ${Math.min(count, candidates.length)} lines.`,
     "Prefer lines that read as natural, singable English and feel image-rich.",
+    "Use the hints as soft preferences, not as rigid rules.",
     "Prefer lines that are meaningfully different from each other.",
     "",
     ...candidates.map(
@@ -242,7 +306,17 @@ function describePlanLane(slots = []) {
   return slots.map((slot) => describeLaneLabel(slot.kind)).join(" + ");
 }
 
-function buildPlanDraftPrompt({ plan, ideaText, rhymeTarget, count = 4, strictRetry = false, polishMode = false }) {
+function buildPlanDraftPrompt({
+  plan,
+  ideaText,
+  rhymeTarget,
+  orientation = "descriptive",
+  stability = "unstable",
+  distance = "close",
+  count = 4,
+  strictRetry = false,
+  polishMode = false,
+}) {
   const segmentation = plan.slots.map((slot) => slot.text).join(" | ");
   const segmentGuide = plan.slots
     .map((slot, index) => {
@@ -256,6 +330,9 @@ function buildPlanDraftPrompt({ plan, ideaText, rhymeTarget, count = 4, strictRe
     `Mode: ${plan.mode || "mixed_lengths"} | ${modeStyleGuide(plan.mode)}`,
     `Vibe: ${ideaText || "none"}`,
     `Rhyme: ${rhymeTarget || "none"}`,
+    `Orientation: ${orientation}`,
+    `Stability: ${stability}`,
+    `Distance: ${distance}`,
     `Write ${count} different lines for this plan.`,
     `Each line must have exactly ${segmentCount} segments.`,
     "Return each line as an array of segments.",
@@ -266,6 +343,10 @@ function buildPlanDraftPrompt({ plan, ideaText, rhymeTarget, count = 4, strictRe
     "Prefer natural, familiar lyric wording.",
     "Avoid obscure words, awkward endings, and word piles.",
     "Single da segments should be weak words. Single DUM segments should be stronger words.",
+    describeOrientationHint(orientation),
+    describeStabilityHint(stability),
+    describeDistanceHint(distance),
+    "Use these hints as soft artistic goals, not as reasons to violate the segmentation.",
     "Make the lines meaningfully different from each other.",
     ...(Array.isArray(plan.selectionExample) && plan.selectionExample.length === segmentCount
       ? [
@@ -584,11 +665,14 @@ export async function requestOpenAIPlanSelection({
   model = "gpt-4.1-mini",
   ideaText,
   rhymeTarget,
+  orientation = "descriptive",
+  stability = "unstable",
+  distance = "close",
   plans = [],
   count = 5,
 }) {
   const modelName = model;
-  const prompt = buildPlanSelectionPrompt({ plans, ideaText, rhymeTarget, count });
+  const prompt = buildPlanSelectionPrompt({ plans, ideaText, rhymeTarget, orientation, stability, distance, count });
   const requestBody = {
     model: modelName,
     text: {
@@ -660,11 +744,22 @@ export async function requestOpenAIFinalSelection({
   model = "gpt-4.1-mini",
   ideaText,
   rhymeTarget,
+  orientation = "descriptive",
+  stability = "unstable",
+  distance = "close",
   candidates = [],
   count = 5,
 }) {
   const modelName = model;
-  const prompt = buildFinalSelectionPrompt({ candidates, ideaText, rhymeTarget, count });
+  const prompt = buildFinalSelectionPrompt({
+    candidates,
+    ideaText,
+    rhymeTarget,
+    orientation,
+    stability,
+    distance,
+    count,
+  });
   const requestBody = {
     model: modelName,
     text: {
@@ -726,6 +821,9 @@ export async function requestOpenAIPlanDrafts({
   patternText,
   ideaText,
   rhymeTarget,
+  orientation = "descriptive",
+  stability = "unstable",
+  distance = "close",
   plans = [],
   countPerPlan = 4,
   strictRetry = false,
@@ -744,6 +842,9 @@ export async function requestOpenAIPlanDrafts({
         },
         ideaText,
         rhymeTarget,
+        orientation,
+        stability,
+        distance,
         count: countPerPlan,
         strictRetry,
         polishMode,
