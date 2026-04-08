@@ -184,18 +184,24 @@ export const PREPOSITIONS = new Set([
 ]);
 
 export const ARTICLES = new Set(["a", "an", "the"]);
-export const CONJUNCTIONS = new Set(["and", "or", "but", "nor", "yet", "so", "because"]);
+export const CONJUNCTIONS = new Set([
+  "and", "or", "but", "nor", "yet", "so", "because",
+  "as", "if", "once", "since", "than", "that", "though",
+  "although", "unless", "while", "whereas",
+]);
 
 export const PRONOUNS = new Set([
   "i", "you", "he", "she", "we", "they", "me", "him", "her", "us", "them",
   "my", "your", "our", "their", "mine", "yours", "ours", "theirs",
+  "it", "its", "this", "that", "these", "those",
+  "who", "whom", "whose", "which", "what", "where", "when", "how",
 ]);
 
 export const AUXILIARIES = new Set([
   "am", "is", "are", "was", "were", "be", "been", "being",
   "do", "does", "did", "have", "has", "had",
   "can", "could", "will", "would", "shall", "should",
-  "may", "might", "must", "let",
+  "may", "might", "must", "let", "lets",
 ]);
 
 export const COMMON_VERBS = new Set([
@@ -242,6 +248,68 @@ export const LYRIC_PATTERN_OVERRIDES = {
   be: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
   been: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
   being: { preferredLyricPatterns: [["DUM", "da"]], allowedLyricPatterns: [["DUM", "da"], ["dum", "da"]] },
+  // "our" is typically monosyllabic in lyrics despite CMU giving 2 syllables
+  our: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  // Demonstratives default to da but can take stress for contrast
+  this: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  that: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  these: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  those: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  // Relative/interrogative pronouns
+  who: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  what: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  which: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  where: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  when: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  how: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  // Additional auxiliaries and function words
+  do: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  does: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  did: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  has: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  had: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  have: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  can: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  could: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  would: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  should: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  will: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  shall: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  may: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  might: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  must: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  let: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  lets: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  // Additional pronouns
+  it: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  its: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  he: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  him: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  her: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  them: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  they: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  me: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  us: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  // Additional conjunctions
+  as: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  if: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  than: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  // "perfect" — CMU only has verb form (da-DUM); adjective is DUM-da
+  perfect: { preferredLyricPatterns: [["DUM", "da"]], allowedLyricPatterns: [["DUM", "da"], ["da", "DUM"]] },
+  // Additional prepositions with secondary stress
+  along: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  among: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  around: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  beside: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  beneath: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  behind: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  below: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  upon: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  until: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  despite: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
+  // "forward" is ambiguous (adverb=DUMda, preposition=dumda). Allow both;
+  // prefer DUMda since adverbial use is more common in lyrics.
+  forward: { allowedLyricPatterns: [["DUM", "da"], ["dum", "da"]] },
 };
 
 // ── Theme aliases ───────────────────────────────────────────────

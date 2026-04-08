@@ -76,6 +76,17 @@ function defaultLyricPatternsForWord(pattern, guessed, override) {
     };
   }
 
+  // 2-syllable content words with DUM-DUM are likely compound words (e.g. baseball,
+  // nightfall). English compound nouns carry primary stress on the first element and
+  // secondary on the second: DUM-dum, not DUM-DUM.
+  if (guessed.type === "content" && pattern.length === 2 && pattern[0] === "DUM" && pattern[1] === "DUM") {
+    const compoundPattern = ["DUM", "dum"];
+    return {
+      preferredLyricPatterns: [compoundPattern],
+      allowedLyricPatterns: override.allowedLyricPatterns ?? [compoundPattern, pattern],
+    };
+  }
+
   const preferredLyricPatterns = [pattern];
   return {
     preferredLyricPatterns,
