@@ -590,9 +590,9 @@ function buildIndexArraySchema(maxIndex, count, name) {
   };
 }
 
-function buildPlanDraftSchema(segmentBanks, lineCount) {
-  const segmentProperties = Object.fromEntries(
-    segmentBanks.map((_, index) => [
+function buildSegmentProperties(segmentCount) {
+  return Object.fromEntries(
+    Array.from({ length: segmentCount }, (_, index) => [
       `s${index + 1}`,
       {
         type: "string",
@@ -602,6 +602,10 @@ function buildPlanDraftSchema(segmentBanks, lineCount) {
       },
     ]),
   );
+}
+
+function buildPlanDraftSchema(slots, lineCount) {
+  const segmentProperties = buildSegmentProperties(slots.length);
   const segmentKeys = Object.keys(segmentProperties);
 
   return {
@@ -627,6 +631,77 @@ function buildPlanDraftSchema(segmentBanks, lineCount) {
       },
     },
   };
+}
+
+function buildBatchedPlanDraftSchema(segmentCount, planCount, lineCount) {
+  const segmentProperties = buildSegmentProperties(segmentCount);
+  const segmentKeys = Object.keys(segmentProperties);
+
+  return {
+    type: "json_schema",
+    name: "batched_lyric_plans",
+    strict: true,
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["plans"],
+      properties: {
+        plans: {
+          type: "array",
+          minItems: planCount,
+          maxItems: planCount,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            required: ["lines"],
+            properties: {
+              lines: {
+                type: "array",
+                minItems: lineCount,
+                maxItems: lineCount,
+                items: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: segmentKeys,
+                  properties: segmentProperties,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+}
+
+function extractBatchedDraftSegmentLines(responseText, planCount) {
+  const raw = responseText.trim();
+  const empty = () => Array.from({ length: planCount }, () => []);
+  if (!raw) return empty();
+
+  try {
+    const parsed = JSON.parse(raw);
+    const plans = parsed?.plans;
+    if (!Array.isArray(plans)) return empty();
+
+    return plans.map((plan) => {
+      const lines = plan?.lines;
+      if (!Array.isArray(lines)) return [];
+      return lines
+        .map((item) => {
+          if (item && typeof item === "object" && !Array.isArray(item)) {
+            return Object.entries(item)
+              .sort((a, b) => Number(a[0].slice(1)) - Number(b[0].slice(1)))
+              .map(([, segment]) => (typeof segment === "string" ? segment.trim() : ""))
+              .filter(Boolean);
+          }
+          return [];
+        })
+        .filter((segments) => segments.length > 0);
+    });
+  } catch {}
+
+  return empty();
 }
 
 function buildPlanSegmentBankSchema(segmentCount, candidateCount) {
@@ -831,90 +906,186 @@ export async function requestOpenAIPlanDrafts({
 }) {
   const instructions = buildPlanDraftInstructions();
   const modelName = model;
-  const results = await Promise.all(
-    plans.map(async (plan) => {
-      const segmentBanks = plan.slots.map((slot, index) => promptCandidateBankForSlot(slot, 6, index, plan.slots));
 
-      const prompt = buildPlanDraftPrompt({
-        plan: {
-          ...plan,
-          segmentBanks,
+  // Prepare each plan's segment banks and prompt
+  const preparedPlans = plans.map((plan) => {
+    const segmentBanks = plan.slots.map((slot, index) => promptCandidateBankForSlot(slot, 6, index, plan.slots));
+    const prompt = buildPlanDraftPrompt({
+      plan: { ...plan, segmentBanks },
+      ideaText,
+      rhymeTarget,
+      orientation,
+      stability,
+      distance,
+      count: countPerPlan,
+      strictRetry,
+      polishMode,
+    });
+    return { plan, segmentBanks, prompt };
+  });
+
+  // Group plans by segment count so same-schema plans share one API call
+  const groups = new Map();
+  for (let i = 0; i < preparedPlans.length; i++) {
+    const segCount = preparedPlans[i].plan.slots.length;
+    if (!groups.has(segCount)) groups.set(segCount, []);
+    groups.get(segCount).push({ ...preparedPlans[i], originalIndex: i });
+  }
+
+  const results = new Array(plans.length);
+  const zeroUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+
+  function makeErrorResult(prepared, message, usage) {
+    return {
+      ...prepared.plan,
+      prompt: prepared.prompt,
+      segmentBanks: prepared.segmentBanks,
+      segmentLines: [],
+      error: message,
+      usage: usage ?? { ...zeroUsage },
+    };
+  }
+
+  // Fetch a single plan (unbatched) — preserves original schema for 1-plan groups
+  async function fetchSinglePlan(prepared) {
+    const { plan, segmentBanks, prompt } = prepared;
+    const requestBody = {
+      model: modelName,
+      text: {
+        verbosity: textVerbosityForModel(modelName),
+        format: buildPlanDraftSchema(plan.slots, countPerPlan),
+      },
+      max_output_tokens: 400,
+      instructions,
+      input: prompt,
+    };
+
+    if (supportsReasoning(modelName)) {
+      requestBody.reasoning = { effort: "minimal" };
+    }
+
+    try {
+      const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
         },
-        ideaText,
-        rhymeTarget,
-        orientation,
-        stability,
-        distance,
-        count: countPerPlan,
-        strictRetry,
-        polishMode,
+        body: JSON.stringify(requestBody),
       });
-      const requestBody = {
-        model: modelName,
-        text: {
-          verbosity: textVerbosityForModel(modelName),
-          format: buildPlanDraftSchema(plan.slots, countPerPlan),
+
+      const rawBody = await response.text();
+      let payload = {};
+      try {
+        payload = rawBody ? JSON.parse(rawBody) : {};
+      } catch {
+        payload = {};
+      }
+
+      if (!response.ok) {
+        const message = payload?.error?.message ?? "OpenAI request failed.";
+        return makeErrorResult(prepared, message, extractUsage(payload));
+      }
+
+      return {
+        ...plan,
+        prompt,
+        segmentBanks,
+        segmentLines: extractDraftSegmentLines(extractOutputText(payload)),
+        error: "",
+        usage: extractUsage(payload),
+      };
+    } catch (error) {
+      return makeErrorResult(prepared, error.message);
+    }
+  }
+
+  // Fetch a group of same-schema plans in one batched API call
+  async function fetchPlanGroup(groupPlans) {
+    const segCount = groupPlans[0].plan.slots.length;
+    const combinedPrompt = groupPlans
+      .map((p, i) => `--- Plan ${i + 1} of ${groupPlans.length} ---\n${p.prompt}`)
+      .join("\n\n");
+
+    const requestBody = {
+      model: modelName,
+      text: {
+        verbosity: textVerbosityForModel(modelName),
+        format: buildBatchedPlanDraftSchema(segCount, groupPlans.length, countPerPlan),
+      },
+      max_output_tokens: 400 * groupPlans.length,
+      instructions,
+      input: combinedPrompt,
+    };
+
+    if (supportsReasoning(modelName)) {
+      requestBody.reasoning = { effort: "minimal" };
+    }
+
+    try {
+      const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
         },
-        max_output_tokens: 400,
-        instructions,
-        input: prompt,
+        body: JSON.stringify(requestBody),
+      });
+
+      const rawBody = await response.text();
+      let payload = {};
+      try {
+        payload = rawBody ? JSON.parse(rawBody) : {};
+      } catch {
+        payload = {};
+      }
+
+      if (!response.ok) {
+        const message = payload?.error?.message ?? "OpenAI request failed.";
+        const errUsage = extractUsage(payload);
+        for (const gp of groupPlans) {
+          results[gp.originalIndex] = makeErrorResult(gp, message, errUsage);
+        }
+        return;
+      }
+
+      const rawText = extractOutputText(payload);
+      const batchUsage = extractUsage(payload);
+      const perPlanUsage = {
+        inputTokens: Math.round(batchUsage.inputTokens / groupPlans.length),
+        outputTokens: Math.round(batchUsage.outputTokens / groupPlans.length),
+        totalTokens: Math.round(batchUsage.totalTokens / groupPlans.length),
       };
 
-      if (supportsReasoning(modelName)) {
-        requestBody.reasoning = { effort: "minimal" };
-      }
+      const planSegmentLines = extractBatchedDraftSegmentLines(rawText, groupPlans.length);
 
-      try {
-        const response = await fetch("https://api.openai.com/v1/responses", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify(requestBody),
-        });
-
-        const rawBody = await response.text();
-        let payload = {};
-        try {
-          payload = rawBody ? JSON.parse(rawBody) : {};
-        } catch {
-          payload = {};
-        }
-
-        if (!response.ok) {
-          const message = payload?.error?.message ?? "OpenAI request failed.";
-          return {
-            ...plan,
-            prompt,
-            segmentBanks,
-            lines: [],
-            error: message,
-            usage: extractUsage(payload),
-          };
-        }
-
-        const rawText = extractOutputText(payload);
-        const draftUsage = extractUsage(payload);
-        return {
-          ...plan,
-          prompt,
-          segmentBanks,
-          segmentLines: extractDraftSegmentLines(rawText),
+      for (let i = 0; i < groupPlans.length; i++) {
+        const gp = groupPlans[i];
+        results[gp.originalIndex] = {
+          ...gp.plan,
+          prompt: gp.prompt,
+          segmentBanks: gp.segmentBanks,
+          segmentLines: planSegmentLines[i] ?? [],
           error: "",
-          usage: draftUsage,
-        };
-      } catch (error) {
-        return {
-          ...plan,
-          prompt,
-          segmentBanks,
-          segmentLines: [],
-          error: error.message,
-          usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0 },
+          usage: perPlanUsage,
         };
       }
-    }),
+    } catch (error) {
+      for (const gp of groupPlans) {
+        results[gp.originalIndex] = makeErrorResult(gp, error.message);
+      }
+    }
+  }
+
+  // Execute one API call per segment-count group, all groups concurrently
+  await Promise.all(
+    [...groups.values()].map((group) =>
+      group.length === 1
+        ? fetchSinglePlan(group[0]).then((result) => {
+            results[group[0].originalIndex] = result;
+          })
+        : fetchPlanGroup(group),
+    ),
   );
 
   const usage = results.reduce(
