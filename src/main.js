@@ -655,24 +655,21 @@ async function collectOpenAICandidates({
   let instructions = "";
   let promptBundle = "";
 
-  for (let index = 0; index < orderedPlanPool.length && acceptedByPlanKey.size < targetAcceptedPlanCount; index += 4) {
-    const batch = orderedPlanPool.slice(index, index + 4);
-    const initialDrafts = await runPlanBatch(batch, draftModel, false, 1);
-    mergedPlanDrafts.push(...initialDrafts);
-
-    for (const plan of initialDrafts) {
-      if (plan.acceptedLines.length > 0 && !acceptedByPlanKey.has(plan.planKey)) {
-        acceptedByPlanKey.set(plan.planKey, plan);
-      }
+  // Phase 1: Send all plans at once (batched by segment count internally)
+  const initialDrafts = await runPlanBatch(orderedPlanPool, draftModel, false, 1);
+  mergedPlanDrafts.push(...initialDrafts);
+  for (const plan of initialDrafts) {
+    if (plan.acceptedLines.length > 0 && !acceptedByPlanKey.has(plan.planKey)) {
+      acceptedByPlanKey.set(plan.planKey, plan);
     }
   }
 
+  // Phase 2: Retry remaining plans with a stronger model if needed
   if (acceptedByPlanKey.size < targetAcceptedPlanCount && currentModel === "gpt-4.1-mini") {
     const strongerModel = "gpt-4.1";
     const remainingPlans = orderedPlanPool.filter((plan) => !acceptedByPlanKey.has(plan.planKey));
-    for (let index = 0; index < remainingPlans.length && acceptedByPlanKey.size < targetAcceptedPlanCount; index += 4) {
-      const batch = remainingPlans.slice(index, index + 4);
-      const strongerDrafts = await runPlanBatch(batch, strongerModel, false, 1);
+    if (remainingPlans.length > 0) {
+      const strongerDrafts = await runPlanBatch(remainingPlans, strongerModel, false, 1);
       mergedPlanDrafts.push(...strongerDrafts);
       for (const plan of strongerDrafts) {
         if (plan.acceptedLines.length > 0 && !acceptedByPlanKey.has(plan.planKey)) {
@@ -682,6 +679,7 @@ async function collectOpenAICandidates({
     }
   }
 
+  // Phase 3: Repair failed plans that had draft output but failed validation
   if (acceptedByPlanKey.size < targetAcceptedPlanCount) {
     const failedRepairPlans = mergedPlanDrafts
       .filter((plan) => !acceptedByPlanKey.has(plan.planKey))

@@ -187,3 +187,130 @@ test("requestOpenAIPlanDrafts returns per-plan segment arrays", async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+test("requestOpenAIPlanDrafts batches same-segment-count plans into one API call", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_url, options) => {
+    const body = JSON.parse(options.body);
+    calls.push(body);
+
+    // Batched response for 2 plans, each with 1 line of 2 segments
+    const isBatched = body.text.format.name === "batched_lyric_plans";
+    const text = isBatched
+      ? JSON.stringify({ plans: [{ lines: [{ s1: "the", s2: "dream" }] }, { lines: [{ s1: "my", s2: "heart" }] }] })
+      : JSON.stringify({ lines: [{ s1: "the", s2: "dream" }] });
+
+    return {
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          output: [{ type: "message", content: [{ type: "output_text", text }] }],
+          usage: { input_tokens: 10, output_tokens: 5, total_tokens: 15 },
+        }),
+    };
+  };
+
+  try {
+    const result = await requestOpenAIPlanDrafts({
+      apiKey: "test",
+      model: "gpt-4.1-mini",
+      patternText: "da DUM",
+      ideaText: "test",
+      rhymeTarget: "",
+      countPerPlan: 1,
+      plans: [
+        {
+          mode: "short_words",
+          planKey: "plan-a",
+          slots: [
+            { text: "da", tokens: ["da"], compact: false, kind: "articleLeadWeak" },
+            { text: "DUM", tokens: ["DUM"], compact: false, kind: "noun" },
+          ],
+        },
+        {
+          mode: "mixed_lengths",
+          planKey: "plan-b",
+          slots: [
+            { text: "da", tokens: ["da"], compact: false, kind: "leadWeak" },
+            { text: "DUM", tokens: ["DUM"], compact: false, kind: "verb" },
+          ],
+        },
+      ],
+    });
+
+    // Both plans have 2 segments, so they should be batched into 1 API call
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].text.format.name, "batched_lyric_plans");
+    assert.equal(result.planResults.length, 2);
+    assert.deepEqual(result.planResults[0].segmentLines, [["the", "dream"]]);
+    assert.deepEqual(result.planResults[1].segmentLines, [["my", "heart"]]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("requestOpenAIPlanDrafts uses separate calls for different segment counts", async () => {
+  const calls = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_url, options) => {
+    const body = JSON.parse(options.body);
+    calls.push(body);
+
+    const text = body.text.format.name === "batched_lyric_plans"
+      ? JSON.stringify({ plans: [{ lines: [{ s1: "the", s2: "dream" }] }, { lines: [{ s1: "my", s2: "heart" }] }] })
+      : JSON.stringify({ lines: [{ s1: "night" }] });
+
+    return {
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          output: [{ type: "message", content: [{ type: "output_text", text }] }],
+          usage: { input_tokens: 10, output_tokens: 5, total_tokens: 15 },
+        }),
+    };
+  };
+
+  try {
+    const result = await requestOpenAIPlanDrafts({
+      apiKey: "test",
+      model: "gpt-4.1-mini",
+      patternText: "da DUM",
+      ideaText: "test",
+      rhymeTarget: "",
+      countPerPlan: 1,
+      plans: [
+        {
+          mode: "short_words",
+          planKey: "plan-a",
+          slots: [
+            { text: "da", tokens: ["da"], compact: false, kind: "articleLeadWeak" },
+            { text: "DUM", tokens: ["DUM"], compact: false, kind: "noun" },
+          ],
+        },
+        {
+          mode: "mixed_lengths",
+          planKey: "plan-b",
+          slots: [
+            { text: "da", tokens: ["da"], compact: false, kind: "leadWeak" },
+            { text: "DUM", tokens: ["DUM"], compact: false, kind: "verb" },
+          ],
+        },
+        {
+          mode: "short_words",
+          planKey: "plan-c",
+          slots: [
+            { text: "DUM", tokens: ["DUM"], compact: false, kind: "noun" },
+          ],
+        },
+      ],
+    });
+
+    // 2 plans with 2 segments (batched) + 1 plan with 1 segment (single) = 2 API calls
+    assert.equal(calls.length, 2);
+    assert.equal(result.planResults.length, 3);
+    assert.deepEqual(result.planResults[2].segmentLines, [["night"]]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
