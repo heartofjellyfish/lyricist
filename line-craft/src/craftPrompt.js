@@ -42,6 +42,15 @@ const SPECTRUMS = {
       return "";
     },
   },
+  register: {
+    label: "Spoken ↔ Literary",
+    description: "Plain speech that lands vs. crafted poetic language",
+    buildHint(value) {
+      if (value < -0.3) return "Lean spoken: plain, conversational, colloquial. Sound like someone talking who accidentally says something that can't be unsaid. The poetry is in the placement, not the vocabulary.";
+      if (value > 0.3) return "Lean literary: crafted, poetic, shaped. The language itself is part of the art — rhythm, sound, image density, compression. Every word is chosen.";
+      return "";
+    },
+  },
 };
 
 // ── Tier 2: Micro-Principles (toggled by UI) ────────────────────────
