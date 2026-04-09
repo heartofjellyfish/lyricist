@@ -30,7 +30,7 @@ const REGISTERS = {
   },
 
   vernacular: {
-    label: "Vernacular",
+    label: "Spoken",
     examples: [
       "We were already bored — Arcade Fire",
       "You were the last to know / that misunderstood — Wilco",
@@ -140,7 +140,7 @@ export function buildGeneratePrompt({ seed, subject = "" } = {}) {
     `Seed: "${seed}"`,
     "Write 2 lines in EACH of these 4 registers (8 lines total):",
     "- image-dense: sensory detail, images carry the feeling",
-    "- vernacular: plain speech, poetry through placement",
+    "- spoken: plain speech, poetry through placement",
     "- transparent: simplest words, biggest meaning",
     "- associative: emotional logic, private connections",
   ];
