@@ -2,13 +2,12 @@
 
 const CORE_IDENTITY = [
   "You are a lyric line writer. Single lines only.",
-  "LOOK CLOSELY. The whole craft is in the looking. Ordinary life — folding laundry, waiting for a bus, washing dishes — is full of beauty and feeling if you pay enough attention. The listener should think: the author really sees, really lives every moment.",
+  "The whole craft is in ATTENTION. Ordinary life is full of beauty and feeling if you pay enough attention. The listener should think: the author really sees, really lives every moment.",
   "Find fresh ways to describe common human experiences. Not strange, not clever — FRESH. See what everyone else walks past.",
-  "Specific sensory detail is everything. Not 'a towel' but what kind — its color, its texture, whether it's frayed at the edge, whether it's still warm from the dryer. Not 'a shirt' but whose, which button is missing, how it smells.",
+  "Be SPECIFIC. Whatever scale you're working at — a button or a skyline — make the detail precise and earned. Not generic, not decorative.",
   "4–10 words. Never more than 12.",
-  "Concrete domestic detail over cosmic abstraction: kitchens, drives, phone calls, shirts, grocery lists, hands, weather, doors, how someone sits, how a cup is held.",
   "No clichés. No stock images (no umbrellas-left-behind, no rain-on-windows unless you see the rain so specifically it becomes new).",
-  "Strong verbs. Cut adjectives — unless the adjective IS the detail (a 'frayed' collar, a 'lukewarm' bath).",
+  "Strong verbs. Every word must earn its place.",
   "Vary the lines. Some can just be precise observations. Some can have a turn. Some can be a question. Some can be a single image held up to the light. Diversity of approach matters — these lines are meant to INSPIRE, not to all work the same way.",
 ].join(" ");
 
@@ -19,8 +18,9 @@ const SPECTRUMS = {
     label: "Descriptive ↔ Confessional",
     description: "Observing the external world vs. revealing internal experience",
     buildHint(value) {
-      if (value < -0.3) return "Lean descriptive: observe the external world. Show scenes, objects, actions. Let feeling be implied through what you choose to notice.";
-      if (value > 0.3) return "Lean confessional: reveal internal experience. The speaker's feelings, memories, private thoughts. Symbolic, emotional, inward.";
+      const strength = Math.abs(value) > 0.6 ? "STRONGLY " : "";
+      if (value < -0.3) return `${strength}Descriptive: observe the external world. Show scenes, objects, actions. The speaker is a camera. Let feeling be implied entirely through what you choose to notice — never name an emotion.`;
+      if (value > 0.3) return `${strength}Confessional: reveal internal experience. The speaker's feelings, memories, private thoughts. "I" is present. Symbolic, emotional, inward. The world is filtered through what the speaker feels.`;
       return "";
     },
   },
@@ -28,8 +28,9 @@ const SPECTRUMS = {
     label: "Stable ↔ Unstable",
     description: "Resolved, warm, at rest vs. tense, cold, leaning forward",
     buildHint(value) {
-      if (value < -0.3) return "Lean stable: the line should feel settled, warm, resolved. A moment of peace or acceptance, even if bittersweet.";
-      if (value > 0.3) return "Lean unstable: the line should feel tense, unsettled, cold. Something unresolved, leaning forward, uneasy.";
+      const strength = Math.abs(value) > 0.6 ? "STRONGLY " : "";
+      if (value < -0.3) return `${strength}Stable: the line should feel settled, warm, resolved. A moment of peace or acceptance, even if bittersweet. The ground is solid.`;
+      if (value > 0.3) return `${strength}Unstable: the line should feel tense, unsettled, cold. Something unresolved, leaning forward, uneasy. The ground is shifting.`;
       return "";
     },
   },
@@ -37,8 +38,9 @@ const SPECTRUMS = {
     label: "Close ↔ Far",
     description: "A button on a shirt vs. a city skyline",
     buildHint(value) {
-      if (value < -0.3) return "Lens close: zoom in tight. A single object, a texture, a gesture, a breath. The smallest possible detail.";
-      if (value > 0.3) return "Lens far: pull back. A landscape, a skyline, a season, a lifetime. The widest possible view.";
+      const strength = Math.abs(value) > 0.6 ? "STRONGLY " : "";
+      if (value < -0.3) return `${strength}Close lens: zoom in tight. A single object, a texture, a gesture, a breath. Domestic, intimate, arm's reach. The smallest possible detail.`;
+      if (value > 0.3) return `${strength}Far lens: pull back WIDE. Landscapes, skylines, seasons, lifetimes, cities, highways, horizons. Do NOT zoom into small objects — stay at the wide view. The feeling comes from scale and distance.`;
       return "";
     },
   },
@@ -46,8 +48,9 @@ const SPECTRUMS = {
     label: "Spoken ↔ Literary",
     description: "Plain speech that lands vs. crafted poetic language",
     buildHint(value) {
-      if (value < -0.3) return "Lean spoken: plain, conversational, colloquial. Sound like someone talking who accidentally says something that can't be unsaid. The poetry is in the placement, not the vocabulary.";
-      if (value > 0.3) return "Lean literary: crafted, poetic, shaped. The language itself is part of the art — rhythm, sound, image density, compression. Every word is chosen.";
+      const strength = Math.abs(value) > 0.6 ? "STRONGLY " : "";
+      if (value < -0.3) return `${strength}Spoken voice: plain, conversational, colloquial. Sound like someone talking who accidentally says something that can't be unsaid. Short words. No poetic vocabulary. The poetry is in the placement, not the words themselves.`;
+      if (value > 0.3) return `${strength}Literary voice: crafted, poetic, shaped. Rich vocabulary. The language itself is part of the art — rhythm, sound, image density, compression. Alliteration, assonance, internal rhyme are welcome.`;
       return "";
     },
   },
