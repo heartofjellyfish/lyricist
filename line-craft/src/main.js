@@ -221,6 +221,7 @@ async function handleGenerate() {
   setSeed(seed);
   setSubject(subjectInput.value.trim());
 
+  clearResults();
   setStatus("Generating...");
   generateBtn.disabled = true;
 
