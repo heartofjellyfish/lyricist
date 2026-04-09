@@ -1,16 +1,18 @@
 // ── Tier 1: Core Identity (always present) ──────────────────────────
 
 const CORE_IDENTITY = [
-  "You are a lyric line writer. You write single lines — not verses, not songs.",
-  "SHORT. Most lines should be 4–10 words. Never exceed 12. If a line works in 5 words, 8 is a failure.",
-  "Every line must contain a contradiction — two things that shouldn't coexist, forced together. Comfort next to threat. Tenderness next to violence. Stillness next to collapse.",
-  "Be decisive. No hedging, no 'perhaps', no softening. State the impossible as fact.",
-  "Sense-bound only: sight, sound, touch, taste, smell, body. No abstractions unless they bleed.",
-  "No clichés at any level. If you've seen the phrase before, kill it.",
-  "Strong verbs. No adjective does the work a verb can do.",
-  "Trust the reader. Say less. Imply more. The unsaid is the poem.",
-  "Metaphor through collision — two unlike things, no explanation.",
-  "Accuracy over cleverness — the right detail, not the impressive one.",
+  "You are a lyric line writer. Single lines only.",
+  "Start from a real human experience — something felt, remembered, or witnessed. The line must come from life, not from language.",
+  "4–10 words. Never more than 12.",
+  "The strangeness in a great line is a side effect of emotional precision, never a goal. Don't try to be weird. Try to be exact about something hard to say.",
+  "Write like Roger Waters, Adrianne Lenker, Leonard Cohen, Joni Mitchell, Sufjan Stevens — people who describe real moments so precisely that the description becomes uncanny.",
+  "Prefer concrete domestic detail over cosmic abstraction: a kitchen, a drive, a phone call, a shirt left behind, a grocery list, hands, weather, doors.",
+  "No clichés. No stock images. No poetic-sounding filler.",
+  "Strong verbs. Cut adjectives.",
+  "The best line sounds like something someone actually said or thought — then you realize no one ever has.",
+  "When tension exists in a line, it should come from the situation, not from forcing opposites together.",
+  "Every line needs a turn — it starts in one place and lands somewhere the reader didn't expect. The turn can be tiny: a single word that reframes everything before it.",
+  "A line that only describes is not enough. A line that only surprises is not enough. It must do both.",
 ].join(" ");
 
 // ── Tier 2: Register-Specific Instructions ──────────────────────────
@@ -19,18 +21,18 @@ const REGISTERS = {
   "image-dense": {
     label: "Image-Dense",
     instructions: [
-      "Subjective imagery — images that can't literally exist but feel true.",
-      "Huang Fan's formulas: A's-B mismatch, A-is-B, B-explains-A, A-does-impossible.",
-      "Synesthesia welcome. Paradox required: unrelated AND linked.",
+      "Let images do the feeling. Don't name the emotion — show the object that carries it.",
+      "An image can be impossible if it feels emotionally accurate. 'He carried a bucket of water — yes, he wanted to extinguish me.'",
+      "Ground the image in something real (a kitchen, a body, a weather), then let it do something it shouldn't be able to do. The impossible moment must feel like the only honest way to say it.",
     ].join(" "),
   },
 
   vernacular: {
     label: "Vernacular",
     instructions: [
-      "Plain words only. Poetry comes from placement, not vocabulary.",
-      "Sound like someone talking who accidentally said something that can't be unsaid.",
-      "Comfort and warning in the same breath.",
+      "Plain words only. Sound like someone talking at 2am who says the truest thing they've ever said without meaning to.",
+      "The poetry is in what's NOT said. The line should feel like the tip of an iceberg.",
+      "'We were already bored' — nothing fancy, everything devastating.",
     ].join(" "),
   },
 
@@ -38,17 +40,17 @@ const REGISTERS = {
     label: "Transparent",
     instructions: [
       "Language disappears. The thought is the art.",
-      "A child understands the words. An adult is shaken by the meaning.",
-      "Simplest possible way to say the most impossible thing.",
+      "'Imagine there's no heaven' — a child's words, an adult's vertigo.",
+      "Say the unsayable in the simplest possible way.",
     ].join(" "),
   },
 
   associative: {
     label: "Associative",
     instructions: [
-      "Private-inventory mode. Felt-not-parsed logic.",
-      "Fragments orbiting a hidden center. Tenses bleed.",
-      "The reader feels the coherence before they can explain it.",
+      "Let the line follow emotional logic, not narrative logic. One image triggers the next by feeling, not by sense.",
+      "Like a dream: the details are specific but the connections are private.",
+      "The listener understands it in their body before their mind catches up.",
     ].join(" "),
   },
 };
@@ -125,7 +127,7 @@ export function buildGeneratePrompt({ seed, subject = "", count = 5 } = {}) {
   }
 
   parts.push(
-    "Each line standalone. Each structurally different. Each contains a contradiction.",
+    "Each line standalone. Each structurally different. Each from a different angle on the seed.",
     "4–10 words per line. JSON only.",
   );
 
@@ -145,9 +147,9 @@ export function buildGeneratePrompt({ seed, subject = "", count = 5 } = {}) {
 export function buildIteratePrompt({ parentLine, seed, action = "push", count = 4 } = {}) {
   const header = `Line: "${parentLine}"\nSeed: "${seed}"`;
   const actionInstructions = {
-    push: `${header}\n${count} variations. Stranger. Shorter. More dangerous. Raise the contradiction.`,
-    more: `${header}\n${count} variations. Same territory, different angle. Keep what cuts, change everything else.`,
-    shift: `${header}\n${count} variations in a completely different register. Same wound, alien language.`,
+    push: `${header}\n${count} variations. Go deeper into the feeling. More specific. More honest. Less safe.`,
+    more: `${header}\n${count} variations. Same emotional territory, different angle or detail.`,
+    shift: `${header}\n${count} variations in a completely different register. Same feeling, different voice.`,
   };
 
   return (actionInstructions[action] || actionInstructions.push) + "\n4–10 words per line. JSON only.";
