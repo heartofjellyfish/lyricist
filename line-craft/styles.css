@@ -1,0 +1,400 @@
+/* line-craft page-specific styles — inherits root CSS variables from ../styles.css */
+
+.lc-app {
+  width: min(960px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 40px 0 56px;
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+
+.lc-hero {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px rgba(62, 40, 24, 0.08);
+  padding: 28px;
+  margin-bottom: 18px;
+}
+
+/* ── Panel ────────────────────────────────────────────────────────── */
+
+.lc-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px rgba(62, 40, 24, 0.08);
+  padding: 24px;
+  margin-bottom: 18px;
+}
+
+.lc-form {
+  display: grid;
+  gap: 16px;
+}
+
+/* ── Register Selector ────────────────────────────────────────────── */
+
+.register-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.register-btn {
+  border: 1px solid rgba(31, 26, 23, 0.18);
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.92rem;
+  transition: all 120ms ease;
+}
+
+.register-btn:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.register-btn.active {
+  background: linear-gradient(135deg, #3f6b70 0%, #b85c38 100%);
+  border-color: transparent;
+  color: #fff8f0;
+}
+
+/* ── Micro-Principle Chips ────────────────────────────────────────── */
+
+.micros-shell {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(31, 26, 23, 0.08);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.48)),
+    radial-gradient(circle at top right, rgba(184, 92, 56, 0.08), transparent 42%);
+}
+
+.micros-shell-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.micros-shell-head h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.micros-shell-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.micro-group {
+  display: grid;
+  gap: 6px;
+}
+
+.micro-group-title {
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.micro-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.micro-chip {
+  border: 1px solid rgba(31, 26, 23, 0.12);
+  border-radius: 999px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.84rem;
+  transition: all 120ms ease;
+}
+
+.micro-chip:hover {
+  border-color: var(--accent);
+}
+
+.micro-chip.active {
+  background: rgba(184, 92, 56, 0.15);
+  border-color: rgba(184, 92, 56, 0.3);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lc-generate-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #3f6b70 0%, #b85c38 100%);
+  color: #fff8f0;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  box-shadow: 0 12px 24px rgba(63, 107, 112, 0.18);
+}
+
+.lc-generate-btn:hover {
+  transform: translateY(-1px);
+}
+
+.lc-generate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.lc-clear-btn {
+  border: 1px solid rgba(31, 26, 23, 0.18);
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+}
+
+.lc-clear-btn:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+/* ── Status ───────────────────────────────────────────────────────── */
+
+.lc-status {
+  min-height: 1.4rem;
+  margin-top: 12px;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.lc-status[data-state="error"] {
+  color: var(--warning);
+}
+
+.lc-status[data-state="loading"] {
+  color: var(--accent);
+}
+
+/* ── Results ──────────────────────────────────────────────────────── */
+
+.lc-results-shell {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px rgba(62, 40, 24, 0.08);
+  padding: 24px;
+}
+
+.lc-results-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.lc-results-head p {
+  color: var(--muted);
+}
+
+.results {
+  display: grid;
+  gap: 16px;
+}
+
+/* ── Line Card ────────────────────────────────────────────────────── */
+
+.line-card {
+  padding: 18px;
+  border: 1px solid rgba(31, 26, 23, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.iteration-card {
+  border-left: 3px solid rgba(184, 92, 56, 0.3);
+}
+
+.line-text {
+  margin-bottom: 8px;
+  font-size: 1.45rem;
+  line-height: 1.25;
+}
+
+.line-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.line-register {
+  background: rgba(184, 92, 56, 0.1);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.line-craft-note {
+  font-style: italic;
+}
+
+.line-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.action-btn {
+  border: 1px solid rgba(31, 26, 23, 0.12);
+  border-radius: 999px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  transition: all 120ms ease;
+}
+
+.action-btn:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.action-critique {
+  border-color: rgba(63, 107, 112, 0.25);
+  color: #3f6b70;
+}
+
+.action-critique:hover {
+  border-color: #3f6b70;
+}
+
+/* ── Critique Block ───────────────────────────────────────────────── */
+
+.critique-block {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(63, 107, 112, 0.15);
+  border-radius: 14px;
+  background: rgba(63, 107, 112, 0.04);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.critique-section {
+  margin-bottom: 6px;
+}
+
+.critique-section:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Iteration Group ──────────────────────────────────────────────── */
+
+.iteration-group {
+  margin-left: 20px;
+  padding-left: 16px;
+  border-left: 2px solid rgba(31, 26, 23, 0.08);
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* ── Debug ─────────────────────────────────────────────────────────── */
+
+.lc-debug {
+  margin-top: 12px;
+  border: 1px solid rgba(31, 26, 23, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.42);
+  overflow: hidden;
+}
+
+.lc-debug summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 14px;
+  font-weight: 600;
+}
+
+.lc-debug summary::-webkit-details-marker {
+  display: none;
+}
+
+.lc-debug-body {
+  padding: 0 14px 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.84rem;
+  color: var(--muted);
+  font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* ── Empty State ──────────────────────────────────────────────────── */
+
+.empty-state {
+  padding: 20px;
+  border: 1px dashed rgba(31, 26, 23, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.4);
+  color: var(--muted);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .lc-app {
+    padding-top: 20px;
+  }
+
+  .lc-hero,
+  .lc-panel,
+  .lc-results-shell {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .line-text {
+    font-size: 1.2rem;
+  }
+
+  .iteration-group {
+    margin-left: 10px;
+    padding-left: 10px;
+  }
+}

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Line Craft</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="lc-app">
+      <section class="lc-hero">
+        <p class="eyebrow">Local prototype</p>
+        <h1>Line Craft</h1>
+        <p class="intro">
+          Generate single lyric lines guided by craft principles from Pattison, Marling,
+          Lenker, Pecknold, and Huang Fan. Pick a register, drop in a seed, iterate.
+        </p>
+      </section>
+
+      <section class="lc-panel">
+        <div class="lc-form">
+          <label class="field">
+            <span>Seed</span>
+            <textarea
+              id="seed-input"
+              rows="3"
+              placeholder="morning light through kitchen window, dust in the air, something about to end"
+            ></textarea>
+            <p class="field-hint">
+              The mood, image-world, motion, or emotional direction of the line.
+            </p>
+          </label>
+
+          <label class="field">
+            <span>Subject / constraint (optional)</span>
+            <input
+              id="subject-input"
+              type="text"
+              placeholder="e.g. 'a father', 'the act of leaving', 'water'"
+              spellcheck="false"
+            />
+          </label>
+
+          <div class="field">
+            <span>Register</span>
+            <div id="register-group" class="register-group"></div>
+          </div>
+
+          <div class="micros-shell">
+            <div class="micros-shell-head">
+              <h2>Craft Nudges</h2>
+              <p>Optional micro-principles to activate. Hover for details.</p>
+            </div>
+            <div id="micros-container"></div>
+          </div>
+
+          <div class="btn-row">
+            <button id="generate-btn" type="button" class="lc-generate-btn">Generate Lines</button>
+            <button id="clear-btn" type="button" class="lc-clear-btn">Clear</button>
+          </div>
+
+          <div id="status" class="lc-status" data-state="ready"></div>
+
+          <details class="lc-debug">
+            <summary>Prompt / Response</summary>
+            <div id="debug-body" class="lc-debug-body"></div>
+          </details>
+        </div>
+      </section>
+
+      <section class="lc-results-shell">
+        <div class="lc-results-head">
+          <h2>Lines</h2>
+          <p>Click any line's actions to iterate.</p>
+        </div>
+        <div id="results" class="results"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
