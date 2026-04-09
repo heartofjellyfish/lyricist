@@ -119,10 +119,10 @@ async function callOpenAI({ instructions, input, schema, maxTokens = 800 }) {
  * @param {number} opts.count
  * @returns {Promise<{ lines: Array<{line, register, craft_notes}>, usage }>}
  */
-export async function generateLines({ seed, subject, micros = [] } = {}) {
-  const instructions = buildSystemPrompt({ register: null, micros });
-  const input = buildGeneratePrompt({ seed, subject });
-  const schema = buildLineSchema(8);
+export async function generateLines({ seed, subject, spectrums = {}, micros = [], count = 8 } = {}) {
+  const instructions = buildSystemPrompt({ spectrums, micros });
+  const input = buildGeneratePrompt({ seed, subject, count });
+  const schema = buildLineSchema(count);
 
   const result = await callOpenAI({ instructions, input, schema });
 
@@ -130,20 +130,8 @@ export async function generateLines({ seed, subject, micros = [] } = {}) {
   return { lines, usage: result.usage, model: result.model, debug: { instructions, input, raw: result.raw } };
 }
 
-/**
- * Iterate on an existing line (push, more, shift).
- *
- * @param {object} opts
- * @param {string} opts.parentLine
- * @param {string} opts.seed
- * @param {string} opts.action  - "push" | "more" | "shift"
- * @param {string} opts.register
- * @param {string[]} opts.micros
- * @param {number} opts.count
- * @returns {Promise<{ lines: Array<{line, register, craft_notes}>, usage }>}
- */
-export async function iterateOnLine({ parentLine, seed, action, register, micros = [], count = 4 } = {}) {
-  const instructions = buildSystemPrompt({ register, micros });
+export async function iterateOnLine({ parentLine, seed, action, spectrums = {}, micros = [], count = 4 } = {}) {
+  const instructions = buildSystemPrompt({ spectrums, micros });
   const input = buildIteratePrompt({ parentLine, seed, action, count });
   const schema = buildLineSchema(count);
 
@@ -153,16 +141,8 @@ export async function iterateOnLine({ parentLine, seed, action, register, micros
   return { lines, usage: result.usage, model: result.model, debug: { instructions, input, raw: result.raw } };
 }
 
-/**
- * Critique a line against craft principles.
- *
- * @param {object} opts
- * @param {string} opts.line
- * @param {string} opts.register
- * @returns {Promise<{ critique: {strengths, weaknesses, revision_direction}, usage }>}
- */
-export async function critiqueLine({ line, register = "image-dense" } = {}) {
-  const instructions = buildSystemPrompt({ register });
+export async function critiqueLine({ line, spectrums = {} } = {}) {
+  const instructions = buildSystemPrompt({ spectrums });
   const input = buildCritiquePrompt({ line });
   const schema = buildCritiqueSchema();
 

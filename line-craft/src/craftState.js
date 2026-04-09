@@ -3,9 +3,9 @@ const STORAGE_KEY = "line-craft-state";
 const DEFAULT_STATE = {
   seed: "",
   subject: "",
-  register: "image-dense",
+  spectrums: { orientation: 0, stability: 0, distance: 0 },  // each -1 to 1, 0 = neutral
   micros: [],
-  results: [],       // Array of { id, line, register, craft_notes, parentId?, action? }
+  results: [],       // Array of { id, line, craft_notes, parentId?, action? }
   idCounter: 0,
 };
 
@@ -16,7 +16,7 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const saved = JSON.parse(raw);
-      return { ...DEFAULT_STATE, ...saved };
+      return { ...DEFAULT_STATE, ...saved, spectrums: { ...DEFAULT_STATE.spectrums, ...saved?.spectrums } };
     }
   } catch {}
   return { ...DEFAULT_STATE };
@@ -59,8 +59,8 @@ export function setSubject(subject) {
   persist();
 }
 
-export function setRegister(register) {
-  state.register = register;
+export function setSpectrum(key, value) {
+  state.spectrums[key] = value;
   persist();
   notify();
 }
@@ -83,9 +83,6 @@ export function toggleMicro(key) {
 
 /**
  * Add generated lines to results.
- * @param {Array<{line, register, craft_notes}>} lines
- * @param {string|null} parentId - if iterating, the parent line's id
- * @param {string} action - "generate" | "push" | "more" | "shift"
  */
 export function addResults(lines, parentId = null, action = "generate") {
   for (const item of lines) {
@@ -93,7 +90,6 @@ export function addResults(lines, parentId = null, action = "generate") {
     state.results.push({
       id: String(state.idCounter),
       line: item.line,
-      register: item.register,
       craft_notes: item.craft_notes,
       parentId,
       action,
@@ -123,7 +119,7 @@ export function clearResults() {
 }
 
 export function resetState() {
-  state = { ...DEFAULT_STATE };
+  state = { ...DEFAULT_STATE, spectrums: { ...DEFAULT_STATE.spectrums } };
   persist();
   notify();
 }

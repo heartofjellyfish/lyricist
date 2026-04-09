@@ -35,58 +35,85 @@
   gap: 16px;
 }
 
-/* ── Register Reference ───────────────────────────────────────────── */
+/* ── Spectrum Sliders ─────────────────────────────────────────────── */
 
-.registers-ref {
-  border: 1px solid rgba(31, 26, 23, 0.1);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.42);
-  overflow: hidden;
-}
-
-.registers-ref summary {
-  cursor: pointer;
-  list-style: none;
-  padding: 12px 14px;
-  font-size: 0.92rem;
-  color: var(--muted);
-}
-
-.registers-ref summary::-webkit-details-marker {
-  display: none;
-}
-
-.register-group {
+.spectrums-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  padding: 0 14px 14px;
-}
-
-.register-card {
-  padding: 12px;
+  gap: 18px;
+  padding: 16px;
   border: 1px solid rgba(31, 26, 23, 0.08);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.54);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.48)),
+    radial-gradient(circle at top left, rgba(63, 107, 112, 0.06), transparent 42%);
 }
 
-.register-card-label {
-  font-weight: 600;
-  font-size: 0.92rem;
-  margin-bottom: 6px;
-  color: var(--accent);
-}
-
-.register-examples {
+.spectrum-row {
   display: grid;
-  gap: 4px;
+  gap: 6px;
 }
 
-.register-example {
-  font-size: 0.82rem;
+.spectrum-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.spectrum-left,
+.spectrum-right {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.spectrum-desc {
+  font-size: 0.78rem;
   color: var(--muted);
-  font-style: italic;
-  line-height: 1.4;
+  text-align: center;
+  flex: 1;
+}
+
+.spectrum-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg,
+    rgba(63, 107, 112, 0.25),
+    rgba(31, 26, 23, 0.08) 50%,
+    rgba(184, 92, 56, 0.25)
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.spectrum-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(31, 26, 23, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.spectrum-slider::-webkit-slider-thumb:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(184, 92, 56, 0.2);
+}
+
+.spectrum-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(31, 26, 23, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* ── Micro-Principle Chips ────────────────────────────────────────── */
@@ -412,8 +439,8 @@
     border-radius: 20px;
   }
 
-  .register-group {
-    grid-template-columns: 1fr;
+  .spectrum-labels {
+    font-size: 0.82rem;
   }
 
   .line-text {

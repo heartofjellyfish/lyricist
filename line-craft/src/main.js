@@ -1,10 +1,11 @@
-import { REGISTER_LIST, MICRO_PRINCIPLE_LIST } from "./craftPrompt.js";
+import { SPECTRUM_LIST, MICRO_PRINCIPLE_LIST } from "./craftPrompt.js";
 import { generateLines, iterateOnLine, critiqueLine } from "./craftApi.js";
 import {
   getState,
   subscribe,
   setSeed,
   setSubject,
+  setSpectrum,
   toggleMicro,
   addResults,
   setCritique,
@@ -15,7 +16,7 @@ import {
 
 const seedInput = document.getElementById("seed-input");
 const subjectInput = document.getElementById("subject-input");
-const registerGroup = document.getElementById("register-group");
+const spectrumsContainer = document.getElementById("spectrums-container");
 const microsContainer = document.getElementById("micros-container");
 const generateBtn = document.getElementById("generate-btn");
 const clearBtn = document.getElementById("clear-btn");
@@ -25,29 +26,34 @@ const debugEl = document.getElementById("debug-body");
 
 // ── Initialize Controls ─────────────────────────────────────────────
 
-function initRegisters() {
-  for (const reg of REGISTER_LIST) {
-    const card = document.createElement("div");
-    card.className = "register-card";
+function initSpectrums() {
+  const saved = getState().spectrums;
+  for (const spec of SPECTRUM_LIST) {
+    const row = document.createElement("div");
+    row.className = "spectrum-row";
 
-    const label = document.createElement("div");
-    label.className = "register-card-label";
-    label.textContent = reg.label;
-    card.appendChild(label);
+    const [leftLabel, rightLabel] = spec.label.split(" ↔ ");
 
-    if (reg.examples && reg.examples.length > 0) {
-      const exList = document.createElement("div");
-      exList.className = "register-examples";
-      for (const ex of reg.examples) {
-        const exEl = document.createElement("div");
-        exEl.className = "register-example";
-        exEl.textContent = ex;
-        exList.appendChild(exEl);
-      }
-      card.appendChild(exList);
-    }
+    row.innerHTML = `
+      <div class="spectrum-labels">
+        <span class="spectrum-left">${leftLabel}</span>
+        <span class="spectrum-desc">${spec.description}</span>
+        <span class="spectrum-right">${rightLabel}</span>
+      </div>
+      <input type="range" class="spectrum-slider" data-spectrum="${spec.key}"
+        min="-1" max="1" step="0.1" value="${saved[spec.key] ?? 0}" />
+    `;
 
-    registerGroup.appendChild(card);
+    const slider = row.querySelector(".spectrum-slider");
+    slider.addEventListener("input", () => {
+      setSpectrum(spec.key, parseFloat(slider.value));
+    });
+    slider.addEventListener("dblclick", () => {
+      slider.value = 0;
+      setSpectrum(spec.key, 0);
+    });
+
+    spectrumsContainer.appendChild(row);
   }
 }
 
@@ -93,6 +99,15 @@ function initMicros() {
 
 // ── Render ───────────────────────────────────────────────────────────
 
+function renderSpectrums(spectrums) {
+  for (const slider of spectrumsContainer.querySelectorAll(".spectrum-slider")) {
+    const key = slider.dataset.spectrum;
+    if (spectrums[key] !== undefined && parseFloat(slider.value) !== spectrums[key]) {
+      slider.value = spectrums[key];
+    }
+  }
+}
+
 function renderMicroChips(activeMicros) {
   for (const chip of microsContainer.querySelectorAll(".micro-chip")) {
     chip.classList.toggle("active", activeMicros.includes(chip.dataset.micro));
@@ -107,7 +122,6 @@ function renderResults(results) {
     return;
   }
 
-  // Group: top-level lines first, then iterations nested
   const topLevel = results.filter((r) => !r.parentId);
   const byParent = {};
   for (const r of results) {
@@ -133,13 +147,12 @@ function renderLineCard(item, byParent, container) {
   lineEl.textContent = item.line;
   card.appendChild(lineEl);
 
-  const meta = document.createElement("div");
-  meta.className = "line-meta";
-  meta.innerHTML = `<span class="line-register">${item.register}</span>`;
   if (item.craft_notes) {
-    meta.innerHTML += `<span class="line-craft-note">${item.craft_notes}</span>`;
+    const meta = document.createElement("div");
+    meta.className = "line-meta";
+    meta.textContent = item.craft_notes;
+    card.appendChild(meta);
   }
-  card.appendChild(meta);
 
   // Critique display
   if (item.critique) {
@@ -159,7 +172,7 @@ function renderLineCard(item, byParent, container) {
   actions.innerHTML = `
     <button type="button" class="action-btn" data-action="push" data-id="${item.id}">Push harder</button>
     <button type="button" class="action-btn" data-action="more" data-id="${item.id}">More like this</button>
-    <button type="button" class="action-btn" data-action="shift" data-id="${item.id}">Shift register</button>
+    <button type="button" class="action-btn" data-action="shift" data-id="${item.id}">Shift</button>
     <button type="button" class="action-btn action-critique" data-action="critique" data-id="${item.id}">Critique</button>
   `;
   card.appendChild(actions);
@@ -178,7 +191,8 @@ function renderLineCard(item, byParent, container) {
   }
 }
 
-// gpt-4.1 pricing per 1M tokens
+// ── Cost Display ────────────────────────────────────────────────────
+
 const PRICING = {
   "gpt-4.1": { input: 2.0, output: 8.0 },
   "gpt-4.1-mini": { input: 0.4, output: 1.6 },
@@ -236,6 +250,7 @@ async function handleGenerate() {
     const result = await generateLines({
       seed,
       subject: subjectInput.value.trim(),
+      spectrums: state.spectrums,
       micros: state.micros,
     });
 
@@ -257,11 +272,10 @@ async function handleIterate(action, lineId) {
   setStatus(`${action === "critique" ? "Critiquing" : "Iterating"}...`);
 
   try {
-    const lineRegister = entry.register?.toLowerCase().replace(/[- ]/g, "-") || "image-dense";
     if (action === "critique") {
       const result = await critiqueLine({
         line: entry.line,
-        register: lineRegister,
+        spectrums: state.spectrums,
       });
       setCritique(lineId, result.critique);
       setDebug(result.debug);
@@ -271,7 +285,7 @@ async function handleIterate(action, lineId) {
         parentLine: entry.line,
         seed: state.seed,
         action,
-        register: action === "shift" ? nextRegister(lineRegister) : lineRegister,
+        spectrums: state.spectrums,
         micros: state.micros,
         count: 4,
       });
@@ -284,16 +298,10 @@ async function handleIterate(action, lineId) {
   }
 }
 
-function nextRegister(current) {
-  const keys = REGISTER_LIST.map((r) => r.key);
-  const idx = keys.indexOf(current);
-  return keys[(idx + 1) % keys.length];
-}
-
 // ── Wire Up ─────────────────────────────────────────────────────────
 
 function init() {
-  initRegisters();
+  initSpectrums();
   initMicros();
 
   // Restore saved state into UI
@@ -307,6 +315,7 @@ function init() {
 
   // Subscribe to state changes
   subscribe((s) => {
+    renderSpectrums(s.spectrums);
     renderMicroChips(s.micros);
     renderResults(s.results);
   });
@@ -324,9 +333,7 @@ function init() {
   resultsContainer.addEventListener("click", (e) => {
     const btn = e.target.closest(".action-btn");
     if (!btn) return;
-    const action = btn.dataset.action;
-    const id = btn.dataset.id;
-    handleIterate(action, id);
+    handleIterate(btn.dataset.action, btn.dataset.id);
   });
 
   // Enter key in seed input triggers generate

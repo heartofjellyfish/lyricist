@@ -12,66 +12,39 @@ const CORE_IDENTITY = [
   "Vary the lines. Some can just be precise observations. Some can have a turn. Some can be a question. Some can be a single image held up to the light. Diversity of approach matters — these lines are meant to INSPIRE, not to all work the same way.",
 ].join(" ");
 
-// ── Tier 2: Register-Specific Instructions ──────────────────────────
+// ── Spectrum Descriptions (for prompt hints) ────────────────────────
 
-const REGISTERS = {
-  "image-dense": {
-    label: "Image-Dense",
-    examples: [
-      "我从火苗中走出来 / 我认出了我的一位父亲 — 育邦",
-      "Tall buildings shake, voices escape singing sad sad songs — Wilco",
-      "Hello darkness, my old friend — Simon & Garfunkel",
-    ],
-    instructions: [
-      "Pack the line with sensory detail. Let the images carry the feeling — never name the emotion.",
-      "Look at one small thing so closely that it opens up. A crack in a mug, how someone's hand rests on a steering wheel, the way a pile of clothes shifts on a chair.",
-      "When an image becomes impossible, it should feel like the only honest way to say what's true. But most lines should stay possible — just seen more closely than anyone usually bothers.",
-    ].join(" "),
+const SPECTRUMS = {
+  orientation: {
+    label: "Descriptive ↔ Confessional",
+    description: "Observing the external world vs. revealing internal experience",
+    buildHint(value) {
+      if (value < -0.3) return "Lean descriptive: observe the external world. Show scenes, objects, actions. Let feeling be implied through what you choose to notice.";
+      if (value > 0.3) return "Lean confessional: reveal internal experience. The speaker's feelings, memories, private thoughts. Symbolic, emotional, inward.";
+      return "";
+    },
   },
-
-  vernacular: {
-    label: "Spoken",
-    examples: [
-      "We were already bored — Arcade Fire",
-      "You were the last to know / that misunderstood — Wilco",
-      "The breeze is just a breeze — Dr. Dog",
-    ],
-    instructions: [
-      "Plain words only. Sound like someone talking who accidentally says something that can't be unsaid.",
-      "The poetry is in what's NOT said. The line should feel like the tip of an iceberg.",
-    ].join(" "),
+  stability: {
+    label: "Stable ↔ Unstable",
+    description: "Resolved, warm, at rest vs. tense, cold, leaning forward",
+    buildHint(value) {
+      if (value < -0.3) return "Lean stable: the line should feel settled, warm, resolved. A moment of peace or acceptance, even if bittersweet.";
+      if (value > 0.3) return "Lean unstable: the line should feel tense, unsettled, cold. Something unresolved, leaning forward, uneasy.";
+      return "";
+    },
   },
-
-  transparent: {
-    label: "Transparent",
-    examples: [
-      "Imagine there's no heaven — John Lennon",
-      "I've looked at love from both sides now — Joni Mitchell",
-      "My body is a cage — Arcade Fire",
-    ],
-    instructions: [
-      "Language disappears. The thought is the art.",
-      "A child understands the words. An adult is shaken by the meaning.",
-      "Say the unsayable in the simplest possible way.",
-    ].join(" "),
-  },
-
-  associative: {
-    label: "Associative",
-    examples: [
-      "The place where he inserted the blade — BC,NR",
-      "And the days go by like a strand in the wind — Arcade Fire",
-      "He dressed up like a clown for them — Sufjan Stevens",
-    ],
-    instructions: [
-      "Let the line follow emotional logic, not narrative logic. One image triggers the next by feeling, not by sense.",
-      "Like a dream: the details are specific but the connections are private.",
-      "The listener understands it in their body before their mind catches up.",
-    ].join(" "),
+  distance: {
+    label: "Close ↔ Far",
+    description: "A button on a shirt vs. a city skyline",
+    buildHint(value) {
+      if (value < -0.3) return "Lens close: zoom in tight. A single object, a texture, a gesture, a breath. The smallest possible detail.";
+      if (value > 0.3) return "Lens far: pull back. A landscape, a skyline, a season, a lifetime. The widest possible view.";
+      return "";
+    },
   },
 };
 
-// ── Tier 3: Situational Micro-Principles (toggled by UI) ───────────
+// ── Tier 2: Micro-Principles (toggled by UI) ────────────────────────
 
 const MICRO_PRINCIPLES = {
   // Huang Fan formula selection
@@ -102,18 +75,18 @@ const MICRO_PRINCIPLES = {
  * Build the system instructions for a line-craft generation call.
  *
  * @param {object} opts
- * @param {string} opts.register   - one of: image-dense, vernacular, transparent, associative
+ * @param {object} opts.spectrums  - { orientation, stability, distance } each -1 to 1, 0 = neutral
  * @param {string[]} opts.micros   - array of MICRO_PRINCIPLES keys to activate
  * @returns {string}
  */
-export function buildSystemPrompt({ register = null, micros = [] } = {}) {
+export function buildSystemPrompt({ spectrums = {}, micros = [] } = {}) {
   const parts = [CORE_IDENTITY];
 
-  if (register) {
-    const reg = REGISTERS[register];
-    if (reg) {
-      parts.push(`# Register: ${reg.label}\n${reg.instructions}`);
-    }
+  const hints = Object.entries(SPECTRUMS)
+    .map(([key, spec]) => spec.buildHint(spectrums[key] ?? 0))
+    .filter(Boolean);
+  if (hints.length > 0) {
+    parts.push("# Creative direction\n" + hints.join("\n"));
   }
 
   const activeMicros = micros
@@ -128,21 +101,10 @@ export function buildSystemPrompt({ register = null, micros = [] } = {}) {
 
 /**
  * Build the user prompt for initial generation.
- *
- * @param {object} opts
- * @param {string} opts.seed       - the vibe / image field text
- * @param {string} opts.subject    - optional subject / constraint
- * @param {number} opts.count      - number of lines to generate (default 5)
- * @returns {string}
  */
-export function buildGeneratePrompt({ seed, subject = "" } = {}) {
+export function buildGeneratePrompt({ seed, subject = "", count = 8 } = {}) {
   const parts = [
-    `Seed: "${seed}"`,
-    "Write 2 lines in EACH of these 4 registers (8 lines total):",
-    "- image-dense: sensory detail, images carry the feeling",
-    "- spoken: plain speech, poetry through placement",
-    "- transparent: simplest words, biggest meaning",
-    "- associative: emotional logic, private connections",
+    `${count} lines. Seed: "${seed}"`,
   ];
 
   if (subject) {
@@ -159,21 +121,14 @@ export function buildGeneratePrompt({ seed, subject = "" } = {}) {
 }
 
 /**
- * Build the user prompt for iteration (push harder, more like this, shift register).
- *
- * @param {object} opts
- * @param {string} opts.parentLine - the line being iterated on
- * @param {string} opts.seed       - original seed text
- * @param {string} opts.action     - "push" | "more" | "shift"
- * @param {number} opts.count      - number of variations (default 4)
- * @returns {string}
+ * Build the user prompt for iteration (push harder, more like this, shift).
  */
 export function buildIteratePrompt({ parentLine, seed, action = "push", count = 4 } = {}) {
   const header = `Line: "${parentLine}"\nSeed: "${seed}"`;
   const actionInstructions = {
     push: `${header}\n${count} variations. Go deeper into the feeling. More specific. More honest. Less safe.`,
     more: `${header}\n${count} variations. Same emotional territory, different angle or detail.`,
-    shift: `${header}\n${count} variations in a completely different register. Same feeling, different voice.`,
+    shift: `${header}\n${count} variations. Completely different approach — if descriptive, go confessional. If close, go far. If stable, go unstable.`,
   };
 
   return (actionInstructions[action] || actionInstructions.push) + "\n4–10 words per line. JSON only.";
@@ -181,10 +136,6 @@ export function buildIteratePrompt({ parentLine, seed, action = "push", count = 
 
 /**
  * Build the user prompt for critique mode.
- *
- * @param {object} opts
- * @param {string} opts.line - the line to critique
- * @returns {string}
  */
 export function buildCritiquePrompt({ line } = {}) {
   return [
@@ -207,7 +158,7 @@ export function buildCritiquePrompt({ line } = {}) {
 
 // ── JSON Schemas for Structured Output ──────────────────────────────
 
-export function buildLineSchema(count = 5) {
+export function buildLineSchema(count = 8) {
   return {
     type: "json_schema",
     name: "lyric_lines",
@@ -221,10 +172,9 @@ export function buildLineSchema(count = 5) {
             type: "object",
             properties: {
               line: { type: "string", description: "The lyric line" },
-              register: { type: "string", description: "Which register this line is written in" },
-              craft_notes: { type: "string", description: "Brief note on what principle drives the line" },
+              craft_notes: { type: "string", description: "Brief note on what drives the line" },
             },
-            required: ["line", "register", "craft_notes"],
+            required: ["line", "craft_notes"],
             additionalProperties: false,
           },
           description: `Array of ${count} lyric lines`,
@@ -267,10 +217,10 @@ export function buildCritiqueSchema() {
 
 // ── Exports for UI ──────────────────────────────────────────────────
 
-export const REGISTER_LIST = Object.entries(REGISTERS).map(([key, val]) => ({
+export const SPECTRUM_LIST = Object.entries(SPECTRUMS).map(([key, val]) => ({
   key,
   label: val.label,
-  examples: val.examples,
+  description: val.description,
 }));
 
 export const MICRO_PRINCIPLE_LIST = Object.entries(MICRO_PRINCIPLES).map(([key, val]) => ({
