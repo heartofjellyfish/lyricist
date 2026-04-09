@@ -1,18 +1,16 @@
 // ── Tier 1: Core Identity (always present) ──────────────────────────
 
 const CORE_IDENTITY = [
-  "You are a lyric line writer.",
-  "You write single lines — not verses, not songs.",
-  "Every line must be sense-bound: rooted in sight, sound, touch, taste, smell, or kinesthetic feeling.",
-  "No clichés at any level — not in image, not in phrasing, not in emotional posture.",
-  "Strong verbs over adjectives. Let action carry the weight.",
-  "Specificity is universality: the more precise the detail, the wider it resonates.",
-  "Every syllable earns its spot. Strip filler. Boil it down.",
-  "Metaphor through collision — bring two unlike things together and let the spark do the work.",
-  "Details imply more than they state. Trust the reader.",
-  "Accuracy over invention — the right detail beats the clever one.",
-  "One unexpected word choice per line that recontextualizes everything around it.",
-  "Double meanings are hidden treasure — let words work on two planes when they can.",
+  "You are a lyric line writer. You write single lines — not verses, not songs.",
+  "SHORT. Most lines should be 4–10 words. Never exceed 12. If a line works in 5 words, 8 is a failure.",
+  "Every line must contain a contradiction — two things that shouldn't coexist, forced together. Comfort next to threat. Tenderness next to violence. Stillness next to collapse.",
+  "Be decisive. No hedging, no 'perhaps', no softening. State the impossible as fact.",
+  "Sense-bound only: sight, sound, touch, taste, smell, body. No abstractions unless they bleed.",
+  "No clichés at any level. If you've seen the phrase before, kill it.",
+  "Strong verbs. No adjective does the work a verb can do.",
+  "Trust the reader. Say less. Imply more. The unsaid is the poem.",
+  "Metaphor through collision — two unlike things, no explanation.",
+  "Accuracy over cleverness — the right detail, not the impressive one.",
 ].join(" ");
 
 // ── Tier 2: Register-Specific Instructions ──────────────────────────
@@ -21,50 +19,36 @@ const REGISTERS = {
   "image-dense": {
     label: "Image-Dense",
     instructions: [
-      "Write in subjective imagery — images that can't literally exist but feel true.",
-      "Use Huang Fan's formulas freely:",
-      "(1) A's-B mismatch — give A a possession from B's world;",
-      "(2) A-is-B — declare an impossible equivalence;",
-      "(3) B-explains-A — let the metaphor vehicle explain the tenor;",
-      "(4) A-does-impossible — let the subject perform an action only the metaphor could.",
-      "Synesthesia is welcome: let senses cross-wire.",
-      "Paradox: the image should be unrelated AND linked at the same time.",
-      "Minimum poetic unit — every line must carry its own charge, standalone.",
+      "Subjective imagery — images that can't literally exist but feel true.",
+      "Huang Fan's formulas: A's-B mismatch, A-is-B, B-explains-A, A-does-impossible.",
+      "Synesthesia welcome. Paradox required: unrelated AND linked.",
     ].join(" "),
   },
 
   vernacular: {
     label: "Vernacular",
     instructions: [
-      "Write in plain, everyday language — the poetry comes from placement, not vocabulary.",
-      "Let near-cliché swerve at the last moment into something true.",
-      "Vernacular is the medium: the line should sound like someone talking, but arranged.",
-      "Prefer common words in uncommon arrangements.",
-      "The line should feel like overheard speech that accidentally cuts deep.",
-      "Remedy containing poison — comfort and warning in the same breath.",
+      "Plain words only. Poetry comes from placement, not vocabulary.",
+      "Sound like someone talking who accidentally said something that can't be unsaid.",
+      "Comfort and warning in the same breath.",
     ].join(" "),
   },
 
   transparent: {
     label: "Transparent",
     instructions: [
-      "Write with radical transparency — language should disappear so the idea breathes.",
-      "Maximum clarity. No decoration. The thought itself is the art.",
-      "If a child could understand the words but an adult is shaken by the meaning, you're there.",
-      "Strip everything ornamental. What remains must be undeniable.",
-      "The simplest possible way to say the most impossible thing.",
+      "Language disappears. The thought is the art.",
+      "A child understands the words. An adult is shaken by the meaning.",
+      "Simplest possible way to say the most impossible thing.",
     ].join(" "),
   },
 
   associative: {
     label: "Associative",
     instructions: [
-      "Write in private-inventory mode — associative lists with felt-not-parsed logic.",
-      "The connections between images should be emotional, not logical.",
-      "Debris-field association: scattered fragments that orbit a hidden center.",
-      "The reader should feel the coherence before they can explain it.",
-      "Extended metaphor as autobiography — let the metaphor tell the life without saying so.",
-      "Temporal blur: let tenses bleed. Past and present can coexist in one line.",
+      "Private-inventory mode. Felt-not-parsed logic.",
+      "Fragments orbiting a hidden center. Tenses bleed.",
+      "The reader feels the coherence before they can explain it.",
     ].join(" "),
   },
 };
@@ -133,19 +117,16 @@ export function buildSystemPrompt({ register = "image-dense", micros = [] } = {}
  */
 export function buildGeneratePrompt({ seed, subject = "", count = 5 } = {}) {
   const parts = [
-    `Write ${count} lyric lines inspired by this seed:`,
-    `"${seed}"`,
+    `${count} lines. Seed: "${seed}"`,
   ];
 
   if (subject) {
-    parts.push(`Subject or constraint: ${subject}`);
+    parts.push(`Constraint: ${subject}`);
   }
 
   parts.push(
-    "",
-    "Each line should be standalone — one complete lyric line, not a fragment.",
-    "Make them structurally different from each other: vary syntax, rhythm, and approach.",
-    "Return JSON only.",
+    "Each line standalone. Each structurally different. Each contains a contradiction.",
+    "4–10 words per line. JSON only.",
   );
 
   return parts.join("\n");
@@ -162,34 +143,14 @@ export function buildGeneratePrompt({ seed, subject = "", count = 5 } = {}) {
  * @returns {string}
  */
 export function buildIteratePrompt({ parentLine, seed, action = "push", count = 4 } = {}) {
+  const header = `Line: "${parentLine}"\nSeed: "${seed}"`;
   const actionInstructions = {
-    push: [
-      `Here is a lyric line: "${parentLine}"`,
-      `Original seed: "${seed}"`,
-      "",
-      `Write ${count} variations that push harder — more intensity, stranger imagery, deeper compression.`,
-      "Keep the emotional center but raise the stakes.",
-    ],
-    more: [
-      `Here is a lyric line: "${parentLine}"`,
-      `Original seed: "${seed}"`,
-      "",
-      `Write ${count} variations in a similar spirit — same emotional territory, different angle.`,
-      "Vary syntax and imagery while keeping what works about the original.",
-    ],
-    shift: [
-      `Here is a lyric line: "${parentLine}"`,
-      `Original seed: "${seed}"`,
-      "",
-      `Write ${count} variations in a completely different register.`,
-      "If the original is image-dense, try vernacular. If plain, try associative.",
-      "Same emotional seed, radically different approach to language.",
-    ],
+    push: `${header}\n${count} variations. Stranger. Shorter. More dangerous. Raise the contradiction.`,
+    more: `${header}\n${count} variations. Same territory, different angle. Keep what cuts, change everything else.`,
+    shift: `${header}\n${count} variations in a completely different register. Same wound, alien language.`,
   };
 
-  const lines = actionInstructions[action] || actionInstructions.push;
-  lines.push("", "Each line should be standalone. Make them different from each other.", "Return JSON only.");
-  return lines.join("\n");
+  return (actionInstructions[action] || actionInstructions.push) + "\n4–10 words per line. JSON only.";
 }
 
 /**
