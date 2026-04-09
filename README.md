@@ -202,3 +202,9 @@ The main remaining gap is quality, not plumbing:
 - improve segmentation family selection so the top five feel more distinct
 - continue reducing token usage without collapsing quality
 - strengthen prompt-side control without reintroducing brittle local sentence assembly
+
+### Sentence-to-Stress-Pattern Engine
+
+The stress engine (in `src/stressConstants.js` + `src/lexicon.js` and mirrored in `packages/stress_scansion_core/`) achieves 99%+ effective accuracy on real song lyrics. Remaining known limitation:
+
+- **TODO: Optional LLM validation layer for context-aware heteronyms.** A small number of words (e.g. `there` existential vs. locative, `record` noun vs. verb in context) require sentence-level parsing to resolve correctly. A lightweight LLM pass could double-check stress assignments for these ambiguous cases. Current accuracy without this layer is 99.0% (274 ground-truth words across 4 songs), so this is low priority — the accepted-patterns mechanism already provides wiggle room for most cases.

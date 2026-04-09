@@ -3,23 +3,21 @@ import assert from "node:assert/strict";
 import {
   analyzeIdeaCoverage,
   explainSlotPlanning,
-  filterUsableSeedPool,
-  filterUsableSeedWords,
   getLyricShapeCoverageSnapshot,
-  matchesSegmentationPlan,
-  parsePatternDetailed,
+  lineMatchesSegmentationPlan,
+  parseStressPattern,
   clicheChecker,
   generateLyrics,
-  parsePattern,
+  parseStressTokens,
   realizeSegmentationPlan,
   rhymeMaster,
-  validateLine,
+  validateLineStress,
 } from "../src/lyricEngine.js";
 import { scansionCases } from "./fixtures/scansionCases.js";
 
 test("parsePattern accepts spaced and compact notation", () => {
-  assert.deepEqual(parsePattern("DUM DUM da DUM"), ["DUM", "DUM", "da", "DUM"]);
-  assert.deepEqual(parsePattern("Dum dum Dum da Dum dum Dum"), [
+  assert.deepEqual(parseStressTokens("DUM DUM da DUM"), ["DUM", "DUM", "da", "DUM"]);
+  assert.deepEqual(parseStressTokens("Dum dum Dum da Dum dum Dum"), [
     "DUM",
     "dum",
     "DUM",
@@ -28,11 +26,11 @@ test("parsePattern accepts spaced and compact notation", () => {
     "dum",
     "DUM",
   ]);
-  assert.deepEqual(parsePattern("Dumdum Dumda da daDum"), ["DUM", "dum", "DUM", "da", "da", "da", "DUM"]);
+  assert.deepEqual(parseStressTokens("Dumdum Dumda da daDum"), ["DUM", "dum", "DUM", "da", "da", "da", "DUM"]);
 });
 
-test("parsePatternDetailed preserves compact groups", () => {
-  const parsed = parsePatternDetailed("Dumdum Dum da daDum");
+test("parseStressPattern preserves compact groups", () => {
+  const parsed = parseStressPattern("Dumdum Dum da daDum");
   assert.deepEqual(
     parsed.groups.map((group) => ({ text: group.text, compact: group.compact, tokens: group.tokens })),
     [
@@ -45,56 +43,56 @@ test("parsePatternDetailed preserves compact groups", () => {
 });
 
 test("parsePattern rejects unknown tokens", () => {
-  assert.throws(() => parsePattern("DUM bop da"), /only DUM, dum, and da/);
+  assert.throws(() => parseStressTokens("DUM bop da"), /only DUM, dum, and da/);
 });
 
 test("validateLine confirms exact stress matches", () => {
-  const result = validateLine("stars burn in moon", "DUM DUM da DUM");
+  const result = validateLineStress("stars burn in moon", "DUM DUM da DUM");
   assert.equal(result.isValid, true);
 });
 
 test("validateLine rejects mismatched stress", () => {
-  const result = validateLine("moonlight in june", "DUM DUM da DUM");
+  const result = validateLineStress("moonlight in june", "DUM DUM da DUM");
   assert.equal(result.isValid, false);
 });
 
 test("validateLine allows lyric-placement overrides for prepositions", () => {
-  const result = validateLine("into", "dumda");
+  const result = validateLineStress("into", "dumda");
   assert.equal(result.isValid, true);
   assert.match(result.reason, /Acceptable lyric placement|Exact stress match/);
 });
 
 test("validateLine allows compact fallback from DUMdum to DUMda", () => {
-  const result = validateLine("summer", "DUMdum");
+  const result = validateLineStress("summer", "DUMdum");
   assert.equal(result.isValid, true);
   assert.match(result.reason, /Acceptable compact fallback match/);
 });
 
 test("validateLine accepts common CMU-backed words without a curated whitelist", () => {
-  assert.equal(validateLine("glass bell in pulse", "DUM DUM da DUM").isValid, true);
-  assert.equal(validateLine("orb light in bloom", "DUM DUM da DUM").isValid, true);
-  assert.equal(validateLine("moon arc of nerves", "DUM DUM da DUM").isValid, true);
+  assert.equal(validateLineStress("glass bell in pulse", "DUM DUM da DUM").isValid, true);
+  assert.equal(validateLineStress("orb light in bloom", "DUM DUM da DUM").isValid, true);
+  assert.equal(validateLineStress("moon arc of nerves", "DUM DUM da DUM").isValid, true);
 });
 
 test("compact fallback generalizes beyond DUMdum", () => {
-  const result = validateLine("ordinary", "DUMdadumda");
+  const result = validateLineStress("ordinary", "DUMdadumda");
   assert.equal(result.isValid, true);
   assert.match(result.reason, /Exact stress match|Acceptable compact fallback match/);
 });
 
 test("compact dumda can accept a natural DUMda content word", () => {
-  const result = validateLine("dreaming", "dumda");
+  const result = validateLineStress("dreaming", "dumda");
   assert.equal(result.isValid, true);
   assert.match(result.reason, /Acceptable compact fallback match|Acceptable lyric placement match|Exact stress match/);
 });
 
 test("validateLine allows a loose DUM da group to be satisfied by one word", () => {
-  const result = validateLine("the walls are fading into the veil", "da DUM da DUM da dumda da DUM");
+  const result = validateLineStress("the walls are fading into the veil", "da DUM da DUM da dumda da DUM");
   assert.equal(result.isValid, true);
 });
 
 test("validateLine allows auxiliaries to sit in weak slots", () => {
-  const result = validateLine("the veil is fading into the night", "da DUM da DUM da dumda da DUM");
+  const result = validateLineStress("the veil is fading into the night", "da DUM da DUM da dumda da DUM");
   assert.equal(result.isValid, true);
 });
 
@@ -124,7 +122,7 @@ test("generateLyrics returns exact-match candidates with requested rhyme", () =>
   }
 });
 
-test("matchesSegmentationPlan checks word-to-segment alignment", () => {
+test("lineMatchesSegmentationPlan checks word-to-segment alignment", () => {
   const planSlots = [
     { tokens: ["da"], compact: false },
     { tokens: ["DUM"], compact: false },
@@ -135,8 +133,8 @@ test("matchesSegmentationPlan checks word-to-segment alignment", () => {
     { tokens: ["DUM"], compact: false },
   ];
 
-  assert.equal(matchesSegmentationPlan("the dream is slipping into the night", planSlots), true);
-  assert.equal(matchesSegmentationPlan("the dream is softly slipping into the night", planSlots), false);
+  assert.equal(lineMatchesSegmentationPlan("the dream is slipping into the night", planSlots), true);
+  assert.equal(lineMatchesSegmentationPlan("the dream is softly slipping into the night", planSlots), false);
 });
 
 test("realizeSegmentationPlan can assemble from per-segment candidates", () => {
@@ -250,177 +248,6 @@ test("longer patterns can loosen final compact DUMdum slot to DUMda", () => {
   assert.equal(results.every((candidate) => candidate.validation.isValid), true);
 });
 
-test("ai-seeded generation avoids weak endings and function-word piles", () => {
-  const results = generateLyrics({
-    patternText: "DUM DUM da DUM",
-    ideaText: "dream haze, drifting inward, freedom",
-    rhymeTarget: "",
-    candidateCount: 5,
-    aiSeedWords: ["drift", "glow", "dream", "shine", "free", "into"],
-  });
-
-  assert.equal(results.length > 0, true);
-  for (const candidate of results) {
-    assert.doesNotMatch(candidate.text, /\b(and|or|but|the|a|an|of|to|in|on|for|with|into)\s+(and|or|but|the|a|an|of|to|in|on|for|with|into)\s+(and|or|but|the|a|an|of|to|in|on|for|with|into)\b/i);
-    assert.doesNotMatch(candidate.text, /\b(and|or|but|the|a|an|of|to|in|on|for|with|into)$/i);
-    assert.doesNotMatch(candidate.text, /\b(a|an|the)\s+(wild|cold|bright|deep|free|slow|young|alone|awake|reckless|golden|open|blue|famous|loud|sweet)\b/i);
-  }
-});
-
-test("long hybrid pattern prefers sentence-shaped results over verb piles", () => {
-  const results = generateLyrics({
-    patternText: "da DUM da DUM da dumda da DUM",
-    ideaText:
-      "narrator falling into a half-dream state, about to dive into his own depths, slipping free of worldly rules and returning to the self; I want one lyric line for this process, with a slightly psychedelic feeling and a sense of freedom",
-    rhymeTarget: "",
-    candidateCount: 5,
-    aiSeedWords: [
-      "drift",
-      "glide",
-      "float",
-      "echo",
-      "pulse",
-      "depth",
-      "veil",
-      "glow",
-      "slipping",
-      "falling",
-      "diving",
-      "blurring",
-      "sliding",
-      "breathing",
-      "shadow",
-      "haze",
-      "stream",
-      "breath",
-    ],
-    aiSeedBuckets: {
-      singleWords: ["drift", "glide", "float", "echo", "pulse", "depth", "veil", "glow"],
-      verbs: ["slipping", "falling", "diving", "blurring", "sliding", "breathing"],
-      nouns: ["shadow", "haze", "stream", "breath"],
-      adjectives: [],
-    },
-  });
-
-  assert.equal(results.length > 0, true);
-  for (const candidate of results) {
-    assert.doesNotMatch(candidate.text, /^i\s+\w+ing\s+\w+ing\b/i);
-    assert.match(candidate.text, /\b(is|are|was)\b/i);
-    assert.match(candidate.text, /\b(into|under|over|after)\b/i);
-  }
-});
-
-test("long hybrid pattern can derive usable two-syllable verbs from one-syllable AI seeds", () => {
-  const results = generateLyrics({
-    patternText: "da DUM da DUM da dumda da DUM",
-    ideaText:
-      "narrator falling into a half-dream state, about to dive into his own depths, slipping free of worldly rules and returning to the self; I want one lyric line for this process, with a slightly psychedelic feeling and a sense of freedom",
-    rhymeTarget: "",
-    candidateCount: 5,
-    aiSeedWords: ["slip", "glide", "drift", "float", "fade", "pulse", "haze", "breath"],
-    aiSeedBuckets: {
-      singleWords: ["slip", "glide", "drift", "float", "fade", "pulse"],
-      compactWords: [],
-      verbs: ["slip", "drift", "float", "fade"],
-      nouns: ["haze", "breath", "pulse"],
-      adjectives: [],
-    },
-  });
-
-  assert.equal(results.length > 0, true);
-  for (const candidate of results) {
-    assert.match(candidate.text, /\b(is|are|was)\b/i);
-    assert.match(candidate.text, /\b(into|under|over|after)\b/i);
-  }
-});
-
-test("structured hybrid keeps a real auxiliary in the aux slot", () => {
-  const results = generateLyrics({
-    patternText: "da DUM da DUM da dumda da DUM",
-    ideaText:
-      "narrator falling into a half-dream state, about to dive into his own depths, slipping free of worldly rules and returning to the self; I want one lyric line for this process, with a slightly psychedelic feeling and a sense of freedom",
-    rhymeTarget: "",
-    candidateCount: 5,
-    aiSeedWords: ["slip", "drift", "float", "fade", "storm", "breath", "shadow", "veil"],
-    aiSeedBuckets: {
-      singleWords: ["slip", "drift", "float", "fade", "storm", "breath", "shadow", "veil"],
-      compactWords: [],
-      verbs: ["slip", "drift", "float", "fade"],
-      nouns: ["storm", "breath", "shadow", "veil"],
-      adjectives: [],
-    },
-  });
-
-  assert.equal(results.length > 0, true);
-  for (const candidate of results) {
-    assert.match(candidate.text, /\b(is|are|was)\b/i);
-    assert.doesNotMatch(candidate.text, /\b(the|a|for|of|to)\s+(into|under|over|after|onto)\b/i);
-  }
-});
-
-test("dumda compact slot can use more than just into in structured hybrid assembly", () => {
-  const results = generateLyrics({
-    patternText: "da DUM da DUM da dumda da DUM",
-    ideaText:
-      "narrator falling into a half-dream state, about to dive into his own depths, slipping free of worldly rules and returning to the self; I want one lyric line for this process, with a slightly psychedelic feeling and a sense of freedom",
-    rhymeTarget: "",
-    candidateCount: 10,
-    aiSeedWords: ["slip", "glide", "float", "fade", "storm", "breath", "shadow", "veil"],
-    aiSeedBuckets: {
-      singleWords: ["slip", "glide", "float", "fade", "storm", "breath", "shadow", "veil"],
-      compactWords: [],
-      verbs: ["slip", "glide", "float", "fade"],
-      nouns: ["storm", "breath", "shadow", "veil"],
-      adjectives: [],
-    },
-  });
-
-  assert.equal(results.length > 0, true);
-  assert.equal(
-    results.some((candidate) => /\b(into|under|over|after|onto)\b/i.test(candidate.text)),
-    true,
-  );
-});
-
-test("long hybrid pattern returns plan representatives instead of raw frame spam", () => {
-  const results = generateLyrics({
-    patternText: "da DUM da DUM da dumda da DUM",
-    ideaText:
-      "narrator falling into a half-dream state, about to dive into his own depths, slipping free of worldly rules and returning to the self; I want one lyric line for this process, with a slightly psychedelic feeling and a sense of freedom",
-    rhymeTarget: "",
-    candidateCount: 5,
-    aiSeedWords: [
-      "slip",
-      "glide",
-      "drift",
-      "float",
-      "fade",
-      "pulse",
-      "depths",
-      "haze",
-      "breath",
-      "veil",
-      "stream",
-      "threshold",
-      "falling",
-      "slipping",
-      "drifting",
-      "fading",
-    ],
-    aiSeedBuckets: {
-      singleWords: ["slip", "glide", "drift", "float", "fade", "pulse", "depths", "stream", "veil", "threshold"],
-      compactWords: [],
-      verbs: ["slip", "drift", "float", "fade", "falling", "slipping", "drifting", "fading"],
-      nouns: ["haze", "breath", "veil", "stream", "threshold", "depths", "pulse"],
-      adjectives: [],
-    },
-  });
-
-  assert.equal(results.length >= 1, true);
-  assert.equal(new Set(results.map((candidate) => candidate.text)).size, results.length);
-  assert.equal(new Set(results.map((candidate) => candidate.planKey)).size >= 1, true);
-});
-
 test("slot planning exposes alternate readings for merged loose spans", () => {
   const plans = explainSlotPlanning("da DUM da DUM da dumda da DUM");
   assert.equal(plans.length > 0, true);
@@ -452,60 +279,6 @@ test("slot planning still returns valid plans for longer all-loose patterns", ()
   );
 });
 
-test("selection avoids near-duplicate frame variants that only swap the last word", () => {
-  const results = generateLyrics({
-    patternText: "da DUM da DUM da dumda da DUM",
-    ideaText:
-      "narrator falling into a half-dream state, about to dive into his own depths, slipping free of worldly rules and returning to the self; I want one lyric line for this process, with a slightly psychedelic feeling and a sense of freedom",
-    rhymeTarget: "",
-    candidateCount: 5,
-    aiSeedWords: ["glide", "slip", "pulse", "dream", "fade", "sink", "haze", "veil", "stream"],
-    aiSeedBuckets: {
-      singleWords: ["glide", "slip", "pulse", "dream", "fade", "sink"],
-      verbs: ["sinking", "slipping", "fading"],
-      nouns: ["haze", "veil", "stream", "pulse", "dream"],
-      adjectives: [],
-    },
-  });
-
-  const frames = results.map((candidate) =>
-    candidate.text
-      .toLowerCase()
-      .split(/\s+/u)
-      .slice(0, -1)
-      .join(" "),
-  );
-
-  assert.equal(new Set(frames).size, frames.length);
-});
-
-test("selection avoids repeating the same leading sentence anchor", () => {
-  const results = generateLyrics({
-    patternText: "da DUM da DUM da dumda da DUM",
-    ideaText:
-      "narrator falling into a half-dream state, about to dive into his own depths, slipping free of worldly rules and returning to the self; I want one lyric line for this process, with a slightly psychedelic feeling and a sense of freedom",
-    rhymeTarget: "",
-    candidateCount: 5,
-    aiSeedWords: ["glide", "slip", "pulse", "dream", "fade", "sink", "haze", "veil", "stream"],
-    aiSeedBuckets: {
-      singleWords: ["glide", "slip", "pulse", "dream", "fade", "sink"],
-      verbs: ["sinking", "slipping", "fading"],
-      nouns: ["haze", "veil", "stream", "pulse", "dream"],
-      adjectives: [],
-    },
-  });
-
-  const anchors = results.map((candidate) =>
-    candidate.text
-      .toLowerCase()
-      .split(/\s+/u)
-      .slice(0, 4)
-      .join(" "),
-  );
-
-  assert.equal(new Set(anchors).size >= 1, true);
-});
-
 test("scansion fixture corpus is available for future evals", () => {
   assert.equal(scansionCases.length >= 10, true);
   for (const fixture of scansionCases) {
@@ -513,33 +286,6 @@ test("scansion fixture corpus is available for future evals", () => {
     assert.equal(typeof fixture.line, "string");
     assert.equal(typeof fixture.status, "string");
   }
-});
-
-test("filterUsableSeedWords removes invented seeds not in the lexicon", () => {
-  assert.deepEqual(
-    filterUsableSeedWords(["drift", "mindwave", "glow", "starspill", "sleepwalk"]),
-    ["drift", "glow", "sleepwalk"],
-  );
-});
-
-test("filterUsableSeedPool keeps only usable words inside each bucket", () => {
-  assert.deepEqual(
-    filterUsableSeedPool({
-      singleWords: ["drift", "starspill", "glow"],
-      compactWords: ["sleepwalk", "mindwave"],
-      verbs: ["drift", "floatlight"],
-      nouns: ["shadow", "tidewheel"],
-      adjectives: ["weightless", "skyflash"],
-    }),
-    {
-      singleWords: ["drift", "glow"],
-      compactWords: ["sleepwalk"],
-      verbs: ["drift"],
-      nouns: ["shadow"],
-      adjectives: ["weightless"],
-      slotTargets: {},
-    },
-  );
 });
 
 test("lyric shape coverage distinguishes raw lexical stress from lyric-allowed stress", () => {

@@ -4,9 +4,9 @@ import {
   explainCandidateDebug,
   generateLyrics,
   getLexiconSnapshot,
-  matchesSegmentationPlan,
-  parsePatternDetailed,
-  parsePattern,
+  lineMatchesSegmentationPlan,
+  parseStressPattern,
+  parseStressTokens,
   resolveRhymeTarget,
   summarizeModePlans,
 } from "./lyricEngine.js";
@@ -482,7 +482,7 @@ resultsElement.addEventListener("toggle", (event) => {
 });
 
 function explainNoMatch(patternText, rhymeTarget, { aiEnabled = false, aiReturned = 0 } = {}) {
-  const parsed = parsePatternDetailed(patternText);
+  const parsed = parseStressPattern(patternText);
   const normalizedRhyme = resolveRhymeTarget(rhymeTarget);
   const lastGroup = parsed.groups.at(-1);
   const workflowHint =
@@ -597,7 +597,7 @@ async function collectOpenAICandidates({
           return null;
         }
         const lineText = segments.join(" ");
-        if (!matchesSegmentationPlan(lineText, planResult.slots ?? [])) {
+        if (!lineMatchesSegmentationPlan(lineText, planResult.slots ?? [])) {
           return null;
         }
         return evaluateCandidateLine({
@@ -837,7 +837,7 @@ async function handleSubmit(event) {
   persistSettings();
 
   try {
-    parsePattern(patternInput.value);
+    parseStressTokens(patternInput.value);
   } catch (error) {
     renderError(error.message);
     renderEmptyState("Use only DUM, dum, and da in the pattern field.");

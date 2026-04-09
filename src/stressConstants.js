@@ -178,12 +178,21 @@ export const PREPOSITIONS = new Set([
   "into", "after", "over", "under", "during", "onto", "minus", "versus",
   "within", "without", "upon", "above", "about", "along", "below", "among",
   "beneath", "except", "across", "around", "beside", "before", "between",
-  "against", "behind", "beyond", "until", "despite", "throughout", "aboard",
-  "amidst", "amid", "toward", "towards", "with", "through", "for", "to",
-  "in", "on", "at", "from", "off", "of", "by",
+  "against", "behind", "beyond", "until", "till", "til", "despite",
+  "throughout", "aboard", "amidst", "amid", "toward", "towards",
+  "with", "through", "for", "to", "in", "on", "at", "from", "off", "of", "by",
 ]);
 
 export const ARTICLES = new Set(["a", "an", "the"]);
+
+// Determiners and quantifiers. Like articles, these are function words that
+// modify nouns and are typically unstressed in natural speech. Keeping them
+// separate from ARTICLES preserves grammatical accuracy while applying the
+// same "prefer da" rule via the function-word branch in defaultLyricPatternsForWord.
+export const DETERMINERS = new Set([
+  "some", "any", "each", "every", "no", "all", "both", "few", "many",
+  "much", "more", "most", "less", "least", "either", "neither", "several",
+]);
 export const CONJUNCTIONS = new Set([
   "and", "or", "but", "nor", "yet", "so", "because",
   "as", "if", "once", "since", "than", "that", "though",
@@ -191,10 +200,29 @@ export const CONJUNCTIONS = new Set([
 ]);
 
 export const PRONOUNS = new Set([
-  "i", "you", "he", "she", "we", "they", "me", "him", "her", "us", "them",
+  "i", "you", "he", "she", "we", "they", "me", "him", "his", "her", "hers", "us", "them",
   "my", "your", "our", "their", "mine", "yours", "ours", "theirs",
   "it", "its", "this", "that", "these", "those",
   "who", "whom", "whose", "which", "what", "where", "when", "how",
+]);
+
+// Pronoun+auxiliary contractions where both components are function words,
+// so the contraction as a whole should also prefer da (unstressed).
+// Excludes negation contractions (isn't, can't, won't…) — the negation
+// can carry stress and CMU handles those reasonably.
+// Excludes possessives (Jane's, Cohen's) — base noun keeps its stress.
+export const CONTRACTIONS = new Set([
+  // pronoun + be
+  "i'm", "you're", "he's", "she's", "it's", "we're", "they're", "there's",
+  // pronoun + have
+  "i've", "you've", "we've", "they've",
+  // pronoun + will
+  "i'll", "you'll", "he'll", "she'll", "we'll", "they'll",
+  // pronoun + would / had
+  "i'd", "you'd", "he'd", "she'd", "we'd", "they'd",
+  // interrogative / demonstrative pronoun + is/has
+  // both components are function words, so the contraction prefers da
+  "what's", "that's", "here's", "where's", "who's", "how's", "when's", "why's",
 ]);
 
 export const AUXILIARIES = new Set([
@@ -214,6 +242,63 @@ export const COMMON_VERBS = new Set([
 export const COMMON_ADJECTIVES = new Set([
   "popular", "young", "bright", "cold", "deep", "free", "slow", "blue",
   "wild", "perfect", "late", "full", "dark",
+]);
+
+// ── Stress-shifting heteronyms ──────────────────────────────────
+// Words where CMU stores the verb pronunciation (da-DUM) but are equally
+// common as nouns/adjectives (DUM-da). The heteronym logic in lexicon.js
+// uses this set to offer DUM-da as the preferred pattern when CMU gives da-DUM.
+// Source: English "initial-stress-derived nouns" (Wikipedia) — ~170 pairs.
+// Each entry: CMU stores verb form (da-DUM); noun/adj form is DUM-da.
+// Condition in lexicon.js: only fires when CMU pattern IS ["da","DUM"],
+// so words where CMU already gives the noun form are silently skipped.
+// Covers the full inventory of English 2-syllable initial-stress-derived
+// nouns documented in linguistics literature (~170 pairs; 3-syllable pairs
+// like "attribute" are excluded — they'd need a separate da-DUM-da flip).
+export const STRESS_SHIFTING_HETERONYMS = new Set([
+  // AB- / AD- / AF-
+  "absent", "abstract", "accent", "addict", "address", "affect", "affix",
+  // AL- / AN- / AS- / AU-
+  "alloy", "ally", "annex", "assay", "augment",
+  // BE- / BO-
+  "belay", "bombard",
+  // COM- / CON-  (largest group — Latin con- prefix verbs)
+  "combat", "combine", "commune", "compact", "compound", "compress",
+  "concert", "conduct", "confect", "confine", "conflict", "conscript",
+  "conserve", "consort", "construct", "consult", "content", "contest",
+  "contract", "contrast", "converse", "convert", "convict",
+  // DE- / DI- / DIS-
+  "decrease", "default", "defect", "detail", "dictate", "digest",
+  "discard", "discharge", "discount", "dismount", "dispute",
+  // ES- / EX-
+  "escort", "essay", "excise", "exploit", "export", "extract",
+  // FER- / FI- / FOR- / FRAG- / FRE-
+  "ferment", "finance", "foretaste", "fragment", "frequent",
+  // IM-
+  "impact", "implant", "import", "impress", "imprint", "impound",
+  // IN-
+  "incense", "incline", "increase", "indent", "inlay", "insert",
+  "insult", "intern", "intrigue", "invert",
+  // MAN- / MIS-
+  "mandate", "mismatch", "misprint",
+  // OB- / OFF-
+  "object", "offset",
+  // PER-
+  "perfect", "perfume", "permit", "pervert",
+  // PRE-
+  "prefix",
+  // PRO-
+  "present", "produce", "progress", "project", "protest", "purport",
+  // RE-
+  "rebel", "recall", "recap", "recess", "recoil", "record", "recount", "redress",
+  "refill", "refund", "refuse", "regress", "rehash", "reject", "relapse",
+  "relay", "remake", "reprint", "research", "reset", "retake", "rewrite",
+  // SEG- / SUB- / SUR- / SUS-
+  "segment", "subject", "survey", "suspect",
+  // TOR- / TRAV- / TRANS-
+  "torment", "transfer", "transplant", "transport", "traverse",
+  // UP-
+  "upgrade", "uplift", "upset",
 ]);
 
 // ── Lyric pattern overrides for function words ──────────────────
@@ -250,6 +335,9 @@ export const LYRIC_PATTERN_OVERRIDES = {
   being: { preferredLyricPatterns: [["DUM", "da"]], allowedLyricPatterns: [["DUM", "da"], ["dum", "da"]] },
   // "our" is typically monosyllabic in lyrics despite CMU giving 2 syllables
   our: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
+  // "every" is 3 syllables in CMU (EH1 V ER0 IY0) but virtually always
+  // reduced to 2 syllables in song (EV-ry). Prefer DUM-da; accept DUM-da-da.
+  every: { preferredLyricPatterns: [["DUM", "da"]], allowedLyricPatterns: [["DUM", "da"], ["DUM", "da", "da"]] },
   // Demonstratives default to da but can take stress for contrast
   this: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
   that: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
@@ -294,8 +382,6 @@ export const LYRIC_PATTERN_OVERRIDES = {
   as: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
   if: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
   than: { preferredLyricPatterns: [["da"]], allowedLyricPatterns: [["da"], ["dum"], ["DUM"]] },
-  // "perfect" — CMU only has verb form (da-DUM); adjective is DUM-da
-  perfect: { preferredLyricPatterns: [["DUM", "da"]], allowedLyricPatterns: [["DUM", "da"], ["da", "DUM"]] },
   // Additional prepositions with secondary stress
   along: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },
   among: { preferredLyricPatterns: [["da", "dum"]], allowedLyricPatterns: [["da", "dum"], ["da", "DUM"]] },

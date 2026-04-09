@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "cmu-pronouncing-dictionary": "^3.0.0",
+    "stress_scansion_core": "file:./packages/stress_scansion_core",
+    "wink-eng-lite-web-model": "^1.8.1",
+    "wink-nlp": "^2.4.0",
     "wordnet-db": "^3.1.14"
   }
 }

@@ -2,11 +2,14 @@ import {
   SEED_ENTRY_SPECS,
   PREPOSITIONS,
   ARTICLES,
+  DETERMINERS,
   CONJUNCTIONS,
   PRONOUNS,
+  CONTRACTIONS,
   AUXILIARIES,
   COMMON_VERBS,
   COMMON_ADJECTIVES,
+  STRESS_SHIFTING_HETERONYMS,
   LYRIC_PATTERN_OVERRIDES,
   RHYME_ALIASES,
   THEME_ALIASES,
@@ -31,8 +34,10 @@ function isUsableWord(word, phonemes) {
   const isFunctionWord =
     PREPOSITIONS.has(word) ||
     ARTICLES.has(word) ||
+    DETERMINERS.has(word) ||
     CONJUNCTIONS.has(word) ||
     PRONOUNS.has(word) ||
+    CONTRACTIONS.has(word) ||
     AUXILIARIES.has(word);
 
   return (
@@ -47,8 +52,10 @@ function isUsableWord(word, phonemes) {
 export function guessPos(word, lexicalPattern) {
   if (PREPOSITIONS.has(word)) return { pos: "prep", type: "function" };
   if (ARTICLES.has(word)) return { pos: "article", type: "function" };
+  if (DETERMINERS.has(word)) return { pos: "det", type: "function" };
   if (CONJUNCTIONS.has(word)) return { pos: "conj", type: "function" };
   if (PRONOUNS.has(word)) return { pos: "pron", type: "function" };
+  if (CONTRACTIONS.has(word)) return { pos: "contraction", type: "function" };
   if (AUXILIARIES.has(word)) return { pos: "aux", type: "function" };
   if (word.endsWith("ly")) return { pos: "adv", type: "content" };
   if (COMMON_VERBS.has(word)) return { pos: "verb", type: "content" };
@@ -87,6 +94,28 @@ function defaultLyricPatternsForWord(pattern, guessed, override) {
     };
   }
 
+  // CMU assigns secondary stress (dum) to post-primary syllables in 3+
+  // syllable words (e.g. "nobody's" → DUM-dum-dum, "enemy" → DUM-da-dum).
+  // In lyric scansion those trailing dum syllables read as da. We restrict
+  // this to 3+ syllable words: in 2-syllable words the secondary stress is
+  // real (RAIN-coat, AB-stract) and should be preserved as DUM-dum.
+  // Pre-primary dum (e.g. "afternoon" = dum-da-DUM) is always kept because
+  // it represents genuine secondary stress before the ictus.
+  const lastDumIdx = pattern.lastIndexOf("DUM");
+  const hasPostPrimaryDum =
+    pattern.length >= 3 &&
+    lastDumIdx >= 0 &&
+    pattern.slice(lastDumIdx + 1).includes("dum");
+  if (hasPostPrimaryDum) {
+    const lyricPattern = pattern.map((token, i) =>
+      i > lastDumIdx && token === "dum" ? "da" : token,
+    );
+    return {
+      preferredLyricPatterns: [lyricPattern],
+      allowedLyricPatterns: override.allowedLyricPatterns ?? [lyricPattern, pattern],
+    };
+  }
+
   const preferredLyricPatterns = [pattern];
   return {
     preferredLyricPatterns,
@@ -103,7 +132,21 @@ function buildEntry(spec) {
 
   const pattern = buildPattern(phonemes);
   const rhyme = deriveRhymeInfo(phonemes);
-  const override = LYRIC_PATTERN_OVERRIDES[key] ?? {};
+  let override = LYRIC_PATTERN_OVERRIDES[key] ?? {};
+  // Stress-shifting heteronyms: CMU stores the verb form (da-DUM) but
+  // noun/adjective use (DUM-da) is equally valid. Offer both; prefer DUM-da.
+  if (
+    !override.preferredLyricPatterns &&
+    STRESS_SHIFTING_HETERONYMS.has(key) &&
+    pattern.length === 2 &&
+    pattern[0] === "da" &&
+    pattern[1] === "DUM"
+  ) {
+    override = {
+      preferredLyricPatterns: [["DUM", "da"]],
+      allowedLyricPatterns: [["DUM", "da"], ["da", "DUM"]],
+    };
+  }
   const guessed = guessPos(key, pattern);
   const { preferredLyricPatterns, allowedLyricPatterns } = defaultLyricPatternsForWord(
     pattern,
