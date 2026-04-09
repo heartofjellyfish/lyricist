@@ -119,10 +119,10 @@ async function callOpenAI({ instructions, input, schema, maxTokens = 800 }) {
  * @param {number} opts.count
  * @returns {Promise<{ lines: Array<{line, register, craft_notes}>, usage }>}
  */
-export async function generateLines({ seed, subject, register, micros = [], count = 5 } = {}) {
-  const instructions = buildSystemPrompt({ register, micros });
-  const input = buildGeneratePrompt({ seed, subject, count });
-  const schema = buildLineSchema(count);
+export async function generateLines({ seed, subject, micros = [] } = {}) {
+  const instructions = buildSystemPrompt({ register: null, micros });
+  const input = buildGeneratePrompt({ seed, subject });
+  const schema = buildLineSchema(8);
 
   const result = await callOpenAI({ instructions, input, schema });
 

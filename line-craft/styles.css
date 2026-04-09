@@ -35,35 +35,58 @@
   gap: 16px;
 }
 
-/* ── Register Selector ────────────────────────────────────────────── */
+/* ── Register Reference ───────────────────────────────────────────── */
+
+.registers-ref {
+  border: 1px solid rgba(31, 26, 23, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.42);
+  overflow: hidden;
+}
+
+.registers-ref summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.registers-ref summary::-webkit-details-marker {
+  display: none;
+}
 
 .register-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 0 14px 14px;
 }
 
-.register-btn {
-  border: 1px solid rgba(31, 26, 23, 0.18);
-  border-radius: 999px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.74);
-  color: var(--muted);
-  cursor: pointer;
-  font: inherit;
+.register-card {
+  padding: 12px;
+  border: 1px solid rgba(31, 26, 23, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.54);
+}
+
+.register-card-label {
+  font-weight: 600;
   font-size: 0.92rem;
-  transition: all 120ms ease;
+  margin-bottom: 6px;
+  color: var(--accent);
 }
 
-.register-btn:hover {
-  border-color: var(--accent);
-  color: var(--ink);
+.register-examples {
+  display: grid;
+  gap: 4px;
 }
 
-.register-btn.active {
-  background: linear-gradient(135deg, #3f6b70 0%, #b85c38 100%);
-  border-color: transparent;
-  color: #fff8f0;
+.register-example {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.4;
 }
 
 /* ── Micro-Principle Chips ────────────────────────────────────────── */
@@ -387,6 +410,10 @@
   .lc-results-shell {
     padding: 18px;
     border-radius: 20px;
+  }
+
+  .register-group {
+    grid-template-columns: 1fr;
   }
 
   .line-text {

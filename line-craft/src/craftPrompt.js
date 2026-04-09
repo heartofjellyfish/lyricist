@@ -17,33 +17,52 @@ const CORE_IDENTITY = [
 const REGISTERS = {
   "image-dense": {
     label: "Image-Dense",
+    examples: [
+      "我从火苗中走出来 / 我认出了我的一位父亲 — 育邦",
+      "Tall buildings shake, voices escape singing sad sad songs — Wilco",
+      "Hello darkness, my old friend — Simon & Garfunkel",
+    ],
     instructions: [
       "Pack the line with sensory detail. Let the images carry the feeling — never name the emotion.",
-      "Look at one small thing so closely that it opens up. A pile of laundry, a crack in a mug, how someone's hand rests on a steering wheel.",
+      "Look at one small thing so closely that it opens up. A crack in a mug, how someone's hand rests on a steering wheel, the way a pile of clothes shifts on a chair.",
       "When an image becomes impossible, it should feel like the only honest way to say what's true. But most lines should stay possible — just seen more closely than anyone usually bothers.",
     ].join(" "),
   },
 
   vernacular: {
     label: "Vernacular",
+    examples: [
+      "We were already bored — Arcade Fire",
+      "You were the last to know / that misunderstood — Wilco",
+      "The breeze is just a breeze — Dr. Dog",
+    ],
     instructions: [
-      "Plain words only. Sound like someone talking at 2am who says the truest thing they've ever said without meaning to.",
+      "Plain words only. Sound like someone talking who accidentally says something that can't be unsaid.",
       "The poetry is in what's NOT said. The line should feel like the tip of an iceberg.",
-      "'We were already bored' — nothing fancy, everything devastating.",
     ].join(" "),
   },
 
   transparent: {
     label: "Transparent",
+    examples: [
+      "Imagine there's no heaven — John Lennon",
+      "I've looked at love from both sides now — Joni Mitchell",
+      "My body is a cage — Arcade Fire",
+    ],
     instructions: [
       "Language disappears. The thought is the art.",
-      "'Imagine there's no heaven' — a child's words, an adult's vertigo.",
+      "A child understands the words. An adult is shaken by the meaning.",
       "Say the unsayable in the simplest possible way.",
     ].join(" "),
   },
 
   associative: {
     label: "Associative",
+    examples: [
+      "The place where he inserted the blade — BC,NR",
+      "And the days go by like a strand in the wind — Arcade Fire",
+      "He dressed up like a clown for them — Sufjan Stevens",
+    ],
     instructions: [
       "Let the line follow emotional logic, not narrative logic. One image triggers the next by feeling, not by sense.",
       "Like a dream: the details are specific but the connections are private.",
@@ -87,12 +106,14 @@ const MICRO_PRINCIPLES = {
  * @param {string[]} opts.micros   - array of MICRO_PRINCIPLES keys to activate
  * @returns {string}
  */
-export function buildSystemPrompt({ register = "image-dense", micros = [] } = {}) {
+export function buildSystemPrompt({ register = null, micros = [] } = {}) {
   const parts = [CORE_IDENTITY];
 
-  const reg = REGISTERS[register];
-  if (reg) {
-    parts.push(`# Register: ${reg.label}\n${reg.instructions}`);
+  if (register) {
+    const reg = REGISTERS[register];
+    if (reg) {
+      parts.push(`# Register: ${reg.label}\n${reg.instructions}`);
+    }
   }
 
   const activeMicros = micros
@@ -114,9 +135,14 @@ export function buildSystemPrompt({ register = "image-dense", micros = [] } = {}
  * @param {number} opts.count      - number of lines to generate (default 5)
  * @returns {string}
  */
-export function buildGeneratePrompt({ seed, subject = "", count = 5 } = {}) {
+export function buildGeneratePrompt({ seed, subject = "" } = {}) {
   const parts = [
-    `${count} lines. Seed: "${seed}"`,
+    `Seed: "${seed}"`,
+    "Write 2 lines in EACH of these 4 registers (8 lines total):",
+    "- image-dense: sensory detail, images carry the feeling",
+    "- vernacular: plain speech, poetry through placement",
+    "- transparent: simplest words, biggest meaning",
+    "- associative: emotional logic, private connections",
   ];
 
   if (subject) {
@@ -244,6 +270,7 @@ export function buildCritiqueSchema() {
 export const REGISTER_LIST = Object.entries(REGISTERS).map(([key, val]) => ({
   key,
   label: val.label,
+  examples: val.examples,
 }));
 
 export const MICRO_PRINCIPLE_LIST = Object.entries(MICRO_PRINCIPLES).map(([key, val]) => ({

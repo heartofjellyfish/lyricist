@@ -5,7 +5,6 @@ import {
   subscribe,
   setSeed,
   setSubject,
-  setRegister,
   toggleMicro,
   addResults,
   setCritique,
@@ -28,13 +27,27 @@ const debugEl = document.getElementById("debug-body");
 
 function initRegisters() {
   for (const reg of REGISTER_LIST) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "register-btn";
-    btn.dataset.register = reg.key;
-    btn.textContent = reg.label;
-    btn.addEventListener("click", () => setRegister(reg.key));
-    registerGroup.appendChild(btn);
+    const card = document.createElement("div");
+    card.className = "register-card";
+
+    const label = document.createElement("div");
+    label.className = "register-card-label";
+    label.textContent = reg.label;
+    card.appendChild(label);
+
+    if (reg.examples && reg.examples.length > 0) {
+      const exList = document.createElement("div");
+      exList.className = "register-examples";
+      for (const ex of reg.examples) {
+        const exEl = document.createElement("div");
+        exEl.className = "register-example";
+        exEl.textContent = ex;
+        exList.appendChild(exEl);
+      }
+      card.appendChild(exList);
+    }
+
+    registerGroup.appendChild(card);
   }
 }
 
@@ -79,12 +92,6 @@ function initMicros() {
 }
 
 // ── Render ───────────────────────────────────────────────────────────
-
-function renderRegisterButtons(activeRegister) {
-  for (const btn of registerGroup.querySelectorAll(".register-btn")) {
-    btn.classList.toggle("active", btn.dataset.register === activeRegister);
-  }
-}
 
 function renderMicroChips(activeMicros) {
   for (const chip of microsContainer.querySelectorAll(".micro-chip")) {
@@ -229,9 +236,7 @@ async function handleGenerate() {
     const result = await generateLines({
       seed,
       subject: subjectInput.value.trim(),
-      register: state.register,
       micros: state.micros,
-      count: 5,
     });
 
     addResults(result.lines, null, "generate");
@@ -252,10 +257,11 @@ async function handleIterate(action, lineId) {
   setStatus(`${action === "critique" ? "Critiquing" : "Iterating"}...`);
 
   try {
+    const lineRegister = entry.register?.toLowerCase().replace(/[- ]/g, "-") || "image-dense";
     if (action === "critique") {
       const result = await critiqueLine({
         line: entry.line,
-        register: state.register,
+        register: lineRegister,
       });
       setCritique(lineId, result.critique);
       setDebug(result.debug);
@@ -265,7 +271,7 @@ async function handleIterate(action, lineId) {
         parentLine: entry.line,
         seed: state.seed,
         action,
-        register: action === "shift" ? nextRegister(state.register) : state.register,
+        register: action === "shift" ? nextRegister(lineRegister) : lineRegister,
         micros: state.micros,
         count: 4,
       });
@@ -296,13 +302,11 @@ function init() {
   subjectInput.value = saved.subject;
 
   // Initial render
-  renderRegisterButtons(saved.register);
   renderMicroChips(saved.micros);
   renderResults(saved.results);
 
   // Subscribe to state changes
   subscribe((s) => {
-    renderRegisterButtons(s.register);
     renderMicroChips(s.micros);
     renderResults(s.results);
   });
