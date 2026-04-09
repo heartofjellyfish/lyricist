@@ -171,6 +171,21 @@ function renderLineCard(item, byParent, container) {
   }
 }
 
+// gpt-4.1 pricing per 1M tokens
+const PRICING = {
+  "gpt-4.1": { input: 2.0, output: 8.0 },
+  "gpt-4.1-mini": { input: 0.4, output: 1.6 },
+  "gpt-4.1-nano": { input: 0.1, output: 0.4 },
+  "gpt-4o": { input: 2.5, output: 10.0 },
+};
+
+function formatUsage(usage, model = "gpt-4.1") {
+  if (!usage || !usage.totalTokens) return "";
+  const rates = PRICING[model] || PRICING["gpt-4.1"];
+  const cost = (usage.inputTokens * rates.input + usage.outputTokens * rates.output) / 1_000_000;
+  return `${usage.inputTokens} in / ${usage.outputTokens} out / $${cost.toFixed(4)}`;
+}
+
 function setStatus(text, isError = false) {
   statusEl.textContent = text;
   statusEl.dataset.state = isError ? "error" : text ? "loading" : "ready";
@@ -220,7 +235,7 @@ async function handleGenerate() {
 
     addResults(result.lines, null, "generate");
     setDebug(result.debug);
-    setStatus("");
+    setStatus(formatUsage(result.usage, result.model));
   } catch (err) {
     setStatus(err.message, true);
   } finally {
@@ -243,6 +258,7 @@ async function handleIterate(action, lineId) {
       });
       setCritique(lineId, result.critique);
       setDebug(result.debug);
+      setStatus(formatUsage(result.usage, result.model));
     } else {
       const result = await iterateOnLine({
         parentLine: entry.line,
@@ -254,8 +270,8 @@ async function handleIterate(action, lineId) {
       });
       addResults(result.lines, lineId, action);
       setDebug(result.debug);
+      setStatus(formatUsage(result.usage, result.model));
     }
-    setStatus("");
   } catch (err) {
     setStatus(err.message, true);
   }

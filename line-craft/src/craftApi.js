@@ -95,6 +95,7 @@ async function callOpenAI({ instructions, input, schema, maxTokens = 800 }) {
   const parsed = parseJsonResponse(outputText);
 
   return {
+    model,
     raw: outputText,
     parsed,
     usage: {
@@ -126,7 +127,7 @@ export async function generateLines({ seed, subject, register, micros = [], coun
   const result = await callOpenAI({ instructions, input, schema });
 
   const lines = result.parsed?.lines ?? [];
-  return { lines, usage: result.usage, debug: { instructions, input, raw: result.raw } };
+  return { lines, usage: result.usage, model: result.model, debug: { instructions, input, raw: result.raw } };
 }
 
 /**
@@ -149,7 +150,7 @@ export async function iterateOnLine({ parentLine, seed, action, register, micros
   const result = await callOpenAI({ instructions, input, schema });
 
   const lines = result.parsed?.lines ?? [];
-  return { lines, usage: result.usage, debug: { instructions, input, raw: result.raw } };
+  return { lines, usage: result.usage, model: result.model, debug: { instructions, input, raw: result.raw } };
 }
 
 /**
@@ -168,5 +169,5 @@ export async function critiqueLine({ line, register = "image-dense" } = {}) {
   const result = await callOpenAI({ instructions, input, schema, maxTokens: 600 });
 
   const critique = result.parsed ?? { strengths: [], weaknesses: [], revision_direction: "" };
-  return { critique, usage: result.usage, debug: { instructions, input, raw: result.raw } };
+  return { critique, usage: result.usage, model: result.model, debug: { instructions, input, raw: result.raw } };
 }
