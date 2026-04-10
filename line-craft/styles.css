@@ -75,6 +75,35 @@
   flex: 1;
 }
 
+.spectrum-track {
+  position: relative;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.spectrum-ticks {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+  pointer-events: none;
+}
+
+.spectrum-tick {
+  width: 2px;
+  height: 10px;
+  border-radius: 1px;
+  background: rgba(31, 26, 23, 0.15);
+}
+
+.spectrum-tick.center {
+  height: 14px;
+  background: rgba(31, 26, 23, 0.25);
+}
+
 .spectrum-slider {
   -webkit-appearance: none;
   appearance: none;

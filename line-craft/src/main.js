@@ -40,8 +40,17 @@ function initSpectrums() {
         <span class="spectrum-desc">${spec.description}</span>
         <span class="spectrum-right">${rightLabel}</span>
       </div>
-      <input type="range" class="spectrum-slider" data-spectrum="${spec.key}"
-        min="-1" max="1" step="0.1" value="${saved[spec.key] ?? 0}" />
+      <div class="spectrum-track">
+        <div class="spectrum-ticks">
+          <span class="spectrum-tick"></span>
+          <span class="spectrum-tick"></span>
+          <span class="spectrum-tick center"></span>
+          <span class="spectrum-tick"></span>
+          <span class="spectrum-tick"></span>
+        </div>
+        <input type="range" class="spectrum-slider" data-spectrum="${spec.key}"
+          min="-2" max="2" step="1" value="${saved[spec.key] ?? 0}" />
+      </div>
     `;
 
     const slider = row.querySelector(".spectrum-slider");
