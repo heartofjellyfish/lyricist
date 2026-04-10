@@ -3,7 +3,7 @@ const STORAGE_KEY = "line-craft-state";
 const DEFAULT_STATE = {
   seed: "",
   subject: "",
-  spectrums: { orientation: 0, stability: 0, distance: 0, register: 0 },  // each -1 to 1, 0 = neutral
+  spectrums: { orientation: 0, stability: 0, distance: 0, register: 0, vision: 0 },  // each -1 to 1, 0 = neutral
   micros: [],
   results: [],       // Array of { id, line, craft_notes, parentId?, action? }
   idCounter: 0,

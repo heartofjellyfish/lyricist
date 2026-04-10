@@ -54,6 +54,16 @@ const SPECTRUMS = {
       return "";
     },
   },
+  vision: {
+    label: "Utopian ↔ Tragic",
+    description: "The world could be different vs. this is how it is",
+    buildHint(value) {
+      const strength = Math.abs(value) > 0.6 ? "STRONGLY " : "";
+      if (value < -0.3) return `${strength}Utopian posture: the speaker reaches for something that isn't here yet. Longing, desire, yearning for change. The line leans forward — the world could be different, should be different. There's hope even inside the hurt.`;
+      if (value > 0.3) return `${strength}Tragic posture: the speaker sees what is, clearly, without trying to change it. Not resigned — attentive. The beauty and the pain are both just facts. Acceptance, clear sight, the dignity of looking without flinching.`;
+      return "";
+    },
+  },
 };
 
 // ── Tier 2: Micro-Principles (toggled by UI) ────────────────────────
