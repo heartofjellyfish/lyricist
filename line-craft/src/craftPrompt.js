@@ -13,7 +13,7 @@ const CORE_IDENTITY = [
 
 // ── Spectrum Descriptions (for prompt hints) ────────────────────────
 
-// Values: -2 (strong left), -1 (mild left), 0 (neutral), 1 (mild right), 2 (strong right)
+// Values: -1 (left), 0 (neutral), 1 (right)
 
 const SPECTRUMS = {
   orientation: {
@@ -21,11 +21,9 @@ const SPECTRUMS = {
     description: "Observing the external world vs. revealing internal experience",
     buildHint(v) {
       const hints = {
-        "-2": "FULLY descriptive. The speaker is invisible — a pure camera. Show only scenes, objects, actions. NEVER use 'I' or name any emotion. All feeling is implied through what you choose to frame.",
-        "-1": "Lean descriptive. Mostly observe the external world — scenes, objects, actions. Let feeling be implied through what you notice. The speaker may be faintly present but stays in the background.",
+        "-1": "Descriptive. The speaker is invisible — a pure camera. Show only scenes, objects, actions. NEVER use 'I' or name any emotion. All feeling is implied through what you choose to frame.",
         "0": "",
-        "1": "Lean confessional. The speaker is present — 'I' appears. Feelings, memories, private thoughts color the line. The world is filtered through what the speaker feels, but grounded in something real.",
-        "2": "FULLY confessional. The speaker's inner life IS the line. Raw feeling, memory, private thought. The external world only exists as symbol or trigger for what's happening inside. Emotional, vulnerable, exposed.",
+        "1": "Confessional. The speaker's inner life IS the line. Raw feeling, memory, private thought. The external world only exists as symbol or trigger for what's happening inside. Emotional, vulnerable, exposed.",
       };
       return hints[String(v)] || "";
     },
@@ -35,11 +33,9 @@ const SPECTRUMS = {
     description: "Resolved, warm, at rest vs. tense, cold, leaning forward",
     buildHint(v) {
       const hints = {
-        "-2": "FULLY stable. Deep peace, warmth, resolution. The line should feel like arriving home, like a long exhale, like the last light of a good day. Nothing needs to change. The ground is unshakeable.",
-        "-1": "Lean stable. The line should feel mostly settled, warm, resolved. A moment of quiet or acceptance, even if bittersweet. The ground is solid beneath it.",
+        "-1": "Stable. Deep peace, warmth, resolution. The line should feel like arriving home, like a long exhale, like the last light of a good day. Nothing needs to change. The ground is solid.",
         "0": "",
-        "1": "Lean unstable. Something is slightly off. The line should feel uneasy, unresolved, leaning forward. A question that won't close. The ground is soft.",
-        "2": "FULLY unstable. Maximum tension, cold, dread. The line should feel like the moment before something breaks — or just after. Nothing is settled. The ground is gone. Vertigo, fracture, freefall.",
+        "1": "Unstable. Tension, cold, dread. The line should feel like the moment before something breaks — or just after. Nothing is settled. The ground is shifting. Vertigo, fracture, unease.",
       };
       return hints[String(v)] || "";
     },
@@ -49,11 +45,9 @@ const SPECTRUMS = {
     description: "A button on a shirt vs. a city skyline",
     buildHint(v) {
       const hints = {
-        "-2": "EXTREME close-up. A single texture, a pore, a thread, a crumb. The camera is inches away. The world shrinks to one tiny thing held under a magnifying glass. Nothing else exists.",
-        "-1": "Lean close. Domestic, arm's reach — a gesture, an object on a table, a hand on a doorknob. Intimate scale. The detail is specific and small.",
+        "-1": "Close lens. Zoom in tight — a single texture, a gesture, a crumb, a breath. Domestic, intimate, arm's reach. The world shrinks to one specific detail held under a magnifying glass.",
         "0": "",
-        "1": "Lean far. Pull back — a street, a neighborhood, a season. The feeling comes from a wider frame. Less about one object, more about the scene or the sweep of time.",
-        "2": "EXTREME wide shot. Landscapes, skylines, horizons, lifetimes, highways disappearing. Do NOT zoom into small objects. Stay at the widest possible view. The feeling comes entirely from scale, distance, and the passage of time.",
+        "1": "Far lens. Pull back WIDE. Landscapes, skylines, horizons, lifetimes, highways disappearing. Do NOT zoom into small objects. Stay at the widest possible view. The feeling comes from scale, distance, and the passage of time.",
       };
       return hints[String(v)] || "";
     },
@@ -63,11 +57,9 @@ const SPECTRUMS = {
     description: "Plain speech that lands vs. crafted poetic language",
     buildHint(v) {
       const hints = {
-        "-2": "FULLY spoken. Bare, blunt, conversational. Sound like someone at a kitchen table who says one thing and the room goes quiet. Monosyllables. No imagery. No metaphor. The poetry is ONLY in what's said and what's left out.",
-        "-1": "Lean spoken. Plain, conversational. Short words, simple syntax. The poetry is in the placement, not the vocabulary. It should sound like someone talking who accidentally says something that can't be unsaid.",
+        "-1": "Spoken voice. Bare, blunt, conversational. Sound like someone at a kitchen table who says one thing and the room goes quiet. Monosyllables. No imagery. No metaphor. The poetry is ONLY in what's said and what's left out.",
         "0": "",
-        "1": "Lean literary. Shaped, considered. The language has some craft to it — a precise verb, a compressed image, a rhythm that hums. But it doesn't call attention to itself.",
-        "2": "FULLY literary. Maximum craft. Rich vocabulary, dense imagery, compression. The language itself is the art — rhythm, assonance, internal rhyme, sound patterning. Every syllable is placed. Think Joni Mitchell, Huang Fan.",
+        "1": "Literary voice. Maximum craft. Dense imagery, compression. The language itself is the art — rhythm, assonance, sound patterning. Every syllable is placed. An everyday object performs a human action through one precise verb. The metaphor is never explained — it IS the image.",
       };
       return hints[String(v)] || "";
     },
@@ -77,11 +69,9 @@ const SPECTRUMS = {
     description: "The world could be different vs. this is how it is",
     buildHint(v) {
       const hints = {
-        "-2": "FULLY utopian. The speaker burns with longing. The line aches for what isn't here yet — a future, a reconciliation, a world remade. Yearning so strong it reshapes the present. Hope is not gentle here; it's desperate and luminous.",
-        "-1": "Lean utopian. The speaker reaches, gently, for something that could be. There's longing or hope inside the observation — the sense that things don't have to stay this way. The line leans forward.",
+        "-1": "Utopian posture. The speaker burns with longing. The line aches for what isn't here yet — a future, a reconciliation, a world remade. Yearning so strong it reshapes the present. Hope is not gentle here; it's desperate and luminous.",
         "0": "",
-        "1": "Lean tragic. The speaker sees clearly without trying to fix anything. There's acceptance — not cold, but steady. The beauty and the pain are both just facts. The line rests in what is.",
-        "2": "FULLY tragic. Unflinching clarity. The speaker has stopped reaching. What's here is all there is, and they see every detail of it — gorgeous and merciless. No hope, no despair, just the terrible dignity of paying attention to what cannot be changed.",
+        "1": "Tragic posture. Unflinching clarity. The speaker has stopped reaching. What's here is all there is, and they see every detail of it — gorgeous and merciless. No hope, no despair, just the terrible dignity of paying attention to what cannot be changed.",
       };
       return hints[String(v)] || "";
     },
