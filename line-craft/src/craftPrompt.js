@@ -165,7 +165,7 @@ const MICRO_PRINCIPLES = {
     group: "techniques",
     label: "陌生化",
     prompt: "Use 陌生化 (defamiliarization): make the familiar strange by excluding what's known and showing what's overlooked. Describe as if seeing for the first time. Strip the name away and describe what's actually there.\nExemplar: 「你如果是醒了，推开窗子，看这满园的欲望是多么美丽」(穆旦) — flowers become \"desire\".",
-    method: "① 选一个日常事物\nPick an everyday thing: \"flowers in spring\"\n\n② 忘掉它的名字，只看它在做什么\nForget its name, only see what it's doing\n\n③ 用另一个世界的词重新命名\nRename it from another world: \"a garden of desire\"\n\n⚡ 关键：排除已知的，呈现被忽略的\nKey: exclude the known, present the overlooked",
+    method: "① 选一个日常事物\nPick an everyday thing: \"flowers in spring\"\n\n② 忘掉它的名字，只看它在做什么\nForget its name, only see what it's doing\n\n③ 用另一个世界的词重新命名\nRename it from another world: \"a garden of desire\"\n\n⚡ 关键：排除已知的，呈现被忽略的\nKey: exclude the known, present the overlooked\n\n⚡ 泛陌生化（黄梵笨办法）：写作时心里始终绷一根弦——规避常识\nBrute-force method: keep a string taut — exclude every cliché you've ever read about this subject\n写落日？排除「残霞如血」「夕阳西下」一切俗套\nWriting sunset? Exclude \"blood-red dusk\", \"setting sun\", every phrase you've seen\n读书越多越好——为了知道并排除更多常识\nRead widely — not to imitate, but to know what to avoid",
     examples: [
       { zh: "女人：能降下泪水的云", en: "woman: a cloud that can rain tears", source: "Adonis", hint: "陌生化：忘掉「女人」只看行为 ＋ 通感：哭泣→降雨", featured: true, tags: ["defamiliarize", "synesthesia"] },
       { zh: "你如果是醒了，推开窗子，看这满园的**欲望**是多么美丽", en: "if you're awake, push open the window, see how beautiful this garden of desire is", source: "穆旦", hint: "陌生化：花→欲望 ＋ 染色：春天被染上了肉体的温度", featured: true, tags: ["defamiliarize", "coloring"] },

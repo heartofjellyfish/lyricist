@@ -780,6 +780,14 @@
   color: var(--accent);
 }
 
+.teach-section-subtitle {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: rgba(31, 26, 23, 0.55);
+  margin-top: -6px;
+  margin-bottom: 14px;
+}
+
 .teach-formula {
   margin-bottom: 20px;
   padding: 14px 16px;

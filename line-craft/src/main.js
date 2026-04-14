@@ -543,6 +543,179 @@ Not every line carries the same weight. Dense, dense, then a breath. "The milk's
   qualitySection.appendChild(qualityCard);
   body.appendChild(qualitySection);
 
+  // ── 第三堂课 · 新诗写作的核心 (Huang Fan Lesson 3) ───────────────
+  const lesson3Section = document.createElement("div");
+  lesson3Section.className = "teach-section";
+
+  const lesson3Title = document.createElement("div");
+  lesson3Title.className = "teach-section-title";
+  lesson3Title.textContent = "第三堂课 · 新诗写作的核心";
+  lesson3Section.appendChild(lesson3Title);
+
+  const lesson3Subtitle = document.createElement("div");
+  lesson3Subtitle.className = "teach-section-subtitle";
+  lesson3Subtitle.textContent = "黄梵《意象的帝国》— 主观意象的深化、诗意单元、形式与停顿";
+  lesson3Section.appendChild(lesson3Subtitle);
+
+  const lesson3Cards = [
+    {
+      name: "一、准确之道 Accuracy",
+      method: `<strong>主观意象的铁律：不搭界 + 有关联</strong><br>
+Lesson 2 教我们 A 和 B 要「不搭界」（冲撞产生陌生感）。<br>
+Lesson 3 补上另一半：必须有「一点关联」，否则读者觉得任意、不准确。<br>
+Lesson 2: A and B must clash. Lesson 3 adds: they must also share one hidden link.<br><br>
+<strong>两种关联方法 Two paths to find the link:</strong><br>
+· <strong>特征关联 Shared trait</strong>：A 和 B 共享某个属性（形状、颜色、质感、动作、温度）<br>
+  「女人 → 云」— 都能「降水」<br>
+  「黄昏 → 铁砧」— 都沉重炽热<br><br>
+· <strong>情景关联 Shared scene</strong>：在一个具体场景里，A 和 B 自然相遇<br>
+  「夕阳 = 遗忘在西边的椅子」— 构建一个被遗忘的场景<br>
+  「马蹄 = 美丽的错误」— 女人听蹄声以为是丈夫归来<br><br>
+<strong>黄金比例 Golden ratio:</strong> A 和 B 越不相关、张力越大——<em>只要关联仍然成立</em><br>
+The less related, the stronger — as long as the link still holds.`,
+    },
+    {
+      name: "二、准确 vs 多义 Two Tastes",
+      method: `<strong>两种合法的趣味 Two valid aesthetics:</strong><br><br>
+· <strong>准确 Accuracy</strong>：让读者「一下就懂」的收束感。必要时加一行解释让关联落地。<br>
+  "a click" — the reader gets it immediately.<br>
+  「日子成了飞驰的卡车／生日是救命的斑马线／能让卡车带着羞愧慢下来」<br>
+  第三行解释前两行的关联，使诗意完整、准确。<br><br>
+· <strong>多义 Ambiguity</strong>：让读者「琢磨不透」的开放感。不解释，让意义流动。<br>
+  Productive ambiguity — multiple readings coexist.<br><br>
+<strong>选择 Choice:</strong> 写之前想清楚——你要读者「收到」还是「追问」？两者都对。<br>
+Decide which taste before you write. Both are legitimate.`,
+    },
+    {
+      name: "三、主客观平衡 MSG & Broth",
+      method: `<strong>味精与清汤 The cooking metaphor:</strong><br>
+· <strong>主观意象 = 味精</strong>：浓烈、提味，但放多了发苦<br>
+  Subjective imagery = MSG. Potent. Use sparingly.<br>
+· <strong>客观意象 = 清汤</strong>：是底、是实景，但单靠清汤诗意太淡<br>
+  Objective imagery = broth. The base, but bland alone.<br><br>
+<strong>染色法 The coloring move:</strong><br>
+客观意象本无倾向——用一个情绪词把它「染色」，让它带上主观色彩。<br>
+Objective images have no charge. One emotional word dyes them with feeling.<br><br>
+范例 Example — Jeff Foster 的《袜子》四个主观意象（画线）配客观意象：<br>
+「<strong>麻木的一小时</strong>、<strong>都会缓解</strong>」— 把购物场景染上受挫感<br>
+「<strong>我什么都不需要</strong>」— 把物件染上硬气话背后的情感<br>
+「<strong>我害怕触碰它</strong>」— 把爱物染上创伤感<br><br>
+<strong>原则 Principle:</strong> 不要只用客观意象写诗；不时用主观意象增强诗意。<br>
+Never write with pure objective imagery; weave in subjective moments.`,
+    },
+    {
+      name: "四、最小诗意单元 Minimum Unit · 四行法则",
+      method: `<strong>诗意浓度的效率界限 The density threshold:</strong><br>
+一个完整的诗意，最少需要几行写完？1-4 行最佳。超过 4 行效率就偏低。<br>
+A complete poetic thought should fit in 1-4 lines. Beyond that, efficiency drops.<br><br>
+<strong>黄梵的铁律 Huang Fan's rule:</strong><br>
+<em>「四行之内，至少要有一个主观意象」</em><br>
+<em>"Every 4 lines must contain at least one subjective image"</em><br><br>
+<strong>救场法 The rescue:</strong><br>
+如果你一直用客观意象写，写到第四行诗意还很淡——<br>
+立即插入一个主观意象来「提升诗意浓度」，救回稀薄的诗意。<br>
+If you've been describing objectively and the poetry is thin by line 4,<br>
+drop in one subjective image to lift the density.<br><br>
+<strong>范例 Example — 蓝蓝《钉子》第九节:</strong><br>
+「还能走到哪里？／我的字一步一步拖着我的床和我的碗」<br>
+第一行客观疑问 → 第二行主观意象「字拖着床」= 写作拖着生活<br>
+第二行的主观意象「拖」出了完整诗意。<br><br>
+<strong>课后习题 Practice:</strong> 每天写一个不超过四行的诗节，至少包含一个主观意象。<br>
+Daily exercise: write a 4-line stanza with at least one subjective image.`,
+    },
+    {
+      name: "五、熟悉中的陌生 Form's Essence",
+      method: `<strong>诗歌形式的本质 The essence of poetic form:</strong><br>
+<em>「熟悉中的陌生」— familiarity, with an edge of strangeness</em><br><br>
+<strong>人性双重驱动 Human nature's two drives:</strong><br>
+· 求安全 → 倾向熟悉（可预见、安心）<br>
+  Safety → trust the familiar (predictable, at ease)<br>
+· 求冒险 → 渴望陌生（新鲜、刺激）<br>
+  Adventure → crave the unfamiliar (fresh, alive)<br><br>
+好的形式同时满足两者：在一个熟悉的框架里，露出刚好够的陌生。<br>
+Good form satisfies both: a familiar frame with just enough strangeness.<br><br>
+<strong>古诗的实现 Classical poetry's version:</strong><br>
+· 平声或仄声不能连续超过三个<br>
+  No more than 3 consecutive same tones — the ear craves variation<br>
+· 杜甫 = 最守熟悉（但诗中个性受损）<br>
+· 李白 = 倚重陌生（「蜀道难」漫不经心，自由）<br>
+· 刘禹锡《乌衣巷》= 大体守格律 + 几处拗字 = 熟悉中的陌生<br><br>
+<strong>新诗的启示 For new poetry:</strong><br>
+用熟悉的语法和意象 + 陌生化的搭配、停顿、转行。<br>
+Familiar grammar + strange combinations, pauses, line breaks.`,
+    },
+    {
+      name: "六、泛陌生化 Universal Defamiliarization",
+      method: `<strong>什克洛夫斯基的核心 Shklovsky's core insight:</strong><br>
+日常事物见得多了就「视而不见」— 自动化现象 (automation)。<br>
+The familiar becomes invisible — "automation" in perception.<br>
+陌生化 = 让熟悉的事物变得陌生，<strong>延长感受时间</strong>。<br>
+Defamiliarization = make the familiar strange to extend perception time.<br><br>
+<strong>泛陌生化 — 黄梵独创的笨办法 Huang Fan's brute-force method:</strong><br>
+<em>规避常识 — actively exclude every cliché you know</em><br><br>
+写作时心里始终绷一根弦：<br>
+写落日 → 排除「残霞如血」、「夕阳西下」一切你见过的说法<br>
+写春花 → 排除「花开烂漫」一切现成的词<br>
+Keep a string taut in your mind: every time you describe X,<br>
+exclude every phrase about X you've ever read.<br><br>
+<strong>阅读的意义 Why reading matters:</strong><br>
+读书越多越好——<em>为了知道并排除更多常识</em>。<br>
+Read widely — not to imitate, but to know what to avoid.<br><br>
+<strong>范例 Examples:</strong><br>
+· 「一月洁白的前额」— 一月+前额已陌生，再染「洁白」更陌生<br>
+  "January's white forehead" — compounding strangeness<br>
+· 「看这满园的<strong>欲望</strong>是多么美丽」（穆旦）— 花 → 欲望，排除了所有俗套<br>
+· 「灰尘只要不停搅动没准就会有好运」— 谁也料不到好运从搅动灰尘来`,
+    },
+    {
+      name: "七、停顿 Pauses · 形式陌生感的武器",
+      method: `<strong>外在形式的陌生化 External form as defamiliarization:</strong><br>
+新诗通过<strong>转行、空行、空格、标点</strong>制造停顿，延长读者的感受时间。<br>
+New poetry uses line breaks, blank lines, spaces, punctuation<br>
+to create pauses that slow the reader and create strangeness.<br><br>
+<strong>四种武器 Four devices:</strong><br>
+· <strong>转行 Line break</strong>：句子未完就换行 → 悬念。读者被迫停顿。<br>
+  「我在大街上／打／车」— 「打」悬停，是打人？打车？打球？<br>
+· <strong>空行 Blank line</strong>：更长的停顿，让节与节之间呼吸<br>
+  Blank line = longer breath between stanzas<br>
+· <strong>空格 Space</strong>：词中的断裂，制造视觉和阅读的停顿<br>
+  Spaces within a line create micro-pauses<br>
+· <strong>破折号 Dash</strong>：最长的停顿，像一个人大喘气<br>
+  The dash is the longest pause — like gasping for breath<br><br>
+<strong>范例 Example — Williams《红色手推车》:</strong><br>
+把「red wheelbarrow」切成「red wheel / barrow」— 让读者在 barrow 出现前想不到婴儿车<br>
+Breaking "wheelbarrow" into "wheel / barrow" blocks premature recognition<br><br>
+<strong>警告 Warning — 赵丽华体的教训:</strong><br>
+<em>只有外形陌生 + 无内在诗意 = 失败</em><br>
+Pure formal strangeness without poetic content = failure.<br>
+赵丽华把「我坚决不能容忍在公共场所的卫生间大便后不冲刷便池的人」分行<br>
+形式上陌生，但去掉分行就是普通散文——毫无诗意。<br><br>
+<strong>最佳组合 The best combination:</strong><br>
+<em>内在诗意浓 + 外在形式陌生 = 锦上添花</em><br>
+Strong poetic content + strong formal strangeness = poetry at its best.<br>
+洛夫《和你和我和蜡烛》、多多《死了。死了十头》— 两者兼备。`,
+    },
+  ];
+
+  for (const card of lesson3Cards) {
+    const el = document.createElement("div");
+    el.className = "teach-formula";
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "teach-formula-name";
+    nameEl.textContent = card.name;
+    el.appendChild(nameEl);
+
+    const methodEl = document.createElement("div");
+    methodEl.className = "teach-method";
+    methodEl.innerHTML = card.method;
+    el.appendChild(methodEl);
+
+    lesson3Section.appendChild(el);
+  }
+
+  body.appendChild(lesson3Section);
+
   // ── Micro groups (formulas, techniques, structure, stance) ─────
   const teachGroups = [
     { key: "formulas", title: "四大意象公式 Four Imagery Formulas" },
