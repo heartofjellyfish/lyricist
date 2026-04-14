@@ -535,31 +535,42 @@ if it can be cut, cut it. Never name the emotion; let the image carry it.<br>
 Varied density is one tool: dense, dense, then a breath.<br><br>
 <strong>③ 镜像人性与世界 MIRROR OF HUMAN NATURE</strong><br>
 好的意象不是装饰——它在说一件关于「人」或「世界」的真事<br>
-Good images aren't decoration — they speak a truth about human nature or<br>
-the way the world works.<br><br>
-<strong>人性的主要母题 Core traits worth mirroring:</strong><br>
-· <strong>自欺 Self-Deception</strong> — 人最擅长骗的是自己<br>
-  Dostoevsky《地下室手记》／ Sartre「mauvaise foi」／ Nietzsche「最大的谎言说给自己听」<br>
-· <strong>虚荣 · 面子 Vanity</strong> — 不是为自己活，是为「被看见」而活<br>
-  Tolstoy《安娜·卡列尼娜》／《红楼梦》<br>
-· <strong>自相矛盾 Contradiction</strong> — 同时渴望相反的两件事<br>
-  Whitman「I contain multitudes」／ Pascal「人既是天使又是野兽」<br>
-· <strong>趋利避害 Self-Protection</strong> — 连爱都藏着算计<br>
-  La Rochefoucauld《箴言录》／ Hobbes《利维坦》<br>
-· <strong>嫉妒 Envy</strong> — 看见别人的好，自己先烂一块<br>
-  Shakespeare《奥赛罗》(伊阿古) ／《传道书》4:4<br>
-· <strong>有限 · 死亡 Mortality</strong> — 一切都会被时间收走<br>
-  《传道书》「虚空的虚空」／ Heidegger「向死而生」／ Proust<br>
-· <strong>欲望无底 Insatiable Desire</strong> — 得到的那一刻就开始想下一个<br>
-  Schopenhauer ／ 佛陀「苦谛」<br>
-· <strong>孤独 Isolation</strong> — 两个人在一起也可能更孤独<br>
-  Eliot《普鲁弗洛克》／ Camus《局外人》／ Kafka<br>
-· <strong>遗忘 Forgetting</strong> — 最重要的东西最先漏掉<br>
-  Proust《追忆》／ Borges ／ Kundera《不能承受的生命之轻》<br>
-· <strong>习惯吞噬感受 Habit Dulls Life</strong> — 重复到连感觉都没了<br>
-  Kierkegaard ／ 什克洛夫斯基「自动化」（这正是陌生化要救的东西）<br><br>
-<em>写意象时问自己：它映射的是哪一条？如果一条都对不上，它可能只是好看。</em><br>
-<em>Ask of every image: which of these does it touch? If none, it's probably just pretty.</em>`;
+Good images aren't decoration — they speak a truth about human nature.<br><br>
+<strong>总纲：人性的核心是自我矛盾 The master theme — self-contradiction</strong><br>
+<em>钱钟书《围城》：「城外的人想进来，城里的人想出来。」</em><br>
+<em>Qian Zhongshu: those outside the city want in, those inside want out.</em><br>
+人不是黑的，也不是白的——是同时渴望相反的两件事，也在相反之间发光。<br>
+Humans aren't evil or good — they want opposite things at once, and the<br>
+light shows through the crack between them (Cohen: <em>"there is a crack in<br>
+everything, that's how the light gets in"</em>).<br><br>
+<strong>六座「围城」 Six besieged cities（每一座都是暗 ↔ 亮并存）:</strong><br><br>
+· <strong>归属 ↔ 自由 Belonging vs Freedom</strong><br>
+  想被拥抱，又怕被困住；出走又回望<br>
+  《围城》钱钟书 ／ Goethe《浮士德》「两个灵魂住在我胸膛」 ／ Camus ／<br>
+  《红楼梦》大观园 ／ 陶渊明「久在樊笼里，复得返自然」<br><br>
+· <strong>渴望亲密 ↔ 害怕暴露 Intimacy vs Exposure</strong><br>
+  想被爱，又不敢让真实的自己被看见<br>
+  Eliot《普鲁弗洛克》「Do I dare?」／ Dostoevsky《地下室手记》(明知爱她却赶她走) ／<br>
+  川端康成（美与羞怯）<br><br>
+· <strong>自私 ↔ 舍己 Self-Interest vs Sacrifice</strong><br>
+  最深的算计和最纯的给予，住在同一颗心里<br>
+  La Rochefoucauld《箴言录》（德行多是伪装的恶）／ Dostoevsky《卡拉马佐夫》<br>
+  「魔鬼与上帝交战的战场，就是人心」／《孟子》恻隐之心 ／<br>
+  圣保罗《罗马书》7:19「我所愿意的善，我反不做」<br><br>
+· <strong>永恒 ↔ 瞬间 Eternity vs Moment</strong><br>
+  渴望不变，又爱着终将消失的东西<br>
+  《传道书》「虚空的虚空」／ Proust《追忆》（玛德琳蛋糕）／<br>
+  松尾芭蕉 · 物の哀れ（美正因将逝而美）／ Blake《天真与经验之歌》<br><br>
+· <strong>自欺 ↔ 自知 Self-Deception vs Self-Knowledge</strong><br>
+  最不想看见的，是自己；最想知道的，也是自己<br>
+  Sartre「mauvaise foi」／ 苏格拉底「认识你自己」／ Nietzsche ／<br>
+  庄子梦蝶（我是我？还是梦见自己的蝴蝶？）<br><br>
+· <strong>沉沦日常 ↔ 渴望超越 Routine vs Transcendence</strong><br>
+  习惯吞噬感觉，心底却总盼一次重新看见世界<br>
+  Kierkegaard ／ 什克洛夫斯基「自动化」（陌生化要救的正是这个）／<br>
+  《薄伽梵歌》Arjuna 的瘫痪与觉醒 ／ Whitman「I contain multitudes」<br><br>
+<em>自检：写意象时问自己——它映射的是哪一座围城？如果只有「好看」，它还没成。</em><br>
+<em>Self-check: which contradiction does this image touch? "Pretty" alone isn't enough.</em>`;
   qualityCard.appendChild(qualityMethod);
 
   qualitySection.appendChild(qualityCard);
