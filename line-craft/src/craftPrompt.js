@@ -7,6 +7,8 @@ const CORE_IDENTITY = [
   "Be SPECIFIC. Whatever scale you're working at — a button or a skyline — make the detail precise and earned. Not generic, not decorative.",
   "4–10 words. Never more than 12.",
   "No clichés. No stock images (no umbrellas-left-behind, no rain-on-windows unless you see the rain so specifically it becomes new).",
+  "Brute-force defamiliarization: when describing anything concrete — sunset, rain, a face, a hand — actively exclude every phrase about it you have ever read. The more familiar the subject, the more ruthlessly you avoid the familiar words for it. Read widely, only to know what to exclude.",
+  "When the scene is objective, let the speaker's feeling stain one verb or adjective inside it — the flower 'splashes tears', not just 'blooms'; the light 'refuses' the room. The object itself carries the emotion without the emotion being named. One dyed word is enough; never more.",
   "Strong verbs. Every word must earn its place.",
   "Vary the lines. Some can just be precise observations. Some can have a turn. Some can be a question. Some can be a single image held up to the light. Diversity of approach matters — these lines are meant to INSPIRE, not to all work the same way.",
   "NEVER explain the metaphor. The image IS the meaning. If you add 'like something confessing' or 'as if mourning' you've killed it. Trust the image.",
@@ -140,49 +142,6 @@ const MICRO_PRINCIPLES = {
       { zh: "**歌声**，是歌声伐光了白桦林", en: "song, it's song that felled the birch forest", source: "多多", hint: "歌声不能「伐」——但声波的力量被赋予了斧头的破坏力" },
       { zh: "我的**字**一步一步拖着我的床和我的碗", en: "my words drag my bed and my bowl step by step", source: "蓝蓝", hint: "字不能「拖」——但写作确实拖着你的全部生活往前走", featured: true },
       { zh: "我的**脚步**是地里的爆炸", en: "my footsteps are explosions in the ground", source: "Tranströmer", hint: "脚步不能「爆炸」——但那份重量和冲击力被揭示了" },
-    ],
-  },
-
-  // ── Huang Fan: Techniques (手法) ─────────────────────────────────
-  synesthesia: {
-    group: "techniques",
-    label: "通感",
-    prompt: "Use 通感 (synesthesia): describe one sense through another. Let sound have color, let light have weight, let silence have texture. The crossing must feel inevitable, not decorative.\nExemplar: 「微风过处，送来缕缕清香，仿佛远处高楼上渺茫的歌声似的」(朱自清) — fragrance becomes distant song.",
-    method: "① 选一个感官体验\nPick a sensory experience: \"the bell rings\"\n\n② 用另一个感官来描述它\nDescribe it through a different sense: \"the bell sound is green\"\n\n⚡ 关键：两个感官之间要有隐藏的共性\nKey: the two senses must share a hidden quality\n· 铃声+绿色 share 清脆、清新\n  Bell + green share crispness, freshness",
-    examples: [
-      { zh: "铃声是绿色的", en: "the bell sound is green", source: "多多", hint: "通感：听觉→视觉，铃声的清脆=绿色的清新", featured: true, tags: ["synesthesia"] },
-      { zh: "微风过处，送来缕缕清香，仿佛远处高楼上渺茫的歌声似的", en: "a breeze carries wisps of fragrance like a distant song from a high tower", source: "朱自清", hint: "通感：嗅觉→听觉 ＋ 染色：孤独把清香染成了「渺茫」", featured: true, tags: ["synesthesia", "coloring"] },
-    ],
-  },
-  defamiliarize: {
-    group: "techniques",
-    label: "陌生化",
-    prompt: "Use 陌生化 (defamiliarization): make the familiar strange by excluding what's known and showing what's overlooked. Describe as if seeing for the first time. Strip the name away and describe what's actually there.\nExemplar: 「你如果是醒了，推开窗子，看这满园的欲望是多么美丽」(穆旦) — flowers become \"desire\".",
-    method: "① 选一个日常事物\nPick an everyday thing: \"flowers in spring\"\n\n② 忘掉它的名字，只看它在做什么\nForget its name, only see what it's doing\n\n③ 用另一个世界的词重新命名\nRename it from another world: \"a garden of desire\"\n\n⚡ 关键：排除已知的，呈现被忽略的\nKey: exclude the known, present the overlooked\n\n⚡ 泛陌生化（黄梵笨办法）：写作时心里始终绷一根弦——规避常识\nBrute-force method: keep a string taut — exclude every cliché you've ever read about this subject\n写落日？排除「残霞如血」「夕阳西下」一切俗套\nWriting sunset? Exclude \"blood-red dusk\", \"setting sun\", every phrase you've seen\n读书越多越好——为了知道并排除更多常识\nRead widely — not to imitate, but to know what to avoid",
-    examples: [
-      { zh: "女人：能降下泪水的云", en: "woman: a cloud that can rain tears", source: "Adonis", hint: "陌生化：忘掉「女人」只看行为 ＋ 通感：哭泣→降雨", featured: true, tags: ["defamiliarize", "synesthesia"] },
-      { zh: "你如果是醒了，推开窗子，看这满园的**欲望**是多么美丽", en: "if you're awake, push open the window, see how beautiful this garden of desire is", source: "穆旦", hint: "陌生化：花→欲望 ＋ 染色：春天被染上了肉体的温度", featured: true, tags: ["defamiliarize", "coloring"] },
-      { zh: "在整个天空，只有一颗男性的星", en: "in the entire sky, only one male star", source: "Lorca", hint: "星星被赋予性别，陌生化让你重新看天空", tags: ["defamiliarize"] },
-    ],
-  },
-  coloring: {
-    group: "techniques",
-    label: "染色",
-    prompt: "Use 染色 (emotional coloring): let the speaker's emotion stain the landscape. The scene doesn't just reflect mood — it's been dyed by it. Every object carries the feeling without naming it.\nExemplar: 「感时花溅泪，恨别鸟惊心」(杜甫) — flowers \"splash tears\", birds \"startle the heart\".",
-    method: "① 写一个场景\nWrite a scene: \"spring flowers, birdsong\"\n\n② 确定情绪（但不说出来）\nDecide the emotion (but don't name it): grief\n\n③ 让情绪渗透进每个物体的动作\nLet the emotion seep into every object's action\n花 → 溅泪, 鸟 → 惊心\n\n⚡ 关键：情绪不是描述的，是物体自己在感受\nKey: the emotion isn't described — the objects feel it themselves",
-    examples: [
-      { zh: "感时**花溅泪**，恨别**鸟惊心**", en: "in grief, flowers splash tears; parting, birds startle the heart", source: "杜甫", hint: "染色：悲伤渗进花和鸟 ＋ 通感：情绪→物理动作（溅、惊）", featured: true, tags: ["coloring", "synesthesia"] },
-      { zh: "你看我时很远，你看云时很近", en: "when you look at me it's far, when you look at clouds it's near", source: "顾城", hint: "染色：情感扭曲了空间 ＋ 陌生化：「远近」不再是距离", featured: true, tags: ["coloring", "defamiliarize"] },
-    ],
-  },
-  montage: {
-    group: "techniques",
-    label: "蒙太奇",
-    prompt: "Use 蒙太奇 (montage/logic-jump): juxtapose two unrelated images with no transition. The meaning lives in the gap between them. Trust the reader to build the bridge.\nExemplar: 「枯藤老树昏鸦，小桥流水人家」(马致远) — desolation and home, side by side, no commentary.",
-    method: "① 写两个画面，来自不同世界\nWrite two images from different worlds\n\n② 去掉所有连接词（像、如、仿佛）\nRemove all connectors (like, as, as if)\n\n③ 并列放置，让读者自己搭桥\nPlace side by side, let the reader bridge\n\n⚡ 关键：两个画面之间的空白就是诗\nKey: the gap between the two images IS the poetry",
-    examples: [
-      { zh: "枯藤老树昏鸦，小桥流水人家", en: "withered vine, old tree, crows at dusk / small bridge, flowing water, a home", source: "马致远", hint: "蒙太奇：荒凉/温暖并列 ＋ 染色：每个物体都被乡愁染透", featured: true, tags: ["montage", "coloring"] },
-      { zh: "阳光如一只猫；平底锅下的火环，被他拧为日落", en: "sunlight like a cat; the ring of fire under a frying pan, twisted by him into sunset", source: "Walcott", hint: "蒙太奇：三画面跳切 ＋ 通感：视觉→触觉→视觉", featured: true, tags: ["montage", "synesthesia"] },
     ],
   },
 
@@ -474,7 +433,6 @@ export const MICRO_PRINCIPLE_LIST = Object.entries(MICRO_PRINCIPLES).map(([key, 
 
 export const MICRO_GROUPS = [
   { key: "formulas", title: "意象公式 Imagery Formulas", subtitle: "黄梵《意象的帝国》", exclusive: true },
-  { key: "techniques", title: "手法 Techniques", subtitle: "黄梵", exclusive: false },
   { key: "structure", title: "Structural Moves", subtitle: "Benchmark songs + teachers", exclusive: false },
   { key: "stance", title: "Stance", subtitle: "Modifiers", exclusive: false },
 ];

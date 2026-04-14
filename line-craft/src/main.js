@@ -116,8 +116,8 @@ function initMicros() {
       groupEl.appendChild(exBlock);
     }
 
-    // Formulas + techniques go inside the metaphor toggle section
-    const target = (group.key === "formulas" || group.key === "techniques") ? metaphorMicros : microsContainer;
+    // Formulas go inside the metaphor toggle section
+    const target = group.key === "formulas" ? metaphorMicros : microsContainer;
     target.appendChild(groupEl);
   }
 }
@@ -166,33 +166,7 @@ function renderExamples(activeMicros) {
     }
     exBlock.style.display = "";
 
-    // Techniques group: AND logic — pool all examples, show only those matching ALL active techniques
-    if (groupKey === "techniques") {
-      const activeKeys = items.map((i) => i.key);
-      // Pool all featured examples from all technique items, de-duplicate by zh text
-      const seen = new Set();
-      const pooled = [];
-      for (const item of MICRO_PRINCIPLE_LIST.filter((m) => m.group === "techniques")) {
-        for (const ex of item.examples) {
-          if (!ex.featured || seen.has(ex.zh)) continue;
-          seen.add(ex.zh);
-          pooled.push(ex);
-        }
-      }
-      // Filter: example tags must include every active technique key
-      const filtered = pooled.filter((ex) => ex.tags && activeKeys.every((k) => ex.tags.includes(k)));
-      for (const ex of filtered) {
-        const line = document.createElement("div");
-        line.className = "micro-example-line";
-        const zhHtml = ex.zh.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-        line.innerHTML = `<span class="ex-zh">${zhHtml}</span><span class="ex-en">${ex.en}</span><span class="ex-source">${ex.source}</span>`;
-        exBlock.appendChild(line);
-      }
-      if (filtered.length === 0) exBlock.style.display = "none";
-      continue;
-    }
-
-    // Other groups: show featured examples per active item (as before)
+    // Show featured examples per active item
     for (const item of items) {
       const featured = item.examples.filter((ex) => ex.featured);
       for (const ex of featured) {
