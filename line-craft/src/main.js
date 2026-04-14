@@ -429,111 +429,253 @@ Real images hit the body before the mind catches up. Decoration hits nothing.`;
   qualitySection.appendChild(qualityCard);
   body.appendChild(qualitySection);
 
+  // ── 第一堂课 · 受用一生的写作观念 (Huang Fan Lesson 1) ──────────
+  const lesson1Section = createCollapsibleSection({
+    title: "第一堂课 · 受用一生的写作观念",
+    teaser: "观念即杠杆 · 两个自我 · 写作即演化 · 多重真实 · 整体感 · 方法比灵感",
+    subtitle: "黄梵《意象的帝国》— 动笔之前，先换一副写作的脑子",
+  });
+
+  const lesson1Cards = [
+    {
+      name: "一、观念是杠杆 Mindsets Are the Lever",
+      method: `<strong>技巧改变行为，观念改变基因 Technique tweaks behavior; mindset rewrites DNA:</strong><br>
+真正决定你写出什么的，不是句法或词汇——是你脑子里关于「写作是什么」的那些观念。<br>
+What you write is determined less by technique than by what you believe writing <em>is</em>.<br><br>
+<strong>本堂课的任务 The aim of this lesson:</strong><br>
+不教你怎么写句子——先把那些会让你一辈子吃亏的旧观念换掉。<br>
+Before technique: swap out the assumptions that will quietly sabotage every line you write.<br><br>
+<em>「观念一变，笔下的世界就换了一套物理规则。」</em><br>
+<em>"Change one mindset and the whole physics of your page changes."</em>`,
+    },
+    {
+      name: "二、两个自我 · 让潜意识入场 Two Selves · Invite the Unconscious",
+      method: `<strong>写作者不只一个「我」 The writer is never one person:</strong><br>
+· <strong>理性的我</strong>：规划、推敲、删改<br>
+  The rational I — plans, edits, cuts.<br>
+· <strong>潜意识的我</strong>：冒出意外的词、奇怪的画面、不讲道理的联想<br>
+  The unconscious I — ambushes you with the phrase you didn't plan.<br><br>
+弗洛伊德的冰山——露出水面的一小块是理性，水下的大部分才是真正在驱动你的那个人。<br>
+Freud's iceberg — the small tip is reason; the mass beneath is what actually writes.<br><br>
+<strong>两种工作姿态 Two working postures:</strong><br>
+· <strong>达·芬奇式</strong>：先全盘规划，一笔不差<br>
+  Da Vinci — plan everything, then execute.<br>
+· <strong>泼墨写意式</strong>：先放开画，再从意外里选出有意味的<br>
+  Ink-splash — splash first, then recognize what's meaningful in the mess.<br><br>
+<em>黄梵的劝告：初学者更需要后者——先让潜意识先说话，理性稍后再进来收拾。</em><br>
+<em>Beginners need the splash, not the plan. Let the unconscious speak first; reason edits later.</em>`,
+    },
+    {
+      name: "三、写作是演化，不是倒推 Writing Is Evolution, Not Reverse-Engineering",
+      method: `<strong>两种生物比喻 Two creatures as metaphor:</strong><br>
+· <strong>蜜蜂</strong>：对着一个明亮的目标拼命撞——撞不出去<br>
+  The bee — slams at a bright target, never gets out.<br>
+· <strong>苍蝇</strong>：乱飞试错——总能找到出口<br>
+  The fly — random trials, finds the opening.<br><br>
+<strong>大师们也都是先乱再收 The masters always messed up first:</strong><br>
+拉斐尔留下无数草图，罗丹捏了一堆泥塑，海明威：「任何初稿都是狗屎。」<br>
+Raphael's sketch piles, Rodin's clay drafts, Hemingway: <em>"The first draft of anything is shit."</em><br><br>
+<strong>结尾先行法 Poe's ending-first method:</strong><br>
+爱伦·坡：先想结尾，中间让想象力自己填。先知道要到哪儿，才有动力走。<br>
+Poe: decide the ending first, then let imagination fill the middle. Knowing where you're going gives momentum.<br><br>
+<strong>自动写作 Breton's automatism:</strong><br>
+写作像给朋友写信——想到哪写到哪，别预设终点。<br>
+Write like writing a letter — let it go wherever, don't pre-plot the landing.<br><br>
+<em>别倒推出一首诗，要让它长出来。</em><br>
+<em>Don't reverse-engineer a poem — let it grow.</em>`,
+    },
+    {
+      name: "四、多重真实 · 夸张是文学的实质 Multiple Truth · Exaggeration Is the Substance",
+      method: `<strong>事实 ≠ 真实 Fact is not truth:</strong><br>
+新闻追求「事实」（what happened）。文学追求「真实」（what it <em>felt</em> like）。<br>
+Journalism chases fact. Literature chases felt-truth.<br>
+一件事，十个作家写出来——十个都对，但十个都不一样。<br>
+Ten writers, one event, ten versions — all correct, none identical.<br><br>
+<strong>扔掉「中心思想」 Throw out the "central theme":</strong><br>
+语文课教你从每篇找「一个」中心思想——这是反文学的。<br>
+School trained you to extract one theme per text — that's anti-literary.<br>
+好作品有多层真实，读者从各自的高度取走不同的东西。<br>
+Real work has layered truths; each reader takes away from their own altitude.<br><br>
+<strong>夸张是本质，不是装饰 Exaggeration isn't decoration — it's the substance:</strong><br>
+海鸥实验：幼鸥啄母鸟喙上的红点进食——科学家做了个假喙，红点越大越粗，<br>
+幼鸥越疯狂地啄。夸张写在了基因里。<br>
+The seagull experiment — chicks peck harder at a bigger, redder mock-beak.<br>
+Exaggeration is written into survival itself.<br><br>
+<strong>因果律也是文学的夸张 Causality is literary too:</strong><br>
+海明威写《老人与海》——前面让老人连续 84 天一无所获，<br>
+第 85 天遇到大马林鱼：这是人为制造的因果，让收获有了重量。<br>
+Hemingway's 84 empty days before the marlin — a manufactured causality that gives the catch its weight.<br><br>
+<em>准确的事实不一定动人；精心放大的「不实」才是文学。</em><br>
+<em>Accurate facts don't always move. Literature is the "inaccuracy" that moves you.</em>`,
+    },
+    {
+      name: "五、整体感 · 用暗示代替解释 Gestalt · Hint, Don't Spell Out",
+      method: `<strong>格式塔原理 The Gestalt principle:</strong><br>
+人脑天生要把零碎拼成整体——只看到 C 形的缺口，仍感知到一个完整的圆。<br>
+The brain compulsively completes patterns — a broken C still reads as a circle.<br><br>
+<strong>给弱提示，让读者补形 Give weak hints; the reader completes the shape:</strong><br>
+· 一个引人入胜的<strong>标题</strong>就够了<br>
+  A suggestive title is enough.<br>
+  马原《冈底斯的诱惑》—「冈底斯」定了圣山的框架<br>
+· 一个<strong>特殊的形式</strong>就够了<br>
+  An unusual form is enough.<br>
+  米沃什的《米沃什词典》用词条形式——读者自动把碎片拼成一个人的一生<br><br>
+<strong>少即是整 Less is more — literally wholeness:</strong><br>
+完整说出来反而让人走神。留白，读者才会走进来。<br>
+Over-explain and the reader checks out. Leave space and they step in.<br><br>
+<strong>黄氏理论 Huang's theorem:</strong><br>
+人是审美动物；写作 = 把内心的情感、感觉、感官美化出来。<br>
+Humans are aesthetic animals; writing is the aestheticizing of inner experience.<br>
+金字塔：诉说 → 信件 → 散文 → 小说 → 诗歌（审美要求越来越高）<br>
+Pyramid of demand: talk → letters → essay → fiction → poetry (each tier needs more aesthetic work).<br><br>
+<em>不是你写得越多越好——是给的越准、留的越多，整体感越强。</em><br>
+<em>Not more words — more precise hints, more space, stronger wholeness.</em>`,
+    },
+    {
+      name: "六、方法比灵感重要 Method Over Inspiration",
+      method: `<strong>灵感是奴仆，不是主人 Inspiration is your servant, not your master:</strong><br>
+初学者以为没灵感就没法写。有经验的作家相反——<br>
+<em>他们从不靠灵感写作，但灵感总来。</em><br>
+Novices wait for inspiration. Pros never wait — and inspiration shows up anyway.<br><br>
+<strong>定时定点 Fixed time, fixed place:</strong><br>
+歌德、海明威、格林、托马斯·曼——都是准点坐下。每天同一时间、同一书桌。<br>
+Goethe, Hemingway, Graham Greene, Thomas Mann — same time, same desk, every day.<br>
+身体会认出这个时段，到点就「泉思如涌」。<br>
+The body learns the slot; by the appointed hour, the mind fills it.<br><br>
+<strong>限量才能敏感 Cap your output to stay sharp:</strong><br>
+海明威一天 800 字封顶；托马斯·曼不超过两页；都不超过 4 小时。<br>
+Hemingway: 800 words/day. Mann: 2 pages. Both capped at 4 hours.<br>
+写太多、太久——对语言的敏感会迟钝（「语言脱敏」）。<br>
+Write too much and language goes numb on you.<br><br>
+<strong>护短心理 · 初学者的大坑 The ego-protection trap:</strong><br>
+怕家人朋友「对号入座」，就不敢把人物写坏、写阴暗——人物写不起来。<br>
+Afraid family will recognize themselves? You'll flinch from writing dark characters — and your characters will be dead on the page.<br>
+<em>要有「被误解的勇气」——不然写出来的都是伪善、说教。</em><br>
+<em>Without the courage to be misread, everything becomes pious and preachy.</em><br><br>
+<em>天才等灵感；职业作家管理身体，让灵感来找他。</em><br>
+<em>Amateurs wait for inspiration. Professionals manage the body so inspiration arrives on time.</em>`,
+    },
+  ];
+
+  for (const card of lesson1Cards) {
+    const el = document.createElement("div");
+    el.className = "teach-formula";
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "teach-formula-name";
+    nameEl.textContent = card.name;
+    el.appendChild(nameEl);
+
+    const methodEl = document.createElement("div");
+    methodEl.className = "teach-method";
+    methodEl.innerHTML = card.method;
+    el.appendChild(methodEl);
+
+    lesson1Section.appendChild(el);
+  }
+
+  body.appendChild(lesson1Section);
+
   // ── 第三堂课 · 新诗写作的核心 (Huang Fan Lesson 3) ───────────────
   const lesson3Section = createCollapsibleSection({
     title: "第三堂课 · 新诗写作的核心",
-    teaser: "准确 · 主客观平衡 · 四行法则 · 陌生化 · 停顿",
+    teaser: "准确三柱 · 主客观平衡 · 四行法则 · 陌生化 · 停顿",
     subtitle: "黄梵《意象的帝国》— 主观意象的深化、诗意单元、形式与停顿",
   });
 
   const lesson3Cards = [
     {
-      name: "一、准确之道 Accuracy",
-      method: `<strong>主观意象的铁律：不搭界 + 有关联</strong><br>
-Lesson 2 教我们 A 和 B 要「不搭界」（冲撞产生陌生感）。<br>
-Lesson 3 补上另一半：必须有「一点关联」，否则读者觉得任意、不准确。<br>
-Lesson 2: A and B must clash. Lesson 3 adds: they must also share one hidden link.<br><br>
-<strong>两种关联方法 Two paths to find the link:</strong><br>
-· <strong>特征关联 Shared trait</strong>：A 和 B 共享某个属性（形状、颜色、质感、动作、温度）<br>
-  「女人 → 云」— 都能「降水」<br>
-  「黄昏 → 铁砧」— 都沉重炽热<br><br>
-· <strong>情景关联 Shared scene</strong>：在一个具体场景里，A 和 B 自然相遇<br>
-  「夕阳 = 遗忘在西边的椅子」— 构建一个被遗忘的场景<br>
-  「马蹄 = 美丽的错误」— 女人听蹄声以为是丈夫归来<br><br>
-<strong>黄金比例 Golden ratio:</strong> A 和 B 越不相关、张力越大——<em>只要关联仍然成立</em><br>
-The less related, the stronger — as long as the link still holds.`,
+      name: "一、准确之道 · 三根支柱 Three Pillars of Accuracy",
+      method: `<strong>准确不是两件事，是三件事 Accuracy has THREE pillars, not two:</strong><br>
+(1) 冲撞 Clash · (2) 关联 Link · (3) 语境 Context<br><br>
+<strong>① 冲撞 CLASH — 把 A 和 B 推得远远的</strong><br>
+黄梵原话：「两个有<strong>相当距离</strong>的事物，搭配在一起，就会产生诗意。」<br>
+<em>"Pair two things of substantial distance — that's where poetry comes from."</em><br>
+距离越大越好——<em>只要还能找到关联</em>。<br>
+怎么推远：跨领域配对——<br>
+· 室内物件 + 天气（「大雨的铁钉」「大雨的筷子」）<br>
+· 身体部位 + 政治身份（「暴君的钟」「蹬腿的舌头」）<br>
+· 动物 + 官僚制度（「候鸟群 / 不必持有护照」）<br>
+· 人的行为 + 地质时间<br>
+❌ 回避：「春风的手」「时间的河」—— 这些已是陈词滥调，距离太近。<br>
+❌ Avoid tame pairings — they've already become clichés. Push further.<br><br>
+<strong>② 关联 LINK — 冲撞之后，读者能摸到的那根隐线</strong><br>
+· <strong>特征关联</strong>：形状 / 颜色 / 质感 / 动作 / 温度<br>
+  「黄昏的铁砧」— 共享沉重 + 炽热<br>
+  「水的银鼓」— 共享圆、亮、能被敲响<br>
+· <strong>场景关联</strong>：在一个具体场景里，A 和 B 自然相遇<br>
+  「马蹄 = 美丽的错误」— 女人听蹄声以为丈夫归来<br>
+  「海上落日 = 溺水的头颅」— 都在「水面沉没」<br>
+关联要<strong>单一、隐藏</strong>——读者一眼就看见的关联 = 死句。<br>
+Keep the link single and hidden. If it's obvious before the clash lands, the line is dead.<br><br>
+<strong>③ 语境 CONTEXT — 让同一对 A/B 起死回生的那件事</strong><br>
+同一组词，在不同语境里，可以是诗也可以是废话。<br>
+黄梵的原例：<strong>「蓝色的眼睛」</strong>——<br>
+· 在中国语境里是诗（蓝眼罕见，形成错搭）<br>
+· 在北欧语境里是流水账（蓝眼常见，属正常搭配）<br>
+"Blue eyes" is poetry in a Chinese context, a flat description in Northern Europe.<br>
+Context decides whether a pair is 错搭 or 正常搭配.<br><br>
+语境做工的三种方式 Three ways context does the work:<br>
+· <strong>限定词收窄 B</strong>：「脊背」很普通；「<em>拱起的</em>脊背」唯一像问号<br>
+  A concrete adjective narrows B to one precise shade.<br>
+· <strong>场景让两物共现</strong>：「夕阳 + 椅子」本不搭；放进「遗忘在西边的」场景里，自然相遇<br>
+  A scene fuses unrelated things into one image.<br>
+· <strong>B 的框架重新解释 A</strong>：「候鸟」用「护照」的框架重新说——政治自由瞬间可见<br>
+  B's frame re-interprets A — bureaucracy applied to birds makes freedom visible.<br>
+  「筷子」用「伶人 / 绷直修长的腿 / 踮起脚尖跳芭蕾」重新解释——筷子变成夹菜的舞者<br><br>
+<strong>「A 是 B」的特权 The A-is-B trick:</strong><br>
+四个公式里，<strong>「A 是 B」能让距离最远</strong>。<br>
+因为「是」粗暴宣告两者等同，<em>迫使读者先接受，再去挖掘</em>——表层关联的要求被降低了。<br>
+"Is" bullies the reader into accepting the equation — surface similarity becomes optional.<br>
+所以「高粱是一位预言家」能成立：表面毫无关联，但「是」+ 读者的搜索<br>
+会把「预言家」的属性（丰欠、天气、预示）投射到「高粱」上。<br><br>
+<strong>━━ 三柱齐备的范例 Examples where all three pillars work ━━</strong><br><br>
+<strong>① 青春是被仇恨啃过的、布满牙印的骨头</strong>（黄梵《中年》）<br>
+<em>冲撞</em>：青春 + 骨头（跨域：抽象 + 具体身体部位）<br>
+<em>关联</em>：青春的锐利、爱憎分明、有恨心——与骨头的硬度和牙印吻合<br>
+<em>语境</em>：「被仇恨啃过」「布满牙印」——把抽象的骨头变成具体的遗骸<br><br>
+<strong>② 海上落日是溺水的头颅</strong>（徐琳玉）<br>
+<em>冲撞</em>：落日 + 头颅（跨域：天体 + 身体）<br>
+<em>关联</em>：两者都在「水面沉没」<br>
+<em>语境</em>：「溺水」一词建了水面情景——让落日继承头颅的挣扎与悲壮<br><br>
+<strong>③ 太阳张开红润的嘴 / 等着飞机伸进银色的压舌板</strong>（黄梵）<br>
+<em>冲撞</em>：太阳 + 嘴、飞机 + 压舌板（两组跨域）<br>
+<em>关联</em>：太阳/嘴共享红润；飞机/压舌板共享银色扁长<br>
+<em>语境</em>：一个「银飞机飞过太阳」的动作，把两组关联焊成一个完整画面<br>
+<em>王鼎钧：「这样的句子，稿纸都会兴奋地簌簌直响。」</em><br><br>
+<strong>━━ 多义范例（对照参考）━━</strong><br>
+· 「光线在我体内折断的声音」（代薇）— 通感+私密体悟<br>
+· 「云，有关于这个世界的所有说法」（黄梵《词汇表》）— 极私密，少数人能共鸣<br>
+· 「我把剑挂在虚无的天空中／因为它已疲惫」（育邦）— 靠「因为它已疲惫」把多义拉回可解<br><br>
+<strong>━━ 记住 Remember ━━</strong><br>
+<em>默认追求准确。多义需要阅历，年轻时强求多义多半失败。</em><br>
+<em>Default to accuracy. Forcing ambiguity young usually fails — you need the years.</em>`,
     },
     {
-      name: "二、准确 vs 多义 Two Tastes · 默认追求准确",
-      method: `<strong>两种合法趣味 Two valid aesthetics:</strong><br>
-· <strong>准确 Accuracy</strong>：读者「一下就懂」的收束感。私密体悟变成公共体悟。<br>
-  "A click" — the reader gets it instantly. Private insight becomes common insight.<br>
-· <strong>多义 Ambiguity</strong>：读者「琢磨不透」的开放感。意义像密码保持私密。<br>
-  Productive ambiguity — meaning stays encoded.<br><br>
-<strong>⚠️ 默认追求准确 Default to accuracy — 黄梵的劝告:</strong><br>
-<em>"追求多义需要相当水准的年长诗人。年轻时强求多义，多数会围着意象打转，<br>
-无兴趣或耐心解决晦涩问题，收集了一堆不严密的意象，<br>
-读者失去整体感或理解。"</em><br>
-Ambiguity well done requires mature experience. Young poets forcing it<br>
-collect loose images and lose the reader. Aim for accuracy first.<br><br>
-<strong>准确的铁律 The accuracy rule:</strong><br>
-不搭界 + 能挖出关联 ＝ 准确<br>
-Clash + discoverable link = accuracy<br>
-<em>"寻求诗意时你既要大胆想象，寻求关联时又要小心求证！"</em><br>
-<em>"Imagine boldly for poetry; verify carefully for the link."</em><br><br>
-<strong>━━ 准确范例 Accuracy Examples ━━</strong><br><br>
-<strong>① 青春是被仇恨啃过的、布满牙印的<strong>骨头</strong></strong>（黄梵《中年》）<br>
-青春+骨头 初看不搭界。但青春的特性——尖锐、爱憎分明、硬气、有恨心——与骨头完美匹配。<br>
-Youth + bone clash at first. But youth's traits — sharpness, black-and-white judgment,<br>
-hardness, resentment — fit bone perfectly. The clash resolves into accuracy.<br><br>
-<strong>② 我达达的<strong>马蹄</strong>是美丽的<strong>错误</strong>／我不是归人，是个过客</strong>（郑愁予《错误》）<br>
-错误+马蹄 初看无关。诗人用第二句铺了场景：女子听蹄声以为丈夫归来——<br>
-错误与马蹄在场景里相遇，而那份激动真让错误变得「美丽」。<br>
-Error + hoofbeats seem unrelated. The scene — a woman mistaking hooves for<br>
-her husband's return — fuses them, and makes the "mistake" genuinely beautiful.<br><br>
-<strong>③ 一把古老的<strong>水手刀</strong>，被<strong>离别磨亮</strong></strong>（郑愁予）<br>
-「水手」自然唤起码头和大海——古往今来最让人伤感的离别之所。<br>
-水手刀把「离别」的抽象痛物化成锋利的刀伤。<br>
-"Sailor" evokes the dock — poetry's saddest place of parting. The sailor's knife<br>
-physicalizes parting-pain as a literal cut.<br><br>
-<strong>④ 我拥抱的<strong>幸福</strong>，也陈旧得像一位<strong>烈妇</strong>，／我一直被她揪着走</strong>（黄梵《中年》）<br>
-幸福+烈妇 似乎矛盾。但中年幸福已失去年轻时的光芒——「陈旧」「揪着走」点破：<br>
-幸福变成压迫的习惯、减益的伪幸福。<br>
-Happiness + "virtuous widow" seems contradictory. But mid-life happiness has dulled:<br>
-"old", "being dragged" — happiness has become an oppressive habit.<br><br>
-<strong>⑤ <strong>海上落日</strong>是<strong>溺水的头颅</strong></strong>（徐琳玉）<br>
-落日+头颅 初看完全不搭界。关键在「溺水」——它造出一个「水上情景」，<br>
-与「海上落日」的情景相似：两者都是「在水面上沉没」。情景关联一成立，<br>
-落日瞬间有了被海吞没的悲壮与挣扎。<br>
-Sunset + a head clash completely — until "drowning" builds a water-surface scene<br>
-that mirrors the sea's own sinking sun. Once the scenes align, the sunset<br>
-inherits the head's struggle and slow submersion.<br><br>
-<strong>⑥ <strong>秋天</strong>的<strong>镰刀</strong>和即将<strong>生锈</strong>的<strong>大地</strong></strong>（傅元峰《安全颂》）<br>
-双重关联——秋天+镰刀：收获季节离不开镰刀；大地+生锈：秋天的庄稼黄色与铁锈颜色相似。<br>
-Double link — autumn + sickle: harvest needs the sickle;<br>
-earth + rust: autumn yellow matches rust's color.<br><br>
-<strong>⑦ 苍穹和群山<strong>拱起的脊背</strong>／像一个<strong>问号</strong></strong>（胡弦《窗前》）<br>
-脊背有多种——笔直的、前凸的、左右弯曲的。<br>
-诗人用限定词「拱起的」精准筛选，找到唯一与问号形状最接近的那一种脊背。<br>
-Backs come in many shapes — straight, forward, curved. The adjective "hunched"<br>
-filters out all others, finding the single back-shape closest to a question mark.<br><br>
-<strong>━━ 多重关联 Multi-level Association（可遇不可求）━━</strong><br><br>
-<strong>「<strong>太阳</strong>张开红润的<strong>嘴</strong>／等着<strong>飞机</strong>伸进银色的<strong>压舌板</strong>」</strong>（黄梵）<br>
-表层两组关联：<br>
-· <strong>太阳 ↔ 嘴</strong>：共享「红润」的颜色特征<br>
-· <strong>飞机 ↔ 压舌板</strong>：共享「银色、扁长」的外形特征<br>
-真正的准确诞生在想象里：<em>银色飞机飞过太阳的那一刻——<br>
-宛如银色压舌板伸进张开的红润嘴巴</em>。两组特征关联汇合成一个完整情景。<br>
-Two surface links (sun/mouth by color, plane/tongue-depressor by shape)<br>
-resolve into one imagined scene: a silver plane crossing the sun = a depressor<br>
-entering an open red mouth. Two trait-links fuse into a single scene-link.<br><br>
-<em>王鼎钧评：「这样的句子，猜想在作者下笔时，稿纸都会兴奋地簌簌直响。」</em><br>
+      name: "二、更多准确范例 More Accuracy Examples",
+      method: `<em>（三根支柱的应用案例——各家各派各种方向。）</em><br>
+<em>(The three pillars, applied across poets and registers.)</em><br><br>
+<strong>① 一把古老的水手刀，被离别磨亮</strong>（郑愁予）<br>
+<em>冲撞</em>：水手刀 + 离别（具体金属 + 抽象情感）<br>
+<em>关联</em>：「水手」唤起码头——离别之所<br>
+<em>语境</em>：「磨亮」把离别的痛物化成锋利的刀伤<br><br>
+<strong>② 我拥抱的幸福，也陈旧得像一位烈妇，／我一直被她揪着走</strong>（黄梵《中年》）<br>
+<em>冲撞</em>：幸福 + 烈妇（正向情感 + 压抑女性形象）<br>
+<em>关联</em>：都带「被动束缚」的意味<br>
+<em>语境</em>：「陈旧」「揪着走」——中年的幸福已失光芒，成了压迫的习惯<br><br>
+<strong>③ 秋天的镰刀和即将生锈的大地</strong>（傅元峰《安全颂》）<br>
+<em>双重关联</em>：秋天/镰刀共享收获；大地/生锈共享颜色<br>
+两组关联让一句诗撑起整个节气<br><br>
+<strong>④ 苍穹和群山拱起的脊背／像一个问号</strong>（胡弦《窗前》）<br>
+<em>限定词做工</em>：「脊背」太宽，「<em>拱起的</em>脊背」唯一匹配问号形状<br>
+The adjective does the filtering — finding the one shape that fits.<br><br>
+<strong>⑤ 马蹄是美丽的错误 / 我不是归人，是个过客</strong>（郑愁予《错误》）<br>
+<em>B 解释 A</em>：第二行铺了场景——女子听蹄声以为丈夫归来<br>
+<em>语境救援</em>：这个场景让「错误」与「美丽」合理共存<br><br>
 <strong>⚠️ 黄梵的劝告:</strong> 多重关联很难得——<em>做到一种关联就已经足够了</em>。<br>
 Multi-level association is rare. One solid link is already enough.<br><br>
-<strong>━━ 多义范例 Ambiguity Examples（对照参考）━━</strong><br><br>
-· <strong>「光线在我体内折断的声音」</strong>（代薇《光线》）— 通感+私密体悟，靠中年阅历支撑<br>
-· <strong>「云，有关于这个世界的所有说法」</strong>（黄梵《词汇表》）— 极私密，少数人能共鸣<br>
-· <strong>「砸烂一只公鸡，砸烂到每块碎片，还叫！」</strong>（车前子《挽歌》）— 含义多解，靠语言美感<br>
-· <strong>「树枝从云层中长出／飞鸟向往我的眼睛」</strong>（蔡天新）— 第二行多义，少人有此体悟<br>
-· <strong>「我把剑挂在虚无的天空中／因为它已疲惫」</strong>（育邦《中年》）— 靠「因为它已疲惫」提供说明，把多义拉回可解<br><br>
-<strong>多义的救赎 How to rescue ambiguity:</strong><br>
-① 提供说明（育邦：「因为它已疲惫」）<br>
-② 置于特定语境（格风：先铺「靶场、爱情、死囚」再出「头像上的半边脸正从淮安赶来」）<br>
-Give an explanation, or build a specific context — so the reader has a way in.<br><br>
-<strong>━━ 记住 Remember ━━</strong><br>
-<em>更多诗人的诗作兼有两种趣味——像中医写处方，只是在两者的配比上增增减减。</em><br>
-<em>Most real poets use both — like a Chinese doctor adjusting the ratio in a prescription.</em><br>
-但新手先学准确。First master accuracy.`,
+<em>"寻求诗意时你既要大胆想象，寻求关联时又要小心求证！"</em><br>
+<em>"Imagine boldly for poetry; verify carefully for the link."</em>`,
     },
     {
       name: "三、主客观平衡 MSG & Broth",

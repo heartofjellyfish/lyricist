@@ -17,6 +17,84 @@ const CORE_IDENTITY = [
   "Vary sentence structure. Not every line should follow the same pattern. Mix fragments, questions, statements, inversions. If three lines start the same way, you've failed.",
 ].join(" ");
 
+// ── Huang Fan's Metaphor Toolkit (always present) ──────────────────
+// These are the tactical moves the Craft Library teaches. They must
+// actually reach the model, or the app just produces generic lyric lines
+// and the book's ideas exist only in the user-facing Library.
+
+const HUANG_FAN_TOOLKIT = `# Metaphor toolkit (Huang Fan 黄梵《意象的帝国》)
+
+Four subjective-image formulas — mix them freely across the batch:
+
+• A 之 B (A's B) — fuse two unrelated nouns, no verb needed.
+  Push distance hard. Pair across totally different domains.
+  Examples: 蹬腿的舌头 · 暴君的钟 · 风的刀 · 星星的金链 · 大雨的铁钉 · 雪花的问候
+  · "the morning's broken tooth" · "the street's small rehearsal"
+
+• A 是 B (A is B) — a declarative that bullies the reader into the equation.
+  This is the formula where A and B can be FURTHEST apart — "是" forces acceptance,
+  then the reader does the interpretive work.
+  Examples: 高粱是一位预言家 · 信鸽是风的使者 · 镜子是凝固的时间 · 影子是害羞的
+  · 海上落日是溺水的头颅 · "the kitchen was a small unfinished church"
+
+• B 解释 A (B re-interprets A) — take a real scene, relabel one piece of it,
+  let the new label re-explain the whole thing.
+  Examples: 筷子 → 餐桌上的伶人 / 绷直修长的腿 / 踮起脚尖跳芭蕾
+  · 候鸟群 / 不必持有护照 (bureaucratic frame rewrites flight)
+  · 海贝里有什么 → 沉睡的摇铃
+  · "it was only rain — but it was the rain of after"
+
+• A 做不可能之事 (A does the impossible) — give A an action it physically cannot do.
+  Examples: 落日吞下最后一口海 · 时间在碗里结冰 · 灯的心来看书
+  · "the lamp apologized and went out"
+
+THE ACCURACY RULE — THREE pillars, not two:
+
+(1) CLASH — push A and B FAR apart. Much farther than feels safe.
+The book's own phrase: "两个有**相当距离**的事物". Substantial distance
+is not a bonus — it IS the poetry. If the pair feels like a reasonable
+match, you have not pushed far enough. Rule of thumb: pair across domains
+that don't normally meet — indoor object + weather, body part + political
+rank, animal + bureaucracy, human behavior + geological time.
+蹬腿 and 舌头 have no relation. 暴君 and 钟 have no relation. 候鸟 and 护照
+have no relation. That is precisely why they are poetry.
+AVOID tame, familiar pairings like "春风的手" or "时间的河" — those are
+already clichés. Push until the pair feels almost absurd, then verify.
+
+(2) LINK — one traceable thread the reader can find AFTER the clash lands.
+A trait, color, shape, motion, temperature, or shared scene will do.
+The link is what keeps the clash from being random nonsense — but keep it
+SINGLE and HIDDEN. If the reader sees it before the clash hits, the line
+is dead. Find the clash first; verify the link second.
+
+(3) CONTEXT — the surrounding words, the title, the prior line, or the
+cultural frame steers how the clash resolves. The SAME pair can be fresh
+or cliché depending on context — "蓝色的眼睛" is poetry in a Chinese
+context and a flat description in Northern Europe. Context does real work:
+· a concrete adjective narrows B to a precise shade
+  (脊背 → 拱起的脊背 = uniquely shaped like a question mark)
+· a scene makes unrelated things co-occur
+  (夕阳 + 椅子 via "遗忘在西边的" — the forgetting-scene fuses them)
+· B's frame re-explains A
+  (候鸟 through the lens of "护照" — the political frame makes freedom visible)
+
+Note: "A 是 B" specifically weakens the link requirement — the declarative
+does the forcing, context does the interpretation. This is why
+高粱是一位预言家 works: no surface similarity, but the declarative + the
+reader's search projects 预言家's attributes (feast/famine, weather,
+prophecy of harvest) onto 高粱.
+
+COLORING (染色 / MSG-over-broth): a line of plain objective description
+becomes a poem the moment you stain one verb or adjective with the speaker's
+feeling. The flower "splashes tears", the light "refuses" the room, the door
+"apologizes" when it closes. Use sparingly — at most one stain per line,
+and only when it deepens the image.
+
+FAMILIAR DEFAMILIARIZATION: when the subject is common (sunset, rain, a
+mother, a face, leaving), silently list the phrases you've read a hundred
+times about that subject — then write none of them. Freshness is the goal,
+not strangeness for its own sake.`;
+
 // ── Spectrum Descriptions (for prompt hints) ────────────────────────
 
 // Values: -1 (left), 0 (neutral), 1 (right)
@@ -269,7 +347,7 @@ const METAPHOR_HINT = "Dense metaphor mode. Every line works through image, coll
  * @returns {string}
  */
 export function buildSystemPrompt({ spectrums = {}, micros = [], metaphor = false } = {}) {
-  const parts = [CORE_IDENTITY];
+  const parts = [CORE_IDENTITY, HUANG_FAN_TOOLKIT];
 
   const hints = Object.entries(SPECTRUMS)
     .map(([key, spec]) => spec.buildHint(spectrums[key] ?? 0))
