@@ -536,23 +536,14 @@ Varied density is one tool: dense, dense, then a breath.<br><br>
 <strong>③ 镜像人性与世界 MIRROR OF HUMAN NATURE</strong><br>
 好的意象不是装饰——它在说一件关于「人」或「世界」的真事<br>
 Good images aren't decoration — they speak a truth about human nature.<br><br>
-<strong>人性的核心是自我矛盾 The core is self-contradiction</strong><br>
-钱钟书《围城》：「城外的人想进来，城里的人想出来。」<br>
-人不是黑的也不是白的——同时渴望相反的两件事，光从裂缝里透出来。<br>
-Humans want opposite things at once; the light shows through the crack.<br><br>
-<strong>六座围城 Six besieged cities:</strong><br>
-· 归属 ↔ 自由 &nbsp;&nbsp;Belonging vs Freedom<br>
-· 亲密 ↔ 暴露 &nbsp;&nbsp;Intimacy vs Exposure<br>
-· 自私 ↔ 舍己 &nbsp;&nbsp;Self-Interest vs Sacrifice<br>
-· 永恒 ↔ 瞬间 &nbsp;&nbsp;Eternity vs Moment<br>
-· 自欺 ↔ 自知 &nbsp;&nbsp;Self-Deception vs Self-Knowledge<br>
-· 沉沦日常 ↔ 渴望超越 &nbsp;&nbsp;Routine vs Transcendence<br><br>
-跨文化共鸣 Cross-cultural echoes: 钱钟书《围城》／ 《红楼梦》／ 陶渊明 ／ 庄子 ／ 孟子 ／<br>
-Dostoevsky ／ Tolstoy ／ Goethe《浮士德》／ Nietzsche ／ Kierkegaard ／<br>
-Sartre ／ Camus ／ La Rochefoucauld ／ Eliot ／ Blake ／ Whitman ／ Cohen ／<br>
-Proust ／ 松尾芭蕉 · 物の哀れ ／ 川端康成 ／《传道书》／《罗马书》／<br>
-苏格拉底 ／《薄伽梵歌》<br><br>
-<em>自检：写意象时问自己——它映射的是哪一座围城？只有「好看」还不够。</em>`;
+<strong>本质：有限却渴望无限 Finite creatures with infinite longing</strong><br>
+人知道自己必死，却活得像要永远——一切自我矛盾都从这里长出。<br>
+Humans know they die yet live as if forever — every contradiction grows from this.<br><br>
+钱钟书《围城》：「城外的想进，城里的想出。」<br>
+Pascal: 人的伟大与可悲，都来自同一件事——他知道自己会死。<br>
+Cohen: <em>"There is a crack in everything, that's how the light gets in."</em><br><br>
+<strong>自检 Self-check:</strong> 说出来时自己有没有轻轻疼一下？<br>
+<em>Does it sting a little when true?</em> 真意象扎人；装饰不扎。`;
   qualityCard.appendChild(qualityMethod);
 
   qualitySection.appendChild(qualityCard);
