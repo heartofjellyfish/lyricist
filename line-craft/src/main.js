@@ -539,11 +539,10 @@ Good images aren't decoration — they speak a truth about human nature.<br><br>
 <strong>本质：有限却渴望无限 Finite creatures with infinite longing</strong><br>
 人知道自己必死，却活得像要永远——一切自我矛盾都从这里长出。<br>
 Humans know they die yet live as if forever — every contradiction grows from this.<br><br>
-钱钟书《围城》：「城外的想进，城里的想出。」<br>
-Pascal: 人的伟大与可悲，都来自同一件事——他知道自己会死。<br>
-Cohen: <em>"There is a crack in everything, that's how the light gets in."</em><br><br>
-<strong>自检 Self-check:</strong> 说出来时自己有没有轻轻疼一下？<br>
-<em>Does it sting a little when true?</em> 真意象扎人；装饰不扎。`;
+<strong>自检 Self-check:</strong> 它击中你了吗？<br>
+<em>Does it strike you?</em> 真意象会击中身体——脑子还没反应过来，<br>
+皮肤先动了。装饰不会。<br>
+Real images hit the body before the mind can explain. Decoration doesn't.`;
   qualityCard.appendChild(qualityMethod);
 
   qualitySection.appendChild(qualityCard);
