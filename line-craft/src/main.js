@@ -575,16 +575,83 @@ Lesson 2: A and B must clash. Lesson 3 adds: they must also share one hidden lin
 The less related, the stronger — as long as the link still holds.`,
     },
     {
-      name: "二、准确 vs 多义 Two Tastes",
-      method: `<strong>两种合法的趣味 Two valid aesthetics:</strong><br><br>
-· <strong>准确 Accuracy</strong>：让读者「一下就懂」的收束感。必要时加一行解释让关联落地。<br>
-  "a click" — the reader gets it immediately.<br>
-  「日子成了飞驰的卡车／生日是救命的斑马线／能让卡车带着羞愧慢下来」<br>
-  第三行解释前两行的关联，使诗意完整、准确。<br><br>
-· <strong>多义 Ambiguity</strong>：让读者「琢磨不透」的开放感。不解释，让意义流动。<br>
-  Productive ambiguity — multiple readings coexist.<br><br>
-<strong>选择 Choice:</strong> 写之前想清楚——你要读者「收到」还是「追问」？两者都对。<br>
-Decide which taste before you write. Both are legitimate.`,
+      name: "二、准确 vs 多义 Two Tastes · 默认追求准确",
+      method: `<strong>两种合法趣味 Two valid aesthetics:</strong><br>
+· <strong>准确 Accuracy</strong>：读者「一下就懂」的收束感。私密体悟变成公共体悟。<br>
+  "A click" — the reader gets it instantly. Private insight becomes common insight.<br>
+· <strong>多义 Ambiguity</strong>：读者「琢磨不透」的开放感。意义像密码保持私密。<br>
+  Productive ambiguity — meaning stays encoded.<br><br>
+<strong>⚠️ 默认追求准确 Default to accuracy — 黄梵的劝告:</strong><br>
+<em>"追求多义需要相当水准的年长诗人。年轻时强求多义，多数会围着意象打转，<br>
+无兴趣或耐心解决晦涩问题，收集了一堆不严密的意象，<br>
+读者失去整体感或理解。"</em><br>
+Ambiguity well done requires mature experience. Young poets forcing it<br>
+collect loose images and lose the reader. Aim for accuracy first.<br><br>
+<strong>准确的铁律 The accuracy rule:</strong><br>
+不搭界 + 能挖出关联 ＝ 准确<br>
+Clash + discoverable link = accuracy<br>
+<em>"寻求诗意时你既要大胆想象，寻求关联时又要小心求证！"</em><br>
+<em>"Imagine boldly for poetry; verify carefully for the link."</em><br><br>
+<strong>━━ 准确范例 Accuracy Examples ━━</strong><br><br>
+<strong>① 青春是被仇恨啃过的、布满牙印的<strong>骨头</strong></strong>（黄梵《中年》）<br>
+青春+骨头 初看不搭界。但青春的特性——尖锐、爱憎分明、硬气、有恨心——与骨头完美匹配。<br>
+Youth + bone clash at first. But youth's traits — sharpness, black-and-white judgment,<br>
+hardness, resentment — fit bone perfectly. The clash resolves into accuracy.<br><br>
+<strong>② 我达达的<strong>马蹄</strong>是美丽的<strong>错误</strong>／我不是归人，是个过客</strong>（郑愁予《错误》）<br>
+错误+马蹄 初看无关。诗人用第二句铺了场景：女子听蹄声以为丈夫归来——<br>
+错误与马蹄在场景里相遇，而那份激动真让错误变得「美丽」。<br>
+Error + hoofbeats seem unrelated. The scene — a woman mistaking hooves for<br>
+her husband's return — fuses them, and makes the "mistake" genuinely beautiful.<br><br>
+<strong>③ 一把古老的<strong>水手刀</strong>，被<strong>离别磨亮</strong></strong>（郑愁予）<br>
+「水手」自然唤起码头和大海——古往今来最让人伤感的离别之所。<br>
+水手刀把「离别」的抽象痛物化成锋利的刀伤。<br>
+"Sailor" evokes the dock — poetry's saddest place of parting. The sailor's knife<br>
+physicalizes parting-pain as a literal cut.<br><br>
+<strong>④ 我拥抱的<strong>幸福</strong>，也陈旧得像一位<strong>烈妇</strong>，／我一直被她揪着走</strong>（黄梵《中年》）<br>
+幸福+烈妇 似乎矛盾。但中年幸福已失去年轻时的光芒——「陈旧」「揪着走」点破：<br>
+幸福变成压迫的习惯、减益的伪幸福。<br>
+Happiness + "virtuous widow" seems contradictory. But mid-life happiness has dulled:<br>
+"old", "being dragged" — happiness has become an oppressive habit.<br><br>
+<strong>⑤ <strong>奶奶</strong>是他的<strong>麦克风</strong></strong>（学生练习）<br>
+麦克风+奶奶 初无关联。但老年妇人不断絮叨的形象，与麦克风持续发声关联。<br>
+Grandma + microphone. The image of an elderly woman's constant chatter<br>
+links naturally to a microphone's continuous broadcast.<br><br>
+<strong>⑥ <strong>绝望</strong>是<strong>黑夜山谷</strong>的呐喊，回响只有自己听到</strong>（学生练习）<br>
+黄梵点评：把「山谷中呐喊」改成「山谷呐喊」更好——<br>
+「山谷在无声地呐喊，只有它听着那无声的回响」比人站山谷里呐喊更传递绝望深度。<br>
+Despair = a valley itself shouting. Even better than a person shouting in a valley —<br>
+the valley listens to its own silent echo.<br><br>
+<strong>⑦ <strong>孤独</strong>是寒夜里的一盏<strong>灯</strong>，牵引我向你慢慢走来</strong>（学生练习）<br>
+初看孤独与灯无关。但孤独的正面作用——让人安静、反省、促成对他人的理解——<br>
+就让「灯」的牵引变得准确。<br>
+At first loneliness and lamp seem unrelated. But loneliness's positive side —<br>
+stillness, reflection, empathy — makes "lamp that draws me toward you" accurate.<br><br>
+<strong>⑧ <strong>无聊</strong>的我是<strong>苍蝇</strong>，让我嗡嗡两声撞到墙也好</strong>（学生练习）<br>
+无头苍蝇到处乱转——极像无聊的我。<br>
+A listless fly banging walls = the bored self. The specific behavior matches perfectly.<br><br>
+<strong>⑨ <strong>秋天</strong>的<strong>镰刀</strong>和即将<strong>生锈</strong>的<strong>大地</strong></strong>（傅元峰《安全颂》）<br>
+双重关联——秋天+镰刀：收获季节离不开镰刀；大地+生锈：秋天的庄稼黄色与铁锈颜色相似。<br>
+Double link — autumn + sickle: harvest needs the sickle;<br>
+earth + rust: autumn yellow matches rust's color.<br><br>
+<strong>⑩ 苍穹和群山<strong>拱起的脊背</strong>／像一个<strong>问号</strong></strong>（胡弦《窗前》）<br>
+脊背有多种——笔直的、前凸的、左右弯曲的。<br>
+诗人用限定词「拱起的」精准筛选，找到唯一与问号形状最接近的那一种脊背。<br>
+Backs come in many shapes — straight, forward, curved. The adjective "hunched"<br>
+filters out all others, finding the single back-shape closest to a question mark.<br><br>
+<strong>━━ 多义范例 Ambiguity Examples（对照参考）━━</strong><br><br>
+· <strong>「光线在我体内折断的声音」</strong>（代薇《光线》）— 通感+私密体悟，靠中年阅历支撑<br>
+· <strong>「云，有关于这个世界的所有说法」</strong>（黄梵《词汇表》）— 极私密，少数人能共鸣<br>
+· <strong>「砸烂一只公鸡，砸烂到每块碎片，还叫！」</strong>（车前子《挽歌》）— 含义多解，靠语言美感<br>
+· <strong>「树枝从云层中长出／飞鸟向往我的眼睛」</strong>（蔡天新）— 第二行多义，少人有此体悟<br>
+· <strong>「我把剑挂在虚无的天空中／因为它已疲惫」</strong>（育邦《中年》）— 靠「因为它已疲惫」提供说明，把多义拉回可解<br><br>
+<strong>多义的救赎 How to rescue ambiguity:</strong><br>
+① 提供说明（育邦：「因为它已疲惫」）<br>
+② 置于特定语境（格风：先铺「靶场、爱情、死囚」再出「头像上的半边脸正从淮安赶来」）<br>
+Give an explanation, or build a specific context — so the reader has a way in.<br><br>
+<strong>━━ 记住 Remember ━━</strong><br>
+<em>更多诗人的诗作兼有两种趣味——像中医写处方，只是在两者的配比上增增减减。</em><br>
+<em>Most real poets use both — like a Chinese doctor adjusting the ratio in a prescription.</em><br>
+但新手先学准确。First master accuracy.`,
     },
     {
       name: "三、主客观平衡 MSG & Broth",
@@ -714,14 +781,17 @@ Strong poetic content + strong formal strangeness = poetry at its best.<br>
     lesson3Section.appendChild(el);
   }
 
-  body.appendChild(lesson3Section);
+  // Lesson 3 section will be appended inside the teachGroups loop,
+  // right after "formulas" (Lesson 2), so the book's content flows in order.
 
-  // ── Micro groups (formulas, techniques, structure, stance) ─────
+  // ── Micro groups (formulas → Lesson 3 → techniques → structure → stance) ─
+  // Book order: Lesson 2 公式 → Lesson 3 核心 → 常用手法 (cross-chapter) →
+  // then non-Huang-Fan: benchmark songs & teachers
   const teachGroups = [
-    { key: "formulas", title: "四大意象公式 Four Imagery Formulas" },
-    { key: "techniques", title: "手法 Techniques" },
-    { key: "structure", title: "结构招式 Structural Moves" },
-    { key: "stance", title: "姿态 Stance Modifiers" },
+    { key: "formulas", title: "第二堂课 · 四大意象公式", subtitle: "黄梵《意象的帝国》— 主观意象的四种基本模式" },
+    { key: "techniques", title: "常用手法 Techniques", subtitle: "跨章节：通感、陌生化、染色、蒙太奇" },
+    { key: "structure", title: "结构招式 Structural Moves", subtitle: "Benchmark songs + non-Huang-Fan teachers" },
+    { key: "stance", title: "姿态 Stance Modifiers", subtitle: "Benchmark songs + non-Huang-Fan teachers" },
   ];
 
   for (const group of teachGroups) {
@@ -735,6 +805,13 @@ Strong poetic content + strong formal strangeness = poetry at its best.<br>
     title.className = "teach-section-title";
     title.textContent = group.title;
     section.appendChild(title);
+
+    if (group.subtitle) {
+      const subtitle = document.createElement("div");
+      subtitle.className = "teach-section-subtitle";
+      subtitle.textContent = group.subtitle;
+      section.appendChild(subtitle);
+    }
 
     for (const item of items) {
       const card = document.createElement("div");
@@ -777,6 +854,11 @@ Strong poetic content + strong formal strangeness = poetry at its best.<br>
     }
 
     body.appendChild(section);
+
+    // After Lesson 2 (formulas), insert Lesson 3 so book content flows in order
+    if (group.key === "formulas") {
+      body.appendChild(lesson3Section);
+    }
   }
 
   // ── From the Teachers ─────────────────────────────────────────
