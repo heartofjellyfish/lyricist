@@ -534,12 +534,32 @@ White space lets lines and stanzas breathe. Every word earns its spot —<br>
 if it can be cut, cut it. Never name the emotion; let the image carry it.<br>
 Varied density is one tool: dense, dense, then a breath.<br><br>
 <strong>③ 镜像人性与世界 MIRROR OF HUMAN NATURE</strong><br>
-好的意象不是装饰——它在说人性或宇宙的公理：<br>
-善变、趋利避害、粉饰自己；时间、失去、矛盾<br>
-「两只杯子分开坐着，交换沉默的蒸汽」— 吵架后相对无言的两个人<br>
+好的意象不是装饰——它在说一件关于「人」或「世界」的真事<br>
 Good images aren't decoration — they speak a truth about human nature or<br>
-the way the world works: fickleness, self-protection, saving face; time, loss,<br>
-contradiction. Mugs trading steam = two people exchanging silence after a fight.`;
+the way the world works.<br><br>
+<strong>人性的主要母题 Core traits worth mirroring:</strong><br>
+· <strong>自欺 Self-Deception</strong> — 人最擅长骗的是自己<br>
+  Dostoevsky《地下室手记》／ Sartre「mauvaise foi」／ Nietzsche「最大的谎言说给自己听」<br>
+· <strong>虚荣 · 面子 Vanity</strong> — 不是为自己活，是为「被看见」而活<br>
+  Tolstoy《安娜·卡列尼娜》／《红楼梦》<br>
+· <strong>自相矛盾 Contradiction</strong> — 同时渴望相反的两件事<br>
+  Whitman「I contain multitudes」／ Pascal「人既是天使又是野兽」<br>
+· <strong>趋利避害 Self-Protection</strong> — 连爱都藏着算计<br>
+  La Rochefoucauld《箴言录》／ Hobbes《利维坦》<br>
+· <strong>嫉妒 Envy</strong> — 看见别人的好，自己先烂一块<br>
+  Shakespeare《奥赛罗》(伊阿古) ／《传道书》4:4<br>
+· <strong>有限 · 死亡 Mortality</strong> — 一切都会被时间收走<br>
+  《传道书》「虚空的虚空」／ Heidegger「向死而生」／ Proust<br>
+· <strong>欲望无底 Insatiable Desire</strong> — 得到的那一刻就开始想下一个<br>
+  Schopenhauer ／ 佛陀「苦谛」<br>
+· <strong>孤独 Isolation</strong> — 两个人在一起也可能更孤独<br>
+  Eliot《普鲁弗洛克》／ Camus《局外人》／ Kafka<br>
+· <strong>遗忘 Forgetting</strong> — 最重要的东西最先漏掉<br>
+  Proust《追忆》／ Borges ／ Kundera《不能承受的生命之轻》<br>
+· <strong>习惯吞噬感受 Habit Dulls Life</strong> — 重复到连感觉都没了<br>
+  Kierkegaard ／ 什克洛夫斯基「自动化」（这正是陌生化要救的东西）<br><br>
+<em>写意象时问自己：它映射的是哪一条？如果一条都对不上，它可能只是好看。</em><br>
+<em>Ask of every image: which of these does it touch? If none, it's probably just pretty.</em>`;
   qualityCard.appendChild(qualityMethod);
 
   qualitySection.appendChild(qualityCard);
