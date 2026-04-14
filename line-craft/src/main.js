@@ -612,32 +612,35 @@ physicalizes parting-pain as a literal cut.<br><br>
 幸福变成压迫的习惯、减益的伪幸福。<br>
 Happiness + "virtuous widow" seems contradictory. But mid-life happiness has dulled:<br>
 "old", "being dragged" — happiness has become an oppressive habit.<br><br>
-<strong>⑤ <strong>奶奶</strong>是他的<strong>麦克风</strong></strong>（学生练习）<br>
-麦克风+奶奶 初无关联。但老年妇人不断絮叨的形象，与麦克风持续发声关联。<br>
-Grandma + microphone. The image of an elderly woman's constant chatter<br>
-links naturally to a microphone's continuous broadcast.<br><br>
-<strong>⑥ <strong>绝望</strong>是<strong>黑夜山谷</strong>的呐喊，回响只有自己听到</strong>（学生练习）<br>
-黄梵点评：把「山谷中呐喊」改成「山谷呐喊」更好——<br>
-「山谷在无声地呐喊，只有它听着那无声的回响」比人站山谷里呐喊更传递绝望深度。<br>
-Despair = a valley itself shouting. Even better than a person shouting in a valley —<br>
-the valley listens to its own silent echo.<br><br>
-<strong>⑦ <strong>孤独</strong>是寒夜里的一盏<strong>灯</strong>，牵引我向你慢慢走来</strong>（学生练习）<br>
-初看孤独与灯无关。但孤独的正面作用——让人安静、反省、促成对他人的理解——<br>
-就让「灯」的牵引变得准确。<br>
-At first loneliness and lamp seem unrelated. But loneliness's positive side —<br>
-stillness, reflection, empathy — makes "lamp that draws me toward you" accurate.<br><br>
-<strong>⑧ <strong>无聊</strong>的我是<strong>苍蝇</strong>，让我嗡嗡两声撞到墙也好</strong>（学生练习）<br>
-无头苍蝇到处乱转——极像无聊的我。<br>
-A listless fly banging walls = the bored self. The specific behavior matches perfectly.<br><br>
-<strong>⑨ <strong>秋天</strong>的<strong>镰刀</strong>和即将<strong>生锈</strong>的<strong>大地</strong></strong>（傅元峰《安全颂》）<br>
+<strong>⑤ <strong>海上落日</strong>是<strong>溺水的头颅</strong></strong>（徐琳玉）<br>
+落日+头颅 初看完全不搭界。关键在「溺水」——它造出一个「水上情景」，<br>
+与「海上落日」的情景相似：两者都是「在水面上沉没」。情景关联一成立，<br>
+落日瞬间有了被海吞没的悲壮与挣扎。<br>
+Sunset + a head clash completely — until "drowning" builds a water-surface scene<br>
+that mirrors the sea's own sinking sun. Once the scenes align, the sunset<br>
+inherits the head's struggle and slow submersion.<br><br>
+<strong>⑥ <strong>秋天</strong>的<strong>镰刀</strong>和即将<strong>生锈</strong>的<strong>大地</strong></strong>（傅元峰《安全颂》）<br>
 双重关联——秋天+镰刀：收获季节离不开镰刀；大地+生锈：秋天的庄稼黄色与铁锈颜色相似。<br>
 Double link — autumn + sickle: harvest needs the sickle;<br>
 earth + rust: autumn yellow matches rust's color.<br><br>
-<strong>⑩ 苍穹和群山<strong>拱起的脊背</strong>／像一个<strong>问号</strong></strong>（胡弦《窗前》）<br>
+<strong>⑦ 苍穹和群山<strong>拱起的脊背</strong>／像一个<strong>问号</strong></strong>（胡弦《窗前》）<br>
 脊背有多种——笔直的、前凸的、左右弯曲的。<br>
 诗人用限定词「拱起的」精准筛选，找到唯一与问号形状最接近的那一种脊背。<br>
 Backs come in many shapes — straight, forward, curved. The adjective "hunched"<br>
 filters out all others, finding the single back-shape closest to a question mark.<br><br>
+<strong>━━ 多重关联 Multi-level Association（可遇不可求）━━</strong><br><br>
+<strong>「<strong>太阳</strong>张开红润的<strong>嘴</strong>／等着<strong>飞机</strong>伸进银色的<strong>压舌板</strong>」</strong>（黄梵）<br>
+表层两组关联：<br>
+· <strong>太阳 ↔ 嘴</strong>：共享「红润」的颜色特征<br>
+· <strong>飞机 ↔ 压舌板</strong>：共享「银色、扁长」的外形特征<br>
+真正的准确诞生在想象里：<em>银色飞机飞过太阳的那一刻——<br>
+宛如银色压舌板伸进张开的红润嘴巴</em>。两组特征关联汇合成一个完整情景。<br>
+Two surface links (sun/mouth by color, plane/tongue-depressor by shape)<br>
+resolve into one imagined scene: a silver plane crossing the sun = a depressor<br>
+entering an open red mouth. Two trait-links fuse into a single scene-link.<br><br>
+<em>王鼎钧评：「这样的句子，猜想在作者下笔时，稿纸都会兴奋地簌簌直响。」</em><br>
+<strong>⚠️ 黄梵的劝告:</strong> 多重关联很难得——<em>做到一种关联就已经足够了</em>。<br>
+Multi-level association is rare. One solid link is already enough.<br><br>
 <strong>━━ 多义范例 Ambiguity Examples（对照参考）━━</strong><br><br>
 · <strong>「光线在我体内折断的声音」</strong>（代薇《光线》）— 通感+私密体悟，靠中年阅历支撑<br>
 · <strong>「云，有关于这个世界的所有说法」</strong>（黄梵《词汇表》）— 极私密，少数人能共鸣<br>
