@@ -539,9 +539,10 @@ Good images aren't decoration — they speak a truth about human nature.<br><br>
 <strong>本质：有限却渴望无限 Finite creatures with infinite longing</strong><br>
 人知道自己必死，却活得像要永远——一切自我矛盾都从这里长出。<br>
 Humans know they die yet live as if forever — every contradiction grows from this.<br><br>
-<strong>自检 Self-check: <em>Follow the goosebump and the pain.</em></strong><br>
-跟着鸡皮疙瘩走，跟着疼走。真意象让身体先动——脑子还没反应过来，<br>
-皮肤先动了。装饰什么都不会让你起。`;
+<strong>自检 Self-check: <em>Does it hit you — a goosebump, or a sting?</em></strong><br>
+起鸡皮疙瘩，或一阵轻疼——真意象让身体先动，脑子还没反应过来。<br>
+装饰什么都不会让你起。<br>
+Real images hit the body before the mind catches up. Decoration hits nothing.`;
   qualityCard.appendChild(qualityMethod);
 
   qualitySection.appendChild(qualityCard);
