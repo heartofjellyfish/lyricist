@@ -2,3 +2,4 @@ node_modules/
 src/localConfig.js
 .DS_Store
 books/
+.claude/
