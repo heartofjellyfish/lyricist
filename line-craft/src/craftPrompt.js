@@ -279,16 +279,7 @@ export function buildSystemPrompt({ spectrums = {}, micros = [], metaphor = fals
     parts.push("# Creative direction\n" + hints.join("\n"));
   }
 
-  // Formulas are no longer user-toggleable — the model picks the imagery approach freely.
-  // Filter out any lingering formula keys from saved state (backward compat).
-  const activeMicros = micros
-    .filter((key) => MICRO_PRINCIPLES[key]?.group !== "formulas")
-    .map((key) => MICRO_PRINCIPLES[key]?.prompt)
-    .filter(Boolean);
-  if (activeMicros.length > 0) {
-    parts.push("# Additional Principles (layer ALL of these in every line)\n" + activeMicros.join("\n"));
-  }
-
+  // All micro toggles cut — the model picks formulas, structural moves, and stance freely.
   return parts.join("\n\n");
 }
 
@@ -425,7 +416,6 @@ export const MICRO_PRINCIPLE_LIST = Object.entries(MICRO_PRINCIPLES).map(([key, 
   examples: entry.examples || [],
 }));
 
-export const MICRO_GROUPS = [
-  { key: "structure", title: "Structural Moves", subtitle: "Benchmark songs + teachers", exclusive: false },
-  { key: "stance", title: "Stance", subtitle: "Modifiers", exclusive: false },
-];
+// All toggle groups cut — the model picks structural moves & stance freely.
+// MICRO_PRINCIPLES entries are kept to power the Craft Library teaching cards.
+export const MICRO_GROUPS = [];

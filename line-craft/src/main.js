@@ -1,4 +1,4 @@
-import { SPECTRUM_LIST, MICRO_PRINCIPLE_LIST, MICRO_GROUPS } from "./craftPrompt.js";
+import { SPECTRUM_LIST, MICRO_PRINCIPLE_LIST } from "./craftPrompt.js";
 import { generateLines, iterateOnLine, critiqueLine } from "./craftApi.js";
 import {
   getState,
@@ -7,7 +7,6 @@ import {
   setSubject,
   setSpectrum,
   setMetaphor,
-  toggleMicro,
   addResults,
   setCritique,
   clearResults,
@@ -18,7 +17,6 @@ import {
 const seedInput = document.getElementById("seed-input");
 const subjectInput = document.getElementById("subject-input");
 const spectrumsContainer = document.getElementById("spectrums-container");
-const microsContainer = document.getElementById("micros-container");
 const generateBtn = document.getElementById("generate-btn");
 const clearBtn = document.getElementById("clear-btn");
 const resultsContainer = document.getElementById("results");
@@ -66,75 +64,6 @@ function initSpectrums() {
   }
 }
 
-function initMicros() {
-  for (const group of MICRO_GROUPS) {
-    const items = MICRO_PRINCIPLE_LIST.filter((m) => m.group === group.key);
-    if (items.length === 0) continue;
-
-    const groupEl = document.createElement("div");
-    groupEl.className = "micro-group";
-    groupEl.dataset.group = group.key;
-    if (group.exclusive) groupEl.dataset.exclusive = "true";
-
-    const header = document.createElement("div");
-    header.className = "micro-group-header";
-    header.innerHTML = `
-      <span class="micro-group-title">${group.title}</span>
-      ${group.subtitle ? `<span class="micro-group-subtitle">${group.subtitle}</span>` : ""}
-    `;
-    groupEl.appendChild(header);
-
-    const chips = document.createElement("div");
-    chips.className = "micro-chips";
-
-    for (const item of items) {
-      const chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "micro-chip";
-      chip.dataset.micro = item.key;
-      chip.dataset.group = group.key;
-      chip.textContent = item.label;
-      chip.addEventListener("click", () => {
-        if (group.exclusive) {
-          handleExclusiveToggle(item.key, group.key);
-        } else {
-          toggleMicro(item.key);
-        }
-      });
-      chips.appendChild(chip);
-    }
-    groupEl.appendChild(chips);
-
-    // Example container — populated dynamically based on active chips
-    const hasAnyExamples = items.some((m) => m.examples.length > 0);
-    if (hasAnyExamples) {
-      const exBlock = document.createElement("div");
-      exBlock.className = "micro-examples";
-      exBlock.dataset.group = group.key;
-      groupEl.appendChild(exBlock);
-    }
-
-    microsContainer.appendChild(groupEl);
-  }
-}
-
-/** For exclusive groups: deselect siblings, then toggle the clicked one. */
-function handleExclusiveToggle(key, groupKey) {
-  const state = getState();
-  const siblings = MICRO_PRINCIPLE_LIST
-    .filter((m) => m.group === groupKey && m.key !== key)
-    .map((m) => m.key);
-
-  // Deselect any active siblings
-  for (const sib of siblings) {
-    if (state.micros.includes(sib)) {
-      toggleMicro(sib);
-    }
-  }
-  // Toggle the clicked one
-  toggleMicro(key);
-}
-
 /** Sync metaphor toggle button state (boolean). */
 function renderMetaphorVisibility(on) {
   if (metaphorToggle) {
@@ -143,35 +72,6 @@ function renderMetaphorVisibility(on) {
 }
 
 /** Update example blocks to show only examples for active chips. */
-function renderExamples(activeMicros) {
-  const allExBlocks = [...microsContainer.querySelectorAll(".micro-examples")];
-  for (const exBlock of allExBlocks) {
-    const groupKey = exBlock.dataset.group;
-    const items = MICRO_PRINCIPLE_LIST.filter(
-      (m) => m.group === groupKey && activeMicros.includes(m.key) && m.examples.length > 0
-    );
-
-    exBlock.innerHTML = "";
-    if (items.length === 0) {
-      exBlock.style.display = "none";
-      continue;
-    }
-    exBlock.style.display = "";
-
-    // Show featured examples per active item
-    for (const item of items) {
-      const featured = item.examples.filter((ex) => ex.featured);
-      for (const ex of featured) {
-        const line = document.createElement("div");
-        line.className = "micro-example-line";
-        const zhHtml = ex.zh.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-        line.innerHTML = `<span class="ex-zh">${zhHtml}</span><span class="ex-en">${ex.en}</span><span class="ex-source">${ex.source}</span>`;
-        exBlock.appendChild(line);
-      }
-    }
-  }
-}
-
 // ── Render ───────────────────────────────────────────────────────────
 
 function renderSpectrums(spectrums) {
@@ -180,13 +80,6 @@ function renderSpectrums(spectrums) {
     if (spectrums[key] !== undefined && parseFloat(slider.value) !== spectrums[key]) {
       slider.value = spectrums[key];
     }
-  }
-}
-
-function renderMicroChips(activeMicros) {
-  const allChips = [...microsContainer.querySelectorAll(".micro-chip")];
-  for (const chip of allChips) {
-    chip.classList.toggle("active", activeMicros.includes(chip.dataset.micro));
   }
 }
 
@@ -381,7 +274,6 @@ async function handleIterate(action, lineId) {
 
 function init() {
   initSpectrums();
-  initMicros();
 
   // Restore saved state into UI
   const saved = getState();
@@ -389,16 +281,12 @@ function init() {
   subjectInput.value = saved.subject;
 
   // Initial render
-  renderMicroChips(saved.micros);
-  renderExamples(saved.micros);
   renderResults(saved.results);
   renderMetaphorVisibility(saved.metaphor ?? false);
 
   // Subscribe to state changes
   subscribe((s) => {
     renderSpectrums(s.spectrums);
-    renderMicroChips(s.micros);
-    renderExamples(s.micros);
     renderResults(s.results);
     renderMetaphorVisibility(s.metaphor ?? false);
   });
