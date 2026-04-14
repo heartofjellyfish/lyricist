@@ -119,8 +119,8 @@ async function callOpenAI({ instructions, input, schema, maxTokens = 800 }) {
  * @param {number} opts.count
  * @returns {Promise<{ lines: Array<{line, register, craft_notes}>, usage }>}
  */
-export async function generateLines({ seed, subject, spectrums = {}, micros = [], count = 8 } = {}) {
-  const instructions = buildSystemPrompt({ spectrums, micros });
+export async function generateLines({ seed, subject, spectrums = {}, micros = [], metaphor = false, count = 8 } = {}) {
+  const instructions = buildSystemPrompt({ spectrums, micros, metaphor });
   const input = buildGeneratePrompt({ seed, subject, count });
   const schema = buildLineSchema(count);
 
@@ -130,8 +130,8 @@ export async function generateLines({ seed, subject, spectrums = {}, micros = []
   return { lines, usage: result.usage, model: result.model, debug: { instructions, input, raw: result.raw } };
 }
 
-export async function iterateOnLine({ parentLine, seed, action, spectrums = {}, micros = [], count = 4 } = {}) {
-  const instructions = buildSystemPrompt({ spectrums, micros });
+export async function iterateOnLine({ parentLine, seed, action, spectrums = {}, micros = [], metaphor = false, count = 4 } = {}) {
+  const instructions = buildSystemPrompt({ spectrums, micros, metaphor });
   const input = buildIteratePrompt({ parentLine, seed, action, count });
   const schema = buildLineSchema(count);
 
@@ -141,8 +141,8 @@ export async function iterateOnLine({ parentLine, seed, action, spectrums = {}, 
   return { lines, usage: result.usage, model: result.model, debug: { instructions, input, raw: result.raw } };
 }
 
-export async function critiqueLine({ line, spectrums = {} } = {}) {
-  const instructions = buildSystemPrompt({ spectrums });
+export async function critiqueLine({ line, spectrums = {}, metaphor = false } = {}) {
+  const instructions = buildSystemPrompt({ spectrums, metaphor });
   const input = buildCritiquePrompt({ line });
   const schema = buildCritiqueSchema();
 

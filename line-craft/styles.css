@@ -145,6 +145,86 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* ── Metaphor Toggle ─────────────────────────────────────────────── */
+
+.metaphor-toggle-row {
+  padding: 16px;
+  border: 1px solid rgba(31, 26, 23, 0.08);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.48)),
+    radial-gradient(circle at bottom left, rgba(184, 92, 56, 0.06), transparent 42%);
+}
+
+.metaphor-toggle-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.metaphor-toggle-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.metaphor-en {
+  font-weight: 400;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.metaphor-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  border: 2px solid rgba(31, 26, 23, 0.15);
+  border-radius: 999px;
+  background: rgba(31, 26, 23, 0.08);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.metaphor-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.metaphor-switch[aria-pressed="true"] {
+  background: rgba(184, 92, 56, 0.25);
+  border-color: rgba(184, 92, 56, 0.4);
+}
+
+.metaphor-switch[aria-pressed="true"] .metaphor-switch-thumb {
+  transform: translateX(22px);
+}
+
+.metaphor-hint {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.metaphor-micros {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(31, 26, 23, 0.06);
+}
+
 /* ── Micro-Principle Chips ────────────────────────────────────────── */
 
 .micros-shell {
@@ -179,7 +259,13 @@
 
 .micro-group {
   display: grid;
-  gap: 6px;
+  gap: 8px;
+}
+
+.micro-group-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .micro-group-title {
@@ -187,6 +273,120 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--accent);
+}
+
+.micro-group-subtitle {
+  font-size: 0.75rem;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.micro-learn-link {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 0;
+  transition: opacity 120ms ease;
+}
+
+.micro-learn-link:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+/* ── Book Examples ───────────────────────────────────────────────── */
+
+.micro-examples {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(31, 26, 23, 0.025);
+  border: 1px solid rgba(31, 26, 23, 0.05);
+}
+
+.micro-example-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.ex-zh {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.ex-en {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.ex-en::before { content: "— "; }
+
+.ex-source {
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.ex-source::before { content: "("; }
+.ex-source::after { content: ")"; }
+
+.ex-hint {
+  display: block;
+  width: 100%;
+  font-size: 0.75rem;
+  color: var(--muted);
+  opacity: 0.7;
+  margin-top: 1px;
+  padding-left: 1em;
+  font-style: italic;
+}
+
+/* ── Collapsible Method Guide ────────────────────────────────────── */
+
+.micro-method {
+  margin-top: 6px;
+  border-top: 1px solid rgba(31, 26, 23, 0.06);
+  padding-top: 6px;
+}
+
+.micro-method summary {
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 600;
+  list-style: none;
+  user-select: none;
+}
+
+.micro-method summary::-webkit-details-marker { display: none; }
+
+.micro-method summary::before {
+  content: "▸ ";
+  font-size: 0.7rem;
+}
+
+.micro-method[open] summary::before {
+  content: "▾ ";
+}
+
+.micro-method-body {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--ink);
 }
 
 .micro-chips {
@@ -453,6 +653,202 @@
   background: rgba(255, 255, 255, 0.4);
   color: var(--muted);
 }
+
+/* ── Teach Me Slide-Out Panel ─────────────────────────────────────── */
+
+.teach-toggle {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  border: 1px solid var(--line);
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  padding: 16px 8px;
+  background: var(--panel);
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: -4px 0 16px rgba(62, 40, 24, 0.06);
+  transition: background 150ms ease, box-shadow 150ms ease;
+  z-index: 100;
+}
+
+.teach-toggle:hover {
+  background: rgba(184, 92, 56, 0.08);
+  box-shadow: -4px 0 20px rgba(184, 92, 56, 0.12);
+}
+
+.teach-toggle.hidden { display: none; }
+
+.teach-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 26, 23, 0.2);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+  z-index: 200;
+}
+
+.teach-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.teach-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(440px, 85vw);
+  height: 100vh;
+  background: var(--paper);
+  border-left: 1px solid var(--line);
+  box-shadow: -12px 0 40px rgba(62, 40, 24, 0.1);
+  transform: translateX(100%);
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.teach-panel.open {
+  transform: translateX(0);
+}
+
+.teach-header {
+  flex-shrink: 0;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.teach-header h2 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+}
+
+.teach-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.teach-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: none;
+  background: none;
+  font-size: 1.6rem;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 120ms ease;
+}
+
+.teach-close:hover {
+  background: rgba(31, 26, 23, 0.06);
+  color: var(--ink);
+}
+
+.teach-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px 40px;
+}
+
+/* ── Teach Sections ─────────────────────────────────────────────── */
+
+.teach-section {
+  margin-bottom: 28px;
+}
+
+.teach-section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--accent);
+}
+
+.teach-formula {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(31, 26, 23, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.teach-formula-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--ink);
+}
+
+.teach-method {
+  font-size: 0.8rem;
+  line-height: 1.8;
+  color: var(--ink);
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: rgba(184, 92, 56, 0.04);
+  border-radius: 10px;
+  border-left: 3px solid rgba(184, 92, 56, 0.2);
+}
+
+.teach-examples {
+  display: grid;
+  gap: 8px;
+}
+
+.teach-example {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  padding-left: 10px;
+  border-left: 2px solid rgba(31, 26, 23, 0.06);
+}
+
+.teach-example .ex-zh {
+  display: block;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.teach-example .ex-en {
+  display: block;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.76rem;
+}
+
+.teach-example .ex-en::before { content: ""; }
+
+.teach-example .ex-hint {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--accent);
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.teach-example .ex-source {
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.teach-example .ex-source::before { content: "— "; }
+.teach-example .ex-source::after { content: ""; }
 
 /* ── Responsive ───────────────────────────────────────────────────── */
 

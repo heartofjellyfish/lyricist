@@ -44,6 +44,17 @@
 
           <div id="spectrums-container" class="spectrums-container"></div>
 
+          <div class="metaphor-toggle-row">
+            <label class="metaphor-toggle-label">
+              <span class="metaphor-toggle-text">隐喻开关 <span class="metaphor-en">Metaphor</span></span>
+              <button id="metaphor-toggle" type="button" class="metaphor-switch" aria-pressed="false">
+                <span class="metaphor-switch-thumb"></span>
+              </button>
+            </label>
+            <p class="metaphor-hint">Opens subjective imagery formulas and techniques — objects stand for feelings, the literal meaning is never the real meaning.</p>
+            <div id="metaphor-micros" class="metaphor-micros"></div>
+          </div>
+
           <div class="micros-shell">
             <div class="micros-shell-head">
               <h2>Craft Nudges</h2>
@@ -74,6 +85,18 @@
         <div id="results" class="results"></div>
       </section>
     </main>
+
+    <!-- Teach Me slide-out panel -->
+    <button id="teach-toggle" class="teach-toggle" aria-label="Open learning panel">学 Learn</button>
+    <div id="teach-backdrop" class="teach-backdrop"></div>
+    <aside id="teach-panel" class="teach-panel">
+      <div class="teach-header">
+        <h2>Craft Library</h2>
+        <p>黄梵 · Lenker · Pecknold · Marling · 14 benchmark songs</p>
+        <button id="teach-close" class="teach-close" aria-label="Close">&times;</button>
+      </div>
+      <div id="teach-body" class="teach-body"></div>
+    </aside>
 
     <script type="module" src="./src/main.js"></script>
   </body>

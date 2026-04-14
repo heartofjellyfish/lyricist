@@ -4,6 +4,7 @@ const DEFAULT_STATE = {
   seed: "",
   subject: "",
   spectrums: { orientation: 0, stability: 0, distance: 0, register: 0, vision: 0 },  // each -1, 0, or 1
+  metaphor: true,  // binary toggle
   micros: [],
   results: [],       // Array of { id, line, craft_notes, parentId?, action? }
   idCounter: 0,
@@ -61,6 +62,12 @@ export function setSubject(subject) {
 
 export function setSpectrum(key, value) {
   state.spectrums[key] = value;
+  persist();
+  notify();
+}
+
+export function setMetaphor(on) {
+  state.metaphor = !!on;
   persist();
   notify();
 }
