@@ -88,13 +88,6 @@ const SPECTRUMS = {
 
 const MICRO_PRINCIPLES = {
   // ── Huang Fan: 4 Subjective Imagery Formulas (诗句模式) ──────────
-  formula_auto: {
-    group: "formulas",
-    label: "AI自选",
-    prompt: "Choose the most fitting imagery formula for this seed. Pick from: A的B错搭 (mismatch possession), A是B (equivalence), B解释A (reinterpretation), or 让A做A做不到的事 (impossibility). Don't announce which you chose — just use it. If the seed calls for plain observation without metaphor, that's fine too.",
-    method: "",
-    examples: [],
-  },
   formula_mismatch: {
     group: "formulas",
     label: "A的B",
@@ -331,11 +324,9 @@ export function buildSystemPrompt({ spectrums = {}, micros = [], metaphor = fals
   const activeFormula = micros.find((key) => MICRO_PRINCIPLES[key]?.group === "formulas");
   const otherMicros = micros.filter((key) => key !== activeFormula);
 
-  if (activeFormula && activeFormula !== "formula_auto") {
+  if (activeFormula) {
     const formulaPrompt = MICRO_PRINCIPLES[activeFormula].prompt;
     parts.push("# Imagery Formula (use in most lines — 1-2 pure observations allowed)\n" + formulaPrompt);
-  } else if (activeFormula === "formula_auto") {
-    parts.push("# Imagery Formula\n" + MICRO_PRINCIPLES.formula_auto.prompt);
   }
 
   const activeMicros = otherMicros
