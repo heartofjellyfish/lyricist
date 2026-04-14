@@ -279,16 +279,10 @@ export function buildSystemPrompt({ spectrums = {}, micros = [], metaphor = fals
     parts.push("# Creative direction\n" + hints.join("\n"));
   }
 
-  // Separate formula from other micros — formula gets enforcement
-  const activeFormula = micros.find((key) => MICRO_PRINCIPLES[key]?.group === "formulas");
-  const otherMicros = micros.filter((key) => key !== activeFormula);
-
-  if (activeFormula) {
-    const formulaPrompt = MICRO_PRINCIPLES[activeFormula].prompt;
-    parts.push("# Imagery Formula (use in most lines — 1-2 pure observations allowed)\n" + formulaPrompt);
-  }
-
-  const activeMicros = otherMicros
+  // Formulas are no longer user-toggleable — the model picks the imagery approach freely.
+  // Filter out any lingering formula keys from saved state (backward compat).
+  const activeMicros = micros
+    .filter((key) => MICRO_PRINCIPLES[key]?.group !== "formulas")
     .map((key) => MICRO_PRINCIPLES[key]?.prompt)
     .filter(Boolean);
   if (activeMicros.length > 0) {
@@ -432,7 +426,6 @@ export const MICRO_PRINCIPLE_LIST = Object.entries(MICRO_PRINCIPLES).map(([key, 
 }));
 
 export const MICRO_GROUPS = [
-  { key: "formulas", title: "意象公式 Imagery Formulas", subtitle: "黄梵《意象的帝国》", exclusive: true },
   { key: "structure", title: "Structural Moves", subtitle: "Benchmark songs + teachers", exclusive: false },
   { key: "stance", title: "Stance", subtitle: "Modifiers", exclusive: false },
 ];

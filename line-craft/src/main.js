@@ -19,7 +19,6 @@ const seedInput = document.getElementById("seed-input");
 const subjectInput = document.getElementById("subject-input");
 const spectrumsContainer = document.getElementById("spectrums-container");
 const microsContainer = document.getElementById("micros-container");
-const metaphorMicros = document.getElementById("metaphor-micros");
 const generateBtn = document.getElementById("generate-btn");
 const clearBtn = document.getElementById("clear-btn");
 const resultsContainer = document.getElementById("results");
@@ -82,7 +81,6 @@ function initMicros() {
     header.innerHTML = `
       <span class="micro-group-title">${group.title}</span>
       ${group.subtitle ? `<span class="micro-group-subtitle">${group.subtitle}</span>` : ""}
-      ${(group.key === "formulas") ? `<button type="button" class="micro-learn-link" id="teach-inline-toggle">深入学习 →</button>` : ""}
     `;
     groupEl.appendChild(header);
 
@@ -116,9 +114,7 @@ function initMicros() {
       groupEl.appendChild(exBlock);
     }
 
-    // Formulas go inside the metaphor toggle section
-    const target = group.key === "formulas" ? metaphorMicros : microsContainer;
-    target.appendChild(groupEl);
+    microsContainer.appendChild(groupEl);
   }
 }
 
@@ -139,11 +135,8 @@ function handleExclusiveToggle(key, groupKey) {
   toggleMicro(key);
 }
 
-/** Show/hide formula + technique groups based on metaphor toggle (boolean). */
+/** Sync metaphor toggle button state (boolean). */
 function renderMetaphorVisibility(on) {
-  metaphorMicros.style.display = on ? "" : "none";
-
-  // Sync toggle button state
   if (metaphorToggle) {
     metaphorToggle.setAttribute("aria-pressed", on ? "true" : "false");
   }
@@ -151,8 +144,7 @@ function renderMetaphorVisibility(on) {
 
 /** Update example blocks to show only examples for active chips. */
 function renderExamples(activeMicros) {
-  // Search both containers (metaphor section + craft nudges)
-  const allExBlocks = [...metaphorMicros.querySelectorAll(".micro-examples"), ...microsContainer.querySelectorAll(".micro-examples")];
+  const allExBlocks = [...microsContainer.querySelectorAll(".micro-examples")];
   for (const exBlock of allExBlocks) {
     const groupKey = exBlock.dataset.group;
     const items = MICRO_PRINCIPLE_LIST.filter(
@@ -192,7 +184,7 @@ function renderSpectrums(spectrums) {
 }
 
 function renderMicroChips(activeMicros) {
-  const allChips = [...metaphorMicros.querySelectorAll(".micro-chip"), ...microsContainer.querySelectorAll(".micro-chip")];
+  const allChips = [...microsContainer.querySelectorAll(".micro-chip")];
   for (const chip of allChips) {
     chip.classList.toggle("active", activeMicros.includes(chip.dataset.micro));
   }
@@ -469,10 +461,6 @@ function initTeachPanel() {
   toggle.addEventListener("click", openPanel);
   closeBtn.addEventListener("click", closePanel);
   backdrop.addEventListener("click", closePanel);
-
-  // Inline "深入学习" link in formulas group
-  const inlineToggle = document.getElementById("teach-inline-toggle");
-  if (inlineToggle) inlineToggle.addEventListener("click", openPanel);
 
   // Helper: collapsible <details> section with title + teaser summary
   function createCollapsibleSection({ title, teaser, subtitle, defaultOpen = false }) {
