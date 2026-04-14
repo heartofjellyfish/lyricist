@@ -536,41 +536,23 @@ Varied density is one tool: dense, dense, then a breath.<br><br>
 <strong>③ 镜像人性与世界 MIRROR OF HUMAN NATURE</strong><br>
 好的意象不是装饰——它在说一件关于「人」或「世界」的真事<br>
 Good images aren't decoration — they speak a truth about human nature.<br><br>
-<strong>总纲：人性的核心是自我矛盾 The master theme — self-contradiction</strong><br>
-<em>钱钟书《围城》：「城外的人想进来，城里的人想出来。」</em><br>
-<em>Qian Zhongshu: those outside the city want in, those inside want out.</em><br>
-人不是黑的，也不是白的——是同时渴望相反的两件事，也在相反之间发光。<br>
-Humans aren't evil or good — they want opposite things at once, and the<br>
-light shows through the crack between them (Cohen: <em>"there is a crack in<br>
-everything, that's how the light gets in"</em>).<br><br>
-<strong>六座「围城」 Six besieged cities（每一座都是暗 ↔ 亮并存）:</strong><br><br>
-· <strong>归属 ↔ 自由 Belonging vs Freedom</strong><br>
-  想被拥抱，又怕被困住；出走又回望<br>
-  《围城》钱钟书 ／ Goethe《浮士德》「两个灵魂住在我胸膛」 ／ Camus ／<br>
-  《红楼梦》大观园 ／ 陶渊明「久在樊笼里，复得返自然」<br><br>
-· <strong>渴望亲密 ↔ 害怕暴露 Intimacy vs Exposure</strong><br>
-  想被爱，又不敢让真实的自己被看见<br>
-  Eliot《普鲁弗洛克》「Do I dare?」／ Dostoevsky《地下室手记》(明知爱她却赶她走) ／<br>
-  川端康成（美与羞怯）<br><br>
-· <strong>自私 ↔ 舍己 Self-Interest vs Sacrifice</strong><br>
-  最深的算计和最纯的给予，住在同一颗心里<br>
-  La Rochefoucauld《箴言录》（德行多是伪装的恶）／ Dostoevsky《卡拉马佐夫》<br>
-  「魔鬼与上帝交战的战场，就是人心」／《孟子》恻隐之心 ／<br>
-  圣保罗《罗马书》7:19「我所愿意的善，我反不做」<br><br>
-· <strong>永恒 ↔ 瞬间 Eternity vs Moment</strong><br>
-  渴望不变，又爱着终将消失的东西<br>
-  《传道书》「虚空的虚空」／ Proust《追忆》（玛德琳蛋糕）／<br>
-  松尾芭蕉 · 物の哀れ（美正因将逝而美）／ Blake《天真与经验之歌》<br><br>
-· <strong>自欺 ↔ 自知 Self-Deception vs Self-Knowledge</strong><br>
-  最不想看见的，是自己；最想知道的，也是自己<br>
-  Sartre「mauvaise foi」／ 苏格拉底「认识你自己」／ Nietzsche ／<br>
-  庄子梦蝶（我是我？还是梦见自己的蝴蝶？）<br><br>
-· <strong>沉沦日常 ↔ 渴望超越 Routine vs Transcendence</strong><br>
-  习惯吞噬感觉，心底却总盼一次重新看见世界<br>
-  Kierkegaard ／ 什克洛夫斯基「自动化」（陌生化要救的正是这个）／<br>
-  《薄伽梵歌》Arjuna 的瘫痪与觉醒 ／ Whitman「I contain multitudes」<br><br>
-<em>自检：写意象时问自己——它映射的是哪一座围城？如果只有「好看」，它还没成。</em><br>
-<em>Self-check: which contradiction does this image touch? "Pretty" alone isn't enough.</em>`;
+<strong>人性的核心是自我矛盾 The core is self-contradiction</strong><br>
+钱钟书《围城》：「城外的人想进来，城里的人想出来。」<br>
+人不是黑的也不是白的——同时渴望相反的两件事，光从裂缝里透出来。<br>
+Humans want opposite things at once; the light shows through the crack.<br><br>
+<strong>六座围城 Six besieged cities:</strong><br>
+· 归属 ↔ 自由 &nbsp;&nbsp;Belonging vs Freedom<br>
+· 亲密 ↔ 暴露 &nbsp;&nbsp;Intimacy vs Exposure<br>
+· 自私 ↔ 舍己 &nbsp;&nbsp;Self-Interest vs Sacrifice<br>
+· 永恒 ↔ 瞬间 &nbsp;&nbsp;Eternity vs Moment<br>
+· 自欺 ↔ 自知 &nbsp;&nbsp;Self-Deception vs Self-Knowledge<br>
+· 沉沦日常 ↔ 渴望超越 &nbsp;&nbsp;Routine vs Transcendence<br><br>
+跨文化共鸣 Cross-cultural echoes: 钱钟书《围城》／ 《红楼梦》／ 陶渊明 ／ 庄子 ／ 孟子 ／<br>
+Dostoevsky ／ Tolstoy ／ Goethe《浮士德》／ Nietzsche ／ Kierkegaard ／<br>
+Sartre ／ Camus ／ La Rochefoucauld ／ Eliot ／ Blake ／ Whitman ／ Cohen ／<br>
+Proust ／ 松尾芭蕉 · 物の哀れ ／ 川端康成 ／《传道书》／《罗马书》／<br>
+苏格拉底 ／《薄伽梵歌》<br><br>
+<em>自检：写意象时问自己——它映射的是哪一座围城？只有「好看」还不够。</em>`;
   qualityCard.appendChild(qualityMethod);
 
   qualitySection.appendChild(qualityCard);
