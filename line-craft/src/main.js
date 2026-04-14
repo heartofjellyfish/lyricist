@@ -816,7 +816,7 @@ Strong poetic content + strong formal strangeness = poetry at its best.<br>
   // ── 第四堂课 · 整体感的构建 (Huang Fan Lesson 4) ──────────────────
   const lesson4Section = createCollapsibleSection({
     title: "第四堂课 · 整体感的构建",
-    teaser: "叠句 · 节奏 · 象征/隐喻 · ABA′ · 部落化 · 策略",
+    teaser: "叠句 · 节奏 · 象征/隐喻 · 通感 · ABA′ · 部落化 · 策略",
     subtitle: "黄梵《意象的帝国》— 从好句到好诗：如何让一首诗立得住",
   });
 
@@ -875,7 +875,27 @@ Xi Murong's short refrain mimics the hesitation of words not quite spoken.`,
 钟玲《活结》／ 李少君《碧玉》— 标题点名，正文只白描。`,
     },
     {
-      name: "四、三段式 ABA′ · 最高杠杆的结构",
+      name: "四、通感 Synesthesia · 用一种感官写另一种",
+      method: `<strong>方法 The move:</strong><br>
+用一种感官的词汇去描写另一种感官——让看不见的被看见，让抽象变具体。<br>
+Describe one sense in the vocabulary of another — make the invisible visible.<br><br>
+<strong>两个层次 Two levels:</strong><br>
+· <strong>局部通感</strong>：一行之内的交感 — Local, within a line<br>
+· <strong>结构通感</strong>：整首诗靠一个感官错位撑起 — Structural, across the poem<br><br>
+<strong>范例 Examples:</strong><br>
+· 朱自清《荷塘月色》「缕缕清香，仿佛远处高楼上渺茫的歌声」<br>
+  嗅觉 → 听觉 Scent rendered as faraway song<br>
+· 兰波《元音》— 每个元音被染上颜色和场景<br>
+  Rimbaud: each vowel a color (the founding, but 黄梵评「粗暴」)<br>
+· 埃利蒂斯《疯狂的石榴树》— 风让不可见的树变成可见<br>
+  Elytis: wind makes an invisible tree visible (黄梵赞为精炼的通感)<br>
+· 本·韦弗「把路熟透／熟得像西瓜那样开裂」— 认知 → 味觉 / 视觉 / 触觉<br>
+  Cognition crosses into taste, sight, and touch<br><br>
+<em>诀窍：挑一个情绪或概念，问自己——如果它能被听到/尝到/摸到，是什么样？</em><br>
+<em>Trick: pick a feeling; ask what it would sound, taste, or feel like.</em>`,
+    },
+    {
+      name: "五、三段式 ABA′ · 最高杠杆的结构",
       method: `<strong>黄梵：整首诗最好用的结构招式</strong><br>
 <em>The single highest-leverage whole-poem move.</em><br><br>
 · <strong>A</strong> = 开场：场景或主题 Opening scene or theme<br>
@@ -891,7 +911,7 @@ Xi Murong's short refrain mimics the hesitation of words not quite spoken.`,
 <em>For lyrics: verse (A) → bridge (B) → final chorus lifted (A′).</em>`,
     },
     {
-      name: "五、部落化陷阱 Tribalization · 整体感的反面",
+      name: "六、部落化陷阱 Tribalization · 整体感的反面",
       method: `<strong>最常见的失败模式 The most common failure:</strong><br>
 局部意象再亮，如果互相对抗、没有骨架，整首诗就散了。<br>
 Brilliant fragments can form hostile "tribes" that cancel each other,<br>
@@ -908,7 +928,7 @@ Use at least one — otherwise it's just a pile of flashy words.<br><br>
 <em>Test: remove any stanza — does the poem still stand? If yes, the stanzas don't connect.</em>`,
     },
     {
-      name: "六、写诗的策略 Writing Discipline",
+      name: "七、写诗的策略 Writing Discipline",
       method: `不是技巧，是态度 Not tricks — attitudes.<br><br>
 · <strong>不伪造情感 Never fake feeling</strong><br>
   小说可以角色扮演，诗不行——等真情绪来再写。<br>
@@ -949,12 +969,14 @@ Use at least one — otherwise it's just a pile of flashy words.<br><br>
   // Lesson 3 and Lesson 4 sections are appended inside the teachGroups loop,
   // right after "formulas" (Lesson 2), so the book's content flows in order.
 
-  // ── Micro groups (formulas → Lesson 3 → techniques → structure → stance) ─
-  // Book order: Lesson 2 公式 → Lesson 3 核心 → 常用手法 (cross-chapter) →
-  // then non-Huang-Fan: benchmark songs & teachers
+  // ── Micro groups (formulas → Lessons 3-4 → structure → stance) ─
+  // Book order: Lesson 2 公式 → Lesson 3 核心 → Lesson 4 整体感 →
+  // then non-Huang-Fan: benchmark songs & teachers.
+  // "techniques" (染色/陌生化/通感/蒙太奇) is NOT rendered here —
+  // its concepts already live inside Lessons 3-4; the MICRO_PRINCIPLES
+  // data is kept so the toggle UI on the main app still works.
   const teachGroups = [
     { key: "formulas", title: "第二堂课 · 四大意象公式", teaser: "A之B · A是B · B解释A · A做不可能之事", subtitle: "黄梵《意象的帝国》— 主观意象的四种基本模式" },
-    { key: "techniques", title: "常用手法 Techniques", teaser: "通感 · 陌生化 · 染色 · 蒙太奇", subtitle: "跨章节：通感、陌生化、染色、蒙太奇" },
     { key: "structure", title: "结构招式 Structural Moves", teaser: "悖论 · 延伸隐喻 · 时间模糊 · remedy-poison", subtitle: "Benchmark songs + non-Huang-Fan teachers" },
     { key: "stance", title: "姿态 Stance Modifiers", teaser: "现在时 · 画像 · 幽默 · in medias res · 留白", subtitle: "Benchmark songs + non-Huang-Fan teachers" },
   ];
