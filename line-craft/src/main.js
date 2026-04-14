@@ -519,25 +519,27 @@ function initTeachPanel() {
 
   const qualityMethod = document.createElement("div");
   qualityMethod.className = "teach-method";
-  qualityMethod.innerHTML = `<strong>① 注意力 ATTENTION</strong><br>
+  qualityMethod.innerHTML = `<strong>① 用心看 LOOK CLOSELY</strong><br>
 日常生活充满美感，只要你足够用心看<br>
-Ordinary life is full of beauty if you pay enough attention<br><br>
-<strong>② 凝练 COMPRESSION</strong><br>
-4-10个词。每个词都要赚到自己的位置<br>
-4-10 words. Every word earns its spot. If it can be cut, cut it.<br><br>
-<strong>③ 感官优先 SENSE-BOUND</strong><br>
-不要说情绪的名字。让画面自己说话<br>
-Never name the emotion. Let the image carry it.<br><br>
-<strong>④ 行为镜像 BEHAVIOR MIRROR</strong><br>
-好的意象映射人的行为：善变、趋利避害、粉饰自己<br>
-Good images mirror human behavior: fickleness, self-preservation, saving face<br>
-「两只杯子分开坐着，交换沉默的蒸汽」— mugs trading steam = people exchanging silence after a fight<br><br>
-<strong>⑤ 具体即普遍 SPECIFIC = UNIVERSAL</strong><br>
-越具体地描述你的厨房桌子，越多人认出自己的<br>
-The more precisely you describe YOUR kitchen table, the more everyone sees their own<br><br>
-<strong>⑥ 长短错落 VARIED DENSITY</strong><br>
-不是每一行都要承载同样的重量。密、密、然后一口气<br>
-Not every line carries the same weight. Dense, dense, then a breath. "The milk's still out." lands hardest after two loaded images.`;
+越具体，越普遍——越精确地写「你的」厨房桌子，越多人认出「自己的」<br>
+Ordinary life is full of beauty if you look closely and pay attention.<br>
+The more precisely you describe <em>your</em> kitchen table,<br>
+the more everyone recognizes their own.<br><br>
+<strong>② 少即是多 LESS IS MORE</strong><br>
+留白给句子呼吸，给段落呼吸——句子之间、段落之间都要能喘气<br>
+每个词都要赚到它的位置；能砍的就砍<br>
+不要说情绪的名字——让画面自己说话<br>
+长短错落只是其中一招：密、密、然后一口气<br>
+White space lets lines and stanzas breathe. Every word earns its spot —<br>
+if it can be cut, cut it. Never name the emotion; let the image carry it.<br>
+Varied density is one tool: dense, dense, then a breath.<br><br>
+<strong>③ 镜像人性与世界 MIRROR OF HUMAN NATURE</strong><br>
+好的意象不是装饰——它在说人性或宇宙的公理：<br>
+善变、趋利避害、粉饰自己；时间、失去、矛盾<br>
+「两只杯子分开坐着，交换沉默的蒸汽」— 吵架后相对无言的两个人<br>
+Good images aren't decoration — they speak a truth about human nature or<br>
+the way the world works: fickleness, self-protection, saving face; time, loss,<br>
+contradiction. Mugs trading steam = two people exchanging silence after a fight.`;
   qualityCard.appendChild(qualityMethod);
 
   qualitySection.appendChild(qualityCard);
