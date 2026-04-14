@@ -813,7 +813,140 @@ Strong poetic content + strong formal strangeness = poetry at its best.<br>
     lesson3Section.appendChild(el);
   }
 
-  // Lesson 3 section will be appended inside the teachGroups loop,
+  // ── 第四堂课 · 整体感的构建 (Huang Fan Lesson 4) ──────────────────
+  const lesson4Section = createCollapsibleSection({
+    title: "第四堂课 · 整体感的构建",
+    teaser: "叠句 · 节奏 · 象征/隐喻 · ABA′ · 部落化 · 策略",
+    subtitle: "黄梵《意象的帝国》— 从好句到好诗：如何让一首诗立得住",
+  });
+
+  const lesson4Cards = [
+    {
+      name: "一、叠句 Refrain · 音乐性的支架",
+      method: `<strong>整体感的替代方案 The scaffold after meter:</strong><br>
+古诗靠平仄押韵；新诗失去格律，要靠<strong>叠句</strong>撑起长度。<br>
+Refrain replaces what classical meter used to do — it carries a long poem.<br><br>
+<strong>两种叠句 Two kinds:</strong><br>
+· <strong>重章叠句</strong>：整行重复，当作"楼层"，每层之间放意象<br>
+  Whole-line refrain — structural "floors", imagery fills between.<br>
+  《诗经·桃夭》「桃之夭夭／之子于归」<br>
+· <strong>重词叠句</strong>：词或短语重复，灵活得多<br>
+  Phrase refrain — a movable anchor.<br>
+  多多《是》「我爱你／永不收回去」— 密集意象全挂在这一句上<br><br>
+<strong>把大问题拆成每段的小问题 Break the big feeling into local ones:</strong><br>
+田原《湖》用「只要不把它想成……」作两行一循环，整首诗变成三行诗的链条。<br>
+Tian Yuan's refrain turns one cosmic question into a chain of three-line units.<br><br>
+<em>副歌之所以是副歌——它给情感一个可以反复回到的家。</em><br>
+<em>The chorus is a chorus because it gives feeling a home to return to.</em>`,
+    },
+    {
+      name: "二、节奏 Rhythm · 呼吸即单位",
+      method: `<strong>现代汉语的相对重音 Modern Mandarin stress:</strong><br>
+四声最重 &gt; 三声/二声 &gt; 一声（轻）<br>
+4th tone heaviest; 1st lightest.<br><br>
+<strong>两种节奏感 Two rhythms:</strong><br>
+· 四声密集 → 铿锵、急迫（北岛《一切》）<br>
+  Dense 4th tones → urgent, percussive<br>
+· 四声稀少 → 舒缓、惆怅（戴望舒《雨巷》）<br>
+  Sparse 4th tones → languid, melancholy<br><br>
+<strong>黑山派的"呼吸行" Olson's breath line:</strong><br>
+一行 = 一口气 = 一个情感单位<br>
+A line = one breath = one emotional unit.<br>
+行的长短由情感决定——屏息时短，叹息时长。<br>
+席慕蓉《晓镜》用短促的「我以为……」模拟欲言又止的呼吸。<br>
+Xi Murong's short refrain mimics the hesitation of words not quite spoken.`,
+    },
+    {
+      name: "三、象征 vs 隐喻 Symbol vs Metaphor",
+      method: `<strong>两者都用 A + B，但"藏法"不同 Both use A + B, differently:</strong><br><br>
+· <strong>象征 Symbol</strong>：只描绘 B，从不点名 A<br>
+  Describe only the vehicle; never name the tenor.<br>
+  闻一多《死水》只写水塘 — 从不说"这是旧社会"<br>
+  雪莱《西风颂》只写风 ／ 里尔克《豹》只写豹 — 但那是所有人的牢<br>
+  <em>规则像劫机犯跟家人通电话——只能暗示，不能说出来。</em><br>
+  <em>Hint, don't tell — like a hijacker calling family.</em><br><br>
+· <strong>隐喻 Metaphor</strong>：A 和 B 都在场，读者直接感到对比<br>
+  Both tenor and vehicle present; the reader feels the collision.<br>
+  多恩《别离辞》：婚姻 = 圆规的两脚<br>
+  庞德《地铁车站》：面孔 = 湿枝上的花瓣<br>
+  黄梵《中年》：青春 = 被啃过的骨头<br><br>
+<strong>秘诀 Shortcut:</strong> 把 A 放进标题，让正文只写 B<br>
+<em>Put A in the title; keep B in the body.</em><br>
+钟玲《活结》／ 李少君《碧玉》— 标题点名，正文只白描。`,
+    },
+    {
+      name: "四、三段式 ABA′ · 最高杠杆的结构",
+      method: `<strong>黄梵：整首诗最好用的结构招式</strong><br>
+<em>The single highest-leverage whole-poem move.</em><br><br>
+· <strong>A</strong> = 开场：场景或主题 Opening scene or theme<br>
+· <strong>B</strong> = 翻转或深化（相当于"变奏"）Flip or deepen<br>
+· <strong>A′</strong> = 回到 A，但被提升过 Return transformed<br><br>
+<strong>口诀 One-line rule:</strong> <em>A 和 A′ 押韵，A 到 B 翻转。</em><br>
+<em>A rhymes with A′; A flips to B.</em><br><br>
+<strong>范例 Examples:</strong><br>
+· 娜夜《起风了》— canonical ABA′<br>
+· 黄梵《中年》— 青春↔中年（B）→ 月亮收束（A′）<br>
+· 明迪《海叶集》— 海 → 母亲 → 从母亲眼中重新看见的海<br><br>
+<em>对歌词同样适用：主歌 (A) → 桥段 (B) → 终章副歌 (A′ 升级)。</em><br>
+<em>For lyrics: verse (A) → bridge (B) → final chorus lifted (A′).</em>`,
+    },
+    {
+      name: "五、部落化陷阱 Tribalization · 整体感的反面",
+      method: `<strong>最常见的失败模式 The most common failure:</strong><br>
+局部意象再亮，如果互相对抗、没有骨架，整首诗就散了。<br>
+Brilliant fragments can form hostile "tribes" that cancel each other,<br>
+leaving no coherent whole.<br><br>
+<strong>黄梵自评早期《怀念》</strong>作为反面教材：<br>
+片段极强、但没有脊梁 — 所以失败了。<br>
+Huang cites his own early poem as the cautionary example.<br><br>
+<strong>整体感的脊梁 Spines that hold a poem together:</strong><br>
+叠句 · 象征 · 隐喻 · 通感 · 三段式 ABA′<br>
+Refrain · symbol · metaphor · synesthesia · three-part form.<br>
+至少用一个作为"脊梁"——否则就是一堆亮词的堆叠。<br>
+Use at least one — otherwise it's just a pile of flashy words.<br><br>
+<em>自检：拿掉任何一节，诗还立得住吗？如果照样立，说明各节之间没关系。</em><br>
+<em>Test: remove any stanza — does the poem still stand? If yes, the stanzas don't connect.</em>`,
+    },
+    {
+      name: "六、写诗的策略 Writing Discipline",
+      method: `不是技巧，是态度 Not tricks — attitudes.<br><br>
+· <strong>不伪造情感 Never fake feeling</strong><br>
+  小说可以角色扮演，诗不行——等真情绪来再写。<br>
+  Fiction can role-play; poetry can't. Wait for the real feeling.<br><br>
+· <strong>先短后长 Short poems first</strong><br>
+  写不好短诗的人写不好长诗。别急着写史诗。<br>
+  If you can't write four lines well, a long poem won't save you.<br><br>
+· <strong>修改是灵魂 Revision is the soul</strong><br>
+  杜甫、白居易反复修改；Elizabeth Bishop 一首诗改 10 年。<br>
+  用「陌生化」做检验：放一段时间再读，像读别人的。<br>
+  Let the draft cool; return and read it as a stranger would.<br><br>
+· <strong>读书是为了"排除"</strong> Read widely — <em>to know what to cut</em><br>
+  读得越多，能主动避开的陈词就越多（接上 泛陌生化）。<br>
+  The more you read, the more clichés you can exclude.<br><br>
+· <strong>诗是工作之余的爱好 Keep a day job</strong><br>
+  没有现实生活的供养，诗会失血。<br>
+  Poetry without a life underneath it runs thin.`,
+    },
+  ];
+
+  for (const card of lesson4Cards) {
+    const el = document.createElement("div");
+    el.className = "teach-formula";
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "teach-formula-name";
+    nameEl.textContent = card.name;
+    el.appendChild(nameEl);
+
+    const methodEl = document.createElement("div");
+    methodEl.className = "teach-method";
+    methodEl.innerHTML = card.method;
+    el.appendChild(methodEl);
+
+    lesson4Section.appendChild(el);
+  }
+
+  // Lesson 3 and Lesson 4 sections are appended inside the teachGroups loop,
   // right after "formulas" (Lesson 2), so the book's content flows in order.
 
   // ── Micro groups (formulas → Lesson 3 → techniques → structure → stance) ─
@@ -878,9 +1011,10 @@ Strong poetic content + strong formal strangeness = poetry at its best.<br>
 
     body.appendChild(section);
 
-    // After Lesson 2 (formulas), insert Lesson 3 so book content flows in order
+    // After Lesson 2 (formulas), insert Lessons 3 & 4 so book content flows in order
     if (group.key === "formulas") {
       body.appendChild(lesson3Section);
+      body.appendChild(lesson4Section);
     }
   }
 
