@@ -500,14 +500,45 @@ function initTeachPanel() {
   const inlineToggle = document.getElementById("teach-inline-toggle");
   if (inlineToggle) inlineToggle.addEventListener("click", openPanel);
 
-  // ── Quality Bar (top of panel) ──────────────────────────────────
-  const qualitySection = document.createElement("div");
-  qualitySection.className = "teach-section";
+  // Helper: collapsible <details> section with title + teaser summary
+  function createCollapsibleSection({ title, teaser, subtitle, defaultOpen = false }) {
+    const details = document.createElement("details");
+    details.className = "teach-section";
+    if (defaultOpen) details.open = true;
 
-  const qualityTitle = document.createElement("div");
-  qualityTitle.className = "teach-section-title";
-  qualityTitle.textContent = "品质标准 Quality Bar";
-  qualitySection.appendChild(qualityTitle);
+    const summary = document.createElement("summary");
+    summary.className = "teach-section-summary";
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "teach-section-title";
+    titleEl.textContent = title;
+    summary.appendChild(titleEl);
+
+    if (teaser) {
+      const teaserEl = document.createElement("span");
+      teaserEl.className = "teach-section-teaser";
+      teaserEl.textContent = teaser;
+      summary.appendChild(teaserEl);
+    }
+
+    details.appendChild(summary);
+
+    if (subtitle) {
+      const sub = document.createElement("div");
+      sub.className = "teach-section-subtitle";
+      sub.textContent = subtitle;
+      details.appendChild(sub);
+    }
+
+    return details;
+  }
+
+  // ── Quality Bar (top of panel) ──────────────────────────────────
+  const qualitySection = createCollapsibleSection({
+    title: "品质标准 Quality Bar",
+    teaser: "用心看 · 少即是多 · 镜像人性",
+    defaultOpen: true,
+  });
 
   const qualityCard = document.createElement("div");
   qualityCard.className = "teach-formula";
@@ -549,18 +580,11 @@ Real images hit the body before the mind catches up. Decoration hits nothing.`;
   body.appendChild(qualitySection);
 
   // ── 第三堂课 · 新诗写作的核心 (Huang Fan Lesson 3) ───────────────
-  const lesson3Section = document.createElement("div");
-  lesson3Section.className = "teach-section";
-
-  const lesson3Title = document.createElement("div");
-  lesson3Title.className = "teach-section-title";
-  lesson3Title.textContent = "第三堂课 · 新诗写作的核心";
-  lesson3Section.appendChild(lesson3Title);
-
-  const lesson3Subtitle = document.createElement("div");
-  lesson3Subtitle.className = "teach-section-subtitle";
-  lesson3Subtitle.textContent = "黄梵《意象的帝国》— 主观意象的深化、诗意单元、形式与停顿";
-  lesson3Section.appendChild(lesson3Subtitle);
+  const lesson3Section = createCollapsibleSection({
+    title: "第三堂课 · 新诗写作的核心",
+    teaser: "准确 · 主客观平衡 · 四行法则 · 陌生化 · 停顿",
+    subtitle: "黄梵《意象的帝国》— 主观意象的深化、诗意单元、形式与停顿",
+  });
 
   const lesson3Cards = [
     {
@@ -796,30 +820,21 @@ Strong poetic content + strong formal strangeness = poetry at its best.<br>
   // Book order: Lesson 2 公式 → Lesson 3 核心 → 常用手法 (cross-chapter) →
   // then non-Huang-Fan: benchmark songs & teachers
   const teachGroups = [
-    { key: "formulas", title: "第二堂课 · 四大意象公式", subtitle: "黄梵《意象的帝国》— 主观意象的四种基本模式" },
-    { key: "techniques", title: "常用手法 Techniques", subtitle: "跨章节：通感、陌生化、染色、蒙太奇" },
-    { key: "structure", title: "结构招式 Structural Moves", subtitle: "Benchmark songs + non-Huang-Fan teachers" },
-    { key: "stance", title: "姿态 Stance Modifiers", subtitle: "Benchmark songs + non-Huang-Fan teachers" },
+    { key: "formulas", title: "第二堂课 · 四大意象公式", teaser: "A之B · A是B · B解释A · A做不可能之事", subtitle: "黄梵《意象的帝国》— 主观意象的四种基本模式" },
+    { key: "techniques", title: "常用手法 Techniques", teaser: "通感 · 陌生化 · 染色 · 蒙太奇", subtitle: "跨章节：通感、陌生化、染色、蒙太奇" },
+    { key: "structure", title: "结构招式 Structural Moves", teaser: "悖论 · 延伸隐喻 · 时间模糊 · remedy-poison", subtitle: "Benchmark songs + non-Huang-Fan teachers" },
+    { key: "stance", title: "姿态 Stance Modifiers", teaser: "现在时 · 画像 · 幽默 · in medias res · 留白", subtitle: "Benchmark songs + non-Huang-Fan teachers" },
   ];
 
   for (const group of teachGroups) {
     const items = MICRO_PRINCIPLE_LIST.filter((m) => m.group === group.key);
     if (items.length === 0) continue;
 
-    const section = document.createElement("div");
-    section.className = "teach-section";
-
-    const title = document.createElement("div");
-    title.className = "teach-section-title";
-    title.textContent = group.title;
-    section.appendChild(title);
-
-    if (group.subtitle) {
-      const subtitle = document.createElement("div");
-      subtitle.className = "teach-section-subtitle";
-      subtitle.textContent = group.subtitle;
-      section.appendChild(subtitle);
-    }
+    const section = createCollapsibleSection({
+      title: group.title,
+      teaser: group.teaser,
+      subtitle: group.subtitle,
+    });
 
     for (const item of items) {
       const card = document.createElement("div");
@@ -870,13 +885,10 @@ Strong poetic content + strong formal strangeness = poetry at its best.<br>
   }
 
   // ── From the Teachers ─────────────────────────────────────────
-  const teacherSection = document.createElement("div");
-  teacherSection.className = "teach-section";
-
-  const teacherTitle = document.createElement("div");
-  teacherTitle.className = "teach-section-title";
-  teacherTitle.textContent = "老师们 From the Teachers";
-  teacherSection.appendChild(teacherTitle);
+  const teacherSection = createCollapsibleSection({
+    title: "老师们 From the Teachers",
+    teaser: "Lenker · Pecknold · Marling",
+  });
 
   const teachers = [
     {

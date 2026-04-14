@@ -770,7 +770,7 @@
 /* ── Teach Sections ─────────────────────────────────────────────── */
 
 .teach-section {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .teach-section-title {
@@ -786,6 +786,69 @@
   color: rgba(31, 26, 23, 0.55);
   margin-top: -6px;
   margin-bottom: 14px;
+}
+
+/* Collapsible sections (via <details>) */
+details.teach-section {
+  padding: 0;
+  background: transparent;
+}
+
+.teach-section-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 8px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s, opacity 0.15s;
+}
+
+.teach-section-summary::-webkit-details-marker,
+.teach-section-summary::marker {
+  display: none;
+  content: "";
+}
+
+.teach-section-summary::after {
+  content: "›";
+  margin-left: auto;
+  color: rgba(31, 26, 23, 0.4);
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+  display: inline-block;
+  align-self: center;
+  transform: translateY(-1px);
+}
+
+details.teach-section[open] > .teach-section-summary::after {
+  transform: translateY(-1px) rotate(90deg);
+}
+
+details.teach-section[open] > .teach-section-summary {
+  border-bottom-color: rgba(31, 26, 23, 0.08);
+  margin-bottom: 14px;
+}
+
+.teach-section-summary:hover {
+  opacity: 0.85;
+}
+
+.teach-section-summary .teach-section-title {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.teach-section-teaser {
+  font-size: 0.78rem;
+  color: rgba(31, 26, 23, 0.55);
+  font-style: italic;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
 
 .teach-formula {
