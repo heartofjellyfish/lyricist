@@ -763,11 +763,10 @@ export async function requestOpenAIPlanSelection({
     requestBody.reasoning = { effort: "minimal" };
   }
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  const response = await fetch("/api/openai", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(requestBody),
   });
@@ -850,11 +849,10 @@ export async function requestOpenAIFinalSelection({
     requestBody.reasoning = { effort: "minimal" };
   }
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  const response = await fetch("/api/openai", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(requestBody),
   });
@@ -965,11 +963,10 @@ export async function requestOpenAIPlanDrafts({
     }
 
     try {
-      const response = await fetch("https://api.openai.com/v1/responses", {
+      const response = await fetch("/api/openai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify(requestBody),
       });
@@ -1023,11 +1020,10 @@ export async function requestOpenAIPlanDrafts({
     }
 
     try {
-      const response = await fetch("https://api.openai.com/v1/responses", {
+      const response = await fetch("/api/openai", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify(requestBody),
       });

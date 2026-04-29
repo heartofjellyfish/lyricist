@@ -26,7 +26,6 @@ const distanceInput = document.getElementById("distance-input");
 const aiSettingsElement = document.getElementById("ai-settings");
 const countInput = document.getElementById("count-input");
 const aiEnabledInput = document.getElementById("ai-enabled-input");
-const apiKeyInput = document.getElementById("api-key-input");
 const modelInput = document.getElementById("model-input");
 const statusElement = document.getElementById("status");
 const openAIStatusElement = document.getElementById("openai-status");
@@ -37,7 +36,6 @@ let lastOpenAIDebug = null;
 let lastRenderedCandidates = [];
 
 const STORAGE_KEYS = {
-  apiKey: "stress-lyric-openai-api-key",
   aiEnabled: "stress-lyric-openai-enabled",
   model: "stress-lyric-openai-model",
 };
@@ -534,15 +532,12 @@ function mergeCandidateSets(primaryCandidates, aiCandidates, candidateCount) {
 }
 
 function loadSettings() {
-  apiKeyInput.value =
-    localStorage.getItem(STORAGE_KEYS.apiKey)?.trim() || LOCAL_OPENAI_CONFIG.apiKey || "";
   aiEnabledInput.checked = Boolean(LOCAL_OPENAI_CONFIG.aiEnabled);
   modelInput.value =
     localStorage.getItem(STORAGE_KEYS.model)?.trim() || LOCAL_OPENAI_CONFIG.model || modelInput.value;
 }
 
 function persistSettings() {
-  localStorage.setItem(STORAGE_KEYS.apiKey, apiKeyInput.value.trim());
   localStorage.setItem(STORAGE_KEYS.model, modelInput.value.trim());
 }
 
@@ -555,8 +550,7 @@ async function collectOpenAICandidates({
   stability,
   distance,
 }) {
-  const apiKey = apiKeyInput.value.trim();
-  if (!aiEnabledInput.checked || !apiKey) {
+  if (!aiEnabledInput.checked) {
     lastOpenAIDebug = null;
     return {
       candidates: [],
@@ -627,7 +621,6 @@ async function collectOpenAICandidates({
       return [];
     }
     const draftResult = await requestOpenAIPlanDrafts({
-      apiKey,
       model,
       patternText,
       ideaText,
@@ -741,7 +734,6 @@ async function collectOpenAICandidates({
     const finalSelectionPool = rankedCandidates.slice(0, Math.min(candidateCount * 3, 15));
     try {
       finalSelection = await requestOpenAIFinalSelection({
-        apiKey,
         model: currentModel,
         ideaText,
         rhymeTarget,
@@ -846,13 +838,13 @@ async function handleSubmit(event) {
 
   renderReady("Generating lines...");
   renderOpenAIStatus(
-    aiEnabledInput.checked && apiKeyInput.value.trim()
+    aiEnabledInput.checked
       ? "OpenAI: request queued."
       : "OpenAI: off. Using local generator only.",
   );
 
   const localCandidates =
-    aiEnabledInput.checked && apiKeyInput.value.trim()
+    aiEnabledInput.checked
       ? []
       : generateLyrics({
           patternText: patternInput.value,
@@ -862,7 +854,7 @@ async function handleSubmit(event) {
         });
   let aiCandidates = [];
   let openAIStats = {
-    enabled: aiEnabledInput.checked && Boolean(apiKeyInput.value.trim()),
+    enabled: aiEnabledInput.checked,
     requested: 0,
     returned: 0,
     valid: 0,
@@ -988,7 +980,7 @@ renderRhymeBrowser();
 wireRhymeBrowser();
 renderReady("Ready. Enter a stress pattern, your line vibe / image field, and an optional rhyme family.");
 renderOpenAIStatus(
-  aiEnabledInput.checked && apiKeyInput.value.trim()
+  aiEnabledInput.checked
     ? "OpenAI: on and ready."
     : "OpenAI: off. Using local generator only.",
 );

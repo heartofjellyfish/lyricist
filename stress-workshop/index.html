@@ -113,33 +113,19 @@
                 </span>
               </label>
 
-              <div class="field-row">
-                <label class="field">
-                  <span>OpenAI API key</span>
-                  <input
-                    id="api-key-input"
-                    name="apiKey"
-                    type="text"
-                    placeholder="sk-..."
-                    autocomplete="off"
-                    spellcheck="false"
-                  />
-                  <p class="field-hint">
-                    Local prototype only. The key stays in your browser and is sent directly to OpenAI.
-                  </p>
-                </label>
-
-                <label class="field small-field">
-                  <span>Model</span>
-                  <input
-                    id="model-input"
-                    name="model"
-                    type="text"
-                    value="gpt-4.1-mini"
-                    spellcheck="false"
-                  />
-                </label>
-              </div>
+              <label class="field small-field">
+                <span>Model</span>
+                <input
+                  id="model-input"
+                  name="model"
+                  type="text"
+                  value="gpt-4.1-mini"
+                  spellcheck="false"
+                />
+                <p class="field-hint">
+                  API key is set on the server (Vercel env var). Toggle the checkbox above to enable AI drafts.
+                </p>
+              </label>
             </div>
           </details>
 

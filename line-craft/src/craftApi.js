@@ -51,11 +51,7 @@ function supportsReasoning(model) {
 // ── Core Fetch ──────────────────────────────────────────────────────
 
 async function callOpenAI({ instructions, input, schema, maxTokens = 800 }) {
-  const { apiKey, model } = LOCAL_OPENAI_CONFIG;
-
-  if (!apiKey) {
-    throw new Error("No OpenAI API key configured. Check src/localConfig.js.");
-  }
+  const { model } = LOCAL_OPENAI_CONFIG;
 
   const requestBody = {
     model,
@@ -69,11 +65,10 @@ async function callOpenAI({ instructions, input, schema, maxTokens = 800 }) {
     requestBody.reasoning = { effort: "low" };
   }
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  const response = await fetch("/api/openai", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(requestBody),
   });
