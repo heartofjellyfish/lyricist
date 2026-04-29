@@ -1,0 +1,123 @@
+:root {
+  --bg: #f7f5f0;
+  --ink: #1a1a1a;
+  --muted: #6b6b6b;
+  --line: #1a1a1a;
+  --card-bg: #ffffff;
+  --accent: #1a1a1a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.landing {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 96px 32px 96px;
+}
+
+.landing-hero {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.eyebrow {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+
+.landing-hero h1 {
+  font-size: 48px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+  line-height: 1.1;
+}
+
+.landing-hero .intro {
+  margin: 0;
+  color: var(--muted);
+  max-width: 56ch;
+}
+
+.apps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.app-card {
+  display: block;
+  padding: 28px 32px;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.app-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+.app-card h2 {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.app-card p {
+  margin: 0 0 16px;
+  color: var(--muted);
+}
+
+.app-card-cta {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.back-link {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  margin: 0 0 24px;
+}
+
+.back-link a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back-link a:hover {
+  color: var(--ink);
+}
+
+@media (min-width: 720px) {
+  .landing {
+    padding: 128px 32px 96px;
+  }
+  .landing-hero h1 {
+    font-size: 64px;
+  }
+}

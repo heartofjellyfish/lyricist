@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stress Lyric Workshop</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <p class="back-link"><a href="../">← Home</a></p>
+      <section class="hero">
+        <p class="eyebrow">Local prototype</p>
+        <h1>Stress Lyric Workshop</h1>
+        <p class="intro">
+          Generate lyric lines that exactly match your stress notation, keep the final word in a
+          rhyme family, and give you several options to revise.
+        </p>
+      </section>
+
+      <section class="panel">
+        <form id="generator-form" class="generator-form">
+          <label class="field">
+            <span>Stress pattern</span>
+            <input
+              id="pattern-input"
+              name="pattern"
+              type="text"
+              value="da DUM da DUM da dumda da DUM"
+              spellcheck="false"
+            />
+          </label>
+
+          <label class="field">
+            <span>Line vibe / image field</span>
+            <textarea
+              id="idea-input"
+              name="idea"
+              rows="4"
+            >narrator falling into a half-dream state, about to dive into his own depths, slipping free of worldly rules and returning to the self; I want one lyric line for this process, with a slightly psychedelic feeling and a sense of freedom</textarea>
+            <p class="field-hint">
+              Give it the mood, image-world, motion, or emotional direction of the line. Example:
+              “fading walls, veil, disappearance, distance, dream haze”.
+            </p>
+          </label>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Rhyme target</span>
+              <input
+                id="rhyme-input"
+                name="rhyme"
+                type="text"
+                value=""
+                list="rhyme-suggestions"
+                placeholder="moon, june, sea, or leave blank"
+                spellcheck="false"
+              />
+              <datalist id="rhyme-suggestions"></datalist>
+              <p class="field-hint">
+                Use a sample word like `moon`, or a sound like `oon` if you prefer.
+              </p>
+            </label>
+
+            <label class="field small-field">
+              <span>Options</span>
+              <input id="count-input" name="count" type="number" min="1" max="10" value="5" />
+            </label>
+          </div>
+
+          <section class="hint-shell" aria-label="Creative controls">
+            <div class="hint-shell-head">
+              <h2>Creative Controls</h2>
+              <p>Soft nudges for tone and perspective. Meter still decides what survives.</p>
+            </div>
+
+            <div class="hint-grid">
+              <label class="field hint-field">
+                <span>Mode</span>
+                <select id="orientation-input" name="orientation">
+                  <option value="descriptive" selected>Descriptive</option>
+                  <option value="bridging">Bridging</option>
+                  <option value="confessional">Confessional</option>
+                </select>
+              </label>
+
+              <label class="field hint-field">
+                <span>Tension</span>
+                <select id="stability-input" name="stability">
+                  <option value="stable">Stable</option>
+                  <option value="unstable" selected>Unstable</option>
+                </select>
+              </label>
+
+              <label class="field hint-field">
+                <span>Distance</span>
+                <select id="distance-input" name="distance">
+                  <option value="close" selected>Close</option>
+                  <option value="mid">Mid</option>
+                  <option value="far">Far</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <details id="ai-settings" class="ai-settings">
+            <summary>OpenAI Drafts</summary>
+            <div class="ai-settings-body">
+              <label class="field checkbox-field">
+                <span class="checkbox-row">
+                  <input id="ai-enabled-input" name="aiEnabled" type="checkbox" />
+                  <span>Use OpenAI to draft extra lyric options</span>
+                </span>
+              </label>
+
+              <div class="field-row">
+                <label class="field">
+                  <span>OpenAI API key</span>
+                  <input
+                    id="api-key-input"
+                    name="apiKey"
+                    type="text"
+                    placeholder="sk-..."
+                    autocomplete="off"
+                    spellcheck="false"
+                  />
+                  <p class="field-hint">
+                    Local prototype only. The key stays in your browser and is sent directly to OpenAI.
+                  </p>
+                </label>
+
+                <label class="field small-field">
+                  <span>Model</span>
+                  <input
+                    id="model-input"
+                    name="model"
+                    type="text"
+                    value="gpt-4.1-mini"
+                    spellcheck="false"
+                  />
+                </label>
+              </div>
+            </div>
+          </details>
+
+          <button class="generate-button" type="submit">Generate Lines</button>
+        </form>
+
+        <div id="status" class="status" data-state="ready"></div>
+        <div id="openai-status" class="substatus" data-state="ready"></div>
+        <details id="openai-debug" class="ai-debug">
+          <summary>AI Prompt / Response</summary>
+          <div id="openai-debug-body" class="ai-debug-body"></div>
+        </details>
+      </section>
+
+      <section class="results-shell">
+        <div class="results-head">
+          <h2>Candidate Lines</h2>
+          <p>Only exact stress matches are shown.</p>
+        </div>
+        <div id="results" class="results"></div>
+      </section>
+
+      <section class="panel secondary-panel">
+        <details id="rhyme-browser" class="rhyme-browser">
+          <summary class="rhyme-browser-summary">
+            <span>Rhyme Browser</span>
+            <span class="rhyme-browser-summary-copy">Open only if you need help picking a sound</span>
+          </summary>
+          <div class="rhyme-browser-body" aria-labelledby="rhyme-browser-title">
+            <div class="rhyme-browser-head">
+              <h2 id="rhyme-browser-title">Rhyme Browser</h2>
+              <p>Pick a family by sound, then click an example to fill the rhyme field.</p>
+            </div>
+            <div id="rhyme-tree" class="rhyme-tree"></div>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <script type="module" src="../src/main.js"></script>
+  </body>
+</html>

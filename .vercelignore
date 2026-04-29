@@ -1,0 +1,15 @@
+# Vercel deploy ignores. Without this file, .gitignore is used as fallback —
+# but we NEED node_modules deployed (src/pronunciation.js imports the
+# cmu-pronouncing-dictionary package by relative path), so we list our own
+# excludes here and explicitly leave node_modules in.
+
+.git
+.claude
+.DS_Store
+books/
+test/
+scripts/
+README.md
+
+# Build artifacts not loaded at runtime (data/cmu-entries.json is 31 MB).
+data/
