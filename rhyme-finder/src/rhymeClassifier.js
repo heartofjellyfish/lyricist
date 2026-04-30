@@ -13,7 +13,7 @@
 // data/rhyme-framework.json — kept in sync as constants here to avoid
 // runtime JSON loading in tools that consume this module.
 
-import { PRONUNCIATION_MAP, normalizeWordKey } from "../../src/pronunciation.js";
+import { PRONUNCIATION_MAP, normalizeWordKey } from "./pronunciation.js";
 
 // ── Phonetic family tables (from Pattison, mirrored in rhyme-framework.json)
 

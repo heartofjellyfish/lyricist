@@ -9,7 +9,11 @@
 //                  used to surface lyric-friendly words first.
 
 import { classifyRhyme, analyzeWord } from "./rhymeClassifier.js";
-import { PRONUNCIATION_MAP, deriveRhymeInfo } from "../../src/pronunciation.js";
+import {
+  PRONUNCIATION_MAP,
+  deriveRhymeInfo,
+  ensurePronunciation,
+} from "./pronunciation.js";
 
 let CORPUS_ENTRIES = null;
 let REAL_WORDS = null;
@@ -122,12 +126,14 @@ function strippedLastCoda(rhymeTail) {
  * @returns {Promise<{source, buckets}>}
  */
 export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = {}) {
+  // Pronunciation dict and wordlists must be loaded before any classifier
+  // call (analyzeWord reads PRONUNCIATION_MAP synchronously).
+  await Promise.all([ensurePronunciation(), loadWordlists()]);
+
   const source = analyzeWord(word);
   if (!source) {
     throw new Error(`"${word}" not in pronouncing dictionary.`);
   }
-
-  await loadWordlists();
   const entries = buildCorpus();
   const buckets = Object.fromEntries(types.map((t) => [t, []]));
   const sourceLastCoda = source.coda[source.coda.length - 1];
