@@ -384,6 +384,51 @@ select {
   line-height: 1.4;
 }
 
+/* Stability spectrum — 5 pips with "unstable / stable" end labels.
+   Filled pips count up to the tier's stability rating; the colour
+   gradient (cool → warm) mirrors the badge gradient so the eye reads
+   the same scale in two places. */
+.rf-spectrum {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.rf-spectrum-end {
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+
+.rf-pips {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.rf-pip {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(31, 26, 23, 0.14);
+  transition: transform 120ms ease;
+}
+
+.rf-tier-head[data-stability="1"] .rf-pip-on { background: #6e7d6a; }
+.rf-tier-head[data-stability="2"] .rf-pip-on { background: #87837a; }
+.rf-tier-head[data-stability="3"] .rf-pip-on { background: #c8744a; }
+.rf-tier-head[data-stability="4"] .rf-pip-on { background: var(--accent); }
+.rf-tier-head[data-stability="5"] .rf-pip-on { background: #8f2d1f; }
+
+.rf-pip-off {
+  background: rgba(31, 26, 23, 0.1);
+}
+
 .rf-tier-count {
   font-size: 0.82rem;
   color: var(--muted);
