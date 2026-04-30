@@ -1,29 +1,52 @@
 // ── Rhyme Finder ────────────────────────────────────────────────────
-// Local candidate search: given a source word, scan the CMU-derived
-// corpus (data/cmu-entries.json) and return candidates grouped by
-// Pattison rhyme type. No LLM call needed.
+// Local candidate search: given a source word, walk the CMU pronouncing
+// dictionary (already loaded via pronunciation.js) and return candidates
+// grouped by Pattison rhyme type. No network fetch needed — works on
+// Vercel where the data/ folder is excluded.
 
 import { classifyRhyme, analyzeWord } from "./rhymeClassifier.js";
+import { PRONUNCIATION_MAP, deriveRhymeInfo } from "../../src/pronunciation.js";
 
-let CMU_ENTRIES = null;
+let CORPUS_ENTRIES = null;
 
-async function loadCmuEntries() {
-  if (CMU_ENTRIES) return CMU_ENTRIES;
-  const response = await fetch("../data/cmu-entries.json");
-  if (!response.ok) throw new Error(`Failed to load CMU entries: ${response.status}`);
-  CMU_ENTRIES = await response.json();
-  return CMU_ENTRIES;
+function buildCorpus() {
+  if (CORPUS_ENTRIES) return CORPUS_ENTRIES;
+  const entries = [];
+  for (const [word, phonemes] of PRONUNCIATION_MAP.entries()) {
+    if (!isUsableWord(word)) continue;
+    const info = deriveRhymeInfo(phonemes);
+    const syllables = phonemes.filter((p) => /\d/u.test(p)).length || 1;
+    entries.push({
+      text: word,
+      phonemes,
+      syllables,
+      rhymeVowel: info.rhymeVowel,
+      rhymeTail: info.rhymeTail,
+    });
+  }
+  CORPUS_ENTRIES = entries;
+  return entries;
 }
 
 const TYPE_ORDER = ["perfect", "family", "additive", "subtractive", "assonance", "consonance"];
 
-// Heuristic: a word is "rhyme-worthy" if it's plausibly used in lyrics.
+// A word is "rhyme-worthy" if it's plausibly used in lyrics.
 // Filter out ALL-CAPS abbreviations, proper nouns obvious from corpus keys,
-// and words that look like acronyms. Tolerate apostrophes.
+// and words that look like acronyms. Tolerate apostrophes and hyphens.
 const SKIP_PATTERN = /^[a-z][a-z'\-]*$/u;
 
-function isUsableWord(entry) {
-  return SKIP_PATTERN.test(entry.text);
+function isUsableWord(word) {
+  return SKIP_PATTERN.test(word);
+}
+
+// The phonemes in CMU end with stressed digits (e.g. "AH0", "AE1"). Strip
+// the digits to compare against analyzeWord output (which exposes the bare
+// vowel like "AE").
+function strippedLastCoda(rhymeTail) {
+  if (!rhymeTail || rhymeTail.length === 0) return null;
+  const last = rhymeTail[rhymeTail.length - 1];
+  if (/\d/u.test(last)) return null; // last is a vowel, not a coda consonant
+  return last;
 }
 
 /**
@@ -31,30 +54,30 @@ function isUsableWord(entry) {
  *
  * @param {object} opts
  * @param {string} opts.word           source word
- * @param {number} [opts.perBucket=40] max candidates per rhyme-type bucket
+ * @param {number} [opts.perBucket=60] max candidates per rhyme-type bucket
  * @param {string[]} [opts.types]      restrict to these types
  * @returns {Promise<object>} { source: analyzed, buckets: {type: [candidates]}}
  */
-export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = {}) {
+export async function findRhymes({ word, perBucket = 60, types = TYPE_ORDER } = {}) {
   const source = analyzeWord(word);
   if (!source) {
     throw new Error(`"${word}" not in pronouncing dictionary.`);
   }
 
-  const entries = await loadCmuEntries();
+  const entries = buildCorpus();
   const buckets = Object.fromEntries(types.map((t) => [t, []]));
+  const sourceLastCoda = source.coda[source.coda.length - 1];
+  const sourceVowel = source.stressedVowel;
 
   for (const entry of entries) {
-    if (!isUsableWord(entry)) continue;
     if (entry.text === word.toLowerCase()) continue;
 
-    // Quick filter: stressed vowel match OR coda match (consonance). Skip anything
-    // else to keep the scan fast.
-    const stressedSame = entry.rhymeVowel === sourceRhymeVowel(source);
-    const lastPh = entry.rhymeTail?.[entry.rhymeTail.length - 1];
-    const sourceLastCoda = source.coda[source.coda.length - 1];
-    const codaTail = lastPh && sourceLastCoda && lastPh === sourceLastCoda;
-    if (!stressedSame && !codaTail) continue;
+    // Quick prefilter: candidate must share either the stressed vowel OR
+    // the final coda consonant. Keeps the scan from doing 100k+ classifies.
+    const entryStressedVowel = vowelOfPhoneme(entry.rhymeTail?.[0]);
+    const stressedSame = entryStressedVowel && entryStressedVowel === sourceVowel;
+    const codaSame = !!sourceLastCoda && strippedLastCoda(entry.rhymeTail) === sourceLastCoda;
+    if (!stressedSame && !codaSame) continue;
 
     const cls = classifyRhyme(word, entry.text);
     if (!buckets[cls.type]) continue;
@@ -71,7 +94,7 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
     });
   }
 
-  // Sort each bucket: same-class first (mas→mas or fem→fem), then by syllable count asc.
+  // Sort each bucket: same stress class first, then by syllable count asc.
   for (const type of types) {
     buckets[type].sort((a, b) => {
       const classA = a.masculine === source.masculine ? 0 : 1;
@@ -92,13 +115,10 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
   };
 }
 
-function sourceRhymeVowel(analyzed) {
-  const vowelMap = {
-    AA: "ah", AE: "a", AH: "uh", AO: "aw", AW: "ow", AY: "eye",
-    EH: "eh", ER: "er", EY: "ay", IH: "ih", IY: "ee",
-    OW: "oh", OY: "oy", UH: "uu", UW: "oo",
-  };
-  return vowelMap[analyzed.stressedVowel] ?? analyzed.stressedVowel.toLowerCase();
+function vowelOfPhoneme(phoneme) {
+  if (!phoneme) return null;
+  const m = phoneme.match(/^([A-Z]{2})\d?$/u);
+  return m ? m[1] : null;
 }
 
 export { TYPE_ORDER };
