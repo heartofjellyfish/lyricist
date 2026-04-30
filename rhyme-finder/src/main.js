@@ -210,23 +210,20 @@ function renderTier(type, candidates, source) {
   const head = document.createElement("header");
   head.className = "rf-tier-head";
   head.dataset.stability = String(meta.stability);
-  // Pips fill from the RIGHT toward "stable" — so a stab-5 row shows
-  // all 5 dots lit and weighted toward the stable label, while a
-  // stab-1 row shows just one dot near "stable" with the rest unlit
-  // toward the "unstable" end. Reads like a battery meter.
-  const pips = Array.from({ length: 5 }, (_, i) => {
-    const filled = i >= 5 - meta.stability ? "rf-pip-on" : "rf-pip-off";
-    return `<span class="rf-pip ${filled}"></span>`;
+  // Five-cell scale: only the cell at the tier's stability position is
+  // filled. Leftmost cell = stab 1 (unstable), rightmost = stab 5 (stable).
+  const activeIdx = meta.stability - 1;
+  const cells = Array.from({ length: 5 }, (_, i) => {
+    return `<span class="rf-cell ${i === activeIdx ? "rf-cell-on" : ""}"></span>`;
   }).join("");
   head.innerHTML = `
-    <span class="rf-stability">${meta.stability}</span>
     <div class="rf-tier-titlebox">
       <div class="rf-tier-title">${escapeHtml(meta.label)}</div>
       <div class="rf-tier-feel">${escapeHtml(meta.feel)}</div>
       <div class="rf-spectrum" title="Pattison stability — ${meta.stability} of 5">
-        <span class="rf-spectrum-end rf-spectrum-end-low">unstable</span>
-        <span class="rf-pips">${pips}</span>
-        <span class="rf-spectrum-end rf-spectrum-end-high">stable</span>
+        <span class="rf-spectrum-end">unstable</span>
+        <span class="rf-cells">${cells}</span>
+        <span class="rf-spectrum-end">stable</span>
       </div>
     </div>
     <span class="rf-tier-count">${candidates.length} word${candidates.length === 1 ? "" : "s"}</span>
