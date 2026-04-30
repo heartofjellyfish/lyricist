@@ -52,21 +52,56 @@ body {
   padding: 22px 28px 18px;
 }
 
+/* Nav: collapsed to a faint label by default. Hover (or focus) reveals
+   the three links so the home view stays as quiet as possible. */
 .rf-nav {
-  margin: 12px 0 0;
-  font-size: 0.9rem;
+  position: relative;
+  margin: 8px 0 0;
+  font-size: 0.82rem;
   color: var(--muted);
+  display: inline-block;
+  cursor: default;
+  outline: none;
 }
 
-.rf-nav a {
+.rf-nav-stub {
+  opacity: 0.55;
+  transition: opacity 160ms ease;
+  letter-spacing: 0.02em;
+}
+
+.rf-nav-links {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.rf-nav-links a {
   color: var(--accent);
   text-decoration: none;
   font-weight: 600;
   margin: 0 4px;
 }
 
-.rf-nav a:hover {
+.rf-nav-links a:hover {
   text-decoration: underline;
+}
+
+.rf-nav:hover .rf-nav-stub,
+.rf-nav:focus-within .rf-nav-stub,
+.rf-nav:focus .rf-nav-stub {
+  opacity: 0;
+}
+
+.rf-nav:hover .rf-nav-links,
+.rf-nav:focus-within .rf-nav-links,
+.rf-nav:focus .rf-nav-links {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .eyebrow {
