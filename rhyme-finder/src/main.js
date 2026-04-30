@@ -236,28 +236,18 @@ function renderTier(type, candidates, source) {
   const body = document.createElement("div");
   body.className = "rf-tier-body";
 
-  if (type === "family") {
-    // Split family into partners vs companions when codaRelation is available
-    const partners = candidates.filter((c) => isPartnersRelation(c.codaRelation));
-    const companions = candidates.filter((c) => isCompanionsRelation(c.codaRelation));
-    const other = candidates.filter(
-      (c) => !isPartnersRelation(c.codaRelation) && !isCompanionsRelation(c.codaRelation),
-    );
-
-    if (partners.length > 0) {
-      body.appendChild(renderSubgroup("Partners — same position, different voicing", partners, source));
-    }
-    if (companions.length > 0) {
-      body.appendChild(renderSubgroup("Companions — same family, different position", companions, source));
-    }
-    if (other.length > 0) {
-      body.appendChild(renderSubgroup("Other family pairings", other, source));
-    }
-    if (partners.length === 0 && companions.length === 0 && other.length === 0) {
-      body.appendChild(renderWordRow(candidates, source));
-    }
-  } else {
-    body.appendChild(renderWordRow(candidates, source));
+  // Group candidates by syllable count so the eye can scan from short
+  // (most singable) to longer.
+  const bySyll = new Map();
+  for (const c of candidates) {
+    const s = Math.max(1, c.syllables ?? 1);
+    if (!bySyll.has(s)) bySyll.set(s, []);
+    bySyll.get(s).push(c);
+  }
+  const sylls = [...bySyll.keys()].sort((a, b) => a - b);
+  for (const s of sylls) {
+    const label = s === 1 ? "1 syllable" : `${s} syllables`;
+    body.appendChild(renderSubgroup(label, bySyll.get(s), source));
   }
 
   if (meta.risk) {
