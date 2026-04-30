@@ -34,7 +34,7 @@ export function ensurePronunciation() {
   if (PRONUNCIATION_MAP.size > 0) return Promise.resolve();
   if (!LOAD_PROMISE) {
     LOAD_PROMISE = (async () => {
-      const url = new URL("../wordlists/cmu-dict.json", import.meta.url);
+      const url = new URL("../../wordlists/cmu-dict.json", import.meta.url);
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to load CMU dict: ${response.status}`);

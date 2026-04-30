@@ -13,5 +13,5 @@ for (const [rawWord, phonemes] of Object.entries(dictionary)) {
 }
 
 const json = JSON.stringify(out);
-fs.writeFileSync("rhyme-finder/wordlists/cmu-dict.json", json);
-console.log(`wrote rhyme-finder/wordlists/cmu-dict.json — ${Object.keys(out).length} entries, ${(json.length / 1024 / 1024).toFixed(2)} MB`);
+fs.writeFileSync("wordlists/cmu-dict.json", json);
+console.log(`wrote wordlists/cmu-dict.json — ${Object.keys(out).length} entries, ${(json.length / 1024 / 1024).toFixed(2)} MB`);
