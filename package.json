@@ -9,6 +9,7 @@
     "build:wordnet": "node ./scripts/buildWordnetMap.js"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "cmu-pronouncing-dictionary": "^3.0.0",
     "stress_scansion_core": "file:./packages/stress_scansion_core",
     "wink-eng-lite-web-model": "^1.8.1",
