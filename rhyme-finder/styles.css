@@ -29,7 +29,7 @@ body {
 .rf-app {
   width: min(820px, calc(100vw - 32px));
   margin: 0 auto;
-  padding: 14vh 0 56px;
+  padding: 14vh 0 80px; /* extra bottom space so the pinned nav doesn't sit over results */
   /* Empty state: hero+panel feel like floating elements on the page,
      not stacked cards. The results-shell still gets card chrome (below)
      so results have a grounded container. */
@@ -69,17 +69,21 @@ body {
   padding-top: 6vh;
 }
 
-/* Nav: collapsed to a faint label by default. Hover (or focus) reveals
-   the three links. Lives below the title, centered, very small. */
+/* Nav: pinned to bottom-center of the viewport. A faint label by default;
+   hover or focus reveals the three links. Stays out of the result flow. */
 .rf-nav {
-  position: relative;
-  margin: 14px auto 0;
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
   font-size: 0.78rem;
   color: var(--muted);
-  display: inline-block;
   cursor: default;
   outline: none;
-  height: 1.2em;
+  height: 1.4em;
+  white-space: nowrap;
+  z-index: 5;
 }
 
 .rf-nav-stub {
