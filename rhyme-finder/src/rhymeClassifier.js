@@ -397,19 +397,32 @@ export function classifyRhyme(wordA, wordB) {
   const vowelMatch = a.stressedVowel === b.stressedVowel;
   const codaCmp = compareCodas(a.coda, b.coda);
 
-  // Feminine rhymes: the stressed syllable carries the rhyme; the trailing
-  // unstressed syllable(s) are identity. We classify on the stressed syllable
-  // and only require the trailing syllables to also match for it to qualify
-  // as a proper feminine rhyme. If the trailing parts differ, we still allow
-  // a rhyme — but call out the mismatch.
+  // Feminine rhymes: per Pattison, the stressed syllables must rhyme AND
+  // the trailing unstressed syllable(s) must be identity. If the trailings
+  // differ ("falling" vs "policy"), it's not a rhyme — the ear hears the
+  // mismatch in the unstressed tail.
   const trailingSame =
     a.trailing.join(" ") === b.trailing.join(" ");
+  if (!a.masculine && !b.masculine && !trailingSame) {
+    return {
+      type: "mismatched",
+      stability: 0,
+      isRhyme: false,
+      wordA,
+      wordB,
+      masculineA: a.masculine,
+      masculineB: b.masculine,
+      stressedVowelA: a.stressedVowel,
+      stressedVowelB: b.stressedVowel,
+      trailingSame,
+      explanation:
+        "Feminine pair with non-matching trailing syllables. The stressed syllables may rhyme, but the unstressed tails diverge — the ear catches the mismatch.",
+    };
+  }
   const femNote =
     a.masculine
       ? ""
-      : trailingSame
-      ? " (Feminine — trailing syllables match, extending the resolution.)"
-      : " (Feminine — trailing syllables differ, weakening the resolution.)";
+      : " (Feminine — trailing syllables match, extending the resolution.)";
 
   // Now the main decision tree:
   if (vowelMatch && codaCmp.relation === "same") {
