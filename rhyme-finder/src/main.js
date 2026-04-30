@@ -9,51 +9,21 @@ import { findRhymes, TYPE_ORDER } from "./rhymeFinder.js";
 const form = document.getElementById("finder-form");
 const wordInput = document.getElementById("word-input");
 const goBtn = form.querySelector(".rf-go-btn");
-const feelingFilter = document.getElementById("feeling-filter");
-const hideMismatch = document.getElementById("hide-mismatch");
-const flagCliche = document.getElementById("flag-cliche");
 const status = document.getElementById("status");
 const sourceSummary = document.getElementById("source-summary");
 const results = document.getElementById("results");
 
-// ── Tier metadata (Pattison-derived) ────────────────────────────────
+// ── Tier metadata ───────────────────────────────────────────────────
+// `rule` is the concise technical definition shown next to the title.
+// (The longer "feel" prose used to live here — moved to the legend
+// footer for users who want it.)
 const TIER_META = {
-  perfect: {
-    label: "Perfect rhyme",
-    stability: 5,
-    feel: "Maximum resolution. Certainty, commitment, the door slamming shut.",
-    risk: "Cliché-prone — over-familiar pairs make the ear skip the line.",
-  },
-  family: {
-    label: "Family rhyme",
-    stability: 4,
-    feel: "Mostly resolved with a fresh edge. Lands without sounding worn.",
-    risk: "Distant family links can feel like a miss. Trust the ear.",
-  },
-  additive: {
-    label: "Additive",
-    stability: 3,
-    feel: "Off-center. Resolves with a small catch — one side carries an extra consonant.",
-    risk: "Loud added consonants (t, k) can break the match. r and l hide best.",
-  },
-  subtractive: {
-    label: "Subtractive",
-    stability: 3,
-    feel: "Off-center. Resolves with a small catch — one side drops a consonant.",
-    risk: "If the dropped consonant was load-bearing, the rhyme weakens.",
-  },
-  assonance: {
-    label: "Assonance",
-    stability: 2,
-    feel: "Same vowel, unrelated codas. Rings but hangs in the air.",
-    risk: "Masculine assonance is weak — lean on feminine words for real strength.",
-  },
-  consonance: {
-    label: "Consonance",
-    stability: 1,
-    feel: "Different vowels, matching coda. Suspended, unresolved, aching.",
-    risk: "Easy to miss entirely. Needs r, l, nasals, or multi-consonant codas to land.",
-  },
+  perfect:     { label: "Perfect rhyme",  stability: 5, rule: "same vowel + same coda" },
+  family:      { label: "Family rhyme",   stability: 4, rule: "same vowel + coda from same family" },
+  additive:    { label: "Additive",       stability: 3, rule: "extra coda consonant on one side" },
+  subtractive: { label: "Subtractive",    stability: 3, rule: "missing coda consonant on one side" },
+  assonance:   { label: "Assonance",      stability: 2, rule: "same vowel, unrelated coda" },
+  consonance:  { label: "Consonance",     stability: 1, rule: "different vowels, same coda" },
 };
 
 // ── Cliché pair list (Pattison's repeat offenders) ──────────────────
@@ -144,15 +114,6 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-// Re-render on filter change without re-scanning
-let lastResult = null;
-
-[feelingFilter, hideMismatch, flagCliche].forEach((el) => {
-  el.addEventListener("change", () => {
-    if (lastResult) renderResults(lastResult.source, lastResult.buckets);
-  });
-});
-
 // ── Rendering ───────────────────────────────────────────────────────
 function renderSource(source) {
   const codaText = source.coda.length > 0 ? source.coda.join("·") : "—";
@@ -165,41 +126,17 @@ function renderSource(source) {
 }
 
 function renderResults(source, buckets) {
-  lastResult = { source, buckets };
   results.innerHTML = "";
-
-  // Filter by feeling tier
-  const allowedTypes = parseFeelingFilter(feelingFilter.value);
   const totalCount = TYPE_ORDER.reduce((acc, t) => acc + (buckets[t]?.length || 0), 0);
   if (totalCount === 0) {
     results.innerHTML = `<div class="rf-empty">No rhyme candidates found in corpus. Try a more common word.</div>`;
     return;
   }
-
-  let renderedAny = false;
   for (const type of TYPE_ORDER) {
-    if (!allowedTypes.has(type)) continue;
     const candidates = buckets[type] || [];
     if (candidates.length === 0) continue;
-
-    const filtered = candidates.filter((c) => {
-      if (hideMismatch.checked && c.masculine !== source.masculine) return false;
-      return true;
-    });
-    if (filtered.length === 0) continue;
-
-    results.appendChild(renderTier(type, filtered, source));
-    renderedAny = true;
+    results.appendChild(renderTier(type, candidates, source));
   }
-
-  if (!renderedAny) {
-    results.innerHTML = `<div class="rf-empty">No candidates match the current filters.</div>`;
-  }
-}
-
-function parseFeelingFilter(value) {
-  if (value === "all") return new Set(TYPE_ORDER);
-  return new Set(value.split(","));
 }
 
 function renderTier(type, candidates, source) {
@@ -218,15 +155,17 @@ function renderTier(type, candidates, source) {
   }).join("");
   head.innerHTML = `
     <div class="rf-tier-titlebox">
-      <div class="rf-tier-title">${escapeHtml(meta.label)}</div>
-      <div class="rf-tier-feel">${escapeHtml(meta.feel)}</div>
+      <div class="rf-tier-title">
+        ${escapeHtml(meta.label)}
+        <span class="rf-tier-rule">${escapeHtml(meta.rule)}</span>
+      </div>
       <div class="rf-spectrum" title="Pattison stability — ${meta.stability} of 5">
         <span class="rf-spectrum-end">unstable</span>
         <span class="rf-cells">${cells}</span>
         <span class="rf-spectrum-end">stable</span>
       </div>
     </div>
-    <span class="rf-tier-count">${candidates.length} word${candidates.length === 1 ? "" : "s"}</span>
+    <span class="rf-tier-count">${candidates.length}</span>
   `;
   tier.appendChild(head);
 
@@ -245,13 +184,6 @@ function renderTier(type, candidates, source) {
   for (const s of sylls) {
     const label = s === 1 ? "1 syllable" : `${s} syllables`;
     body.appendChild(renderSubgroup(label, bySyll.get(s), source));
-  }
-
-  if (meta.risk) {
-    const risk = document.createElement("div");
-    risk.className = "rf-tier-risk";
-    risk.innerHTML = `<strong>Watch:</strong> ${escapeHtml(meta.risk)}`;
-    body.appendChild(risk);
   }
 
   tier.appendChild(body);
@@ -293,7 +225,7 @@ function renderWord(candidate, source) {
   const el = document.createElement("span");
   el.className = "rf-word";
 
-  const cliche = flagCliche.checked && isCliche(source.word, candidate.word);
+  const cliche = isCliche(source.word, candidate.word);
   const mismatch = candidate.masculine !== source.masculine;
   const tier = commonnessTier(candidate.commonRank);
 
