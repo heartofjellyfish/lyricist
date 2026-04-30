@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rhyme Finder</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="rf-app">
+      <header class="rf-hero">
+        <p class="eyebrow">Local prototype</p>
+        <h1>Rhyme Finder</h1>
+        <p class="intro">
+          Type a word. Get rhymes <em>organized by feeling</em>, not just
+          sound — Pat Pattison's framework, five stability tiers from
+          slamming-shut <strong>perfect</strong> to suspended
+          <strong>consonance</strong>.
+        </p>
+        <p class="rf-nav">
+          Companion tools:
+          <a href="../">Home</a> ·
+          <a href="../line-craft/">Line Craft</a> ·
+          <a href="../stress-workshop/">Stress Workshop</a>
+        </p>
+      </header>
+
+      <section class="rf-panel">
+        <form id="finder-form" class="rf-form">
+          <label class="rf-field">
+            <span>Source word</span>
+            <div class="rf-input-row">
+              <input
+                id="word-input"
+                name="word"
+                type="text"
+                placeholder="e.g. moon, river, falling"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button type="submit" class="rf-go-btn">Find Rhymes</button>
+            </div>
+            <p class="rf-field-hint">
+              English only. Words must be in the CMU pronouncing dictionary.
+            </p>
+          </label>
+
+          <fieldset class="rf-filters">
+            <legend>Filters</legend>
+            <label class="rf-filter">
+              <span>By feeling</span>
+              <select id="feeling-filter">
+                <option value="all">All tiers</option>
+                <option value="perfect">Slam shut · Perfect</option>
+                <option value="family">Fresh land · Family</option>
+                <option value="additive,subtractive">Off-center · Additive/Subtractive</option>
+                <option value="assonance">Floating · Assonance</option>
+                <option value="consonance">Suspended · Consonance</option>
+              </select>
+            </label>
+
+            <label class="rf-filter rf-checkbox">
+              <input id="hide-mismatch" type="checkbox" />
+              <span>Hide stress mismatches</span>
+            </label>
+
+            <label class="rf-filter rf-checkbox">
+              <input id="flag-cliche" type="checkbox" checked />
+              <span>Flag clichéd pairs</span>
+            </label>
+          </fieldset>
+        </form>
+
+        <div id="status" class="rf-status" data-state="ready"></div>
+      </section>
+
+      <section class="rf-results-shell">
+        <div id="source-summary" class="rf-source-summary"></div>
+        <div id="results" class="rf-results"></div>
+      </section>
+
+      <footer class="rf-footer">
+        <details class="rf-legend">
+          <summary>How to read this — Pattison's cheat sheet</summary>
+          <div class="rf-legend-body">
+            <p>
+              Every rhyme decision is a <strong>feeling decision</strong>.
+              Stable rhyme supports stable ideas. Unstable rhyme supports
+              unstable ideas.
+            </p>
+            <ul>
+              <li>
+                <strong>Stability 5 · Perfect</strong> — same vowel, same coda,
+                different onset. Slams the gate. Watch for clichés.
+              </li>
+              <li>
+                <strong>Stability 4 · Family</strong> — coda consonants from
+                the same phonetic family. <em>Partners</em> (b↔p) feel
+                tighter than <em>companions</em> (b↔d↔g) for plosives;
+                reverse for fricatives.
+              </li>
+              <li>
+                <strong>Stability 3 · Additive / Subtractive</strong> — one
+                side has an extra consonant. <em>r</em> and <em>l</em> hide
+                added sounds best.
+              </li>
+              <li>
+                <strong>Stability 2 · Assonance</strong> — same vowel,
+                unrelated codas. Rings but hangs.
+                <em>Feminine</em> assonance is strong; <em>masculine</em> weak.
+              </li>
+              <li>
+                <strong>Stability 1 · Consonance</strong> — same coda, different
+                vowel. Suspended, unresolved. <em>"If the line allows
+                'Alas!', use consonance."</em>
+              </li>
+            </ul>
+            <p class="rf-legend-rule">
+              Masculine ≠ Feminine pairings are flagged — Pattison's iron law,
+              broken only on purpose (partial rhyme).
+            </p>
+          </div>
+        </details>
+      </footer>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

@@ -1100,6 +1100,238 @@ The best lyrics capture the moment of BECOMING — not before, not after, but th
   }
 
   body.appendChild(teacherSection);
+
+  // ── 押韵的情感学 (Pattison · Essential Guide to Rhyming) ──────────
+  const rhymeSection = createCollapsibleSection({
+    title: "押韵的情感学 Rhyme as Feeling",
+    teaser: "握手 · 家族 · partners · back of the hand · 情感配方",
+    subtitle: "Pat Pattison《押韵精要指南》— 押韵不是查字典，是选情感",
+  });
+
+  const rhymeCards = [
+    {
+      name: "一、押韵是情感决策，不是查字典",
+      method: `<strong>Rhyme is a feeling choice, not a lookup:</strong><br>
+查字典给你一堆"听起来像"的候选；Pattison 教你选哪一个情感对。<br>
+A rhyme dictionary hands you sound-alikes. Pattison teaches you which one <em>feels</em> right.<br><br>
+<strong>押韵做三件事 Rhyme does three things:</strong><br>
+① <strong>Spotlight</strong> 聚光 — 句末是注意力磁铁，重要的想法放在押韵点上<br>
+② <strong>Connect</strong> 联结 — 声音呼应让两个瞬间显得相关<br>
+③ <strong>Motion</strong> 制造运动 — 差异（声母不同）走向相同（韵腹+韵尾同）= 张力→解决<br><br>
+<em>真正的问题不是"要不要押韵"，而是"用哪种押韵"匹配这里的情感。</em><br>
+<em>The question is never whether to rhyme, but which kind fits the feeling.</em><br><br>
+<strong>Pattison 的口号 His mantra:</strong> <em>"Reasons for choosing. Choosing for reasons."</em><br>
+每一次押韵决定都必须能用情感意图解释。`,
+    },
+    {
+      name: "二、握手隐喻 · 完美押韵的三条件",
+      method: `<strong>押韵 = 两只不同的手碰在一起 Rhyme is a handshake:</strong><br>
+差异（不同的手）走向相同（碰在一起）。<br>
+Difference moves into sameness.<br><br>
+<strong>完美押韵三条件 Three conditions of perfect rhyme:</strong><br>
+① 韵腹元音相同 Same stressed vowel<br>
+② 元音之后的辅音（韵尾）相同 Same coda consonants<br>
+③ <strong>起始辅音（声母）不同</strong> — 这条最常被忽略 Different onsets — the often-forgotten one<br><br>
+<strong>声母相同 ≠ 押韵，是 identity（同形）:</strong><br>
+· fuse / confuse · place / replace · peace / piece<br>
+耳朵听到的是回声，不是张力→解决。<br>
+The ear hears echo, not tension-resolution. <em>Identity is not rhyme.</em>`,
+    },
+    {
+      name: "三、阳性 vs 阴性 — 永远不混用",
+      method: `<strong>Masculine vs Feminine — never mix:</strong><br>
+· <strong>Masculine 阳性</strong>：重音在最后一个音节。land / command<br>
+· <strong>Feminine 阴性</strong>：重音在倒数第二个音节，末尾是拖尾。landing / commanding — 押的是 "land/mand"，"-ing" 是拖尾 identity<br><br>
+<strong>重音位置对不上，耳朵立刻听得出错位。</strong><br>
+Stress mismatch — the ear catches it instantly.<br><br>
+<strong>Mosaic rhyme 马赛克押韵</strong>（多词当一个押韵单位）:<br>
+· understand her / commander<br>
+· tail him / sailin'<br>
+显眼而强力，但容易卖弄 — 除非写喜剧，否则少用。<br>
+Flashy and strong — sparing, unless you're writing comedy.`,
+    },
+    {
+      name: "四、完美押韵及其陷阱",
+      method: `<strong>Perfect rhyme = stability 5 — the strongest resolution:</strong><br>
+感受：确定、承诺、事实、关上门的瞬间。<br>
+Feeling: certainty, commitment, fact, the door shutting.<br><br>
+<strong>用在哪 Where:</strong> 稳定的意象、段落的收尾、V→I 的音乐性收束<br>
+Stable images, end of section, V→I cadence<br><br>
+<strong>陈词警报 Cliché watchlist — 看到就停:</strong><br>
+<em>love / above · heart / apart · fire / desire · night / light · true / you</em><br>
+这些对子太熟了，听者的耳朵跳过去不听。<br>
+Too familiar — the ear skips right past them.<br><br>
+<strong>aabb 连续完美押韵是杀手 The aabb perfect-rhyme trap:</strong><br>
+每两句就狠狠关门一次，听者会觉得这首歌永远唱不完。<br>
+Slamming the gate every two lines — makes the song feel endless.`,
+    },
+    {
+      name: "五、家族押韵 · 音素家族表（本书枢纽）",
+      method: `<strong>Family rhyme — the book's load-bearing idea:</strong><br>
+逃离陈词又不丢"解决感"的答案：<br>
+<strong>韵腹相同 + 韵尾辅音在同一音素家族 + 声母不同。</strong><br>
+Same vowel · coda from the same phonetic family · different onset.<br><br>
+<strong>音素家族表（要背下来 — memorize this）:</strong><br>
+<em>Plosives 塞音</em>：浊 b d g · 清 p t k<br>
+<em>Fricatives 擦音</em>：浊 v TH z zh j · 清 f th s sh ch<br>
+<em>Nasals 鼻音</em>：m n ng（全浊，无清鼻音）<br>
+<em>Liquids 流音</em>：l r（力量最大，后面跟什么都听不清）<br><br>
+<strong>例子 Examples:</strong><br>
+· safe / brave — AY 相同，f↔v partners<br>
+· home / blown — OW 相同，m↔n companions<br>
+· him / wind — IH 相同，m↔n companions<br><br>
+<strong>感受 Feeling:</strong> 基本解决，但带一丝新鲜。摆脱 love/above 的刻板，段落仍然落地。<br>
+Mostly resolved — with a breath of freshness. Free of cliché, still lands.`,
+    },
+    {
+      name: "六、Partners vs Companions · 替换优先级",
+      method: `<strong>Two kinds of family kinship:</strong><br>
+· <strong>Partners 搭档</strong> — 同位置，不同清浊。b↔p · d↔t · g↔k · v↔f · z↔s · zh↔sh · j↔ch · TH↔th<br>
+  Same position, different voicing.<br>
+· <strong>Companions 伴侣</strong> — 同清浊，同家族，不同位置。b=d=g · p=t=k · m=n=ng<br>
+  Same voicing, same family, different position.<br><br>
+<strong>替换优先级 Substitution priority:</strong><br>
+· <strong>塞音 Plosives</strong>：partners > companions<br>
+· <strong>擦音 Fricatives</strong>：反过来 — companions > partners<br>
+· <strong>鼻音 Nasals</strong>：全浊，只有 companions<br>
+· <strong>ng 的特例</strong>：只能和短 ŏ、短 ŭ 配，不能配长元音<br>
+  <em>ng only pairs with short o / short u — never long vowels.</em><br><br>
+<em>Pattison 的建议：把表背到肌肉层面，写时不用想。</em><br>
+<em>Memorize the table into your fingers — don't think while writing.</em>`,
+    },
+    {
+      name: "七、增减押韵 · 流音的救场",
+      method: `<strong>Additive / Subtractive — stability 3:</strong><br>
+比家族再不稳定一档。<br>
+One notch less stable than family.<br><br>
+· <strong>Additive 增</strong>：一侧多出一个辅音。see / speak · free / sleet · scar / heart（r 遮掩 t）<br>
+· <strong>Subtractive 减</strong>：剥掉辅音簇中最弱的。fast / as / class<br><br>
+<strong>哪些辅音加上去最不破坏押韵 Least disruptive consonants:</strong><br>
+① 浊塞音（最不显眼）<br>
+② 清塞音<br>
+③ 清擦音<br><br>
+<strong>r 和 l 是最好的掩护 Liquids are the best cover:</strong><br>
+流音把后面的声音几乎全吞掉，所以 scar / heart 听起来几乎像完美押韵。<br>
+Liquids swallow what follows — <em>scar / heart</em> nearly reads as perfect.<br><br>
+<strong>典型救场 Typical rescue:</strong> 及物动词后的宾语经常落在怪词上（"erase my heart"）<br>
+→ erase → erased / ace / case — 增减可以把它救回来。`,
+    },
+    {
+      name: "八、元音押韵 vs 辅音押韵 · 不稳定的极端",
+      method: `<strong>Assonance 元音押韵 — stability 2:</strong><br>
+韵腹相同，韵尾辅音<em>不相关</em>。love / hunt · tide / afterlife<br>
+Same vowel, unrelated codas. Feeling: <em>响，但不收 — sounds, but doesn't close.</em><br><br>
+· <strong>阳性元音押韵弱</strong> — 容易让人以为写飞了<br>
+· <strong>阴性元音押韵强</strong> — 拖尾的 identity 加一层，几乎像完美押韵<br>
+  lonely / homely · money / honey<br>
+<em>Feminine assonance is strong. Masculine assonance is weak — need lift? Go feminine.</em><br><br>
+<strong>Consonance 辅音押韵 — stability 1:</strong><br>
+<strong>韵腹不同</strong>，韵尾辅音相同。最不稳定的一档。<br>
+感受：悬浮、未解决、隐隐作痛。<br>
+Feeling: suspended, unresolved, a quiet ache.<br><br>
+<strong>Back of the hand rule 手背测试:</strong><br>
+<em>"If the line would allow 'Alas!', use consonance."</em><br>
+那句能换成手背贴额的古典呻吟"Alas!"？就用辅音押韵。<br><br>
+<strong>经典例子 Classic:</strong> Warren Zevon "Hasten Down the Wind" — friend / wind<br>
+换成完美押韵 friend / bend，整段从 longing 变成 matter-of-fact，情感垮掉。<br>
+Swap to perfect and the longing collapses into a shrug.`,
+    },
+    {
+      name: "九、局部押韵 · 故意不收尾",
+      method: `<strong>Partial rhyme — refusing to close on purpose:</strong><br>
+定义：阳性词和阴性词的重音音节押上韵，阴性词的拖尾留着不押。<br>
+Masculine + feminine: the stressed syllables rhyme, the feminine tail hangs loose.<br><br>
+<strong>例子 Examples:</strong><br>
+· moving / you (Prince)<br>
+· striking / night<br>
+· lover / one (Billie Jean)<br><br>
+<strong>为什么这么做 Why:</strong><br>
+拖尾的 "-ing"、"-er" 悬在空中，不解决，把听者往下一句拉。<br>
+The trailing "-ing", "-er" hangs — unresolved — pulling the listener into the next line.<br>
+段落不想终止、想让动能延续到下一段时，partial 是最优雅的工具。<br><br>
+<em>本质违反了"阳阴不能混"的铁律 — Pattison 说：铁律存在，就是为了让有意识的打破能制造效果。</em><br>
+<em>It breaks the masculine/feminine law — and Pattison says: the law exists so you can break it on purpose.</em>`,
+    },
+    {
+      name: "十、线内声韵 · juncture · 隐藏头韵",
+      method: `<strong>Sound-binding doesn't wait for the line's end:</strong><br>
+押韵不是结尾才开始的。一整句的内部都在"声音绑定"。<br><br>
+<strong>Internal rhyme 内押</strong> — 押韵出现在句内，推进感强、节奏紧<br>
+<strong>Assonance 元音重复</strong>：simple / hidden（非重音呼应重音）/ family（相邻元音呼应）<br><br>
+<strong>Alliteration 头韵 + Concealed alliteration 隐藏头韵:</strong><br>
+不只同一个声母的重复——<strong>同一音素家族</strong>的声母重复也算。<br>
+比如 p 和 t 都是清塞音 companions，连续落在重读音节开头。<br>
+Same phonetic family, not just same onset. Listeners don't hear the "alliteration" — they feel a voice leading.<br><br>
+<strong>Juncture 连接方式 — 词尾接下一词词首:</strong><br>
+· <strong>Rough / staccato</strong>：前词辅音 = 后词辅音 → 耳朵被强制停一下<br>
+· <strong>Smooth / legato</strong>：词滑进下一词 → 推动<br><br>
+<strong>Shelley · Ozymandias 的大师手笔:</strong><br>
+"sands / stretch / far away" — staccato juncture + 隐藏头韵，把沙漠地平线在声音上也拉长了。<br>
+Meaning and sound scheduled together — the desert horizon is audible.`,
+    },
+    {
+      name: "十一、情感配方 · 韵式 × 韵型（最重要的综合章）",
+      method: `<strong>Prosody = scheme × type. This is where it all lands.</strong><br><br>
+<strong>韵式的音乐对应 Scheme as music:</strong><br>
+· <strong>abab</strong>：第二个 a 是 dominant（属音 V）推；第二个 b 是 tonic（主音 I）收<br>
+· <strong>aabb</strong>：每一对都关门 → 重启 → 再关门<br>
+· <strong>xaxa</strong>：只押一次，很轻<br><br>
+<strong>情感配方表 Prosodic recipes — memorize:</strong><br>
+· Perfect / Perfect — 最强推，最硬收。<em>Slams the gate of hell.</em> 地狱门关死<br>
+· Family / Perfect — 轻推，稳收。<em>Gate of purgatory.</em> 炼狱门<br>
+· Assonance / Perfect — 几乎不推，像 xaxa。轻、飘<br>
+· Family / Assonance — 软推，软落。漂浮、梦幻<br>
+· Consonance / Family — 几乎不推，门只半开<br><br>
+<strong>核心铁律 Iron law:</strong><br>
+<em>Stable rhyme supports stable ideas. Unstable rhyme supports unstable ideas.</em><br>
+稳定的押韵支撑稳定的想法，不稳定的押韵支撑不稳定的想法。<br><br>
+如果一段讲不确定、失落、漂浮，用一串完美押韵收 = 把"我爱你但不能在一起"说成"所以我们结婚"。形式和情感相反，整段垮掉。<br>
+反过来：坚定宣言用辅音押韵，听者会觉得你犹豫。`,
+    },
+    {
+      name: "十二、操作铁律 · 合上书之前",
+      method: `<strong>Pattison's ten rules — the ones worth memorizing:</strong><br><br>
+① <strong>相信耳朵</strong>。唱出来。如果不响，它就不是押韵——不管音素表怎么说。<br>
+  <em>"Sing the rhyme. If it doesn't ring, it doesn't rhyme."</em><br>
+② <strong>永远不要把押韵类型作为独立标签</strong>——总是和情感作用连起来说。<br>
+③ <strong>Reasons for choosing. Choosing for reasons.</strong><br>
+  每个押韵决定都应该能被意图解释。<br>
+④ <strong>找押韵是机械的，用押韵是创造的。</strong>给自己多一些选项，再挑。<br>
+  <em>"Finding rhymes is mechanical. Using rhymes is creative."</em><br>
+⑤ <strong>陈词检查</strong>：love/above、heart/apart、fire/desire、night/light、true/you — 看到就警报。新鲜感藏在 family / additive / consonance 里。<br>
+⑥ <strong>阳阴不能配</strong>——除非故意用 partial 来不收束。<br>
+⑦ <strong>Identity 不是押韵。</strong>fuse/confuse、place/replace 是回声，不是张力。<br>
+⑧ <strong>Masculine assonance 弱，feminine assonance 强。</strong>需要力量时选阴性。<br>
+⑨ <strong>辅音押韵需要 r、l、鼻音、多辅音才会落地。</strong>干净的清塞音辅音押韵容易整个丢失。<br>
+⑩ <strong>aabb perfect 持续使用会让歌显得长。</strong>轮换韵式，轮换类型。<br><br>
+<strong>温故六问 Six-question self-check:</strong><br>
+① 这段情感稳定还是不稳定？→ 决定稳定度档位<br>
+② abab 还是 aabb？→ 决定推进结构<br>
+③ dominant 位置要多强的推？tonic 要多硬的收？→ 查配方表<br>
+④ 候选里有没有 love/above 级别的陈词？→ 有就往下一档走<br>
+⑤ 有没有 masculine 对 feminine 错配？→ 修正或故意用 partial<br>
+⑥ juncture、隐藏头韵、内押有没有和情感走向一致？`,
+    },
+  ];
+
+  for (const item of rhymeCards) {
+    const card = document.createElement("div");
+    card.className = "teach-formula";
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "teach-formula-name";
+    nameEl.textContent = item.name;
+    card.appendChild(nameEl);
+
+    const methodEl = document.createElement("div");
+    methodEl.className = "teach-method";
+    methodEl.innerHTML = item.method;
+    card.appendChild(methodEl);
+
+    rhymeSection.appendChild(card);
+  }
+
+  body.appendChild(rhymeSection);
 }
 
 init();
