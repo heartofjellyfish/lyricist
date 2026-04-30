@@ -174,8 +174,56 @@ select {
 }
 
 .rf-go-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: wait;
+}
+
+.rf-go-btn[data-busy="true"] {
+  position: relative;
+  padding-left: 38px;
+}
+
+.rf-go-btn[data-busy="true"]::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 2px solid rgba(255, 248, 240, 0.4);
+  border-top-color: #fff8f0;
+  border-radius: 50%;
+  animation: rf-spin 700ms linear infinite;
+}
+
+@keyframes rf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rf-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  border: 1px dashed rgba(31, 26, 23, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.4);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.rf-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(184, 92, 56, 0.25);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: rf-spin 700ms linear infinite;
+  flex-shrink: 0;
 }
 
 .rf-filters {
@@ -385,6 +433,22 @@ select {
   transition: background 120ms ease;
 }
 
+/* Commonness — lower rank shows bolder/darker; uncommon dims slightly. */
+.rf-word.rf-c-very-common {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.rf-word.rf-c-common {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.rf-word.rf-c-uncommon {
+  font-weight: 400;
+  color: rgba(31, 26, 23, 0.62);
+}
+
 .rf-word:hover {
   background: rgba(184, 92, 56, 0.08);
   border-color: rgba(184, 92, 56, 0.25);
@@ -395,6 +459,7 @@ select {
   border-color: rgba(31, 26, 23, 0.25);
   color: var(--muted);
   font-style: italic;
+  font-weight: 400;
 }
 
 .rf-word.rf-cliche {

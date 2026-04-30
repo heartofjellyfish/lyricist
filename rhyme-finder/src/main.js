@@ -120,20 +120,27 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  setStatus("Scanning corpus…");
+  setStatus(`Scanning corpus for "${word}"…`);
   goBtn.disabled = true;
-  results.innerHTML = "";
+  goBtn.dataset.busy = "true";
+  goBtn.textContent = "Finding…";
+  results.innerHTML = `<div class="rf-loading"><span class="rf-spinner"></span> Working through ~80,000 words by Pattison's tiers…</div>`;
   sourceSummary.innerHTML = "";
 
   try {
+    // Yield to the event loop so the loading UI paints before the scan.
+    await new Promise((r) => setTimeout(r, 0));
     const { source, buckets } = await findRhymes({ word, perBucket: 60 });
     renderSource(source);
     renderResults(source, buckets);
     setStatus("");
   } catch (err) {
+    results.innerHTML = "";
     setStatus(err.message || "Lookup failed.", true);
   } finally {
     goBtn.disabled = false;
+    goBtn.dataset.busy = "false";
+    goBtn.textContent = "Find Rhymes";
   }
 });
 
@@ -271,19 +278,33 @@ function renderWordRow(words, source) {
   return row;
 }
 
+// Three commonness tiers, RhymeZone-style. Lower rank = more common.
+//   ≤ 1500 → "very common" — bold, full opacity
+//   ≤ 5000 → "common"      — normal weight
+//   else   → "uncommon"    — slightly dimmed
+function commonnessTier(rank) {
+  if (rank == null || rank === Infinity) return "uncommon";
+  if (rank <= 1500) return "very-common";
+  if (rank <= 5000) return "common";
+  return "uncommon";
+}
+
 function renderWord(candidate, source) {
   const el = document.createElement("span");
   el.className = "rf-word";
 
   const cliche = flagCliche.checked && isCliche(source.word, candidate.word);
   const mismatch = candidate.masculine !== source.masculine;
+  const tier = commonnessTier(candidate.commonRank);
 
+  el.classList.add(`rf-c-${tier}`);
   if (cliche) el.classList.add("rf-cliche");
   if (mismatch) el.classList.add("rf-mismatch");
 
   el.title = [
     candidate.masculine ? "masculine" : "feminine",
     `${candidate.syllables ?? "?"} syll.`,
+    tier === "very-common" ? "very common" : tier === "common" ? "common" : "uncommon",
     mismatch ? "stress class differs from source" : "",
     cliche ? "Pattison cliché — overworked pair" : "",
   ].filter(Boolean).join(" · ");
