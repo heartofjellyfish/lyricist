@@ -34,14 +34,18 @@ body {
 
 .rf-hero,
 .rf-panel,
-.rf-results-shell,
-.rf-footer {
+.rf-results-shell {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 24px;
   backdrop-filter: blur(10px);
   box-shadow: 0 18px 50px rgba(62, 40, 24, 0.08);
   margin-bottom: 18px;
+}
+
+/* Don't render the results card until there's something to show. */
+.rf-results-shell:has(#source-summary:empty):has(#results:empty) {
+  display: none;
 }
 
 .rf-hero {
