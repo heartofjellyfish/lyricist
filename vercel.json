@@ -6,19 +6,9 @@
   "framework": null,
   "rewrites": [
     {
-      "source": "/wordlists/:path*",
-      "has": [{ "type": "host", "value": "rhyme.qi.land" }],
-      "destination": "/wordlists/:path*"
-    },
-    {
       "source": "/",
       "has": [{ "type": "host", "value": "rhyme.qi.land" }],
       "destination": "/rhyme-finder/index.html"
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "rhyme.qi.land" }],
-      "destination": "/rhyme-finder/:path*"
     },
     {
       "source": "/",
