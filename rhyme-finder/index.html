@@ -52,36 +52,147 @@
             </g>
           </svg>
           <h1 class="rf-title">
-            Rhyme Finder<span class="rf-seal" aria-hidden="true"><span class="rf-seal-glyph">韵</span></span>
+            <span class="rf-title-rhyme">Rhyme</span><span class="rf-title-amp" aria-hidden="true">·</span><span class="rf-title-finder">Finder</span><span class="rf-seal" aria-hidden="true"><span class="rf-seal-glyph">韵</span></span>
           </h1>
         </div>
-      </header>
 
-      <section class="rf-panel">
-        <form id="finder-form" class="rf-form">
-          <div class="rf-input-row">
-            <input
-              id="word-input"
-              name="word"
-              type="text"
-              placeholder="give me an english word"
-              autocomplete="off"
-              spellcheck="false"
-              autofocus
-            />
-            <button type="submit" class="rf-go-btn" aria-label="Find rhymes">
-              <span class="rf-go-btn-arrow" aria-hidden="true">→</span>
-            </button>
-          </div>
-        </form>
-        <div id="status" class="rf-status" data-state="ready"></div>
-      </section>
+        <section class="rf-panel">
+          <form id="finder-form" class="rf-form">
+            <div class="rf-input-row">
+              <input
+                id="word-input"
+                name="word"
+                type="text"
+                placeholder="give me an english word"
+                autocomplete="off"
+                spellcheck="false"
+                autofocus
+              />
+              <button type="submit" class="rf-go-btn" aria-label="Find rhymes">
+                <span class="rf-go-btn-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+          </form>
+          <div id="status" class="rf-status" data-state="ready"></div>
+        </section>
+      </header>
 
       <section class="rf-results-shell">
         <div id="source-summary" class="rf-source-summary"></div>
         <div id="results" class="rf-results"></div>
       </section>
+
+      <!-- Two epigraphs at the foot of the page — one about the craft of
+           rhyme (Berman), one about the discipline of making (Mary Oliver).
+           They cross-fade on a slow rotation so only one is shown at a
+           time; users can also click the dots to switch manually. Hidden
+           entirely once results appear so the workspace can breathe. -->
+      <footer class="rf-epigraphs" aria-label="Epigraphs" data-active="0">
+        <blockquote class="rf-epigraph rf-epigraph-berman" data-idx="0">
+          <!-- A small vermilion seal-square: the "little room" the poem
+               builds. Hand-drawn so the corners feel ink-stamped. -->
+          <svg class="rf-epigraph-mark rf-epigraph-mark-berman" viewBox="0 0 40 40" aria-hidden="true">
+            <rect x="6" y="6" width="28" height="28" fill="none" stroke="#b13b2c" stroke-width="1.6" stroke-linejoin="miter" opacity="0.85"/>
+            <rect x="11" y="11" width="18" height="18" fill="none" stroke="#b13b2c" stroke-width="0.7" opacity="0.55"/>
+            <line x1="20" y1="11" x2="20" y2="29" stroke="#b13b2c" stroke-width="0.6" opacity="0.45"/>
+            <line x1="11" y1="20" x2="29" y2="20" stroke="#b13b2c" stroke-width="0.6" opacity="0.45"/>
+          </svg>
+          <p class="rf-epigraph-line">Songs build little rooms in time</p>
+          <p class="rf-epigraph-line">And housed within the song's design</p>
+          <p class="rf-epigraph-line">Is the ghost the host has left behind</p>
+          <p class="rf-epigraph-line">To greet and sweep the guest inside</p>
+          <footer class="rf-epigraph-attr">
+            <span class="rf-epigraph-dash" aria-hidden="true">—</span>
+            <span class="rf-epigraph-name">David Cloud Berman</span>
+            <span class="rf-epigraph-dates">1967–2019</span>
+          </footer>
+        </blockquote>
+
+        <blockquote class="rf-epigraph rf-epigraph-oliver" data-idx="1">
+          <!-- A small vermilion flame: the "call to creative work,"
+               the "creative power restive and uprising." -->
+          <svg class="rf-epigraph-mark rf-epigraph-mark-oliver" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="M20 33 C 11 30, 9 22, 14 16 C 15 19, 17 20, 18 18 C 19 13, 22 10, 22 6 C 27 11, 30 16, 30 22 C 30 28, 26 32, 20 33 Z"
+                  fill="#b13b2c" opacity="0.88"/>
+            <path d="M20 28 C 16 27, 15 23, 17 20 C 18 22, 20 22, 20 20 C 21 17, 22 16, 22 14 C 25 17, 26 21, 25 24 C 24 27, 22 28, 20 28 Z"
+                  fill="#dcc28e" opacity="0.55"/>
+          </svg>
+          <p class="rf-epigraph-prose">My loyalty is to the inner vision, wherever and howsoever it may arrive. If I have a meeting with you at three o'clock, rejoice if I am late. Rejoice even more if I do not arrive at all.</p>
+          <p class="rf-epigraph-prose">There is no other way work of artistic worth can be done. And the occasional success, to the striver, is worth everything.</p>
+          <footer class="rf-epigraph-attr">
+            <span class="rf-epigraph-dash" aria-hidden="true">—</span>
+            <span class="rf-epigraph-name">Mary Oliver</span>
+            <span class="rf-epigraph-source">Of Power and Time, in Upstream</span>
+          </footer>
+        </blockquote>
+
+        <!-- Two dots let the reader switch on demand. -->
+        <nav class="rf-epigraph-dots" aria-label="Switch epigraph">
+          <button type="button" class="rf-epigraph-dot" data-idx="0" aria-label="Berman" aria-pressed="true"></button>
+          <button type="button" class="rf-epigraph-dot" data-idx="1" aria-label="Mary Oliver" aria-pressed="false"></button>
+        </nav>
+      </footer>
     </main>
+
+    <script>
+      // ── Epigraph rotator ──────────────────────────────────────
+      // Cross-fades between the two epigraphs on a slow rotation
+      // (90s each). Pause when the user hovers, and let them pick
+      // manually via the dots — manual selection sticks for that
+      // visit (no more auto-rotation after a click).
+      (function () {
+        const root = document.querySelector(".rf-epigraphs");
+        if (!root) return;
+        const epigraphs = root.querySelectorAll(".rf-epigraph");
+        const dots = root.querySelectorAll(".rf-epigraph-dot");
+        const ROTATE_MS = 90 * 1000;
+        let active = Math.random() < 0.5 ? 0 : 1;
+        let timer = null;
+        let manual = false;
+
+        function show(i) {
+          active = i;
+          root.dataset.active = String(i);
+          epigraphs.forEach((el) => {
+            const on = Number(el.dataset.idx) === i;
+            el.classList.toggle("is-active", on);
+          });
+          dots.forEach((el) => {
+            const on = Number(el.dataset.idx) === i;
+            el.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+        }
+
+        function tick() {
+          if (manual) return;
+          show(1 - active);
+        }
+
+        function startTimer() {
+          stopTimer();
+          if (manual) return;
+          timer = setInterval(tick, ROTATE_MS);
+        }
+        function stopTimer() {
+          if (timer) { clearInterval(timer); timer = null; }
+        }
+
+        dots.forEach((d) => {
+          d.addEventListener("click", () => {
+            manual = true;
+            stopTimer();
+            show(Number(d.dataset.idx));
+          });
+        });
+
+        // Pause on hover so a slow reader doesn't get yanked mid-line
+        root.addEventListener("mouseenter", stopTimer);
+        root.addEventListener("mouseleave", startTimer);
+
+        show(active);
+        startTimer();
+      })();
+    </script>
 
     <script type="module" src="./src/main.js"></script>
   </body>

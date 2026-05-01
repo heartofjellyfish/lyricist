@@ -64,9 +64,9 @@ body::before {
 .rf-app {
   position: relative;
   min-height: 100vh;
-  width: min(680px, calc(100vw - 40px));
+  width: min(880px, calc(100vw - 40px));
   margin: 0 auto;
-  padding: 0 0 80px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -74,18 +74,43 @@ body::before {
   z-index: 2;
 }
 
-.rf-app:not(:has(#results:not(:empty))):not(:has(#source-summary:not(:empty))) {
-  justify-content: center;
+/* Empty start state — fix the hero (title + input) dead-center of the
+   viewport, like Google's homepage. Its position never moves when the
+   active epigraph below changes height. */
+.rf-app:not(:has(#results:not(:empty))):not(:has(#source-summary:not(:empty))) .rf-hero {
+  position: fixed;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(880px, calc(100vw - 40px));
+  z-index: 3;
+}
+.rf-app:not(:has(#results:not(:empty))):not(:has(#source-summary:not(:empty))) .rf-results-shell {
+  display: none;
+}
+/* Footer pinned to viewport bottom on the empty start state. */
+.rf-app:not(:has(#results:not(:empty))):not(:has(#source-summary:not(:empty))) .rf-epigraphs {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  border-top: none;
+  padding-top: 0;
+  z-index: 2;
 }
 
 /* ── Hero ────────────────────────────────────────────────────── */
 
 .rf-hero {
   text-align: center;
-  padding-top: 9vh;
-  margin-bottom: 56px;
+  padding-top: 0;
+  margin-bottom: 0;
   position: relative;
   transition: padding-top 0.3s ease, margin-bottom 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .rf-app:has(#results:not(:empty)) .rf-hero,
@@ -115,8 +140,40 @@ body::before {
   color: var(--ink);
   margin: 0 0 8px;
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
   white-space: nowrap;
+}
+
+/* "Rhyme" — italic, the leading voice */
+.rf-title-rhyme {
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Middot between the two words — ink dot, smaller, mid-baseline */
+.rf-title-amp {
+  display: inline-block;
+  font-style: normal;
+  font-size: 0.42em;
+  font-weight: 400;
+  color: var(--ink-faded);
+  margin: 0 0.32em;
+  transform: translateY(-0.32em);
+}
+
+/* "Finder" — upright, smaller, letter-spaced —
+   the quiet utility word beside the poetic one */
+.rf-title-finder {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.62em;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  align-self: center;
+  padding-top: 0.18em;
 }
 
 /* Vermilion seal — a small hanko-style stamp tucked beside the title */
@@ -173,6 +230,173 @@ body::before {
   line-height: 1;
 }
 
+/* ── Epigraphs (footer rotator) ──────────────────────────────── */
+
+/* One epigraph at a time — they cross-fade on a slow rotation.
+   Berman speaks of the room a rhyme builds; Oliver of the discipline
+   of answering the call. The footer holds both, only one visible. */
+.rf-epigraphs {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 56px auto 0;
+  padding: 24px 8px 0;
+  border-top: 1px solid var(--hair-soft);
+  /* Reserve enough space for the taller of the two so the page
+     doesn't reflow as they swap. Mary Oliver's three-paragraph
+     epigraph is the taller one. */
+  min-height: 230px;
+}
+
+.rf-epigraph {
+  position: absolute;
+  inset: 36px 8px auto 8px;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  color: var(--ink);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+}
+
+.rf-epigraph.is-active {
+  opacity: 0.55 !important;
+  pointer-events: auto;
+  position: relative !important;
+  inset: auto !important;
+}
+
+/* Berman: short verse, italic centered */
+.rf-epigraph-berman {
+  font-family: "Spectral", "Songti SC", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.rf-epigraph-line {
+  margin: 0;
+  text-wrap: balance;
+}
+
+/* Mary Oliver: prose, three paragraphs — must fit fully without truncation */
+.rf-epigraph-oliver {
+  font-family: "Spectral", "Songti SC", serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12.5px;
+  line-height: 1.6;
+  text-align: left;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.rf-epigraph-prose {
+  margin: 0 0 8px;
+  text-wrap: pretty;
+  hyphens: auto;
+}
+.rf-epigraph-prose:last-of-type { margin-bottom: 0; }
+
+/* Decorative vermilion mark — sits centered above each epigraph */
+.rf-epigraph-mark {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 18px;
+}
+
+/* Hide footer once results appear — workspace mode. */
+.rf-app:has(#results:not(:empty)) .rf-epigraphs,
+.rf-app:has(#source-summary:not(:empty)) .rf-epigraphs {
+  display: none;
+}
+
+.rf-epigraph-attr {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  margin-top: 18px;
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  white-space: nowrap;
+}
+
+/* Oliver's attribution sits flush left under the prose */
+.rf-epigraph-oliver .rf-epigraph-attr {
+  justify-content: flex-start;
+}
+
+.rf-epigraph-dash {
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 0;
+  color: var(--ink-faded);
+}
+
+.rf-epigraph-dates,
+.rf-epigraph-source {
+  opacity: 0.7;
+  font-feature-settings: "tnum";
+}
+
+.rf-epigraph-source {
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+}
+
+/* Two dots beneath the epigraphs — manual switcher.
+   Vermilion ink-stamp dots, the active one filled. */
+.rf-epigraph-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.rf-epigraph-dot {
+  appearance: none;
+  border: 1px solid var(--vermilion);
+  background: transparent;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 200ms ease, transform 160ms ease, opacity 200ms ease;
+  opacity: 0.55;
+}
+
+.rf-epigraph-dot:hover { opacity: 0.9; transform: scale(1.15); }
+
+.rf-epigraph-dot[aria-pressed="true"] {
+  background: var(--vermilion);
+  opacity: 1;
+}
+
+@media (max-width: 720px) {
+  .rf-epigraphs {
+    margin: 56px auto 32px;
+    min-height: 320px;
+  }
+  .rf-epigraph-berman { font-size: 15px; }
+  .rf-epigraph-oliver { font-size: 13.5px; }
+}
+
 /* ── Marginalia: literary motifs in the corners ───────────────── */
 
 .rf-marginalia {
@@ -200,8 +424,8 @@ body::before {
    normal flow as part of the title row. */
 .rf-title-row .rf-mg-shanshui {
   position: static;
-  width: 360px;
-  height: 220px;
+  width: 240px;
+  height: 145px;
   opacity: 0.92;
 }
 
@@ -243,8 +467,8 @@ body::before {
 
 .rf-panel {
   width: 100%;
-  max-width: 560px;
-  margin: 0 auto;
+  max-width: 460px;
+  margin: 28px auto 0;
   position: relative;
 }
 
@@ -279,17 +503,22 @@ body::before {
 input[type="text"] {
   font-family: var(--display);
   font-style: italic;
-  font-size: clamp(22px, 3vw, 32px);
+  font-size: clamp(18px, 2.2vw, 24px);
   font-weight: 400;
   width: 100%;
   border: none;
   outline: none;
   background: transparent;
-  padding: 14px 4px;
+  padding: 10px 4px;
   color: var(--ink);
   text-align: center;
   letter-spacing: 0.005em;
 }
+
+/* While the user is actively typing, slide text to the left so the
+   cursor sits at the natural reading start. The empty/placeholder
+   state stays centered. */
+/* (Input text stays centered at all times.) */
 
 input[type="text"]::placeholder {
   color: rgba(107, 94, 74, 0.55);
@@ -298,11 +527,11 @@ input[type="text"]::placeholder {
 
 .rf-go-btn {
   font-family: var(--display);
-  font-size: 26px;
+  font-size: 22px;
   border: none;
   background: transparent;
   color: var(--ink);
-  padding: 0 14px;
+  padding: 0 12px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -340,6 +569,7 @@ input[type="text"]::placeholder {
   width: 100%;
   max-width: 760px;
   margin: 56px auto 0;
+  padding-bottom: 96px;
 }
 
 .rf-results-shell:has(#source-summary:empty):has(#results:empty) {
