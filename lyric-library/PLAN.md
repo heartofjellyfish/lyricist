@@ -71,7 +71,7 @@ preferences across genres):
 ## Architecture summary
 
 ```
-lyric-corpus/
+lyric-library/
 ├── PLAN.md                    ← this file
 ├── scripts/
 │   ├── fetch.mjs              ← Phase 2: pull lyrics via lyricsgenius
@@ -81,16 +81,16 @@ lyric-corpus/
 │   ├── adrianne-lenker.json   (full lyrics, internal use only)
 │   ├── joni-mitchell.json
 │   └── ...
-└── (no web-served files here — see /wordlists/lyric-corpus/)
+└── (no web-served files here — see /wordlists/lyric-library/)
 
-/wordlists/lyric-corpus/       ← Phase 3 output, IS shipped
+/wordlists/lyric-library/       ← Phase 3 output, IS shipped
 ├── a.json                     ← all words starting with 'a' → quotes
 ├── b.json
 ├── ...
 └── meta.json                  ← artist roster + stats
 ```
 
-The `/wordlists/lyric-corpus/raw/` directory should be in
+The `/wordlists/lyric-library/raw/` directory should be in
 `.vercelignore` — we don't ship full lyrics publicly, only the
 inverted index with short snippets.
 
@@ -145,13 +145,13 @@ preferred — better for popovers).
    the JS lib `genius-lyrics`. JS preferred to keep the toolchain
    homogeneous.
 3. Fetch top 10 songs each for 3 artists: Adrianne Lenker, Joni
-   Mitchell, Leonard Cohen. Save to `lyric-corpus/raw/`.
+   Mitchell, Leonard Cohen. Save to `lyric-library/raw/`.
 4. Write `scripts/build-index.mjs`:
    - Read all raw artist JSONs
    - Tokenize each line, lemmatize via `wink-lemmatizer` (already a
      dep neighbor — check `package.json`)
    - Build inverted index, slice by first letter
-   - Write to `wordlists/lyric-corpus/[a-z].json`
+   - Write to `wordlists/lyric-library/[a-z].json`
 5. In Rhyme Finder, hack a quick popover for ONE tier showing
    examples for very-common words. Just enough UI to feel it.
 6. Show the user a screenshot. Decide: keep going, or kill.
@@ -172,7 +172,7 @@ preferred — better for popovers).
 - Manual cleanup: spot-check 2 random artists, look for obvious
   bad fetches (HTML noise, duplicate songs).
 
-**Deliverables:** 49 raw JSONs in `lyric-corpus/raw/`.
+**Deliverables:** 49 raw JSONs in `lyric-library/raw/`.
 
 ### Phase 3 — Indexing (half day)
 
@@ -181,7 +181,7 @@ preferred — better for popovers).
 1. Tokenize: split on whitespace + punctuation. Preserve apostrophes
    inside words (`don't`, `I'll`).
 2. Lemmatize: `wink-lemmatizer` for verbs/nouns/adjectives.
-3. Skip stopwords: load `lyric-corpus/scripts/stopwords.json`
+3. Skip stopwords: load `lyric-library/scripts/stopwords.json`
    (50-100 words: the, a, of, to, …). Don't index these.
 4. For each occurrence record:
    - artist (slug, lowercase-hyphen)
@@ -194,7 +194,7 @@ preferred — better for popovers).
    ranked: `end` first, then by Genius popularity, then by line length.
 6. Compress with gzip on disk OR rely on Vercel CDN edge gzip
    (recommended — simpler).
-7. Write `wordlists/lyric-corpus/meta.json` with the artist roster +
+7. Write `wordlists/lyric-library/meta.json` with the artist roster +
    total counts + last-updated date.
 
 **Deliverable:** 26 JSON files, total ~3-5 MB.
@@ -214,7 +214,7 @@ preferred — better for popovers).
   - Em-dash + artist + song + year in mono uppercase tracking
   - Match the existing design language (see `rhyme-finder/styles.css`,
     `--display`, `--mono`, `--vermilion` tokens).
-- Lazy load: only fetch `wordlists/lyric-corpus/r.json` when user
+- Lazy load: only fetch `wordlists/lyric-library/r.json` when user
   searches a word starting with R. Cache in memory.
 - Empty state: words without quotes show no badge, no popover. Don't
   draw attention to the absence.
@@ -225,7 +225,7 @@ preferred — better for popovers).
 
 1. Performance: confirm lazy-load is < 200 KB per word, < 100 ms after cache.
 2. Mobile UX: popover becomes bottom-sheet on narrow viewports.
-3. Robots / SEO: add robots.txt disallow on `/wordlists/lyric-corpus/`.
+3. Robots / SEO: add robots.txt disallow on `/wordlists/lyric-library/`.
 4. About page or footer credit: "Lyric snippets © respective
    rightsholders. Used here under fair-use educational scope. Email
    [contact] for any takedown request."
@@ -276,10 +276,10 @@ When the new session starts, ask the user these BEFORE coding:
 - `/rhyme-finder/styles.css` — design tokens to reuse for the popover.
 - `/rhyme-finder/src/main.js` — where the UX integration goes.
 - `/wordlists/cmu-dict.json` — example of a static-data shipping
-  pattern; lyric-corpus follows the same pattern.
+  pattern; lyric-library follows the same pattern.
 - `/scripts/buildCmuDict.mjs` — example of a build-time data script;
-  `lyric-corpus/scripts/build-index.mjs` should follow its style.
-- `/.vercelignore` — must add `lyric-corpus/raw/` here.
+  `lyric-library/scripts/build-index.mjs` should follow its style.
+- `/.vercelignore` — must add `lyric-library/raw/` here.
 - `/package.json` — check existing deps (`wink-lemmatizer`,
   `wink-nlp`, `wordnet-db` already present).
 
