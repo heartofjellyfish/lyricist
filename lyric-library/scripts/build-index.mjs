@@ -166,8 +166,8 @@ function findRhymePartner(stanza, lineInStanzaIdx) {
   return {
     line: truncate(stanza.lines[best.j].text),
     stanzaLineIdx: best.j,
-    partnerWord: best.otherWord,
-    kind: best.kind,
+    word: best.otherWord,        // the rhyming partner word
+    type: best.kind,             // "perfect" | "assonance"
   };
 }
 
@@ -240,17 +240,20 @@ for (const f of files) {
             song: song.slug,
             songTitle: song.title,
             year: song.year,
-            // Back-compat: prev/next adjacent lines (the current UI uses these)
+            // Back-compat fallback: prev/next adjacent lines (Phase 1.5 UI used
+            // these). Phase 1.6 UI consumes `stanza` instead and treats these
+            // as a fallback when stanza is missing.
             linePrev: truncate(flatLines[songLineIdx - 1] ?? ""),
             line: truncate(lineObj.text),
             lineNext: truncate(flatLines[songLineIdx + 1] ?? ""),
             lineIdx: songLineIdx,
-            // New context fields (Phase 1.6 — for upcoming UI redesign)
-            section: stanza.section,             // "Chorus" | "Verse 1" | null
+            // Phase 1.6 fields (named to match the design spec):
+            section_label: stanza.section,       // "Chorus" | "Verse 1" | null
             stanza: stanzaTexts,                 // every line in the matched stanza, truncated
             stanzaLineIdx: lineInStanzaIdx,      // matched line's index inside `stanza`
-            partner: pos === "end" ? partner : null, // { line, stanzaLineIdx, partnerWord, kind } | null
-            wordPos: pos,
+            partner: pos === "end" ? partner : null, // { line, stanzaLineIdx, word, type } | null
+            position: pos === "end" ? "end" : "mid", // collapsed binary per spec
+            wordPos: pos,                        // legacy: retain start/middle distinction for ranking
             surface: t,
             _songOrder: songIdx,
           });
@@ -290,7 +293,10 @@ for (const [k, arr] of index) {
     return a.line.length - b.line.length;
   });
   if (arr.length > MAX_QUOTES_PER_WORD) arr.length = MAX_QUOTES_PER_WORD;
-  for (const q of arr) delete q._songOrder;
+  for (const q of arr) {
+    delete q._songOrder;
+    delete q.wordPos; // legacy build-side field; consumers use `position`
+  }
 }
 
 // Bucket by first letter.

@@ -1,6 +1,16 @@
-// Lyric Library loader — Phase 1 pilot.
+// Lyric Library loader — Phase 1.6.
 // Lazy-loads per-letter index files from /wordlists/lyric-library/*.json
 // and exposes a sync lookup once the relevant letter is in cache.
+//
+// Each quote has the shape (see lyric-library/scripts/build-index.mjs):
+//   { artist, credit, song, songTitle, year, surface,
+//     line, linePrev, lineNext, lineIdx,            // Phase 1.5 fallback
+//     stanza: string[], stanzaLineIdx,              // Phase 1.6 — full stanza
+//     section_label: string | null,                 // "Verse 1" | "Chorus" | …
+//     position: "end" | "mid",
+//     partner: { line, stanzaLineIdx, word, type } | null }
+//
+// The loader is a pass-through; consumers see every field as-is.
 
 const cache = new Map(); // letter -> { word: quote[] }
 const inflight = new Map(); // letter -> Promise

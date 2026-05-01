@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lyric Library · quality inspector</title>
+<style>
+  :root {
+    --paper: #dcc28e;
+    --paper-deep: #c8a567;
+    --ink: #1a140e;
+    --ink-soft: #3a2e1f;
+    --ink-faded: #6e5a3c;
+    --ink-ghost: rgba(26, 20, 14, 0.14);
+    --vermilion: #b13b2c;
+    --vermilion-deep: #8a2a1e;
+    --display: "Cormorant Garamond", "Songti SC", "STSong", serif;
+    --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px clamp(20px, 4vw, 60px) 60px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  h1 {
+    margin: 0 0 4px;
+    font-size: 28px;
+    font-weight: 600;
+    font-style: italic;
+  }
+  .sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faded);
+    margin-bottom: 22px;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+    margin-bottom: 22px;
+    padding: 12px 14px;
+    border: 1px solid var(--ink);
+    background: rgba(26, 20, 14, 0.03);
+  }
+  .controls label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faded); }
+  .controls input, .controls select, .controls button {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid var(--ink);
+    background: var(--paper-deep);
+    color: var(--ink);
+  }
+  .controls input { min-width: 180px; }
+  .controls button { cursor: pointer; }
+  .controls button:hover { background: var(--ink); color: var(--paper); }
+  .stats {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-faded);
+  }
+  .stats b { color: var(--vermilion); font-weight: 500; }
+
+  .quote {
+    border: 1px solid var(--ink-ghost);
+    background: rgba(26, 20, 14, 0.02);
+    padding: 14px 18px;
+    margin-bottom: 14px;
+  }
+  .q-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: baseline;
+    margin-bottom: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--ink-faded);
+  }
+  .q-head .lemma {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .q-head .pos { color: var(--vermilion); }
+  .q-head .pos.mid { color: var(--ink-faded); }
+  .q-head .section {
+    border: 1px solid var(--ink-ghost);
+    padding: 1px 6px;
+    text-transform: none;
+    letter-spacing: 0.04em;
+  }
+  .q-head .section.empty { color: var(--vermilion-deep); border-color: var(--vermilion-deep); }
+  .q-head .credit { color: var(--ink-soft); }
+  .q-head .credit b { color: var(--ink); font-weight: 500; }
+
+  .stanza {
+    margin: 0 0 8px;
+    padding-left: 14px;
+    border-left: 2px solid var(--ink-ghost);
+  }
+  .stanza p {
+    margin: 0;
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--ink-faded);
+  }
+  .stanza p.matched {
+    color: var(--ink);
+    font-size: 17px;
+    font-weight: 500;
+  }
+  .stanza mark {
+    background: transparent;
+    color: var(--vermilion);
+    font-weight: 600;
+  }
+  .stanza p.partner {
+    color: var(--ink);
+  }
+  .stanza p.partner mark {
+    color: var(--vermilion);
+    font-weight: 600;
+    border-bottom: 1px dashed var(--vermilion);
+  }
+  .partner-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 0 5px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--vermilion);
+    border: 1px solid var(--vermilion);
+    vertical-align: 1px;
+  }
+  .partner-tag.assonance { color: var(--ink-soft); border-color: var(--ink-soft); }
+  .nopartner {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-ghost);
+    margin-top: 6px;
+  }
+  .empty-state {
+    padding: 60px 0;
+    text-align: center;
+    font-style: italic;
+    color: var(--ink-faded);
+  }
+</style>
+</head>
+<body>
+
+<h1>Lyric Library · quality inspector</h1>
+<div class="sub" id="meta-line">loading…</div>
+
+<div class="controls">
+  <label>word
+    <input id="word" type="text" placeholder="(blank = sample)" />
+  </label>
+  <label>artist
+    <select id="artist"><option value="">all</option></select>
+  </label>
+  <label>position
+    <select id="pos">
+      <option value="">all</option>
+      <option value="end">end (rhyme-relevant)</option>
+      <option value="mid">mid (start/middle)</option>
+    </select>
+  </label>
+  <label>has partner
+    <select id="haspartner">
+      <option value="">any</option>
+      <option value="yes">yes</option>
+      <option value="no">no</option>
+    </select>
+  </label>
+  <label>sample size
+    <input id="size" type="number" value="30" min="1" max="500" style="width:60px" />
+  </label>
+  <button id="run" type="button">Run</button>
+  <button id="random" type="button">Reshuffle</button>
+  <span class="stats" id="stats"></span>
+</div>
+
+<div id="results"></div>
+
+<script type="module">
+const LETTERS = "abcdefghijklmnopqrstuvwxyz_".split("");
+const ALL = {}; // letter -> { word: quotes[] }
+let META = null;
+
+async function loadAll() {
+  await Promise.all(LETTERS.map(async (l) => {
+    try {
+      const r = await fetch(`/wordlists/lyric-library/${l}.json`);
+      if (r.ok) ALL[l] = await r.json();
+    } catch {}
+  }));
+  try {
+    META = await (await fetch("/wordlists/lyric-library/meta.json")).json();
+  } catch {}
+  document.getElementById("meta-line").textContent =
+    META
+      ? `${META.totalSongs} songs · ${META.totalLines} lines · ${META.totalTokens} tokens · ` +
+        `${META.totalEndQuotesWithPartner ?? 0}/${META.totalEndQuotes ?? 0} end-position quotes have a partner · ` +
+        `built ${META.builtAt?.slice(0, 10)}`
+      : "no meta.json";
+  // populate artist dropdown
+  const artists = new Set();
+  for (const letter of Object.values(ALL)) for (const qs of Object.values(letter)) for (const q of qs) artists.add(q.credit);
+  const sel = document.getElementById("artist");
+  for (const a of [...artists].sort()) {
+    const opt = document.createElement("option");
+    opt.value = a; opt.textContent = a;
+    sel.appendChild(opt);
+  }
+  render();
+}
+
+function* iterateAllQuotes() {
+  for (const [letter, words] of Object.entries(ALL)) {
+    for (const [lemma, qs] of Object.entries(words)) {
+      for (const q of qs) yield { lemma, q };
+    }
+  }
+}
+
+function highlightLineHTML(line, surface) {
+  const escaped = line.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  if (!surface) return escaped;
+  const safe = surface.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`\\b${safe}(?:['’]\\w{0,3})?\\b`, "gi");
+  return escaped.replace(re, (m) => `<mark>${m}</mark>`);
+}
+
+function render() {
+  const word = document.getElementById("word").value.trim().toLowerCase();
+  const artist = document.getElementById("artist").value;
+  const pos = document.getElementById("pos").value;
+  const hasPartner = document.getElementById("haspartner").value;
+  const size = Math.max(1, Math.min(500, parseInt(document.getElementById("size").value) || 30));
+
+  let pool = [];
+  if (word) {
+    const letter = /[a-z]/.test(word[0]) ? word[0] : "_";
+    const qs = ALL[letter]?.[word] ?? [];
+    pool = qs.map((q) => ({ lemma: word, q }));
+  } else {
+    for (const it of iterateAllQuotes()) pool.push(it);
+  }
+  if (artist) pool = pool.filter((p) => p.q.credit === artist);
+  if (pos) pool = pool.filter((p) => p.q.position === pos);
+  if (hasPartner === "yes") pool = pool.filter((p) => p.q.partner);
+  if (hasPartner === "no") pool = pool.filter((p) => p.q.position === "end" && !p.q.partner);
+
+  const total = pool.length;
+  // Shuffle if not a single-word query
+  if (!word) pool.sort(() => Math.random() - 0.5);
+  pool = pool.slice(0, size);
+
+  const results = document.getElementById("results");
+  document.getElementById("stats").innerHTML = `<b>${pool.length}</b> shown · ${total} match`;
+  if (!pool.length) {
+    results.innerHTML = `<div class="empty-state">No quotes match these filters.</div>`;
+    return;
+  }
+  results.innerHTML = pool.map(renderQuote).join("");
+}
+
+function renderQuote({ lemma, q }) {
+  const sectionLabel = q.section_label
+    ? `<span class="section">${escapeHtml(q.section_label)}</span>`
+    : `<span class="section empty">no section</span>`;
+  const stanza = (q.stanza ?? []).map((line, i) => {
+    const isMatched = i === q.stanzaLineIdx;
+    const isPartner = q.partner && i === q.partner.stanzaLineIdx;
+    const cls = isMatched ? "matched" : isPartner ? "partner" : "";
+    let html = isMatched
+      ? highlightLineHTML(line, q.surface)
+      : isPartner
+        ? highlightLineHTML(line, q.partner.word)
+        : escapeHtml(line);
+    if (isPartner) {
+      const tagClass = q.partner.type;
+      html += ` <span class="partner-tag ${tagClass}">${q.partner.type} partner</span>`;
+    }
+    return `<p class="${cls}">${html}</p>`;
+  }).join("");
+  const noPartner = q.position === "end" && !q.partner
+    ? `<div class="nopartner">— end-position, no rhyme partner found in stanza</div>`
+    : "";
+  return `
+    <div class="quote">
+      <div class="q-head">
+        <span class="lemma">${escapeHtml(lemma)}</span>
+        <span class="pos ${q.position}">pos · ${q.position}</span>
+        ${sectionLabel}
+        <span class="credit"><b>${escapeHtml(q.credit)}</b> · ${escapeHtml(q.songTitle)}${q.year ? " · " + q.year : ""}</span>
+      </div>
+      <div class="stanza">${stanza || `<p class="matched">${highlightLineHTML(q.line, q.surface)}</p>`}</div>
+      ${noPartner}
+    </div>
+  `;
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+document.getElementById("run").addEventListener("click", render);
+document.getElementById("random").addEventListener("click", render);
+document.getElementById("word").addEventListener("keydown", (e) => { if (e.key === "Enter") render(); });
+loadAll();
+</script>
+</body>
+</html>

@@ -303,21 +303,22 @@ function renderWord(candidate, source) {
   return el;
 }
 
-// ── Lyric Library decoration (Phase 1.5) ───────────────────────────
+// ── Lyric Library decoration (Phase 1.6) ───────────────────────────
 // If the candidate word has quotes in the lyric corpus, append a small
-// vermilion dot+count badge and attach a popover (hover to peek, click
-// to pin). Popover header strip surfaces the totals; each quote shows
-// the matched line + attribution, with prev/next available behind a
-// "+ context" toggle. Mobile gets a bottom sheet (see CSS @media).
+// vermilion dot+count badge and attach a popover. Each quote shows the
+// matched line (and rhyme partner, if any) plus an attribution row
+// with the section role tag; `+ context` reveals the rest of the
+// stanza, spotlighting the matched line. Sections with > 3 quotes
+// expand inline via the "Show N more" button. Mobile gets a bottom
+// sheet (CSS @media).
 function decorateWithLyrics(el, word) {
   const quotes = getQuotes(word);
   if (!quotes.length) return;
   el.classList.add("rf-has-lyrics");
 
-  const endQuotes = quotes.filter((q) => q.wordPos === "end");
-  const midQuotes = quotes.filter((q) => q.wordPos !== "end");
+  const endQuotes = quotes.filter((q) => q.position === "end");
+  const midQuotes = quotes.filter((q) => q.position !== "end");
 
-  // Step 1: badge = vermilion dot (::before) + total count, no "· N/M".
   const badge = document.createElement("span");
   badge.className = "rf-lyric-badge";
   const count = document.createElement("span");
@@ -326,57 +327,93 @@ function decorateWithLyrics(el, word) {
   badge.appendChild(count);
   el.appendChild(badge);
 
-  // Step 2: popover gets a header strip + a body wrapper for sections.
   const pop = document.createElement("div");
   pop.className = "rf-lyric-pop";
   pop.appendChild(renderPopHeader(word, quotes, endQuotes));
   const body = document.createElement("div");
   body.className = "rf-lyric-pop-body";
-  // Step 3: section labels in sentence case. End first (rhyme-relevant).
   if (endQuotes.length) body.appendChild(renderQuoteSection("At line end", endQuotes, 3));
   if (midQuotes.length) body.appendChild(renderQuoteSection("Mid-line", midQuotes, 3));
   pop.appendChild(body);
   el.appendChild(pop);
 
-  // Step 7: click pins the popover and flags <html> for the bottom-sheet
-  // scroll-lock. Clicks landing inside the popover are ignored (otherwise
-  // selecting text in a quote would toggle pin state).
+  // Click on the word still pins (the Phase 1.6 pin glyph in the header
+  // is additive — both paths set `.rf-pinned`).
   el.addEventListener("click", (e) => {
     if (e.target.closest(".rf-lyric-pop")) return;
     e.stopPropagation();
-    document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
-    el.classList.add("rf-pinned");
-    document.documentElement.classList.add("rf-sheet-open");
+    setPin(el, true);
   });
   installGlobalDismissHandlers();
 }
 
-// Outside-click + Escape both unpin everything. Registered once at first
-// decorateWithLyrics call (rather than per-word) — there's no per-word
-// state for them to capture.
+// Stash each section's "rest of quotes" beyond the cap so the inline
+// expand handler can render them lazily on first click.
+const sectionRest = new WeakMap();
+
 let dismissHandlersInstalled = false;
 function installGlobalDismissHandlers() {
   if (dismissHandlersInstalled) return;
   dismissHandlersInstalled = true;
+
   const unpinAll = () => {
     document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
     document.documentElement.classList.remove("rf-sheet-open");
+    document.querySelectorAll(".rf-lyric-pin[aria-pressed='true']").forEach((b) =>
+      b.setAttribute("aria-pressed", "false"),
+    );
   };
+
   document.addEventListener("click", (e) => {
-    // Don't dismiss when the click landed inside a popover (toggles, scroll,
-    // text selection in quotes). The close × in the header is inside the
-    // popover too, but it removes the pin itself before bubbling.
+    // Inline-expand a section when "Show N more" / "Collapse" is clicked.
+    const more = e.target.closest(".rf-lyric-more");
+    if (more) {
+      const section = more.closest(".rf-lyric-section");
+      const expanded = section.classList.toggle("is-expanded");
+      if (expanded && !section.dataset.fullyRendered) {
+        renderRemainingQuotes(section);
+        section.dataset.fullyRendered = "1";
+      }
+      more.textContent = expanded ? more.dataset.expandedLabel : more.dataset.collapsedLabel;
+      e.stopPropagation();
+      return;
+    }
+    // Don't dismiss when the click landed inside a popover (toggles,
+    // scroll, text selection). The header pin / close × handlers manage
+    // their own state before bubbling here.
     if (e.target.closest(".rf-lyric-pop")) return;
     unpinAll();
   });
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") unpinAll();
   });
+
+  // Pin hint suppression — once the user pins anything (by either path),
+  // remember it for this session so the hint stops shouting.
+  if (localStorage.getItem("rf-pin-hint-seen") === "1") {
+    document.documentElement.classList.add("rf-pin-hint-suppress");
+  }
 }
 
-// Step 2: header strip shows the word large + a mono summary line + a
-// close × that becomes visible when the popover is pinned (always shown
-// in the mobile bottom sheet via CSS).
+function setPin(wordEl, pinned) {
+  document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => {
+    if (p !== wordEl) {
+      p.classList.remove("rf-pinned");
+      p.querySelector(".rf-lyric-pin")?.setAttribute("aria-pressed", "false");
+    }
+  });
+  wordEl.classList.toggle("rf-pinned", pinned);
+  wordEl.querySelector(".rf-lyric-pin")?.setAttribute("aria-pressed", pinned ? "true" : "false");
+  document.documentElement.classList.toggle("rf-sheet-open", pinned);
+  if (pinned) {
+    localStorage.setItem("rf-pin-hint-seen", "1");
+    document.documentElement.classList.add("rf-pin-hint-suppress");
+  }
+}
+
+// Header strip: word + summary, with a pin glyph (discoverability),
+// a one-shot hover hint, and the close × (visible only when pinned).
 function renderPopHeader(word, all, end) {
   const head = document.createElement("header");
   head.className = "rf-lyric-pop-head";
@@ -393,6 +430,31 @@ function renderPopHeader(word, all, end) {
     (end.length ? ` · <b>${end.length} at line end</b>` : "");
   left.append(w, sum);
 
+  const tools = document.createElement("div");
+  tools.className = "rf-lyric-pop-tools";
+
+  const hint = document.createElement("span");
+  hint.className = "rf-lyric-pin-hint";
+  hint.innerHTML = `<b>Click word</b> to pin →`;
+  tools.appendChild(hint);
+
+  const pin = document.createElement("button");
+  pin.className = "rf-lyric-pin";
+  pin.type = "button";
+  pin.setAttribute("aria-pressed", "false");
+  pin.setAttribute("aria-label", "Pin");
+  pin.innerHTML = `
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9 1.6 V 7.2 M5.6 7.2 H 12.4 L 11.4 11 H 6.6 Z M9 11 V 16.4" />
+    </svg>`;
+  pin.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const word = head.closest(".rf-word");
+    if (!word) return;
+    setPin(word, !word.classList.contains("rf-pinned"));
+  });
+  tools.appendChild(pin);
+
   const close = document.createElement("button");
   close.className = "rf-lyric-pop-close";
   close.type = "button";
@@ -400,11 +462,12 @@ function renderPopHeader(word, all, end) {
   close.textContent = "×";
   close.addEventListener("click", (e) => {
     e.stopPropagation();
-    head.closest(".rf-word")?.classList.remove("rf-pinned");
-    document.documentElement.classList.remove("rf-sheet-open");
+    const word = head.closest(".rf-word");
+    if (word) setPin(word, false);
   });
+  tools.appendChild(close);
 
-  head.append(left, close);
+  head.append(left, tools);
   return head;
 }
 
@@ -427,38 +490,102 @@ function renderQuoteSection(label, quotes, cap) {
 
   for (const q of quotes.slice(0, cap)) sec.appendChild(renderQuoteItem(q));
 
-  // Step 8: + N more is now a real <button> for keyboard reachability
-  // (behaviour is unchanged for now — Phase-4 modal will wire it up).
+  // Inline-expand button. The remaining quotes render lazily on first
+  // expand (see `renderRemainingQuotes`). Toggle text flips between the
+  // two stored labels; the ::after arrow rotates via CSS.
   if (quotes.length > cap) {
+    sectionRest.set(sec, quotes.slice(cap));
     const more = document.createElement("button");
     more.type = "button";
     more.className = "rf-lyric-more";
-    more.textContent = `+ ${quotes.length - cap} more`;
+    more.dataset.collapsedLabel = `Show ${quotes.length - cap} more`;
+    more.dataset.expandedLabel = "Collapse";
+    more.textContent = more.dataset.collapsedLabel;
     sec.appendChild(more);
   }
   return sec;
+}
+
+function renderRemainingQuotes(section) {
+  const rest = sectionRest.get(section) ?? [];
+  const more = section.querySelector(".rf-lyric-more");
+  for (const q of rest) section.insertBefore(renderQuoteItem(q), more);
 }
 
 function renderQuoteItem(q) {
   const item = document.createElement("div");
   item.className = "rf-lyric-item";
 
-  // Step 4: matched line first — it's the rhyme-relevant signal.
-  const line = document.createElement("div");
-  line.className = "rf-lyric-line";
-  line.innerHTML = highlightSurface(q.line, q.surface);
-  item.appendChild(line);
+  // Compute the stanza split: lines before the matched index, lines after,
+  // with the partner removed from the after-block (it appears in the pair).
+  const stanza = Array.isArray(q.stanza) ? q.stanza : [];
+  const matchedIdx = Number.isInteger(q.stanzaLineIdx) ? q.stanzaLineIdx : -1;
+  const partnerIdx = q.partner && Number.isInteger(q.partner.stanzaLineIdx) ? q.partner.stanzaLineIdx : -1;
+  let before = [];
+  let after = [];
+  if (matchedIdx >= 0 && stanza.length) {
+    before = stanza.slice(0, matchedIdx);
+    after = stanza.slice(matchedIdx + 1).filter((_, i) => matchedIdx + 1 + i !== partnerIdx);
+  } else {
+    // Fallback to Phase 1.5 prev/next when the index lacks stanza info.
+    if (q.linePrev) before = [q.linePrev];
+    if (q.lineNext) after = [q.lineNext];
+  }
+  const hasCtx = before.length > 0 || after.length > 0;
 
-  // Attribution row holds the optional + context toggle on the right.
+  // Before-context wrapper (collapsible).
+  if (before.length) item.appendChild(buildCtxWrap(before, "before"));
+
+  // Matched line, optionally as a partner couplet.
+  if (q.partner) {
+    const pair = document.createElement("div");
+    pair.className = "rf-lyric-pair";
+    const rule = document.createElement("div");
+    rule.className = "rf-lyric-pair-rule";
+    pair.appendChild(rule);
+
+    const top = document.createElement("p");
+    top.className = "rf-lyric-line";
+    top.innerHTML = highlightSurface(q.line, q.surface);
+    pair.appendChild(top);
+
+    const tag = document.createElement("div");
+    tag.className = "rf-lyric-pair-tag";
+    tag.innerHTML = `<b>↳ rhymes</b> · ${escapeHtml(q.partner.type ?? "")}`;
+    pair.appendChild(tag);
+
+    const bot = document.createElement("p");
+    bot.className = "rf-lyric-line";
+    bot.innerHTML = highlightSurface(q.partner.line, q.partner.word);
+    pair.appendChild(bot);
+
+    item.appendChild(pair);
+  } else {
+    const line = document.createElement("p");
+    line.className = "rf-lyric-line";
+    line.innerHTML = highlightSurface(q.line, q.surface);
+    item.appendChild(line);
+  }
+
+  // After-context wrapper (collapsible).
+  if (after.length) item.appendChild(buildCtxWrap(after, "after"));
+
+  // Attribution row: who · song · role tag, with + context toggle.
   const attr = document.createElement("div");
   attr.className = "rf-lyric-attr";
   const who = document.createElement("span");
   who.className = "who";
-  who.innerHTML =
+  let whoHtml =
     `<b>${escapeHtml(q.credit)}</b> · ${escapeHtml(q.songTitle)}` +
     (q.year ? ` · ${escapeHtml(String(q.year))}` : "");
+  if (q.section_label) {
+    const isChorus = /chorus/i.test(q.section_label);
+    whoHtml +=
+      ` <span class="rf-lyric-role${isChorus ? " is-chorus" : ""}">` +
+      `${escapeHtml(q.section_label)}</span>`;
+  }
+  who.innerHTML = whoHtml;
   attr.appendChild(who);
-  const hasCtx = Boolean(q.linePrev || q.lineNext);
   if (hasCtx) {
     const toggle = document.createElement("button");
     toggle.type = "button";
@@ -473,29 +600,22 @@ function renderQuoteItem(q) {
   }
   item.appendChild(attr);
 
-  // Collapsible context wrapper — animated via grid-template-rows 0fr→1fr.
-  if (hasCtx) {
-    const wrap = document.createElement("div");
-    wrap.className = "rf-lyric-ctx-wrap";
-    const inner = document.createElement("div");
-    inner.className = "rf-lyric-ctx-inner";
-    if (q.linePrev) {
-      const p = document.createElement("p");
-      p.className = "rf-lyric-ctx";
-      p.textContent = q.linePrev;
-      inner.appendChild(p);
-    }
-    if (q.lineNext) {
-      const n = document.createElement("p");
-      n.className = "rf-lyric-ctx";
-      n.textContent = q.lineNext;
-      inner.appendChild(n);
-    }
-    wrap.appendChild(inner);
-    item.appendChild(wrap);
-  }
-
   return item;
+}
+
+function buildCtxWrap(lines, slot) {
+  const wrap = document.createElement("div");
+  wrap.className = `rf-lyric-ctx-wrap ${slot}`;
+  const inner = document.createElement("div");
+  inner.className = "rf-lyric-ctx-inner";
+  for (const text of lines) {
+    const p = document.createElement("p");
+    p.className = "rf-lyric-ctx";
+    p.textContent = text;
+    inner.appendChild(p);
+  }
+  wrap.appendChild(inner);
+  return wrap;
 }
 
 function highlightSurface(line, surface) {

@@ -1087,23 +1087,6 @@ input[type="text"]::placeholder {
 .rf-lyric-item.is-open .rf-lyric-ctx-toggle::before { content: "− context"; }
 .rf-lyric-item.is-open .rf-lyric-ctx-toggle { color: var(--vermilion); }
 
-/* "+ N more" is now a real button — keyboard-reachable, ready for the
-   Phase-4 modal to wire into. */
-.rf-lyric-more {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 0;
-  background: none;
-  border: none;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--vermilion);
-  cursor: pointer;
-}
-.rf-lyric-more:hover { color: var(--vermilion-deep); }
-
 /* Mobile: touch + narrow viewport → bottom sheet. The hover popover
    would otherwise overflow the right edge on phones. */
 @media (hover: none) and (max-width: 720px) {
@@ -1134,3 +1117,143 @@ input[type="text"]::placeholder {
     background: rgba(26, 20, 14, 0.35);
   }
 }
+
+/* ── Phase 1.6 — spotlight + pin + partner pair + inline expand ────── */
+
+/* §4 · Soft-fill spotlight on the matched line when context is open. */
+.rf-lyric-item.is-open .rf-lyric-line {
+  position: relative;
+  background: rgba(177, 59, 44, 0.12);
+  padding: 4px 10px 4px 14px;
+  margin-left: -10px;
+  margin-right: -10px;
+}
+.rf-lyric-item.is-open .rf-lyric-line::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 4px; bottom: 4px;
+  width: 2px;
+  background: var(--vermilion);
+}
+.rf-lyric-item.is-open .rf-lyric-ctx {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 0 4px;
+}
+
+/* §6 · Partner couplet — used for end-position quotes that have a partner.
+   The matched line + partner line stack together; an ink rule on the left
+   and a small `↳ rhymes · type` tag join them. */
+.rf-lyric-pair {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 0 12px;
+  align-items: stretch;
+}
+.rf-lyric-pair-rule {
+  grid-row: 1 / span 3;
+  position: relative;
+}
+.rf-lyric-pair-rule::before {
+  content: "";
+  position: absolute;
+  left: 6px; top: 8px; bottom: 8px;
+  width: 1px;
+  background: var(--ink-ghost);
+}
+.rf-lyric-pair-rule::after {
+  content: "";
+  position: absolute;
+  left: 4px; top: calc(50% - 2px);
+  width: 5px; height: 5px;
+  background: var(--vermilion);
+  border-radius: 50%;
+}
+.rf-lyric-pair-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  padding: 2px 0;
+}
+.rf-lyric-pair-tag b { color: var(--vermilion); font-weight: 500; }
+
+/* §3 · "Show N more" — the section now expands in place. */
+.rf-lyric-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid var(--vermilion);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.rf-lyric-more::after {
+  content: "↓";
+  transition: transform 200ms ease;
+}
+.rf-lyric-more:hover { background: var(--vermilion); color: var(--paper); }
+.rf-lyric-section.is-expanded .rf-lyric-more::after { transform: rotate(180deg); }
+
+/* §5 · Pin glyph in the popover header. The pin is *additive* to the
+   click-on-word pinning that Phase 1.5 introduced — it just makes the
+   affordance discoverable. */
+.rf-lyric-pop-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rf-lyric-pin {
+  width: 18px; height: 18px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--ink);
+  opacity: 0.55;
+  transition: opacity 120ms ease, color 120ms ease, transform 120ms ease;
+}
+.rf-lyric-pin:hover { opacity: 1; transform: rotate(-12deg) scale(1.1); }
+.rf-lyric-pin svg { display: block; width: 100%; height: 100%; }
+.rf-lyric-pin[aria-pressed="true"] {
+  opacity: 1;
+  color: var(--vermilion);
+  transform: none;
+}
+
+/* Hint shown next to the pin glyph until the user pins their first quote
+   in this session — JS toggles `.rf-lyric-pin-hint-suppress` on <html>
+   to hide it everywhere. */
+.rf-lyric-pin-hint {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  opacity: 0;
+  transition: opacity 200ms ease 600ms;
+  white-space: nowrap;
+}
+.rf-lyric-pin-hint b { color: var(--ink); font-weight: 500; }
+.rf-word.rf-has-lyrics:hover .rf-lyric-pin-hint { opacity: 0.7; }
+.rf-word.rf-pinned .rf-lyric-pin-hint { display: none; }
+html.rf-pin-hint-suppress .rf-lyric-pin-hint { display: none; }
+
+/* §6 · Section role tag (Verse / Chorus / Bridge) in the attribution row. */
+.rf-lyric-role {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  margin-left: 6px;
+}
+.rf-lyric-role.is-chorus { color: var(--vermilion); }
