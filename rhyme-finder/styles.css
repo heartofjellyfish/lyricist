@@ -390,11 +390,37 @@ body::before {
 
 @media (max-width: 720px) {
   .rf-epigraphs {
-    margin: 56px auto 32px;
-    min-height: 320px;
+    margin: 40px auto 32px;
+    min-height: auto;
   }
-  .rf-epigraph-berman { font-size: 15px; }
-  .rf-epigraph-oliver { font-size: 13.5px; }
+  .rf-epigraph-berman { font-size: 13px; }
+  .rf-epigraph-oliver { font-size: 12px; }
+
+  /* On mobile the viewport is too short to fix the hero in the center
+     and pin the footer to the bottom without overlap — fall back to
+     normal document flow: hero at the top, scroll for the epigraph. */
+  .rf-app:not(:has(#results:not(:empty))):not(:has(#source-summary:not(:empty))) .rf-hero {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    margin-top: 18vh;
+  }
+  .rf-app:not(:has(#results:not(:empty))):not(:has(#source-summary:not(:empty))) .rf-epigraphs {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    border-top: 1px solid var(--hair-soft);
+    padding-top: 24px;
+  }
+  /* Shrink the shanshui painting so the hero takes less vertical space
+     on small screens. */
+  .rf-title-row .rf-mg-shanshui {
+    width: 200px;
+    height: 120px;
+  }
 }
 
 /* ── Marginalia: literary motifs in the corners ───────────────── */
