@@ -338,7 +338,7 @@ input[type="text"]::placeholder {
 
 .rf-results-shell {
   width: 100%;
-  max-width: 720px;
+  max-width: 760px;
   margin: 56px auto 0;
 }
 
@@ -350,10 +350,10 @@ input[type="text"]::placeholder {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 14px;
-  padding: 22px 0 18px;
-  margin-bottom: 28px;
-  border-top: 1px solid var(--ink);
+  gap: 18px;
+  padding: 26px 0 22px;
+  margin-bottom: 36px;
+  border-top: 2px solid var(--ink);
   border-bottom: 1px solid var(--hair);
   position: relative;
 }
@@ -363,26 +363,38 @@ input[type="text"]::placeholder {
 .rf-source-word {
   font-family: var(--display);
   font-style: italic;
-  font-weight: 500;
-  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 600;
+  font-size: clamp(34px, 4.5vw, 48px);
   line-height: 1;
   color: var(--ink);
-  letter-spacing: 0;
+  letter-spacing: -0.005em;
 }
 
 .rf-source-tag {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ink-faded);
+  color: var(--ink);
 }
 
-.rf-source-tag::before { content: "·  "; opacity: 0.5; }
+.rf-source-tag::before { content: "·  "; color: var(--vermilion); opacity: 0.7; }
 .rf-source-tag:first-of-type::before { content: ""; }
-.rf-source-tag:first-of-type { color: var(--ink); }
+.rf-source-tag:first-of-type {
+  color: var(--paper);
+  background: var(--ink);
+  padding: 4px 9px;
+  letter-spacing: 0.2em;
+}
 
-.rf-results { display: grid; gap: 36px; }
+/* Highlight the phonetic kernel — the vowel & coda values */
+.rf-source-tag .rf-tag-val {
+  color: var(--vermilion);
+  font-weight: 600;
+}
+
+.rf-results { display: grid; gap: 44px; }
 
 .rf-loading {
   display: flex;
@@ -407,22 +419,26 @@ input[type="text"]::placeholder {
   animation: rf-spin 700ms linear infinite;
 }
 
-/* Tier */
-.rf-tier { padding-top: 10px; }
+/* Tier — each tier card sits behind a vermilion vertical bar */
+.rf-tier {
+  position: relative;
+  padding: 4px 0 8px 22px;
+  border-left: 3px solid var(--vermilion);
+}
 
 .rf-tier-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: baseline;
-  gap: 14px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+  column-gap: 18px;
+  row-gap: 6px;
+  margin-bottom: 22px;
 }
 
 .rf-tier-titlebox {
   display: flex;
   align-items: baseline;
-  gap: 12px;
-  flex: 1;
+  gap: 14px;
   min-width: 0;
   flex-wrap: wrap;
 }
@@ -430,25 +446,20 @@ input[type="text"]::placeholder {
 .rf-tier-title {
   font-family: var(--display);
   font-style: italic;
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 1.2;
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.1;
   color: var(--ink);
-  letter-spacing: 0;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
+  letter-spacing: -0.005em;
 }
 
 .rf-tier-rule {
   font-family: var(--mono);
-  font-style: normal;
-  font-weight: 400;
-  font-size: 10px;
+  font-weight: 500;
+  font-size: 10.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--ink-faded);
+  color: var(--ink-soft);
 }
 
 .rf-spectrum {
@@ -479,69 +490,84 @@ input[type="text"]::placeholder {
 .rf-cells .rf-cell:nth-child(4) { height: 11px; }
 .rf-cells .rf-cell:nth-child(5) { height: 13px; }
 
-.rf-tier-head .rf-cell-on { background: var(--ink); }
+.rf-tier-head .rf-cell-on { background: var(--vermilion); }
 
 .rf-tier-count {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--ink-faded);
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--vermilion);
   white-space: nowrap;
-  margin-left: auto;
+  justify-self: end;
 }
 
-.rf-tier-count::before { content: "n. "; opacity: 0.5; }
-
-.rf-subgroup { margin-top: 16px; }
-.rf-subgroup:first-child { margin-top: 0; }
-
-.rf-subgroup-label {
+.rf-tier-count::before {
+  content: "n. ";
   font-family: var(--mono);
+  font-style: normal;
+  font-weight: 500;
   font-size: 10px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-faded);
-  margin-bottom: 10px;
+  margin-right: 4px;
+  vertical-align: 0.18em;
+}
+
+.rf-subgroup { margin-top: 20px; }
+.rf-subgroup:first-of-type { margin-top: 0; }
+
+.rf-subgroup-label {
+  display: inline-block;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  padding: 3px 8px;
+  margin-bottom: 14px;
 }
 
 .rf-words {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 14px;
+  gap: 6px 22px;
   align-items: baseline;
 }
 
 .rf-word {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 3px;
-  font-family: var(--display);
-  font-size: 19px;
+  display: inline-block;
+  font-family: "Spectral", "Songti SC", "STSong", serif;
+  font-size: 21px;
+  font-weight: 500;
   line-height: 1.5;
   color: var(--ink);
   cursor: default;
   transition: color 120ms ease;
 }
 
-.rf-word::after {
-  content: "·";
-  display: inline-block;
-  margin-left: 14px;
-  color: var(--hair);
-}
-
-.rf-word:last-child::after { content: ""; margin-left: 0; }
-
 .rf-word:hover {
   color: var(--vermilion);
   text-decoration: underline;
   text-underline-offset: 4px;
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: 1.5px;
   text-decoration-color: var(--vermilion);
 }
 
-.rf-word.rf-c-very-common { font-weight: 600; font-style: normal; }
-.rf-word.rf-c-common { font-weight: 400; font-style: italic; }
+.rf-word.rf-c-very-common {
+  font-weight: 700;
+  font-style: normal;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: var(--vermilion);
+}
+.rf-word.rf-c-common { font-weight: 500; font-style: normal; color: var(--ink); }
 .rf-word.rf-c-uncommon { font-weight: 400; font-style: italic; color: var(--ink-faded); }
 
 .rf-word.rf-mismatch {

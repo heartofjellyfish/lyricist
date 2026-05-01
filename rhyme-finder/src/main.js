@@ -115,11 +115,15 @@ form.addEventListener("submit", async (e) => {
 // ── Rendering ───────────────────────────────────────────────────────
 function renderSource(source) {
   const codaText = source.coda.length > 0 ? source.coda.join("·") : "—";
+  // The vowel and coda values are wrapped in .rf-tag-val so the design
+  // can highlight the phonetic kernel in vermilion against the muted tag
+  // label. The first tag (masculine/feminine) is rendered as an inverted
+  // pill via :first-of-type selector — no inner span needed.
   sourceSummary.innerHTML = `
     <span class="rf-source-word">${escapeHtml(source.word)}</span>
     <span class="rf-source-tag">${source.masculine ? "masculine" : "feminine"}</span>
-    <span class="rf-source-tag">vowel ${escapeHtml(source.stressedVowel)}</span>
-    <span class="rf-source-tag">coda ${escapeHtml(codaText)}</span>
+    <span class="rf-source-tag">vowel <span class="rf-tag-val">${escapeHtml(source.stressedVowel)}</span></span>
+    <span class="rf-source-tag">coda <span class="rf-tag-val">${escapeHtml(codaText)}</span></span>
   `;
 }
 
