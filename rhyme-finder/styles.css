@@ -29,7 +29,7 @@ body {
 .rf-app {
   width: min(820px, calc(100vw - 32px));
   margin: 0 auto;
-  padding: 14vh 0 80px; /* extra bottom space so the pinned nav doesn't sit over results */
+  padding: 28vh 0 80px; /* empty state vertically centered-ish; results state shrinks to 6vh below */
   /* Empty state: hero+panel feel like floating elements on the page,
      not stacked cards. The results-shell still gets card chrome (below)
      so results have a grounded container. */
@@ -94,8 +94,9 @@ body {
 
 .rf-nav-links {
   position: absolute;
-  left: 0;
+  left: 50%;
   top: 0;
+  transform: translateX(-50%);
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -143,6 +144,10 @@ h1 {
   font-size: clamp(2.4rem, 5vw, 3.6rem);
   line-height: 1;
   letter-spacing: -0.01em;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Spotlight-style search row: a single rounded pill containing input

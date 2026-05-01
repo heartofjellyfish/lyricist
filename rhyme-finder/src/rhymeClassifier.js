@@ -121,10 +121,21 @@ export function phonemesFor(word) {
 //   masculine          — boolean: does the word END on a stressed syllable?
 
 function lastStressedVowelIndex(phonemes) {
+  // Prefer the LAST PRIMARY stress (digit 1). CMU sometimes attaches a
+  // secondary stress (digit 2) to a trailing -y / -ish / etc., e.g.
+  //   "jellyfish" → JH EH1 L IY0 F IH2 SH
+  //   "agronomy"  → AH0 G R AA1 N AH0 M IH2
+  // Treating IH2 as a rhyme anchor wrongly pairs jellyfish/agronomy as
+  // a subtractive rhyme on "ish/(empty)". Pattison's rhyme falls on the
+  // *primary*-stressed syllable, so anchor there.
   for (let i = phonemes.length - 1; i >= 0; i -= 1) {
-    if (isStressed(phonemes[i])) return i;
+    if (vowelStress(phonemes[i]) === "1") return i;
   }
-  // Fall back to any vowel (handles edge cases like function words)
+  // Fall back to last secondary stress if no primary exists at all.
+  for (let i = phonemes.length - 1; i >= 0; i -= 1) {
+    if (vowelStress(phonemes[i]) === "2") return i;
+  }
+  // Final fallback: any vowel (function words like "the" with stress 0).
   for (let i = phonemes.length - 1; i >= 0; i -= 1) {
     if (isVowel(phonemes[i])) return i;
   }
