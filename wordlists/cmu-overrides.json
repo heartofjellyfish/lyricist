@@ -1,0 +1,5 @@
+{
+  "_comment": "Hand-curated overrides for CMU 0.7b transcription errors. Each entry replaces the dictionary's pronunciation for a single word. Format matches CMU: space-separated ARPAbet phonemes with stress digits 0/1/2. Add an entry when you spot a CMU mis-transcription verified against Wiktionary US IPA.",
+
+  "typology": "T AY2 P AA1 L AH0 JH IY0"
+}

@@ -288,11 +288,47 @@ function compareCodas(codaA, codaB) {
 
 // Is one phoneme sequence a suffix of the other? (Used for identity detection:
 // `fuse` is a suffix of `confuse`, `place` is a suffix of `replace`.)
+// CMU is inconsistent about the WORD-FINAL "happy vowel" (the unstressed
+// /i/ in -y / -ic / -ish suffixes). The same English sound is spelled
+// IH0 / IH2 / IY0 / IY2 across different entries, e.g.:
+//   agronomy  → ...M IH2     (CMU 0.7b)
+//   autonomy  → ...M IY0
+//   economy   → ...M IY0
+//   library   → ...R IY2
+//   happy     → ...P IY0
+// For rhyme matching, treat all four as the same canonical token at
+// the end of a trailing.
+const Y_SUFFIX_VOWELS = new Set(["IH0", "IH2", "IY0", "IY2"]);
+
+function trailingsMatch(a, b) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i += 1) {
+    let pa = a[i];
+    let pb = b[i];
+    if (i === a.length - 1) {
+      if (Y_SUFFIX_VOWELS.has(pa)) pa = "_Y";
+      if (Y_SUFFIX_VOWELS.has(pb)) pb = "_Y";
+    }
+    if (pa !== pb) return false;
+  }
+  return true;
+}
+
 function isSuffixOfOther(phA, phB) {
   if (phA.length === phB.length) return phA.every((p, i) => p === phB[i]);
   const [shorter, longer] = phA.length < phB.length ? [phA, phB] : [phB, phA];
   const tail = longer.slice(longer.length - shorter.length);
-  return tail.every((p, i) => p === shorter[i]);
+  if (!tail.every((p, i) => p === shorter[i])) return false;
+
+  // Identity only fires when the shared content INCLUDES the stressed
+  // syllable's onset. If the shorter word starts with a vowel
+  // (e.g. "action" inside "fraction", "eyes" inside "lies"), the
+  // shared part has no leading consonant — extending the longer word
+  // with new consonants in front gives a DIFFERENT stressed-syllable
+  // onset, which is real tension/resolution, i.e. a real rhyme.
+  // True identity requires the shorter word to start with a consonant
+  // (fuse/confuse, place/replace).
+  return !isVowel(shorter[0]);
 }
 
 // ── Main classifier ─────────────────────────────────────────────────
@@ -435,8 +471,7 @@ export function classifyRhyme(wordA, wordB) {
   // the trailing unstressed syllable(s) must be identity. If the trailings
   // differ ("falling" vs "policy"), it's not a rhyme — the ear hears the
   // mismatch in the unstressed tail.
-  const trailingSame =
-    a.trailing.join(" ") === b.trailing.join(" ");
+  const trailingSame = trailingsMatch(a.trailing, b.trailing);
   if (!a.masculine && !b.masculine && !trailingSame) {
     return {
       type: "mismatched",

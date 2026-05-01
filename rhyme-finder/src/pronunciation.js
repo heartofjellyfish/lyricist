@@ -34,14 +34,25 @@ export function ensurePronunciation() {
   if (PRONUNCIATION_MAP.size > 0) return Promise.resolve();
   if (!LOAD_PROMISE) {
     LOAD_PROMISE = (async () => {
-      const url = new URL("../../wordlists/cmu-dict.json", import.meta.url);
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to load CMU dict: ${response.status}`);
-      }
-      const obj = await response.json();
+      const dictUrl = new URL("../../wordlists/cmu-dict.json", import.meta.url);
+      const overridesUrl = new URL("../../wordlists/cmu-overrides.json", import.meta.url);
+      const [dictResp, overridesResp] = await Promise.all([
+        fetch(dictUrl),
+        fetch(overridesUrl),
+      ]);
+      if (!dictResp.ok) throw new Error(`Failed to load CMU dict: ${dictResp.status}`);
+      const obj = await dictResp.json();
       for (const word in obj) {
         PRONUNCIATION_MAP.set(word, obj[word].split(" "));
+      }
+      // Apply overrides last so they win against the base CMU entry.
+      // Overrides patch known CMU transcription errors (e.g. typology).
+      if (overridesResp.ok) {
+        const overrides = await overridesResp.json();
+        for (const word in overrides) {
+          if (word.startsWith("_")) continue; // skip _comment etc.
+          PRONUNCIATION_MAP.set(word.toLowerCase(), overrides[word].split(" "));
+        }
       }
     })();
   }

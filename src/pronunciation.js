@@ -25,17 +25,40 @@ async function loadCmuDictionary() {
   return response.json();
 }
 
+async function loadOverrides() {
+  // Hand-curated patches over CMU 0.7b mis-transcriptions (e.g. typology).
+  // Verified against Wiktionary US IPA. Optional file — silently skip on 404.
+  const url = new URL("../wordlists/cmu-overrides.json", import.meta.url);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return {};
+    const obj = await response.json();
+    const cleaned = {};
+    for (const word in obj) {
+      if (word.startsWith("_")) continue;
+      cleaned[word.toLowerCase()] = obj[word];
+    }
+    return cleaned;
+  } catch {
+    return {};
+  }
+}
+
 async function buildPronunciationMap() {
-  const cmuDictionary = await loadCmuDictionary();
+  const [cmuDictionary, overrides] = await Promise.all([
+    loadCmuDictionary(),
+    loadOverrides(),
+  ]);
   const pronunciationMap = new Map();
-  // Static JSON keys are already lowercased + variants stripped at build time,
-  // but we re-normalize defensively in case the file is ever regenerated
-  // with a different convention.
   for (const rawWord in cmuDictionary) {
     const normalizedWord = rawWord.toLowerCase().replace(/\(\d+\)$/u, "");
     if (!pronunciationMap.has(normalizedWord)) {
       pronunciationMap.set(normalizedWord, cmuDictionary[rawWord].split(" "));
     }
+  }
+  // Apply overrides last so they win against the base CMU entry.
+  for (const word in overrides) {
+    pronunciationMap.set(word, overrides[word].split(" "));
   }
   return pronunciationMap;
 }
