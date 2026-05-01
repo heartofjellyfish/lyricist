@@ -398,14 +398,14 @@ body::before {
 
   /* On mobile the viewport is too short to fix the hero in the center
      and pin the footer to the bottom without overlap — fall back to
-     normal document flow: hero at the top, scroll for the epigraph. */
+     normal document flow: hero near the top, then the epigraph below. */
   .rf-app:not(:has(#results:not(:empty))):not(:has(#source-summary:not(:empty))) .rf-hero {
     position: relative;
     top: auto;
     left: auto;
     transform: none;
     width: 100%;
-    margin-top: 18vh;
+    margin-top: 6vh;
   }
   .rf-app:not(:has(#results:not(:empty))):not(:has(#source-summary:not(:empty))) .rf-epigraphs {
     position: relative;
