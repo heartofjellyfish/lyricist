@@ -90,11 +90,10 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  setStatus(`Scanning corpus for "${word}"…`);
+  setStatus(`Searching ${word}…`);
   goBtn.disabled = true;
   goBtn.dataset.busy = "true";
-  goBtn.textContent = "Finding…";
-  results.innerHTML = `<div class="rf-loading"><span class="rf-spinner"></span> Working through ~80,000 words by Pattison's tiers…</div>`;
+  results.innerHTML = `<div class="rf-loading"><span class="rf-spinner"></span> Searching the corpus · Pattison's tiers</div>`;
   sourceSummary.innerHTML = "";
 
   try {
@@ -110,7 +109,6 @@ form.addEventListener("submit", async (e) => {
   } finally {
     goBtn.disabled = false;
     goBtn.dataset.busy = "false";
-    goBtn.textContent = "Find Rhymes";
   }
 });
 
@@ -244,14 +242,12 @@ function renderWord(candidate, source) {
   el.textContent = candidate.word;
 
   if (cliche) {
+    // Cliché flag is rendered as a vermilion superscript "cliché" tag
+    // beside the (struck-through) word. Mismatched words are styled
+    // by the .rf-mismatch class only — no glyph needed.
     const flag = document.createElement("span");
     flag.className = "rf-word-flag";
-    flag.textContent = "🚨";
-    el.appendChild(flag);
-  } else if (mismatch) {
-    const flag = document.createElement("span");
-    flag.className = "rf-word-flag";
-    flag.textContent = "⚠︎";
+    flag.textContent = "cliché";
     el.appendChild(flag);
   }
 

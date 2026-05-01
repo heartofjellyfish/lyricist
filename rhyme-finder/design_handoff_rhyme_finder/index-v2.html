@@ -10,17 +10,21 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Ma+Shan+Zheng&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles-v2.css" />
   </head>
   <body>
-    <div class="rf-marginalia" aria-hidden="true"></div>
+    <!-- (Shanshui painting now lives inside the hero, paired with the title) -->
+    <div class="rf-marginalia" aria-hidden="true">
+      <!-- The vermilion accent is the tiny red sail in the painting itself —
+           no separate seal needed -->
+    </div>
 
     <main class="rf-app">
       <header class="rf-hero">
         <div class="rf-title-row">
-          <!-- Shanshui painting paired with the wordmark — the red sail and the
-               韵 seal each provide one vermilion accent that mirrors across
-               the title. Inline SVG so it scales crisp and inherits ink color. -->
+          <!-- Shanshui painting placed above the title — its water-line settles
+               just above the wordmark, the red sail and 韵 seal each providing
+               a vermilion accent. -->
           <svg class="rf-mg rf-mg-shanshui" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
             <!-- Distant range -->
             <path d="M0 92 C 30 70, 56 82, 88 64 C 118 48, 146 70, 178 56 C 210 42, 240 64, 272 48 C 296 36, 312 50, 320 44"
