@@ -303,12 +303,12 @@ function renderWord(candidate, source) {
   return el;
 }
 
-// ── Lyric Library decoration (Phase 1 pilot) ────────────────────────
+// ── Lyric Library decoration (Phase 1.5) ───────────────────────────
 // If the candidate word has quotes in the lyric corpus, append a small
-// vermilion " · N" badge and attach a hover popover. Quotes are split
-// into 句末 (line-end — rhyme-relevant) and 句中 (line-middle/start)
-// sections; each quote shows the line plus its prev/next neighbours so
-// the reader sees craft context, with the matched word highlighted.
+// vermilion dot+count badge and attach a popover (hover to peek, click
+// to pin). Popover header strip surfaces the totals; each quote shows
+// the matched line + attribution, with prev/next available behind a
+// "+ context" toggle. Mobile gets a bottom sheet (see CSS @media).
 function decorateWithLyrics(el, word) {
   const quotes = getQuotes(word);
   if (!quotes.length) return;
@@ -317,61 +317,121 @@ function decorateWithLyrics(el, word) {
   const endQuotes = quotes.filter((q) => q.wordPos === "end");
   const midQuotes = quotes.filter((q) => q.wordPos !== "end");
 
+  // Step 1: badge = vermilion dot (::before) + total count, no "· N/M".
   const badge = document.createElement("span");
   badge.className = "rf-lyric-badge";
-  // Show end-count first since rhyme-relevance is the primary use; show
-  // middle-count after a slash if non-zero. e.g. "· 3/5" = 3 line-end + 5 mid.
-  badge.textContent =
-    endQuotes.length && midQuotes.length
-      ? `· ${endQuotes.length}/${midQuotes.length}`
-      : `· ${quotes.length}`;
+  const count = document.createElement("span");
+  count.className = "rf-lyric-badge-count";
+  count.textContent = String(quotes.length);
+  badge.appendChild(count);
   el.appendChild(badge);
 
+  // Step 2: popover gets a header strip + a body wrapper for sections.
   const pop = document.createElement("div");
   pop.className = "rf-lyric-pop";
-  // Cap each section at 3 (room is the main constraint; full list is a
-  // Phase-4 modal). End first because it's the rhyme-relevant case.
-  if (endQuotes.length) {
-    pop.appendChild(renderQuoteSection("AT LINE END", endQuotes, 3));
-  }
-  if (midQuotes.length) {
-    pop.appendChild(renderQuoteSection("MID-LINE", midQuotes, 3));
-  }
+  pop.appendChild(renderPopHeader(word, quotes, endQuotes));
+  const body = document.createElement("div");
+  body.className = "rf-lyric-pop-body";
+  // Step 3: section labels in sentence case. End first (rhyme-relevant).
+  if (endQuotes.length) body.appendChild(renderQuoteSection("At line end", endQuotes, 3));
+  if (midQuotes.length) body.appendChild(renderQuoteSection("Mid-line", midQuotes, 3));
+  pop.appendChild(body);
   el.appendChild(pop);
 
-  // Click pins the popover open. Outside-click (handled once globally,
-  // see installPinDismissHandler below) clears all pins.
+  // Step 7: click pins the popover and flags <html> for the bottom-sheet
+  // scroll-lock. Clicks landing inside the popover are ignored (otherwise
+  // selecting text in a quote would toggle pin state).
   el.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const wasPinned = el.classList.contains("rf-pinned");
-    document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
-    if (!wasPinned) el.classList.add("rf-pinned");
-  });
-  installPinDismissHandler();
-}
-
-let pinDismissInstalled = false;
-function installPinDismissHandler() {
-  if (pinDismissInstalled) return;
-  pinDismissInstalled = true;
-  document.addEventListener("click", (e) => {
-    // Clicks landing inside a pinned popover should not dismiss it (so the
-    // user can scroll inside the popover or interact with its contents).
     if (e.target.closest(".rf-lyric-pop")) return;
+    e.stopPropagation();
     document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
+    el.classList.add("rf-pinned");
+    document.documentElement.classList.add("rf-sheet-open");
+  });
+  installGlobalDismissHandlers();
+}
+
+// Outside-click + Escape both unpin everything. Registered once at first
+// decorateWithLyrics call (rather than per-word) — there's no per-word
+// state for them to capture.
+let dismissHandlersInstalled = false;
+function installGlobalDismissHandlers() {
+  if (dismissHandlersInstalled) return;
+  dismissHandlersInstalled = true;
+  const unpinAll = () => {
+    document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
+    document.documentElement.classList.remove("rf-sheet-open");
+  };
+  document.addEventListener("click", (e) => {
+    // Don't dismiss when the click landed inside a popover (toggles, scroll,
+    // text selection in quotes). The close × in the header is inside the
+    // popover too, but it removes the pin itself before bubbling.
+    if (e.target.closest(".rf-lyric-pop")) return;
+    unpinAll();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") unpinAll();
   });
 }
 
-function renderQuoteSection(title, quotes, cap) {
+// Step 2: header strip shows the word large + a mono summary line + a
+// close × that becomes visible when the popover is pinned (always shown
+// in the mobile bottom sheet via CSS).
+function renderPopHeader(word, all, end) {
+  const head = document.createElement("header");
+  head.className = "rf-lyric-pop-head";
+
+  const left = document.createElement("div");
+  const w = document.createElement("div");
+  w.className = "rf-lyric-pop-word";
+  w.textContent = word;
+  const sum = document.createElement("div");
+  sum.className = "rf-lyric-pop-summary";
+  const artists = new Set(all.map((q) => q.credit)).size;
+  sum.innerHTML =
+    `${all.length} quote${all.length === 1 ? "" : "s"} · ${artists} artist${artists === 1 ? "" : "s"}` +
+    (end.length ? ` · <b>${end.length} at line end</b>` : "");
+  left.append(w, sum);
+
+  const close = document.createElement("button");
+  close.className = "rf-lyric-pop-close";
+  close.type = "button";
+  close.setAttribute("aria-label", "Close");
+  close.textContent = "×";
+  close.addEventListener("click", (e) => {
+    e.stopPropagation();
+    head.closest(".rf-word")?.classList.remove("rf-pinned");
+    document.documentElement.classList.remove("rf-sheet-open");
+  });
+
+  head.append(left, close);
+  return head;
+}
+
+function renderQuoteSection(label, quotes, cap) {
   const sec = document.createElement("section");
   sec.className = "rf-lyric-section";
-  const h = document.createElement("div");
-  h.className = "rf-lyric-section-head";
-  h.textContent = `${title} · ${quotes.length}`;
-  sec.appendChild(h);
+
+  const head = document.createElement("div");
+  head.className = "rf-lyric-section-head";
+  const lab = document.createElement("span");
+  lab.className = "rf-lyric-section-label";
+  lab.textContent = label;
+  const meta = document.createElement("span");
+  meta.className = "rf-lyric-section-meta";
+  const artists = new Set(quotes.map((q) => q.credit)).size;
+  meta.textContent =
+    `${quotes.length} quote${quotes.length === 1 ? "" : "s"} · ${artists} artist${artists === 1 ? "" : "s"}`;
+  head.append(lab, meta);
+  sec.appendChild(head);
+
   for (const q of quotes.slice(0, cap)) sec.appendChild(renderQuoteItem(q));
+
+  // Step 8: + N more is now a real <button> for keyboard reachability
+  // (behaviour is unchanged for now — Phase-4 modal will wire it up).
   if (quotes.length > cap) {
-    const more = document.createElement("div");
+    const more = document.createElement("button");
+    more.type = "button";
     more.className = "rf-lyric-more";
     more.textContent = `+ ${quotes.length - cap} more`;
     sec.appendChild(more);
@@ -382,30 +442,59 @@ function renderQuoteSection(title, quotes, cap) {
 function renderQuoteItem(q) {
   const item = document.createElement("div");
   item.className = "rf-lyric-item";
-  if (q.linePrev) {
-    const p = document.createElement("div");
-    p.className = "rf-lyric-ctx";
-    p.textContent = q.linePrev;
-    item.appendChild(p);
-  }
+
+  // Step 4: matched line first — it's the rhyme-relevant signal.
   const line = document.createElement("div");
   line.className = "rf-lyric-line";
-  // Highlight the actual surface token recorded at index time. This matches
-  // exactly the inflection that appears in the line — "coming" stays
-  // "coming", not just the candidate's stem — so every match gets marked.
   line.innerHTML = highlightSurface(q.line, q.surface);
   item.appendChild(line);
-  if (q.lineNext) {
-    const n = document.createElement("div");
-    n.className = "rf-lyric-ctx";
-    n.textContent = q.lineNext;
-    item.appendChild(n);
-  }
+
+  // Attribution row holds the optional + context toggle on the right.
   const attr = document.createElement("div");
   attr.className = "rf-lyric-attr";
-  const yr = q.year ? ` · ${q.year}` : "";
-  attr.textContent = `— ${q.credit}, ${q.songTitle}${yr}`;
+  const who = document.createElement("span");
+  who.className = "who";
+  who.innerHTML =
+    `<b>${escapeHtml(q.credit)}</b> · ${escapeHtml(q.songTitle)}` +
+    (q.year ? ` · ${escapeHtml(String(q.year))}` : "");
+  attr.appendChild(who);
+  const hasCtx = Boolean(q.linePrev || q.lineNext);
+  if (hasCtx) {
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "rf-lyric-ctx-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const opened = item.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", opened ? "true" : "false");
+    });
+    attr.appendChild(toggle);
+  }
   item.appendChild(attr);
+
+  // Collapsible context wrapper — animated via grid-template-rows 0fr→1fr.
+  if (hasCtx) {
+    const wrap = document.createElement("div");
+    wrap.className = "rf-lyric-ctx-wrap";
+    const inner = document.createElement("div");
+    inner.className = "rf-lyric-ctx-inner";
+    if (q.linePrev) {
+      const p = document.createElement("p");
+      p.className = "rf-lyric-ctx";
+      p.textContent = q.linePrev;
+      inner.appendChild(p);
+    }
+    if (q.lineNext) {
+      const n = document.createElement("p");
+      n.className = "rf-lyric-ctx";
+      n.textContent = q.lineNext;
+      inner.appendChild(n);
+    }
+    wrap.appendChild(inner);
+    item.appendChild(wrap);
+  }
+
   return item;
 }
 

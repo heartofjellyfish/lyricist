@@ -863,18 +863,33 @@ input[type="text"]::placeholder {
   .rf-seal { right: -42px; width: 36px; height: 36px; font-size: 18px; }
 }
 
-/* ── Lyric Library badge + popover (Phase 1 pilot) ────────────────── */
+/* ── Lyric Library badge + popover (Phase 1.5) ────────────────────── */
 .rf-word.rf-has-lyrics { position: relative; cursor: pointer; }
 
+/* Badge: a vermilion dot followed by the total count. The dot is the
+   primary signal; the digit is just the magnitude. Replaces the old
+   "· N/M" string — section split now happens inside the popover header. */
 .rf-lyric-badge {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  color: var(--vermilion);
-  margin-left: 4px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  margin-left: 5px;
   vertical-align: 1px;
-  font-weight: 500;
   font-style: normal;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--vermilion);
+}
+.rf-lyric-badge::before {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--vermilion);
+  border-radius: 50%;
+  transform: translateY(-1px);
+  flex: none;
 }
 
 .rf-lyric-pop {
@@ -882,18 +897,21 @@ input[type="text"]::placeholder {
   top: calc(100% + 6px);
   left: 0;
   z-index: 50;
-  min-width: 360px;
-  max-width: 480px;
+  width: 380px;
   max-height: 520px;
   overflow-y: auto;
-  padding: 12px 16px 12px;
-  background: var(--paper, #f7f1e3);
+  /* Padding now lives on .rf-lyric-pop-head + .rf-lyric-pop-body so the
+     header strip can have its own background gradient. */
+  background: var(--paper);
   border: 1px solid var(--ink);
   box-shadow: 4px 4px 0 var(--ink-ghost);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-2px);
-  transition: opacity 120ms ease, transform 120ms ease, visibility 0s linear 120ms;
+  /* Step 9: visibility delay shortened from 120ms → 60ms. Imperceptible
+     to deliberate users, kills the diagonal-cross flash when sweeping
+     between adjacent words. */
+  transition: opacity 120ms ease, transform 120ms ease, visibility 0s linear 60ms;
   pointer-events: none;
   text-align: left;
 }
@@ -907,13 +925,63 @@ input[type="text"]::placeholder {
   transition-delay: 0s;
 }
 
-/* Pinned popovers accept pointer events (so users can scroll the popover
-   or click into it without it closing) and stay above hover popovers. */
+/* Pinned: leaf-stack shadow — paper-deep fill, 1px ink offset, ink-ghost
+   shadow — reads as a stack of two pages, distinct from the hover state's
+   single soft shadow. */
 .rf-word.rf-pinned .rf-lyric-pop {
   pointer-events: auto;
   z-index: 60;
-  box-shadow: 5px 5px 0 var(--ink);
+  box-shadow:
+    4px 4px 0 var(--paper-deep),
+    4px 4px 0 1px var(--ink),
+    8px 8px 0 var(--ink-ghost);
 }
+
+/* Header strip: word + summary line, with close × hidden until pinned. */
+.rf-lyric-pop-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: baseline;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--ink);
+  background: linear-gradient(to bottom, rgba(26, 20, 14, 0.04), transparent 60%);
+}
+.rf-lyric-pop-word {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--ink);
+}
+.rf-lyric-pop-summary {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  margin-top: 6px;
+}
+.rf-lyric-pop-summary b { color: var(--vermilion); font-weight: 500; }
+
+.rf-lyric-pop-close {
+  display: none;
+  width: 22px; height: 22px;
+  align-items: center; justify-content: center;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--ink);
+  padding: 0;
+  cursor: pointer;
+}
+.rf-word.rf-pinned .rf-lyric-pop-close { display: inline-flex; }
+.rf-lyric-pop-close:hover { background: var(--ink); color: var(--paper); }
+
+.rf-lyric-pop-body { padding: 6px 14px 12px; }
 
 .rf-lyric-section + .rf-lyric-section {
   margin-top: 14px;
@@ -921,13 +989,30 @@ input[type="text"]::placeholder {
   border-top: 1px solid var(--ink-ghost);
 }
 
+/* Section head: sentence-case label on the left (vermilion), count + artist
+   meta on the right (mono caps, muted). Vermilion stays on the label only,
+   so the popover edge (ink) doesn't double up with another vermilion bar. */
 .rf-lyric-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 6px 0 8px;
+}
+.rf-lyric-section-label {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--vermilion);
+  letter-spacing: 0.01em;
+}
+.rf-lyric-section-meta {
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--vermilion);
-  margin-bottom: 8px;
+  color: var(--ink-faded);
 }
 
 .rf-lyric-item + .rf-lyric-item {
@@ -936,14 +1021,7 @@ input[type="text"]::placeholder {
   border-top: 1px dashed var(--ink-ghost);
 }
 
-.rf-lyric-ctx {
-  font-family: var(--display);
-  font-style: italic;
-  font-size: 14px;
-  line-height: 1.35;
-  color: var(--ink-faded);
-}
-
+/* Matched line first; context lives in a collapsible grid wrapper. */
 .rf-lyric-line {
   font-family: var(--display);
   font-style: italic;
@@ -959,20 +1037,100 @@ input[type="text"]::placeholder {
   font-weight: 600;
 }
 
+/* Attribution row: who on the left, + context toggle on the right.
+   Sentence case (drop uppercase), bold artist name only. */
 .rf-lyric-attr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: 4px;
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--ink-faded);
 }
+.rf-lyric-attr .who { color: var(--ink-soft); }
+.rf-lyric-attr .who b { color: var(--ink); font-weight: 500; }
 
+.rf-lyric-ctx-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 180ms ease;
+}
+.rf-lyric-item.is-open .rf-lyric-ctx-wrap {
+  grid-template-rows: 1fr;
+  margin-top: 6px;
+}
+.rf-lyric-ctx-inner { overflow: hidden; }
+
+.rf-lyric-ctx {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--ink-faded);
+  margin: 0;
+}
+
+.rf-lyric-ctx-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--ink-faded);
+  cursor: pointer;
+  letter-spacing: inherit;
+}
+.rf-lyric-ctx-toggle::before { content: "+ context"; }
+.rf-lyric-item.is-open .rf-lyric-ctx-toggle::before { content: "− context"; }
+.rf-lyric-item.is-open .rf-lyric-ctx-toggle { color: var(--vermilion); }
+
+/* "+ N more" is now a real button — keyboard-reachable, ready for the
+   Phase-4 modal to wire into. */
 .rf-lyric-more {
+  display: inline-block;
   margin-top: 8px;
+  padding: 0;
+  background: none;
+  border: none;
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--vermilion);
+  cursor: pointer;
+}
+.rf-lyric-more:hover { color: var(--vermilion-deep); }
+
+/* Mobile: touch + narrow viewport → bottom sheet. The hover popover
+   would otherwise overflow the right edge on phones. */
+@media (hover: none) and (max-width: 720px) {
+  .rf-lyric-pop {
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    max-height: 70vh;
+    border: none;
+    border-top: 1px solid var(--ink);
+    box-shadow: 0 -4px 24px rgba(26, 20, 14, 0.2);
+  }
+  .rf-lyric-pop-close { display: inline-flex !important; }
+  .rf-lyric-pop::before {
+    content: "";
+    display: block;
+    width: 36px; height: 4px;
+    border-radius: 2px;
+    background: var(--ink-ghost);
+    margin: 8px auto 0;
+  }
+  html.rf-sheet-open { overflow: hidden; }
+  html.rf-sheet-open body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(26, 20, 14, 0.35);
+  }
 }
