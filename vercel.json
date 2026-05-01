@@ -13,12 +13,16 @@
     {
       "source": "/",
       "has": [{ "type": "host", "value": "rhyme.qi.land" }],
-      "destination": "/rhyme-finder/"
+      "destination": "/rhyme-finder/index.html"
     },
     {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "rhyme.qi.land" }],
       "destination": "/rhyme-finder/:path*"
+    },
+    {
+      "source": "/",
+      "destination": "/landing.html"
     }
   ]
 }
