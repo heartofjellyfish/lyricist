@@ -16,8 +16,10 @@
       "songCount": 10
     }
   ],
-  "builtAt": "2026-05-01T09:34:45.665Z",
+  "builtAt": "2026-05-01T20:57:56.461Z",
   "totalSongs": 30,
   "totalLines": 1126,
-  "totalTokens": 5016
+  "totalTokens": 5016,
+  "totalEndQuotesWithPartner": 580,
+  "totalEndQuotes": 973
 }
