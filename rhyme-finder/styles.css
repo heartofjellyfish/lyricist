@@ -806,22 +806,18 @@ input[type="text"]::placeholder {
   transition: color 120ms ease;
 }
 
+/* Hover: just turn the word vermilion. No underline — underlines read
+   as 'clickable' on the web, and right now there's nothing to click. */
 .rf-word:hover {
   color: var(--vermilion);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  text-decoration-thickness: 1.5px;
-  text-decoration-color: var(--vermilion);
 }
 
+/* Very-common words: bold + ink color, no underline. Weight contrast
+   alone is enough to make them pop against the italic non-bold rest. */
 .rf-word.rf-c-very-common {
   font-weight: 700;
   font-style: normal;
   color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 5px;
-  text-decoration-thickness: 1.5px;
-  text-decoration-color: var(--vermilion);
 }
 .rf-word.rf-c-common { font-weight: 500; font-style: normal; color: var(--ink); }
 .rf-word.rf-c-uncommon { font-weight: 400; font-style: italic; color: var(--ink-faded); }

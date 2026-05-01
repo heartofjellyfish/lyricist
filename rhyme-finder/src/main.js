@@ -81,10 +81,10 @@ function setStatus(msg, isError = false) {
   status.dataset.state = isError ? "error" : "ready";
 }
 
-// ── Submit handler ──────────────────────────────────────────────────
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const word = wordInput.value.trim().toLowerCase();
+// ── Search runner ───────────────────────────────────────────────────
+// Extracted from the submit handler so deep links (?q=love) can run
+// the same flow without going through a synthetic form-submit event.
+async function runSearch(word, { updateUrl = true } = {}) {
   if (!word) {
     setStatus("Type a word to begin.", true);
     return;
@@ -103,6 +103,15 @@ form.addEventListener("submit", async (e) => {
     renderSource(source);
     renderResults(source, buckets);
     setStatus("");
+
+    // Reflect the searched word in the URL so the page is link-shareable.
+    // Use replaceState rather than pushState so multiple consecutive
+    // searches don't pile up in the back-button history.
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("q", word);
+      window.history.replaceState({ word }, "", url);
+    }
   } catch (err) {
     results.innerHTML = "";
     setStatus(err.message || "Lookup failed.", true);
@@ -110,7 +119,28 @@ form.addEventListener("submit", async (e) => {
     goBtn.disabled = false;
     goBtn.dataset.busy = "false";
   }
+}
+
+// ── Submit handler ──────────────────────────────────────────────────
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const word = wordInput.value.trim().toLowerCase();
+  runSearch(word);
 });
+
+// ── Deep-link support ──────────────────────────────────────────────
+// On first load, if ?q=<word> is in the URL, pre-fill the input and
+// auto-run the search. This lets links like rhyme.qi.land/?q=love
+// land the visitor directly on results — useful for sharing.
+(() => {
+  const params = new URLSearchParams(window.location.search);
+  const initial = (params.get("q") || "").trim().toLowerCase();
+  if (initial) {
+    wordInput.value = initial;
+    // Don't push another URL state — we're already there.
+    runSearch(initial, { updateUrl: false });
+  }
+})();
 
 // ── Rendering ───────────────────────────────────────────────────────
 function renderSource(source) {
