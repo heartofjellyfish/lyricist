@@ -13,3 +13,10 @@ README.md
 
 # Build artifacts not loaded at runtime (data/cmu-entries.json is 31 MB).
 data/
+
+# Lyric library: full lyrics (copyright-sensitive) + fetch/build scripts.
+# Only the inverted index in /wordlists/lyric-library/ ships to web.
+lyric-library/raw/
+lyric-library/scripts/
+lyric-library/.env
+lyric-library/PLAN.md

@@ -4,6 +4,7 @@
 // and cliché flags.
 
 import { findRhymes, TYPE_ORDER } from "./rhymeFinder.js";
+import { prefetchForWords, getQuotes } from "./lyricLibrary.js";
 
 // ── DOM ─────────────────────────────────────────────────────────────
 const form = document.getElementById("finder-form");
@@ -100,6 +101,11 @@ async function runSearch(word, { updateUrl = true } = {}) {
     // Yield to the event loop so the loading UI paints before the scan.
     await new Promise((r) => setTimeout(r, 0));
     const { source, buckets } = await findRhymes({ word, perBucket: 60 });
+    // Prefetch lyric-library letter buckets for the source word + every
+    // candidate word so renderWord() can synchronously decorate badges.
+    const allWords = [source.word];
+    for (const t of TYPE_ORDER) for (const c of buckets[t] ?? []) allWords.push(c.word);
+    await prefetchForWords(allWords);
     renderSource(source);
     renderResults(source, buckets);
     setStatus("");
@@ -265,13 +271,20 @@ function renderWord(candidate, source) {
   if (cliche) el.classList.add("rf-cliche");
   if (mismatch) el.classList.add("rf-mismatch");
 
-  el.title = [
-    candidate.masculine ? "masculine" : "feminine",
-    `${candidate.syllables ?? "?"} syll.`,
-    tier === "very-common" ? "very common" : tier === "common" ? "common" : "uncommon",
-    mismatch ? "stress class differs from source" : "",
-    cliche ? "Pattison cliché — overworked pair" : "",
-  ].filter(Boolean).join(" · ");
+  // Skip the native browser tooltip when we have a custom popover for
+  // lyric quotes — otherwise the OS tooltip and our popover both appear,
+  // which reads as cluttered. The phonetic info is non-essential and
+  // surfaced elsewhere already (mismatch underline, cliché strikethrough).
+  const willHaveLyrics = getQuotes(candidate.word).length > 0;
+  if (!willHaveLyrics) {
+    el.title = [
+      candidate.masculine ? "masculine" : "feminine",
+      `${candidate.syllables ?? "?"} syll.`,
+      tier === "very-common" ? "very common" : tier === "common" ? "common" : "uncommon",
+      mismatch ? "stress class differs from source" : "",
+      cliche ? "Pattison cliché — overworked pair" : "",
+    ].filter(Boolean).join(" · ");
+  }
 
   el.textContent = candidate.word;
 
@@ -285,7 +298,124 @@ function renderWord(candidate, source) {
     el.appendChild(flag);
   }
 
+  decorateWithLyrics(el, candidate.word);
+
   return el;
+}
+
+// ── Lyric Library decoration (Phase 1 pilot) ────────────────────────
+// If the candidate word has quotes in the lyric corpus, append a small
+// vermilion " · N" badge and attach a hover popover. Quotes are split
+// into 句末 (line-end — rhyme-relevant) and 句中 (line-middle/start)
+// sections; each quote shows the line plus its prev/next neighbours so
+// the reader sees craft context, with the matched word highlighted.
+function decorateWithLyrics(el, word) {
+  const quotes = getQuotes(word);
+  if (!quotes.length) return;
+  el.classList.add("rf-has-lyrics");
+
+  const endQuotes = quotes.filter((q) => q.wordPos === "end");
+  const midQuotes = quotes.filter((q) => q.wordPos !== "end");
+
+  const badge = document.createElement("span");
+  badge.className = "rf-lyric-badge";
+  // Show end-count first since rhyme-relevance is the primary use; show
+  // middle-count after a slash if non-zero. e.g. "· 3/5" = 3 line-end + 5 mid.
+  badge.textContent =
+    endQuotes.length && midQuotes.length
+      ? `· ${endQuotes.length}/${midQuotes.length}`
+      : `· ${quotes.length}`;
+  el.appendChild(badge);
+
+  const pop = document.createElement("div");
+  pop.className = "rf-lyric-pop";
+  // Cap each section at 3 (room is the main constraint; full list is a
+  // Phase-4 modal). End first because it's the rhyme-relevant case.
+  if (endQuotes.length) {
+    pop.appendChild(renderQuoteSection("AT LINE END", endQuotes, 3));
+  }
+  if (midQuotes.length) {
+    pop.appendChild(renderQuoteSection("MID-LINE", midQuotes, 3));
+  }
+  el.appendChild(pop);
+
+  // Click pins the popover open. Outside-click (handled once globally,
+  // see installPinDismissHandler below) clears all pins.
+  el.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const wasPinned = el.classList.contains("rf-pinned");
+    document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
+    if (!wasPinned) el.classList.add("rf-pinned");
+  });
+  installPinDismissHandler();
+}
+
+let pinDismissInstalled = false;
+function installPinDismissHandler() {
+  if (pinDismissInstalled) return;
+  pinDismissInstalled = true;
+  document.addEventListener("click", (e) => {
+    // Clicks landing inside a pinned popover should not dismiss it (so the
+    // user can scroll inside the popover or interact with its contents).
+    if (e.target.closest(".rf-lyric-pop")) return;
+    document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
+  });
+}
+
+function renderQuoteSection(title, quotes, cap) {
+  const sec = document.createElement("section");
+  sec.className = "rf-lyric-section";
+  const h = document.createElement("div");
+  h.className = "rf-lyric-section-head";
+  h.textContent = `${title} · ${quotes.length}`;
+  sec.appendChild(h);
+  for (const q of quotes.slice(0, cap)) sec.appendChild(renderQuoteItem(q));
+  if (quotes.length > cap) {
+    const more = document.createElement("div");
+    more.className = "rf-lyric-more";
+    more.textContent = `+ ${quotes.length - cap} more`;
+    sec.appendChild(more);
+  }
+  return sec;
+}
+
+function renderQuoteItem(q) {
+  const item = document.createElement("div");
+  item.className = "rf-lyric-item";
+  if (q.linePrev) {
+    const p = document.createElement("div");
+    p.className = "rf-lyric-ctx";
+    p.textContent = q.linePrev;
+    item.appendChild(p);
+  }
+  const line = document.createElement("div");
+  line.className = "rf-lyric-line";
+  // Highlight the actual surface token recorded at index time. This matches
+  // exactly the inflection that appears in the line — "coming" stays
+  // "coming", not just the candidate's stem — so every match gets marked.
+  line.innerHTML = highlightSurface(q.line, q.surface);
+  item.appendChild(line);
+  if (q.lineNext) {
+    const n = document.createElement("div");
+    n.className = "rf-lyric-ctx";
+    n.textContent = q.lineNext;
+    item.appendChild(n);
+  }
+  const attr = document.createElement("div");
+  attr.className = "rf-lyric-attr";
+  const yr = q.year ? ` · ${q.year}` : "";
+  attr.textContent = `— ${q.credit}, ${q.songTitle}${yr}`;
+  item.appendChild(attr);
+  return item;
+}
+
+function highlightSurface(line, surface) {
+  if (!surface) return escapeHtml(line);
+  const safe = surface.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // \b on each side keeps "love" from matching inside "lover", but allow
+  // a trailing apostrophe-suffix ("lovin'") and possessive ("river's").
+  const re = new RegExp(`\\b${safe}(?:['’]\\w{0,3})?\\b`, "gi");
+  return escapeHtml(line).replace(re, '<mark class="rf-lyric-mark">$&</mark>');
 }
 
 // codaRelation comes from classifyRhyme:

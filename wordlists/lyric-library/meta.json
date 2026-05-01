@@ -1,0 +1,23 @@
+{
+  "artists": [
+    {
+      "slug": "adrianne-lenker",
+      "credit": "Adrianne Lenker",
+      "songCount": 10
+    },
+    {
+      "slug": "roger-waters",
+      "credit": "Roger Waters",
+      "songCount": 10
+    },
+    {
+      "slug": "sufjan-stevens",
+      "credit": "Sufjan Stevens",
+      "songCount": 10
+    }
+  ],
+  "builtAt": "2026-05-01T09:34:45.665Z",
+  "totalSongs": 30,
+  "totalLines": 1126,
+  "totalTokens": 5016
+}

@@ -3,3 +3,5 @@ src/localConfig.js
 .DS_Store
 books/
 .claude/
+lyric-library/.env
+lyric-library/raw/
