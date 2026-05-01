@@ -269,12 +269,15 @@ for (const f of files) {
   console.log(`  ${artistSlug}: ${songCount} songs, ${lineCount} lines`);
 }
 
-// De-dup identical quotes (chorus repeats give the same line twice).
+// De-dup identical quotes. Choruses repeat the same lyric verbatim across
+// the song; we key on (artist, song, line text) so those collapse to one.
+// Earlier versions keyed on lineIdx, which let chorus repeats slip through
+// because each repetition has a different position in the song.
 for (const [k, arr] of index) {
   const seen = new Set();
   const dedup = [];
   for (const q of arr) {
-    const sig = `${q.artist}|${q.song}|${q.lineIdx}`;
+    const sig = `${q.artist}|${q.song}|${q.line}`;
     if (seen.has(sig)) continue;
     seen.add(sig);
     dedup.push(q);
