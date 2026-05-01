@@ -120,41 +120,45 @@ export function phonemesFor(word) {
 //                         the stressed coda (vowel + any consonants)
 //   masculine          — boolean: does the word END on a stressed syllable?
 
-// Vowels that CAN carry real secondary stress in compound words.
-// Excluded: IH, AH, ER — these are "reduced" vowels that CMU sometimes
-// attaches a "2" to as a suffix artifact (-y, -ish, -ic, -id), even
-// though the syllable is unstressed in normal English. Examples:
-//   "jellyfish"  → JH EH1 L IY0 F  IH2 SH    (-fish suffix, not stressed)
-//   "agronomy"   → AH0 G R AA1 N AH0 M IH2   (-y suffix, not stressed)
-//   "typology"   → T  AY2 P OW1 L AH0 G IH2  (same)
-// Real compound stresses use full vowels:
-//   "blackboard" → B  L AE1 K B AO2 R D    (AO2 = real stress on -board)
-//   "telephone"  → T  EH1 L AH0 F OW2 N    (OW2 = real stress on -phone)
-//   "snowflake"  → S  N OW1 F L EY2 K      (EY2 = real stress on -flake)
-const FULL_STRESS_VOWELS = new Set([
-  "AA", "AE", "AO", "AW", "AY", "EH", "EY", "IY", "OW", "OY", "UH", "UW",
-]);
+// CMU sometimes attaches secondary stress (digit 2) to an unstressed
+// suffix syllable — most often "-y" / "-ic" / "-ish" / "-ed". The
+// artifact is detectable by these properties:
+//   1. The 2-stress sits on a "weak" vowel (IH, IY, AH, ER) — the
+//      family of vowels English uses for reduced suffix syllables.
+//   2. The 2-stressed vowel is the WORD-FINAL phoneme (i.e., the
+//      suffix has no coda consonant inside the word).
+//   3. The word has a primary stress somewhere else (so we have an
+//      alternative anchor).
+// Compound words like "candlestick" → ...IH2 K, "blackboard" → ...AO2 R D,
+// "lullaby" → ...AY2 are NOT artifacts: their 2-stress either has a
+// coda after it or sits on a full vowel — both patterns survive this
+// filter and remain valid rhyme anchors.
+const SUFFIX_ARTIFACT_VOWELS = new Set(["IH", "IY", "AH", "ER"]);
 
-function isRealStress(phoneme) {
-  const stress = vowelStress(phoneme);
-  if (stress === "1") return true;
-  if (stress === "2") return FULL_STRESS_VOWELS.has(vowelBase(phoneme));
+function isSuffixArtifact(phoneme, index, phonemes) {
+  if (vowelStress(phoneme) !== "2") return false;
+  if (index !== phonemes.length - 1) return false; // must be the last phoneme
+  if (!SUFFIX_ARTIFACT_VOWELS.has(vowelBase(phoneme))) return false;
+  // Only treat as artifact if a primary 1-stress exists earlier.
+  for (let i = 0; i < phonemes.length; i += 1) {
+    if (i !== index && vowelStress(phonemes[i]) === "1") return true;
+  }
   return false;
 }
 
 function lastStressedVowelIndex(phonemes) {
-  // Prefer the LAST "real" stress — primary, or secondary on a full vowel.
-  // This anchors compound words on their second element (blackboard →
-  // -board, telephone → -phone) while skipping CMU's artifact 2-stresses
-  // on weak-vowel suffixes (jellyfish → -fish ignored, anchor stays on EH1).
+  // Anchor on the LAST stressed vowel — primary OR secondary — but skip
+  // CMU's "fake" secondary stresses on word-final unstressed suffixes.
   for (let i = phonemes.length - 1; i >= 0; i -= 1) {
-    if (isRealStress(phonemes[i])) return i;
+    const ph = phonemes[i];
+    if (vowelStress(ph) === "1") return i;
+    if (vowelStress(ph) === "2" && !isSuffixArtifact(ph, i, phonemes)) return i;
   }
-  // Fallback 1: any stressed vowel including weak-vowel secondaries.
+  // Fallback 1: artifact-only words with no primary (rare). Use the artifact.
   for (let i = phonemes.length - 1; i >= 0; i -= 1) {
     if (isStressed(phonemes[i])) return i;
   }
-  // Fallback 2: any vowel (function words like "the" with stress 0).
+  // Fallback 2: any vowel (function words like "the" all-zero-stress).
   for (let i = phonemes.length - 1; i >= 0; i -= 1) {
     if (isVowel(phonemes[i])) return i;
   }
