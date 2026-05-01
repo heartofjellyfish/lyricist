@@ -120,22 +120,41 @@ export function phonemesFor(word) {
 //                         the stressed coda (vowel + any consonants)
 //   masculine          — boolean: does the word END on a stressed syllable?
 
+// Vowels that CAN carry real secondary stress in compound words.
+// Excluded: IH, AH, ER — these are "reduced" vowels that CMU sometimes
+// attaches a "2" to as a suffix artifact (-y, -ish, -ic, -id), even
+// though the syllable is unstressed in normal English. Examples:
+//   "jellyfish"  → JH EH1 L IY0 F  IH2 SH    (-fish suffix, not stressed)
+//   "agronomy"   → AH0 G R AA1 N AH0 M IH2   (-y suffix, not stressed)
+//   "typology"   → T  AY2 P OW1 L AH0 G IH2  (same)
+// Real compound stresses use full vowels:
+//   "blackboard" → B  L AE1 K B AO2 R D    (AO2 = real stress on -board)
+//   "telephone"  → T  EH1 L AH0 F OW2 N    (OW2 = real stress on -phone)
+//   "snowflake"  → S  N OW1 F L EY2 K      (EY2 = real stress on -flake)
+const FULL_STRESS_VOWELS = new Set([
+  "AA", "AE", "AO", "AW", "AY", "EH", "EY", "IY", "OW", "OY", "UH", "UW",
+]);
+
+function isRealStress(phoneme) {
+  const stress = vowelStress(phoneme);
+  if (stress === "1") return true;
+  if (stress === "2") return FULL_STRESS_VOWELS.has(vowelBase(phoneme));
+  return false;
+}
+
 function lastStressedVowelIndex(phonemes) {
-  // Prefer the LAST PRIMARY stress (digit 1). CMU sometimes attaches a
-  // secondary stress (digit 2) to a trailing -y / -ish / etc., e.g.
-  //   "jellyfish" → JH EH1 L IY0 F IH2 SH
-  //   "agronomy"  → AH0 G R AA1 N AH0 M IH2
-  // Treating IH2 as a rhyme anchor wrongly pairs jellyfish/agronomy as
-  // a subtractive rhyme on "ish/(empty)". Pattison's rhyme falls on the
-  // *primary*-stressed syllable, so anchor there.
+  // Prefer the LAST "real" stress — primary, or secondary on a full vowel.
+  // This anchors compound words on their second element (blackboard →
+  // -board, telephone → -phone) while skipping CMU's artifact 2-stresses
+  // on weak-vowel suffixes (jellyfish → -fish ignored, anchor stays on EH1).
   for (let i = phonemes.length - 1; i >= 0; i -= 1) {
-    if (vowelStress(phonemes[i]) === "1") return i;
+    if (isRealStress(phonemes[i])) return i;
   }
-  // Fall back to last secondary stress if no primary exists at all.
+  // Fallback 1: any stressed vowel including weak-vowel secondaries.
   for (let i = phonemes.length - 1; i >= 0; i -= 1) {
-    if (vowelStress(phonemes[i]) === "2") return i;
+    if (isStressed(phonemes[i])) return i;
   }
-  // Final fallback: any vowel (function words like "the" with stress 0).
+  // Fallback 2: any vowel (function words like "the" with stress 0).
   for (let i = phonemes.length - 1; i >= 0; i -= 1) {
     if (isVowel(phonemes[i])) return i;
   }
