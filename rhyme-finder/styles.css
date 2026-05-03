@@ -953,6 +953,13 @@ input[type="text"]::placeholder {
   font-weight: 500;
   font-style: normal;
 }
+/* Inflected-only candidates: same shape, muted to ink-faded. The "~"
+   prefix in the text already signals "approximate"; the colour drop
+   reinforces without introducing a new glyph. */
+.rf-lyric-badge.rf-lyric-badge--inflected {
+  color: var(--ink-faded);
+  font-weight: 400;
+}
 
 .rf-lyric-pop {
   position: absolute;
@@ -1138,11 +1145,32 @@ input[type="text"]::placeholder {
   line-height: 1.4;
   color: var(--ink-soft);
   margin: 0;
-  padding: 4px 0;
+  padding: 0;
+  list-style: none;
 }
 .rf-lyric-inflected-item + .rf-lyric-inflected-item {
   border-top: 1px dashed var(--ink-ghost);
 }
+/* Each row is the click target — same hover band as the tier-1 quote. */
+.rf-lyric-inflected-row {
+  padding: 4px 8px 6px;
+  margin: 0 -8px;
+  border-left: 2px solid transparent;
+  transition: background 100ms ease, border-color 100ms ease;
+}
+.rf-lyric-inflected-row:hover {
+  background: rgba(177, 59, 44, 0.10);
+  border-left-color: var(--vermilion);
+}
+.rf-lyric-inflected-line {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+.rf-lyric-inflected-item .rf-lyric-stanza { margin-top: 6px; display: none; }
+.rf-lyric-inflected-item.is-open .rf-lyric-stanza { display: block; }
 .rf-lyric-inflected-attr {
   font-family: var(--mono);
   font-size: 9px;

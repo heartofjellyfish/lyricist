@@ -327,11 +327,14 @@ function decorateWithLyrics(el, word) {
 
   el.classList.add("rf-has-lyrics");
 
-  // Badge: simple "· N" — the count of tier-1 (or tier-2 fallback)
-  // matches. Plain text matches the 1.7 spec.
+  // Badge: "· N" when at least one tier-1 (exact) match exists,
+  // "~ N" (ink-faded) when only tier-2 (inflected) matches exist.
+  // The tilde is a visual hint for "approximate / fuzzy" — songwriters
+  // recognise it from chord notation; the colour drop reinforces.
   const badge = document.createElement("span");
-  badge.className = "rf-lyric-badge";
-  badge.textContent = `· ${tier1.length || tier2.length}`;
+  const exactOnly = tier1.length > 0;
+  badge.className = exactOnly ? "rf-lyric-badge" : "rf-lyric-badge rf-lyric-badge--inflected";
+  badge.textContent = exactOnly ? `· ${tier1.length}` : `~ ${tier2.length}`;
   el.appendChild(badge);
 
   const pop = document.createElement("div");
@@ -518,26 +521,43 @@ function renderInflectedFooter(tier2) {
   let rendered = false;
   // Click anywhere on the footer header (label or toggle button) expands.
   // Clicks inside the already-rendered list don't collapse — the user
-  // may be selecting / reading.
+  // may be selecting / reading or expanding stanza on a list item.
   wrap.addEventListener("click", (e) => {
     if (e.target.closest(".rf-lyric-inflected-list")) return;
     e.stopPropagation();
     if (!rendered) {
       rendered = true;
-      for (const q of tier2) {
-        const li = document.createElement("li");
-        li.className = "rf-lyric-inflected-item";
-        li.innerHTML =
-          `${highlightSurface(q.line, q.surface)}` +
-          `<span class="rf-lyric-inflected-attr">— ${escapeHtml(q.credit || q.artist)} · ` +
-          `${escapeHtml(q.songTitle || q.song)}</span>`;
-        list.appendChild(li);
-      }
+      for (const q of tier2) list.appendChild(buildInflectedItem(q));
     }
     const open = wrap.classList.toggle("is-expanded");
     toggle.textContent = open ? "Hide ↑" : "Show ↓";
   });
   return wrap;
+}
+
+// One inflected list row — same click-to-expand stanza pattern as the
+// tier-1 quote items, just with denser typography (it's tier 2, after all).
+function buildInflectedItem(q) {
+  const li = document.createElement("li");
+  li.className = "rf-lyric-inflected-item";
+
+  const row = document.createElement("div");
+  row.className = "rf-lyric-inflected-row";
+  row.innerHTML =
+    `<span class="rf-lyric-inflected-line">${highlightSurface(q.line, q.surface)}</span>` +
+    `<span class="rf-lyric-inflected-attr">— ${escapeHtml(q.credit || q.artist)} · ` +
+    `${escapeHtml(q.songTitle || q.song)}</span>`;
+  li.appendChild(row);
+
+  if (Array.isArray(q.stanza) && q.stanza.length) {
+    row.style.cursor = "pointer";
+    row.addEventListener("click", (e) => {
+      e.stopPropagation();
+      li.classList.toggle("is-open");
+    });
+    li.appendChild(renderStanza(q));
+  }
+  return li;
 }
 
 // "Show N more" inside the popover — one-shot inline expand. After
