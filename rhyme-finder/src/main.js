@@ -349,11 +349,15 @@ function decorateWithLyrics(el, word) {
     pop.appendChild(renderShowMore(tier1.slice(POP_CAP), word, pop));
   }
   if (tier2.length) {
-    const footer = renderInflectedFooter(tier2);
-    // No tier-1 between header and footer → drop the redundant separator
-    // and the surrounding margin so the popover doesn't show a dead band.
-    if (!tier1.length) footer.classList.add("rf-lyric-inflected--first");
-    pop.appendChild(footer);
+    if (!tier1.length) {
+      // No exact matches → tier-2 is all the user has. Render the first
+      // POP_CAP items inline (no toggle), with "Show N more" for the
+      // rest. Same default density as tier-1.
+      pop.appendChild(renderInlineInflectedList(tier2, pop));
+    } else {
+      // Exact matches lead; tier-2 lives in the collapsible footer.
+      pop.appendChild(renderInflectedFooter(tier2));
+    }
   }
 
   el.appendChild(pop);
@@ -592,6 +596,36 @@ function renderShowMore(rest, word, popEl) {
     btn.remove();
   });
   return btn;
+}
+
+// Inline-expanded inflected list — used when there are no tier-1
+// matches, so tier-2 is all we can show. Render POP_CAP items
+// directly (same default density as tier-1) and a Show-more button
+// for the rest.
+function renderInlineInflectedList(tier2, popEl) {
+  const wrap = document.createElement("div");
+  wrap.className = "rf-lyric-inflected-inline";
+
+  const list = document.createElement("ul");
+  list.className = "rf-lyric-inflected-list rf-lyric-inflected-list--inline";
+  for (const q of tier2.slice(0, POP_CAP)) list.appendChild(buildInflectedItem(q));
+  wrap.appendChild(list);
+
+  if (tier2.length > POP_CAP) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "rf-lyric-more";
+    btn.textContent = `Show ${tier2.length - POP_CAP} more`;
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const frag = document.createDocumentFragment();
+      for (const q of tier2.slice(POP_CAP)) frag.appendChild(buildInflectedItem(q));
+      list.appendChild(frag);
+      btn.remove();
+    });
+    wrap.appendChild(btn);
+  }
+  return wrap;
 }
 
 // ── Source-word panel ──────────────────────────────────────────────

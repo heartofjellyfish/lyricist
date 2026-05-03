@@ -1193,6 +1193,9 @@ input[type="text"]::placeholder {
   width: 100%;
 }
 .rf-lyric-inflected.is-expanded .rf-lyric-inflected-list { display: block; }
+/* Inline variant: shown directly in the popover when there's no tier-1
+   collapsible footer to gate it. Always visible. */
+.rf-lyric-inflected-list.rf-lyric-inflected-list--inline { display: block; }
 .rf-lyric-inflected-item {
   font-family: var(--display);
   font-style: italic;
