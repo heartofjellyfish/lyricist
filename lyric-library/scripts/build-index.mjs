@@ -15,7 +15,6 @@ const RAW_DIR = resolve(ROOT, "raw");
 const OUT_DIR = resolve(ROOT, "..", "wordlists", "lyric-library");
 const CMU_PATH = resolve(ROOT, "..", "wordlists", "cmu-dict.json");
 
-const STOPWORDS = new Set(JSON.parse(readFileSync(resolve(__dirname, "stopwords.json"), "utf8")));
 const CMU = JSON.parse(readFileSync(CMU_PATH, "utf8"));
 
 const MAX_LINE_LEN = 80;
@@ -225,10 +224,12 @@ for (const f of files) {
         // quotes from this line. Mid-line quotes get null.
         const partner = findRhymePartner(stanza, lineInStanzaIdx);
 
+        // No stopword filter — for a rhyme finder, even "the" / "of" / "is"
+        // are valid end-rhyme words ("a foggy day in London town" / "the").
+        // Songwriters lean on prepositions and articles for slant rhymes.
         const seenInLine = new Set();
         for (let i = 0; i < tokens.length; i++) {
           const t = tokens[i];
-          if (STOPWORDS.has(t)) continue;
           const key = lemma(t);
           if (seenInLine.has(key)) continue;
           seenInLine.add(key);
