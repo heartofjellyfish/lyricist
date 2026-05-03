@@ -1013,6 +1013,23 @@ input[type="text"]::placeholder {
   box-shadow: 5px 5px 0 var(--ink);
 }
 
+/* Hover-bridge: the visual gap between the word and the popover (top:
+   calc(100% + 8px)) was a dead zone — moving the mouse from word into
+   popover crossed it and the popover dismissed. The ::before pseudo
+   extends the popover's hoverable area upward by 10px to cover the
+   gap. Invisible. Desktop only — mobile reuses ::before for the
+   bottom-sheet drag-handle pill. */
+@media (hover: hover) {
+  .rf-lyric-pop::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+}
+
 .rf-lyric-head {
   display: flex;
   align-items: baseline;
@@ -1200,8 +1217,10 @@ input[type="text"]::placeholder {
 }
 
 .rf-lyric-more {
+  display: block;
+  width: 100%;
   margin-top: 10px;
-  padding: 0;
+  padding: 8px 10px;
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.14em;
@@ -1210,8 +1229,15 @@ input[type="text"]::placeholder {
   background: transparent;
   border: none;
   cursor: pointer;
+  text-align: left;
+  border-left: 2px solid transparent;
+  transition: background 100ms ease, color 100ms ease, border-color 100ms ease;
 }
-.rf-lyric-more:hover { color: var(--vermilion-deep); }
+.rf-lyric-more:hover {
+  background: rgba(177, 59, 44, 0.10);
+  border-left-color: var(--vermilion);
+  color: var(--vermilion-deep);
+}
 
 /* Mobile bottom sheet — preserved from 1.5/1.6. Pinned popover docks
    to the viewport bottom; html.rf-sheet-open scroll-locks the page
