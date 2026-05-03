@@ -645,6 +645,14 @@ function renderSourcePanel(word) {
     panel.style.display = "none";
     return;
   }
+  // Sort exact surface matches first, inflected after. Preserve original
+  // order within each group (already ranked by song popularity at build).
+  const wordLower = word.toLowerCase();
+  ends.sort((a, b) => {
+    const aExact = (a.surface || "").toLowerCase() === wordLower ? 0 : 1;
+    const bExact = (b.surface || "").toLowerCase() === wordLower ? 0 : 1;
+    return aExact - bExact;
+  });
   panel.style.display = "";
   const artists = new Set(ends.map((q) => q.credit || q.artist)).size;
 
