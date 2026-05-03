@@ -29,23 +29,18 @@ Two modes:
 
 ```jsonc
 // Mode 1: fetch top-N by Genius popularity. Use when popularity ≈ craft.
-{"mode":"top","artist":"Adrianne Lenker","n":15,"tier":"mirror","tag":"image"}
+{"mode":"top","artist":"Some Artist","n":15,"tier":"mirror"}
 
 // Mode 2: fetch specific titles. Use when popularity misleads (Dylan's
 // "Lay Lady Lay" beats "Visions of Johanna" on Genius).
-{"mode":"picks","artist":"Bob Dylan","titles":["Visions of Johanna","Tangled Up in Blue",...],"tier":"mirror","tag":"narrative"}
+{"mode":"picks","artist":"Bob Dylan","titles":["Visions of Johanna","Tangled Up in Blue",...],"tier":"mirror"}
 ```
-
-Tags are advisory, not load-bearing — they help me reason about coverage:
-`narrative` (Stan-shape), `image` (Lenker-shape), `prosody` (form/content
-match), `hymn` (Hallelujah-shape sweep), `standard` (pre-1960 Tin Pan
-Alley), `wry` (Newman/Larkin-shape), `confess` (Plath-shape).
 
 ## poems.jsonl schema
 
 ```jsonc
-{"poet":"Wisława Szymborska","title":"The End and the Beginning","source":"copyrighted","tier":"mirror","tag":"wry"}
-{"poet":"Emily Dickinson","title":"Because I could not stop for Death","source":"gutenberg","tier":"canon","tag":"image"}
+{"poet":"Wisława Szymborska","title":"The End and the Beginning","source":"copyrighted","tier":"mirror"}
+{"poet":"Emily Dickinson","title":"Because I could not stop for Death","source":"gutenberg","tier":"canon"}
 ```
 
 `source` is `gutenberg` (public domain, fetchable) or `copyrighted`

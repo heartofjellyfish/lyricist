@@ -1,382 +1,382 @@
-{"poet":"Walt Whitman","title":"Song of Myself","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Walt Whitman","title":"Crossing Brooklyn Ferry","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Walt Whitman","title":"When Lilacs Last in the Dooryard Bloom'd","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Walt Whitman","title":"O Captain! My Captain!","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"Walt Whitman","title":"A Noiseless Patient Spider","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Walt Whitman","title":"Out of the Cradle Endlessly Rocking","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"Because I could not stop for Death","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"A Bird came down the Walk","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"Wild nights - Wild nights!","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"Hope is the thing with feathers","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"There's a certain Slant of light","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"I felt a Funeral, in my Brain","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"I heard a Fly buzz - when I died","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"Tell all the truth but tell it slant","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"My Life had stood - a Loaded Gun","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"After great pain, a formal feeling comes","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Emily Dickinson","title":"Success is counted sweetest","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Emily Dickinson","title":"I'm Nobody! Who are you?","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Gerard Manley Hopkins","title":"Pied Beauty","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Gerard Manley Hopkins","title":"God's Grandeur","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Gerard Manley Hopkins","title":"Spring and Fall","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Gerard Manley Hopkins","title":"The Windhover","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Gerard Manley Hopkins","title":"As kingfishers catch fire","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Gerard Manley Hopkins","title":"Carrion Comfort","source":"gutenberg","tier":"canon","tag":"confess"}
-{"poet":"Gerard Manley Hopkins","title":"No worst, there is none","source":"gutenberg","tier":"canon","tag":"confess"}
-{"poet":"Gerard Manley Hopkins","title":"Felix Randal","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"W.B. Yeats","title":"The Second Coming","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"W.B. Yeats","title":"Sailing to Byzantium","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"W.B. Yeats","title":"Easter, 1916","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"W.B. Yeats","title":"Among School Children","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"W.B. Yeats","title":"The Wild Swans at Coole","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"W.B. Yeats","title":"Leda and the Swan","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"W.B. Yeats","title":"When You Are Old","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"W.B. Yeats","title":"The Lake Isle of Innisfree","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"W.B. Yeats","title":"A Prayer for My Daughter","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"W.B. Yeats","title":"The Stolen Child","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"T.S. Eliot","title":"The Love Song of J. Alfred Prufrock","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"T.S. Eliot","title":"The Hollow Men","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"T.S. Eliot","title":"The Waste Land","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"T.S. Eliot","title":"Four Quartets","source":"copyrighted","tier":"canon","tag":"prosody"}
-{"poet":"T.S. Eliot","title":"Journey of the Magi","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Robert Frost","title":"Stopping by Woods on a Snowy Evening","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Robert Frost","title":"The Road Not Taken","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Robert Frost","title":"Mending Wall","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Robert Frost","title":"After Apple-Picking","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Robert Frost","title":"Birches","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Robert Frost","title":"Acquainted with the Night","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Robert Frost","title":"Home Burial","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Robert Frost","title":"Out, Out—","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Robert Frost","title":"Nothing Gold Can Stay","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Robert Frost","title":"Design","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Robert Frost","title":"Fire and Ice","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Robert Frost","title":"The Death of the Hired Man","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Robert Frost","title":"Provide, Provide","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Wallace Stevens","title":"The Snow Man","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Wallace Stevens","title":"Anecdote of the Jar","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Wallace Stevens","title":"Thirteen Ways of Looking at a Blackbird","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Wallace Stevens","title":"Sunday Morning","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Wallace Stevens","title":"The Emperor of Ice-Cream","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Wallace Stevens","title":"The Idea of Order at Key West","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"William Carlos Williams","title":"The Red Wheelbarrow","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"William Carlos Williams","title":"This Is Just To Say","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"William Carlos Williams","title":"Spring and All","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Carlos Williams","title":"To a Poor Old Woman","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Ezra Pound","title":"In a Station of the Metro","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Ezra Pound","title":"The River-Merchant's Wife: A Letter","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Carl Sandburg","title":"Chicago","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Carl Sandburg","title":"Fog","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Carl Sandburg","title":"Grass","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Lewis Carroll","title":"Jabberwocky","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Edward Lear","title":"The Owl and the Pussycat","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Robert Browning","title":"My Last Duchess","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Robert Browning","title":"Porphyria's Lover","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Robert Browning","title":"Childe Roland to the Dark Tower Came","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Robert Browning","title":"Soliloquy of the Spanish Cloister","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Alfred Tennyson","title":"Ulysses","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"Alfred Tennyson","title":"The Charge of the Light Brigade","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Alfred Tennyson","title":"Crossing the Bar","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"Alfred Tennyson","title":"Tears, Idle Tears","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Alfred Tennyson","title":"The Lady of Shalott","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Alfred Tennyson","title":"Break, Break, Break","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Thomas Hardy","title":"The Darkling Thrush","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Thomas Hardy","title":"The Convergence of the Twain","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Thomas Hardy","title":"Channel Firing","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Thomas Hardy","title":"The Voice","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Thomas Hardy","title":"Neutral Tones","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Thomas Hardy","title":"During Wind and Rain","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"A.E. Housman","title":"When I was one-and-twenty","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"A.E. Housman","title":"To an Athlete Dying Young","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"A.E. Housman","title":"Loveliest of trees, the cherry now","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"A.E. Housman","title":"Terence, this is stupid stuff","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Samuel Taylor Coleridge","title":"Kubla Khan","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Samuel Taylor Coleridge","title":"The Rime of the Ancient Mariner","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Samuel Taylor Coleridge","title":"Frost at Midnight","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"John Keats","title":"Ode to a Nightingale","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"John Keats","title":"Ode on a Grecian Urn","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"John Keats","title":"To Autumn","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"John Keats","title":"La Belle Dame sans Merci","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"John Keats","title":"When I Have Fears That I May Cease to Be","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Wordsworth","title":"Lines Composed a Few Miles above Tintern Abbey","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Wordsworth","title":"I Wandered Lonely as a Cloud","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Wordsworth","title":"The Solitary Reaper","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Wordsworth","title":"Ode: Intimations of Immortality","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"William Wordsworth","title":"The world is too much with us","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Wordsworth","title":"Composed upon Westminster Bridge","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Percy Bysshe Shelley","title":"Ozymandias","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Percy Bysshe Shelley","title":"Ode to the West Wind","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Percy Bysshe Shelley","title":"To a Skylark","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Blake","title":"The Tyger","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Blake","title":"The Lamb","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"William Blake","title":"London","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Blake","title":"Auguries of Innocence","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Blake","title":"A Poison Tree","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Blake","title":"The Sick Rose","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Blake","title":"The Garden of Love","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"John Donne","title":"Death Be Not Proud","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"John Donne","title":"A Valediction: Forbidding Mourning","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"John Donne","title":"The Sun Rising","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"John Donne","title":"The Flea","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Andrew Marvell","title":"To His Coy Mistress","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"Andrew Marvell","title":"The Garden","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"George Herbert","title":"The Collar","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"George Herbert","title":"Love (III)","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"George Herbert","title":"Easter Wings","source":"gutenberg","tier":"canon","tag":"prosody"}
-{"poet":"George Herbert","title":"Prayer (I)","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"John Milton","title":"When I Consider How My Light Is Spent","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"William Shakespeare","title":"Sonnet 18","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Shakespeare","title":"Sonnet 29","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Shakespeare","title":"Sonnet 30","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Shakespeare","title":"Sonnet 73","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"William Shakespeare","title":"Sonnet 116","source":"gutenberg","tier":"canon","tag":"hymn"}
-{"poet":"William Shakespeare","title":"Sonnet 130","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Edgar Allan Poe","title":"The Raven","source":"gutenberg","tier":"mirror","tag":"prosody"}
-{"poet":"Edgar Allan Poe","title":"Annabel Lee","source":"gutenberg","tier":"mirror","tag":"prosody"}
-{"poet":"Edgar Allan Poe","title":"A Dream Within a Dream","source":"gutenberg","tier":"mirror","tag":"image"}
-{"poet":"Edgar Allan Poe","title":"Alone","source":"gutenberg","tier":"mirror","tag":"confess"}
-{"poet":"Edgar Allan Poe","title":"To Helen","source":"gutenberg","tier":"mirror","tag":"image"}
-{"poet":"Wisława Szymborska","title":"The End and the Beginning","source":"copyrighted","tier":"mirror","tag":"wry"}
-{"poet":"Wisława Szymborska","title":"A Cat in an Empty Apartment","source":"copyrighted","tier":"mirror","tag":"image"}
-{"poet":"Wisława Szymborska","title":"Possibilities","source":"copyrighted","tier":"mirror","tag":"wry"}
-{"poet":"Wisława Szymborska","title":"Some People Like Poetry","source":"copyrighted","tier":"mirror","tag":"wry"}
-{"poet":"Wisława Szymborska","title":"Could Have","source":"copyrighted","tier":"mirror","tag":"narrative"}
-{"poet":"Wisława Szymborska","title":"Hatred","source":"copyrighted","tier":"mirror","tag":"image"}
-{"poet":"Wisława Szymborska","title":"View with a Grain of Sand","source":"copyrighted","tier":"mirror","tag":"image"}
-{"poet":"Wisława Szymborska","title":"On Death, without Exaggeration","source":"copyrighted","tier":"mirror","tag":"wry"}
-{"poet":"Wisława Szymborska","title":"Astonishment","source":"copyrighted","tier":"mirror","tag":"wry"}
-{"poet":"Wisława Szymborska","title":"Vermeer","source":"copyrighted","tier":"mirror","tag":"image"}
-{"poet":"Zbigniew Herbert","title":"Mr Cogito Meditates on Suffering","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Zbigniew Herbert","title":"Why the Classics","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Zbigniew Herbert","title":"Apollo and Marsyas","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Zbigniew Herbert","title":"Five Men","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Zbigniew Herbert","title":"Pebble","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Zbigniew Herbert","title":"Elegy of Fortinbras","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Czesław Miłosz","title":"A Song on the End of the World","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Czesław Miłosz","title":"Encounter","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Czesław Miłosz","title":"Gift","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Czesław Miłosz","title":"Ars Poetica?","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Czesław Miłosz","title":"Campo dei Fiori","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Czesław Miłosz","title":"And Yet the Books","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Czesław Miłosz","title":"Late Ripeness","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Adam Zagajewski","title":"Try to Praise the Mutilated World","source":"copyrighted","tier":"stretch","tag":"hymn"}
-{"poet":"Adam Zagajewski","title":"Self-Portrait","source":"copyrighted","tier":"stretch","tag":"confess"}
-{"poet":"Anna Akhmatova","title":"Requiem","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Anna Akhmatova","title":"Lot's Wife","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Osip Mandelstam","title":"The Stalin Epigram","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Marina Tsvetaeva","title":"An Attempt at Jealousy","source":"copyrighted","tier":"stretch","tag":"confess"}
-{"poet":"Joseph Brodsky","title":"A Song","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Joseph Brodsky","title":"May 24, 1980","source":"copyrighted","tier":"stretch","tag":"confess"}
-{"poet":"Philip Larkin","title":"Aubade","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Philip Larkin","title":"This Be The Verse","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"Philip Larkin","title":"The Whitsun Weddings","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Philip Larkin","title":"An Arundel Tomb","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Philip Larkin","title":"Church Going","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Philip Larkin","title":"High Windows","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Philip Larkin","title":"Talking in Bed","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Philip Larkin","title":"MCMXIV","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Philip Larkin","title":"Mr Bleaney","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Philip Larkin","title":"The Old Fools","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Philip Larkin","title":"Cut Grass","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"W.H. Auden","title":"Funeral Blues","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"W.H. Auden","title":"Musée des Beaux Arts","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"W.H. Auden","title":"In Memory of W.B. Yeats","source":"copyrighted","tier":"canon","tag":"hymn"}
-{"poet":"W.H. Auden","title":"September 1, 1939","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"W.H. Auden","title":"As I Walked Out One Evening","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"W.H. Auden","title":"The More Loving One","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"W.H. Auden","title":"Lullaby","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"W.H. Auden","title":"The Shield of Achilles","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"W.H. Auden","title":"The Unknown Citizen","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"W.H. Auden","title":"Refugee Blues","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Robert Hayden","title":"Those Winter Sundays","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Robert Hayden","title":"Frederick Douglass","source":"copyrighted","tier":"canon","tag":"hymn"}
-{"poet":"Robert Hayden","title":"Middle Passage","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Gwendolyn Brooks","title":"We Real Cool","source":"copyrighted","tier":"canon","tag":"prosody"}
-{"poet":"Gwendolyn Brooks","title":"The Bean Eaters","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Gwendolyn Brooks","title":"kitchenette building","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Gwendolyn Brooks","title":"The Mother","source":"copyrighted","tier":"canon","tag":"confess"}
-{"poet":"Gwendolyn Brooks","title":"Sadie and Maud","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Elizabeth Bishop","title":"One Art","source":"copyrighted","tier":"canon","tag":"prosody"}
-{"poet":"Elizabeth Bishop","title":"The Fish","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Elizabeth Bishop","title":"At the Fishhouses","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Elizabeth Bishop","title":"In the Waiting Room","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Elizabeth Bishop","title":"Sestina","source":"copyrighted","tier":"canon","tag":"prosody"}
-{"poet":"Elizabeth Bishop","title":"Filling Station","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Elizabeth Bishop","title":"The Moose","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Elizabeth Bishop","title":"Crusoe in England","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Elizabeth Bishop","title":"Questions of Travel","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"John Berryman","title":"Dream Song 14","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"John Berryman","title":"Dream Song 29","source":"copyrighted","tier":"canon","tag":"confess"}
-{"poet":"John Berryman","title":"Dream Song 76","source":"copyrighted","tier":"canon","tag":"confess"}
-{"poet":"Robert Lowell","title":"Skunk Hour","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Robert Lowell","title":"For the Union Dead","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Robert Lowell","title":"Memories of West Street and Lepke","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Robert Lowell","title":"Waking in the Blue","source":"copyrighted","tier":"canon","tag":"confess"}
-{"poet":"Sylvia Plath","title":"Daddy","source":"copyrighted","tier":"canon","tag":"confess"}
-{"poet":"Sylvia Plath","title":"Lady Lazarus","source":"copyrighted","tier":"canon","tag":"confess"}
-{"poet":"Sylvia Plath","title":"Tulips","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Sylvia Plath","title":"Ariel","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Sylvia Plath","title":"Morning Song","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Sylvia Plath","title":"Mirror","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Sylvia Plath","title":"Edge","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Sylvia Plath","title":"Cut","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Sylvia Plath","title":"Mushrooms","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Sylvia Plath","title":"Blackberrying","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Anne Sexton","title":"Her Kind","source":"copyrighted","tier":"canon","tag":"confess"}
-{"poet":"Anne Sexton","title":"The Truth the Dead Know","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Anne Sexton","title":"The Starry Night","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Allen Ginsberg","title":"Howl","source":"copyrighted","tier":"canon","tag":"prosody"}
-{"poet":"Allen Ginsberg","title":"A Supermarket in California","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Allen Ginsberg","title":"America","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"Allen Ginsberg","title":"Kaddish","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Frank O'Hara","title":"The Day Lady Died","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Frank O'Hara","title":"Why I Am Not a Painter","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"Frank O'Hara","title":"Having a Coke with You","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Frank O'Hara","title":"Steps","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Frank O'Hara","title":"Meditations in an Emergency","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Frank O'Hara","title":"Autobiographia Literaria","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"James Wright","title":"A Blessing","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"James Wright","title":"Lying in a Hammock at William Duffy's Farm","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"James Wright","title":"Autumn Begins in Martins Ferry, Ohio","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Galway Kinnell","title":"After Making Love We Hear Footsteps","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Galway Kinnell","title":"The Bear","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Galway Kinnell","title":"Saint Francis and the Sow","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Galway Kinnell","title":"Wait","source":"copyrighted","tier":"canon","tag":"hymn"}
-{"poet":"Galway Kinnell","title":"Blackberry Eating","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Robert Hass","title":"Meditation at Lagunitas","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Robert Hass","title":"A Story About the Body","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Robert Hass","title":"Late Spring","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Robert Hass","title":"Privilege of Being","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Robert Hass","title":"The Problem of Describing Trees","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"Jane Hirshfield","title":"For What Binds Us","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Jane Hirshfield","title":"The Weighing","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Jane Hirshfield","title":"Tree","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Jane Hirshfield","title":"Mathematics","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Jane Hirshfield","title":"Da Capo","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"W.S. Merwin","title":"For the Anniversary of My Death","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"W.S. Merwin","title":"The Drunk in the Furnace","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"W.S. Merwin","title":"Yesterday","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"W.S. Merwin","title":"To the New Year","source":"copyrighted","tier":"canon","tag":"hymn"}
-{"poet":"Mary Oliver","title":"Wild Geese","source":"copyrighted","tier":"canon","tag":"hymn"}
-{"poet":"Mary Oliver","title":"The Summer Day","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Mary Oliver","title":"The Journey","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Mary Oliver","title":"When Death Comes","source":"copyrighted","tier":"canon","tag":"hymn"}
-{"poet":"Mary Oliver","title":"In Blackwater Woods","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Mary Oliver","title":"Sleeping in the Forest","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Mark Strand","title":"Eating Poetry","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"Mark Strand","title":"Keeping Things Whole","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Mark Strand","title":"The End","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Lucille Clifton","title":"won't you celebrate with me","source":"copyrighted","tier":"canon","tag":"hymn"}
-{"poet":"Lucille Clifton","title":"homage to my hips","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Lucille Clifton","title":"the lost baby poem","source":"copyrighted","tier":"canon","tag":"confess"}
-{"poet":"Lucille Clifton","title":"blessing the boats","source":"copyrighted","tier":"canon","tag":"hymn"}
-{"poet":"Lucille Clifton","title":"miss rosie","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Tracy K. Smith","title":"Sci-Fi","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Tracy K. Smith","title":"Don't You Wonder, Sometimes?","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Tracy K. Smith","title":"Solstice","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Tracy K. Smith","title":"Declaration","source":"copyrighted","tier":"stretch","tag":"prosody"}
-{"poet":"Tracy K. Smith","title":"Wade in the Water","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Jericho Brown","title":"The Tradition","source":"copyrighted","tier":"stretch","tag":"prosody"}
-{"poet":"Jericho Brown","title":"Foreday in the Morning","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Jericho Brown","title":"Bullet Points","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Jericho Brown","title":"Ganymede","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Terrance Hayes","title":"American Sonnet for My Past and Future Assassin","source":"copyrighted","tier":"stretch","tag":"prosody"}
-{"poet":"Natasha Trethewey","title":"Native Guard","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Natasha Trethewey","title":"Pastoral","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Natasha Trethewey","title":"Theories of Time and Space","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Natasha Trethewey","title":"Incident","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Yusef Komunyakaa","title":"Facing It","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Yusef Komunyakaa","title":"Tu Do Street","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Yusef Komunyakaa","title":"Camouflaging the Chimera","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Yusef Komunyakaa","title":"Thanks","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Rita Dove","title":"Daystar","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Rita Dove","title":"Adolescence III","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Rita Dove","title":"Parsley","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Ross Gay","title":"Catalog of Unabashed Gratitude","source":"copyrighted","tier":"stretch","tag":"hymn"}
-{"poet":"Ross Gay","title":"Sorrow Is Not My Name","source":"copyrighted","tier":"stretch","tag":"hymn"}
-{"poet":"Ross Gay","title":"A Small Needful Fact","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Ross Gay","title":"To the Fig Tree on 9th and Christian","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Danez Smith","title":"dinosaurs in the hood","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Danez Smith","title":"summer, somewhere","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Danez Smith","title":"alternate names for black boys","source":"copyrighted","tier":"stretch","tag":"prosody"}
-{"poet":"Ada Limón","title":"How to Triumph Like a Girl","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Ada Limón","title":"Instructions on Not Giving Up","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Ada Limón","title":"A Name","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Ada Limón","title":"The End of Poetry","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Ada Limón","title":"The Conditional","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Kay Ryan","title":"Turtle","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Kay Ryan","title":"Patience","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Kay Ryan","title":"The Niagara River","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Kay Ryan","title":"Bad Day","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Stephen Crane","title":"A Man Said to the Universe","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Stephen Crane","title":"In the Desert","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Edna St. Vincent Millay","title":"First Fig","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Edna St. Vincent Millay","title":"What lips my lips have kissed","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Edna St. Vincent Millay","title":"Love is not all","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"Marianne Moore","title":"Poetry","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"Marianne Moore","title":"The Fish","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Marianne Moore","title":"The Mind Is an Enchanting Thing","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Hart Crane","title":"To Brooklyn Bridge","source":"copyrighted","tier":"canon","tag":"hymn"}
-{"poet":"Hart Crane","title":"Voyages","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Edward Thomas","title":"Adlestrop","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Edward Thomas","title":"Old Man","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Edward Thomas","title":"Lights Out","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Edward Thomas","title":"As the Team's Head Brass","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Wilfred Owen","title":"Dulce et Decorum Est","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Wilfred Owen","title":"Anthem for Doomed Youth","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Wilfred Owen","title":"Strange Meeting","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Wilfred Owen","title":"Futility","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Siegfried Sassoon","title":"Everyone Sang","source":"gutenberg","tier":"canon","tag":"image"}
-{"poet":"Siegfried Sassoon","title":"The General","source":"gutenberg","tier":"canon","tag":"wry"}
-{"poet":"Siegfried Sassoon","title":"Suicide in the Trenches","source":"gutenberg","tier":"canon","tag":"narrative"}
-{"poet":"Federico García Lorca","title":"La Aurora","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Federico García Lorca","title":"Romance Sonámbulo","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Federico García Lorca","title":"Lament for Ignacio Sánchez Mejías","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Pablo Neruda","title":"Tonight I Can Write the Saddest Lines","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Pablo Neruda","title":"Ode to Tomatoes","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Pablo Neruda","title":"I Like for You to Be Still","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Pablo Neruda","title":"If You Forget Me","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Pablo Neruda","title":"Ode to Salt","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Rainer Maria Rilke","title":"Archaic Torso of Apollo","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Rainer Maria Rilke","title":"Autumn Day","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Rainer Maria Rilke","title":"The Panther","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Rainer Maria Rilke","title":"Duino Elegies","source":"copyrighted","tier":"stretch","tag":"prosody"}
-{"poet":"César Vallejo","title":"Black Stone Lying on a White Stone","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Constantine Cavafy","title":"Ithaka","source":"copyrighted","tier":"stretch","tag":"hymn"}
-{"poet":"Constantine Cavafy","title":"Waiting for the Barbarians","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Constantine Cavafy","title":"The City","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Constantine Cavafy","title":"Walls","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Tomas Tranströmer","title":"After a Death","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Tomas Tranströmer","title":"Allegro","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Tomas Tranströmer","title":"The Half-Finished Heaven","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Tomas Tranströmer","title":"Schubertiana","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Seamus Heaney","title":"Digging","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Seamus Heaney","title":"Death of a Naturalist","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Seamus Heaney","title":"Mid-Term Break","source":"copyrighted","tier":"canon","tag":"narrative"}
-{"poet":"Seamus Heaney","title":"Blackberry-Picking","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Seamus Heaney","title":"The Tollund Man","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Seamus Heaney","title":"Postscript","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Seamus Heaney","title":"When all the others were away at Mass","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Ted Hughes","title":"The Thought-Fox","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Ted Hughes","title":"Hawk Roosting","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Ted Hughes","title":"Pike","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Ted Hughes","title":"View of a Pig","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Ted Hughes","title":"The Horses","source":"copyrighted","tier":"canon","tag":"image"}
-{"poet":"Carol Ann Duffy","title":"Warming Her Pearls","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Carol Ann Duffy","title":"Valentine","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Carol Ann Duffy","title":"Prayer","source":"copyrighted","tier":"stretch","tag":"hymn"}
-{"poet":"Carol Ann Duffy","title":"Anne Hathaway","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Tony Hoagland","title":"A Color of the Sky","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Tony Hoagland","title":"Lucky","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Tony Hoagland","title":"In Praise of Their Divorce","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Billy Collins","title":"The Lanyard","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Billy Collins","title":"On Turning Ten","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Billy Collins","title":"Forgetfulness","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Billy Collins","title":"Introduction to Poetry","source":"copyrighted","tier":"stretch","tag":"wry"}
-{"poet":"Wendell Berry","title":"The Peace of Wild Things","source":"copyrighted","tier":"stretch","tag":"hymn"}
-{"poet":"Wendell Berry","title":"Manifesto: The Mad Farmer Liberation Front","source":"copyrighted","tier":"stretch","tag":"hymn"}
-{"poet":"Wendell Berry","title":"How to Be a Poet","source":"copyrighted","tier":"stretch","tag":"hymn"}
-{"poet":"Stevie Smith","title":"Not Waving but Drowning","source":"copyrighted","tier":"canon","tag":"wry"}
-{"poet":"Philip Levine","title":"What Work Is","source":"copyrighted","tier":"stretch","tag":"narrative"}
-{"poet":"Philip Levine","title":"They Feed They Lion","source":"copyrighted","tier":"stretch","tag":"prosody"}
-{"poet":"Philip Levine","title":"The Simple Truth","source":"copyrighted","tier":"stretch","tag":"image"}
-{"poet":"Philip Levine","title":"You Can Have It","source":"copyrighted","tier":"stretch","tag":"narrative"}
+{"poet":"Walt Whitman","title":"Song of Myself","source":"gutenberg","tier":"canon"}
+{"poet":"Walt Whitman","title":"Crossing Brooklyn Ferry","source":"gutenberg","tier":"canon"}
+{"poet":"Walt Whitman","title":"When Lilacs Last in the Dooryard Bloom'd","source":"gutenberg","tier":"canon"}
+{"poet":"Walt Whitman","title":"O Captain! My Captain!","source":"gutenberg","tier":"canon"}
+{"poet":"Walt Whitman","title":"A Noiseless Patient Spider","source":"gutenberg","tier":"canon"}
+{"poet":"Walt Whitman","title":"Out of the Cradle Endlessly Rocking","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"Because I could not stop for Death","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"A Bird came down the Walk","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"Wild nights - Wild nights!","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"Hope is the thing with feathers","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"There's a certain Slant of light","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"I felt a Funeral, in my Brain","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"I heard a Fly buzz - when I died","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"Tell all the truth but tell it slant","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"My Life had stood - a Loaded Gun","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"After great pain, a formal feeling comes","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"Success is counted sweetest","source":"gutenberg","tier":"canon"}
+{"poet":"Emily Dickinson","title":"I'm Nobody! Who are you?","source":"gutenberg","tier":"canon"}
+{"poet":"Gerard Manley Hopkins","title":"Pied Beauty","source":"gutenberg","tier":"canon"}
+{"poet":"Gerard Manley Hopkins","title":"God's Grandeur","source":"gutenberg","tier":"canon"}
+{"poet":"Gerard Manley Hopkins","title":"Spring and Fall","source":"gutenberg","tier":"canon"}
+{"poet":"Gerard Manley Hopkins","title":"The Windhover","source":"gutenberg","tier":"canon"}
+{"poet":"Gerard Manley Hopkins","title":"As kingfishers catch fire","source":"gutenberg","tier":"canon"}
+{"poet":"Gerard Manley Hopkins","title":"Carrion Comfort","source":"gutenberg","tier":"canon"}
+{"poet":"Gerard Manley Hopkins","title":"No worst, there is none","source":"gutenberg","tier":"canon"}
+{"poet":"Gerard Manley Hopkins","title":"Felix Randal","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"The Second Coming","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"Sailing to Byzantium","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"Easter, 1916","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"Among School Children","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"The Wild Swans at Coole","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"Leda and the Swan","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"When You Are Old","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"The Lake Isle of Innisfree","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"A Prayer for My Daughter","source":"gutenberg","tier":"canon"}
+{"poet":"W.B. Yeats","title":"The Stolen Child","source":"gutenberg","tier":"canon"}
+{"poet":"T.S. Eliot","title":"The Love Song of J. Alfred Prufrock","source":"gutenberg","tier":"canon"}
+{"poet":"T.S. Eliot","title":"The Hollow Men","source":"copyrighted","tier":"canon"}
+{"poet":"T.S. Eliot","title":"The Waste Land","source":"copyrighted","tier":"canon"}
+{"poet":"T.S. Eliot","title":"Four Quartets","source":"copyrighted","tier":"canon"}
+{"poet":"T.S. Eliot","title":"Journey of the Magi","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Frost","title":"Stopping by Woods on a Snowy Evening","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"The Road Not Taken","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"Mending Wall","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"After Apple-Picking","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"Birches","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"Acquainted with the Night","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"Home Burial","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"Out, Out—","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"Nothing Gold Can Stay","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"Design","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"Fire and Ice","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"The Death of the Hired Man","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Frost","title":"Provide, Provide","source":"gutenberg","tier":"canon"}
+{"poet":"Wallace Stevens","title":"The Snow Man","source":"gutenberg","tier":"canon"}
+{"poet":"Wallace Stevens","title":"Anecdote of the Jar","source":"gutenberg","tier":"canon"}
+{"poet":"Wallace Stevens","title":"Thirteen Ways of Looking at a Blackbird","source":"gutenberg","tier":"canon"}
+{"poet":"Wallace Stevens","title":"Sunday Morning","source":"gutenberg","tier":"canon"}
+{"poet":"Wallace Stevens","title":"The Emperor of Ice-Cream","source":"gutenberg","tier":"canon"}
+{"poet":"Wallace Stevens","title":"The Idea of Order at Key West","source":"copyrighted","tier":"canon"}
+{"poet":"William Carlos Williams","title":"The Red Wheelbarrow","source":"copyrighted","tier":"canon"}
+{"poet":"William Carlos Williams","title":"This Is Just To Say","source":"copyrighted","tier":"canon"}
+{"poet":"William Carlos Williams","title":"Spring and All","source":"gutenberg","tier":"canon"}
+{"poet":"William Carlos Williams","title":"To a Poor Old Woman","source":"copyrighted","tier":"canon"}
+{"poet":"Ezra Pound","title":"In a Station of the Metro","source":"gutenberg","tier":"canon"}
+{"poet":"Ezra Pound","title":"The River-Merchant's Wife: A Letter","source":"gutenberg","tier":"canon"}
+{"poet":"Carl Sandburg","title":"Chicago","source":"gutenberg","tier":"canon"}
+{"poet":"Carl Sandburg","title":"Fog","source":"gutenberg","tier":"canon"}
+{"poet":"Carl Sandburg","title":"Grass","source":"gutenberg","tier":"canon"}
+{"poet":"Lewis Carroll","title":"Jabberwocky","source":"gutenberg","tier":"canon"}
+{"poet":"Edward Lear","title":"The Owl and the Pussycat","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Browning","title":"My Last Duchess","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Browning","title":"Porphyria's Lover","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Browning","title":"Childe Roland to the Dark Tower Came","source":"gutenberg","tier":"canon"}
+{"poet":"Robert Browning","title":"Soliloquy of the Spanish Cloister","source":"gutenberg","tier":"canon"}
+{"poet":"Alfred Tennyson","title":"Ulysses","source":"gutenberg","tier":"canon"}
+{"poet":"Alfred Tennyson","title":"The Charge of the Light Brigade","source":"gutenberg","tier":"canon"}
+{"poet":"Alfred Tennyson","title":"Crossing the Bar","source":"gutenberg","tier":"canon"}
+{"poet":"Alfred Tennyson","title":"Tears, Idle Tears","source":"gutenberg","tier":"canon"}
+{"poet":"Alfred Tennyson","title":"The Lady of Shalott","source":"gutenberg","tier":"canon"}
+{"poet":"Alfred Tennyson","title":"Break, Break, Break","source":"gutenberg","tier":"canon"}
+{"poet":"Thomas Hardy","title":"The Darkling Thrush","source":"gutenberg","tier":"canon"}
+{"poet":"Thomas Hardy","title":"The Convergence of the Twain","source":"gutenberg","tier":"canon"}
+{"poet":"Thomas Hardy","title":"Channel Firing","source":"gutenberg","tier":"canon"}
+{"poet":"Thomas Hardy","title":"The Voice","source":"gutenberg","tier":"canon"}
+{"poet":"Thomas Hardy","title":"Neutral Tones","source":"gutenberg","tier":"canon"}
+{"poet":"Thomas Hardy","title":"During Wind and Rain","source":"gutenberg","tier":"canon"}
+{"poet":"A.E. Housman","title":"When I was one-and-twenty","source":"gutenberg","tier":"canon"}
+{"poet":"A.E. Housman","title":"To an Athlete Dying Young","source":"gutenberg","tier":"canon"}
+{"poet":"A.E. Housman","title":"Loveliest of trees, the cherry now","source":"gutenberg","tier":"canon"}
+{"poet":"A.E. Housman","title":"Terence, this is stupid stuff","source":"gutenberg","tier":"canon"}
+{"poet":"Samuel Taylor Coleridge","title":"Kubla Khan","source":"gutenberg","tier":"canon"}
+{"poet":"Samuel Taylor Coleridge","title":"The Rime of the Ancient Mariner","source":"gutenberg","tier":"canon"}
+{"poet":"Samuel Taylor Coleridge","title":"Frost at Midnight","source":"gutenberg","tier":"canon"}
+{"poet":"John Keats","title":"Ode to a Nightingale","source":"gutenberg","tier":"canon"}
+{"poet":"John Keats","title":"Ode on a Grecian Urn","source":"gutenberg","tier":"canon"}
+{"poet":"John Keats","title":"To Autumn","source":"gutenberg","tier":"canon"}
+{"poet":"John Keats","title":"La Belle Dame sans Merci","source":"gutenberg","tier":"canon"}
+{"poet":"John Keats","title":"When I Have Fears That I May Cease to Be","source":"gutenberg","tier":"canon"}
+{"poet":"William Wordsworth","title":"Lines Composed a Few Miles above Tintern Abbey","source":"gutenberg","tier":"canon"}
+{"poet":"William Wordsworth","title":"I Wandered Lonely as a Cloud","source":"gutenberg","tier":"canon"}
+{"poet":"William Wordsworth","title":"The Solitary Reaper","source":"gutenberg","tier":"canon"}
+{"poet":"William Wordsworth","title":"Ode: Intimations of Immortality","source":"gutenberg","tier":"canon"}
+{"poet":"William Wordsworth","title":"The world is too much with us","source":"gutenberg","tier":"canon"}
+{"poet":"William Wordsworth","title":"Composed upon Westminster Bridge","source":"gutenberg","tier":"canon"}
+{"poet":"Percy Bysshe Shelley","title":"Ozymandias","source":"gutenberg","tier":"canon"}
+{"poet":"Percy Bysshe Shelley","title":"Ode to the West Wind","source":"gutenberg","tier":"canon"}
+{"poet":"Percy Bysshe Shelley","title":"To a Skylark","source":"gutenberg","tier":"canon"}
+{"poet":"William Blake","title":"The Tyger","source":"gutenberg","tier":"canon"}
+{"poet":"William Blake","title":"The Lamb","source":"gutenberg","tier":"canon"}
+{"poet":"William Blake","title":"London","source":"gutenberg","tier":"canon"}
+{"poet":"William Blake","title":"Auguries of Innocence","source":"gutenberg","tier":"canon"}
+{"poet":"William Blake","title":"A Poison Tree","source":"gutenberg","tier":"canon"}
+{"poet":"William Blake","title":"The Sick Rose","source":"gutenberg","tier":"canon"}
+{"poet":"William Blake","title":"The Garden of Love","source":"gutenberg","tier":"canon"}
+{"poet":"John Donne","title":"Death Be Not Proud","source":"gutenberg","tier":"canon"}
+{"poet":"John Donne","title":"A Valediction: Forbidding Mourning","source":"gutenberg","tier":"canon"}
+{"poet":"John Donne","title":"The Sun Rising","source":"gutenberg","tier":"canon"}
+{"poet":"John Donne","title":"The Flea","source":"gutenberg","tier":"canon"}
+{"poet":"Andrew Marvell","title":"To His Coy Mistress","source":"gutenberg","tier":"canon"}
+{"poet":"Andrew Marvell","title":"The Garden","source":"gutenberg","tier":"canon"}
+{"poet":"George Herbert","title":"The Collar","source":"gutenberg","tier":"canon"}
+{"poet":"George Herbert","title":"Love (III)","source":"gutenberg","tier":"canon"}
+{"poet":"George Herbert","title":"Easter Wings","source":"gutenberg","tier":"canon"}
+{"poet":"George Herbert","title":"Prayer (I)","source":"gutenberg","tier":"canon"}
+{"poet":"John Milton","title":"When I Consider How My Light Is Spent","source":"gutenberg","tier":"canon"}
+{"poet":"William Shakespeare","title":"Sonnet 18","source":"gutenberg","tier":"canon"}
+{"poet":"William Shakespeare","title":"Sonnet 29","source":"gutenberg","tier":"canon"}
+{"poet":"William Shakespeare","title":"Sonnet 30","source":"gutenberg","tier":"canon"}
+{"poet":"William Shakespeare","title":"Sonnet 73","source":"gutenberg","tier":"canon"}
+{"poet":"William Shakespeare","title":"Sonnet 116","source":"gutenberg","tier":"canon"}
+{"poet":"William Shakespeare","title":"Sonnet 130","source":"gutenberg","tier":"canon"}
+{"poet":"Edgar Allan Poe","title":"The Raven","source":"gutenberg","tier":"mirror"}
+{"poet":"Edgar Allan Poe","title":"Annabel Lee","source":"gutenberg","tier":"mirror"}
+{"poet":"Edgar Allan Poe","title":"A Dream Within a Dream","source":"gutenberg","tier":"mirror"}
+{"poet":"Edgar Allan Poe","title":"Alone","source":"gutenberg","tier":"mirror"}
+{"poet":"Edgar Allan Poe","title":"To Helen","source":"gutenberg","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"The End and the Beginning","source":"copyrighted","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"A Cat in an Empty Apartment","source":"copyrighted","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"Possibilities","source":"copyrighted","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"Some People Like Poetry","source":"copyrighted","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"Could Have","source":"copyrighted","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"Hatred","source":"copyrighted","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"View with a Grain of Sand","source":"copyrighted","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"On Death, without Exaggeration","source":"copyrighted","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"Astonishment","source":"copyrighted","tier":"mirror"}
+{"poet":"Wisława Szymborska","title":"Vermeer","source":"copyrighted","tier":"mirror"}
+{"poet":"Zbigniew Herbert","title":"Mr Cogito Meditates on Suffering","source":"copyrighted","tier":"stretch"}
+{"poet":"Zbigniew Herbert","title":"Why the Classics","source":"copyrighted","tier":"stretch"}
+{"poet":"Zbigniew Herbert","title":"Apollo and Marsyas","source":"copyrighted","tier":"stretch"}
+{"poet":"Zbigniew Herbert","title":"Five Men","source":"copyrighted","tier":"stretch"}
+{"poet":"Zbigniew Herbert","title":"Pebble","source":"copyrighted","tier":"stretch"}
+{"poet":"Zbigniew Herbert","title":"Elegy of Fortinbras","source":"copyrighted","tier":"stretch"}
+{"poet":"Czesław Miłosz","title":"A Song on the End of the World","source":"copyrighted","tier":"stretch"}
+{"poet":"Czesław Miłosz","title":"Encounter","source":"copyrighted","tier":"stretch"}
+{"poet":"Czesław Miłosz","title":"Gift","source":"copyrighted","tier":"stretch"}
+{"poet":"Czesław Miłosz","title":"Ars Poetica?","source":"copyrighted","tier":"stretch"}
+{"poet":"Czesław Miłosz","title":"Campo dei Fiori","source":"copyrighted","tier":"stretch"}
+{"poet":"Czesław Miłosz","title":"And Yet the Books","source":"copyrighted","tier":"stretch"}
+{"poet":"Czesław Miłosz","title":"Late Ripeness","source":"copyrighted","tier":"stretch"}
+{"poet":"Adam Zagajewski","title":"Try to Praise the Mutilated World","source":"copyrighted","tier":"stretch"}
+{"poet":"Adam Zagajewski","title":"Self-Portrait","source":"copyrighted","tier":"stretch"}
+{"poet":"Anna Akhmatova","title":"Requiem","source":"copyrighted","tier":"stretch"}
+{"poet":"Anna Akhmatova","title":"Lot's Wife","source":"copyrighted","tier":"stretch"}
+{"poet":"Osip Mandelstam","title":"The Stalin Epigram","source":"copyrighted","tier":"stretch"}
+{"poet":"Marina Tsvetaeva","title":"An Attempt at Jealousy","source":"copyrighted","tier":"stretch"}
+{"poet":"Joseph Brodsky","title":"A Song","source":"copyrighted","tier":"stretch"}
+{"poet":"Joseph Brodsky","title":"May 24, 1980","source":"copyrighted","tier":"stretch"}
+{"poet":"Philip Larkin","title":"Aubade","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"This Be The Verse","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"The Whitsun Weddings","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"An Arundel Tomb","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"Church Going","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"High Windows","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"Talking in Bed","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"MCMXIV","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"Mr Bleaney","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"The Old Fools","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Larkin","title":"Cut Grass","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"Funeral Blues","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"Musée des Beaux Arts","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"In Memory of W.B. Yeats","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"September 1, 1939","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"As I Walked Out One Evening","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"The More Loving One","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"Lullaby","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"The Shield of Achilles","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"The Unknown Citizen","source":"copyrighted","tier":"canon"}
+{"poet":"W.H. Auden","title":"Refugee Blues","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Hayden","title":"Those Winter Sundays","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Hayden","title":"Frederick Douglass","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Hayden","title":"Middle Passage","source":"copyrighted","tier":"canon"}
+{"poet":"Gwendolyn Brooks","title":"We Real Cool","source":"copyrighted","tier":"canon"}
+{"poet":"Gwendolyn Brooks","title":"The Bean Eaters","source":"copyrighted","tier":"canon"}
+{"poet":"Gwendolyn Brooks","title":"kitchenette building","source":"copyrighted","tier":"canon"}
+{"poet":"Gwendolyn Brooks","title":"The Mother","source":"copyrighted","tier":"canon"}
+{"poet":"Gwendolyn Brooks","title":"Sadie and Maud","source":"copyrighted","tier":"canon"}
+{"poet":"Elizabeth Bishop","title":"One Art","source":"copyrighted","tier":"canon"}
+{"poet":"Elizabeth Bishop","title":"The Fish","source":"copyrighted","tier":"canon"}
+{"poet":"Elizabeth Bishop","title":"At the Fishhouses","source":"copyrighted","tier":"canon"}
+{"poet":"Elizabeth Bishop","title":"In the Waiting Room","source":"copyrighted","tier":"canon"}
+{"poet":"Elizabeth Bishop","title":"Sestina","source":"copyrighted","tier":"canon"}
+{"poet":"Elizabeth Bishop","title":"Filling Station","source":"copyrighted","tier":"canon"}
+{"poet":"Elizabeth Bishop","title":"The Moose","source":"copyrighted","tier":"canon"}
+{"poet":"Elizabeth Bishop","title":"Crusoe in England","source":"copyrighted","tier":"canon"}
+{"poet":"Elizabeth Bishop","title":"Questions of Travel","source":"copyrighted","tier":"canon"}
+{"poet":"John Berryman","title":"Dream Song 14","source":"copyrighted","tier":"canon"}
+{"poet":"John Berryman","title":"Dream Song 29","source":"copyrighted","tier":"canon"}
+{"poet":"John Berryman","title":"Dream Song 76","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Lowell","title":"Skunk Hour","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Lowell","title":"For the Union Dead","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Lowell","title":"Memories of West Street and Lepke","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Lowell","title":"Waking in the Blue","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Daddy","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Lady Lazarus","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Tulips","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Ariel","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Morning Song","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Mirror","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Edge","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Cut","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Mushrooms","source":"copyrighted","tier":"canon"}
+{"poet":"Sylvia Plath","title":"Blackberrying","source":"copyrighted","tier":"canon"}
+{"poet":"Anne Sexton","title":"Her Kind","source":"copyrighted","tier":"canon"}
+{"poet":"Anne Sexton","title":"The Truth the Dead Know","source":"copyrighted","tier":"canon"}
+{"poet":"Anne Sexton","title":"The Starry Night","source":"copyrighted","tier":"canon"}
+{"poet":"Allen Ginsberg","title":"Howl","source":"copyrighted","tier":"canon"}
+{"poet":"Allen Ginsberg","title":"A Supermarket in California","source":"copyrighted","tier":"canon"}
+{"poet":"Allen Ginsberg","title":"America","source":"copyrighted","tier":"canon"}
+{"poet":"Allen Ginsberg","title":"Kaddish","source":"copyrighted","tier":"canon"}
+{"poet":"Frank O'Hara","title":"The Day Lady Died","source":"copyrighted","tier":"canon"}
+{"poet":"Frank O'Hara","title":"Why I Am Not a Painter","source":"copyrighted","tier":"canon"}
+{"poet":"Frank O'Hara","title":"Having a Coke with You","source":"copyrighted","tier":"canon"}
+{"poet":"Frank O'Hara","title":"Steps","source":"copyrighted","tier":"canon"}
+{"poet":"Frank O'Hara","title":"Meditations in an Emergency","source":"copyrighted","tier":"canon"}
+{"poet":"Frank O'Hara","title":"Autobiographia Literaria","source":"copyrighted","tier":"canon"}
+{"poet":"James Wright","title":"A Blessing","source":"copyrighted","tier":"canon"}
+{"poet":"James Wright","title":"Lying in a Hammock at William Duffy's Farm","source":"copyrighted","tier":"canon"}
+{"poet":"James Wright","title":"Autumn Begins in Martins Ferry, Ohio","source":"copyrighted","tier":"canon"}
+{"poet":"Galway Kinnell","title":"After Making Love We Hear Footsteps","source":"copyrighted","tier":"canon"}
+{"poet":"Galway Kinnell","title":"The Bear","source":"copyrighted","tier":"canon"}
+{"poet":"Galway Kinnell","title":"Saint Francis and the Sow","source":"copyrighted","tier":"canon"}
+{"poet":"Galway Kinnell","title":"Wait","source":"copyrighted","tier":"canon"}
+{"poet":"Galway Kinnell","title":"Blackberry Eating","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Hass","title":"Meditation at Lagunitas","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Hass","title":"A Story About the Body","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Hass","title":"Late Spring","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Hass","title":"Privilege of Being","source":"copyrighted","tier":"canon"}
+{"poet":"Robert Hass","title":"The Problem of Describing Trees","source":"copyrighted","tier":"canon"}
+{"poet":"Jane Hirshfield","title":"For What Binds Us","source":"copyrighted","tier":"canon"}
+{"poet":"Jane Hirshfield","title":"The Weighing","source":"copyrighted","tier":"canon"}
+{"poet":"Jane Hirshfield","title":"Tree","source":"copyrighted","tier":"canon"}
+{"poet":"Jane Hirshfield","title":"Mathematics","source":"copyrighted","tier":"canon"}
+{"poet":"Jane Hirshfield","title":"Da Capo","source":"copyrighted","tier":"canon"}
+{"poet":"W.S. Merwin","title":"For the Anniversary of My Death","source":"copyrighted","tier":"canon"}
+{"poet":"W.S. Merwin","title":"The Drunk in the Furnace","source":"copyrighted","tier":"canon"}
+{"poet":"W.S. Merwin","title":"Yesterday","source":"copyrighted","tier":"canon"}
+{"poet":"W.S. Merwin","title":"To the New Year","source":"copyrighted","tier":"canon"}
+{"poet":"Mary Oliver","title":"Wild Geese","source":"copyrighted","tier":"canon"}
+{"poet":"Mary Oliver","title":"The Summer Day","source":"copyrighted","tier":"canon"}
+{"poet":"Mary Oliver","title":"The Journey","source":"copyrighted","tier":"canon"}
+{"poet":"Mary Oliver","title":"When Death Comes","source":"copyrighted","tier":"canon"}
+{"poet":"Mary Oliver","title":"In Blackwater Woods","source":"copyrighted","tier":"canon"}
+{"poet":"Mary Oliver","title":"Sleeping in the Forest","source":"copyrighted","tier":"canon"}
+{"poet":"Mark Strand","title":"Eating Poetry","source":"copyrighted","tier":"canon"}
+{"poet":"Mark Strand","title":"Keeping Things Whole","source":"copyrighted","tier":"canon"}
+{"poet":"Mark Strand","title":"The End","source":"copyrighted","tier":"canon"}
+{"poet":"Lucille Clifton","title":"won't you celebrate with me","source":"copyrighted","tier":"canon"}
+{"poet":"Lucille Clifton","title":"homage to my hips","source":"copyrighted","tier":"canon"}
+{"poet":"Lucille Clifton","title":"the lost baby poem","source":"copyrighted","tier":"canon"}
+{"poet":"Lucille Clifton","title":"blessing the boats","source":"copyrighted","tier":"canon"}
+{"poet":"Lucille Clifton","title":"miss rosie","source":"copyrighted","tier":"canon"}
+{"poet":"Tracy K. Smith","title":"Sci-Fi","source":"copyrighted","tier":"stretch"}
+{"poet":"Tracy K. Smith","title":"Don't You Wonder, Sometimes?","source":"copyrighted","tier":"stretch"}
+{"poet":"Tracy K. Smith","title":"Solstice","source":"copyrighted","tier":"stretch"}
+{"poet":"Tracy K. Smith","title":"Declaration","source":"copyrighted","tier":"stretch"}
+{"poet":"Tracy K. Smith","title":"Wade in the Water","source":"copyrighted","tier":"stretch"}
+{"poet":"Jericho Brown","title":"The Tradition","source":"copyrighted","tier":"stretch"}
+{"poet":"Jericho Brown","title":"Foreday in the Morning","source":"copyrighted","tier":"stretch"}
+{"poet":"Jericho Brown","title":"Bullet Points","source":"copyrighted","tier":"stretch"}
+{"poet":"Jericho Brown","title":"Ganymede","source":"copyrighted","tier":"stretch"}
+{"poet":"Terrance Hayes","title":"American Sonnet for My Past and Future Assassin","source":"copyrighted","tier":"stretch"}
+{"poet":"Natasha Trethewey","title":"Native Guard","source":"copyrighted","tier":"stretch"}
+{"poet":"Natasha Trethewey","title":"Pastoral","source":"copyrighted","tier":"stretch"}
+{"poet":"Natasha Trethewey","title":"Theories of Time and Space","source":"copyrighted","tier":"stretch"}
+{"poet":"Natasha Trethewey","title":"Incident","source":"copyrighted","tier":"stretch"}
+{"poet":"Yusef Komunyakaa","title":"Facing It","source":"copyrighted","tier":"stretch"}
+{"poet":"Yusef Komunyakaa","title":"Tu Do Street","source":"copyrighted","tier":"stretch"}
+{"poet":"Yusef Komunyakaa","title":"Camouflaging the Chimera","source":"copyrighted","tier":"stretch"}
+{"poet":"Yusef Komunyakaa","title":"Thanks","source":"copyrighted","tier":"stretch"}
+{"poet":"Rita Dove","title":"Daystar","source":"copyrighted","tier":"stretch"}
+{"poet":"Rita Dove","title":"Adolescence III","source":"copyrighted","tier":"stretch"}
+{"poet":"Rita Dove","title":"Parsley","source":"copyrighted","tier":"stretch"}
+{"poet":"Ross Gay","title":"Catalog of Unabashed Gratitude","source":"copyrighted","tier":"stretch"}
+{"poet":"Ross Gay","title":"Sorrow Is Not My Name","source":"copyrighted","tier":"stretch"}
+{"poet":"Ross Gay","title":"A Small Needful Fact","source":"copyrighted","tier":"stretch"}
+{"poet":"Ross Gay","title":"To the Fig Tree on 9th and Christian","source":"copyrighted","tier":"stretch"}
+{"poet":"Danez Smith","title":"dinosaurs in the hood","source":"copyrighted","tier":"stretch"}
+{"poet":"Danez Smith","title":"summer, somewhere","source":"copyrighted","tier":"stretch"}
+{"poet":"Danez Smith","title":"alternate names for black boys","source":"copyrighted","tier":"stretch"}
+{"poet":"Ada Limón","title":"How to Triumph Like a Girl","source":"copyrighted","tier":"stretch"}
+{"poet":"Ada Limón","title":"Instructions on Not Giving Up","source":"copyrighted","tier":"stretch"}
+{"poet":"Ada Limón","title":"A Name","source":"copyrighted","tier":"stretch"}
+{"poet":"Ada Limón","title":"The End of Poetry","source":"copyrighted","tier":"stretch"}
+{"poet":"Ada Limón","title":"The Conditional","source":"copyrighted","tier":"stretch"}
+{"poet":"Kay Ryan","title":"Turtle","source":"copyrighted","tier":"stretch"}
+{"poet":"Kay Ryan","title":"Patience","source":"copyrighted","tier":"stretch"}
+{"poet":"Kay Ryan","title":"The Niagara River","source":"copyrighted","tier":"stretch"}
+{"poet":"Kay Ryan","title":"Bad Day","source":"copyrighted","tier":"stretch"}
+{"poet":"Stephen Crane","title":"A Man Said to the Universe","source":"gutenberg","tier":"canon"}
+{"poet":"Stephen Crane","title":"In the Desert","source":"gutenberg","tier":"canon"}
+{"poet":"Edna St. Vincent Millay","title":"First Fig","source":"gutenberg","tier":"canon"}
+{"poet":"Edna St. Vincent Millay","title":"What lips my lips have kissed","source":"gutenberg","tier":"canon"}
+{"poet":"Edna St. Vincent Millay","title":"Love is not all","source":"copyrighted","tier":"canon"}
+{"poet":"Marianne Moore","title":"Poetry","source":"copyrighted","tier":"canon"}
+{"poet":"Marianne Moore","title":"The Fish","source":"copyrighted","tier":"canon"}
+{"poet":"Marianne Moore","title":"The Mind Is an Enchanting Thing","source":"copyrighted","tier":"canon"}
+{"poet":"Hart Crane","title":"To Brooklyn Bridge","source":"copyrighted","tier":"canon"}
+{"poet":"Hart Crane","title":"Voyages","source":"copyrighted","tier":"canon"}
+{"poet":"Edward Thomas","title":"Adlestrop","source":"gutenberg","tier":"canon"}
+{"poet":"Edward Thomas","title":"Old Man","source":"gutenberg","tier":"canon"}
+{"poet":"Edward Thomas","title":"Lights Out","source":"gutenberg","tier":"canon"}
+{"poet":"Edward Thomas","title":"As the Team's Head Brass","source":"gutenberg","tier":"canon"}
+{"poet":"Wilfred Owen","title":"Dulce et Decorum Est","source":"gutenberg","tier":"canon"}
+{"poet":"Wilfred Owen","title":"Anthem for Doomed Youth","source":"gutenberg","tier":"canon"}
+{"poet":"Wilfred Owen","title":"Strange Meeting","source":"gutenberg","tier":"canon"}
+{"poet":"Wilfred Owen","title":"Futility","source":"gutenberg","tier":"canon"}
+{"poet":"Siegfried Sassoon","title":"Everyone Sang","source":"gutenberg","tier":"canon"}
+{"poet":"Siegfried Sassoon","title":"The General","source":"gutenberg","tier":"canon"}
+{"poet":"Siegfried Sassoon","title":"Suicide in the Trenches","source":"gutenberg","tier":"canon"}
+{"poet":"Federico García Lorca","title":"La Aurora","source":"copyrighted","tier":"stretch"}
+{"poet":"Federico García Lorca","title":"Romance Sonámbulo","source":"copyrighted","tier":"stretch"}
+{"poet":"Federico García Lorca","title":"Lament for Ignacio Sánchez Mejías","source":"copyrighted","tier":"stretch"}
+{"poet":"Pablo Neruda","title":"Tonight I Can Write the Saddest Lines","source":"copyrighted","tier":"stretch"}
+{"poet":"Pablo Neruda","title":"Ode to Tomatoes","source":"copyrighted","tier":"stretch"}
+{"poet":"Pablo Neruda","title":"I Like for You to Be Still","source":"copyrighted","tier":"stretch"}
+{"poet":"Pablo Neruda","title":"If You Forget Me","source":"copyrighted","tier":"stretch"}
+{"poet":"Pablo Neruda","title":"Ode to Salt","source":"copyrighted","tier":"stretch"}
+{"poet":"Rainer Maria Rilke","title":"Archaic Torso of Apollo","source":"copyrighted","tier":"stretch"}
+{"poet":"Rainer Maria Rilke","title":"Autumn Day","source":"copyrighted","tier":"stretch"}
+{"poet":"Rainer Maria Rilke","title":"The Panther","source":"copyrighted","tier":"stretch"}
+{"poet":"Rainer Maria Rilke","title":"Duino Elegies","source":"copyrighted","tier":"stretch"}
+{"poet":"César Vallejo","title":"Black Stone Lying on a White Stone","source":"copyrighted","tier":"stretch"}
+{"poet":"Constantine Cavafy","title":"Ithaka","source":"copyrighted","tier":"stretch"}
+{"poet":"Constantine Cavafy","title":"Waiting for the Barbarians","source":"copyrighted","tier":"stretch"}
+{"poet":"Constantine Cavafy","title":"The City","source":"copyrighted","tier":"stretch"}
+{"poet":"Constantine Cavafy","title":"Walls","source":"copyrighted","tier":"stretch"}
+{"poet":"Tomas Tranströmer","title":"After a Death","source":"copyrighted","tier":"stretch"}
+{"poet":"Tomas Tranströmer","title":"Allegro","source":"copyrighted","tier":"stretch"}
+{"poet":"Tomas Tranströmer","title":"The Half-Finished Heaven","source":"copyrighted","tier":"stretch"}
+{"poet":"Tomas Tranströmer","title":"Schubertiana","source":"copyrighted","tier":"stretch"}
+{"poet":"Seamus Heaney","title":"Digging","source":"copyrighted","tier":"canon"}
+{"poet":"Seamus Heaney","title":"Death of a Naturalist","source":"copyrighted","tier":"canon"}
+{"poet":"Seamus Heaney","title":"Mid-Term Break","source":"copyrighted","tier":"canon"}
+{"poet":"Seamus Heaney","title":"Blackberry-Picking","source":"copyrighted","tier":"canon"}
+{"poet":"Seamus Heaney","title":"The Tollund Man","source":"copyrighted","tier":"canon"}
+{"poet":"Seamus Heaney","title":"Postscript","source":"copyrighted","tier":"canon"}
+{"poet":"Seamus Heaney","title":"When all the others were away at Mass","source":"copyrighted","tier":"canon"}
+{"poet":"Ted Hughes","title":"The Thought-Fox","source":"copyrighted","tier":"canon"}
+{"poet":"Ted Hughes","title":"Hawk Roosting","source":"copyrighted","tier":"canon"}
+{"poet":"Ted Hughes","title":"Pike","source":"copyrighted","tier":"canon"}
+{"poet":"Ted Hughes","title":"View of a Pig","source":"copyrighted","tier":"canon"}
+{"poet":"Ted Hughes","title":"The Horses","source":"copyrighted","tier":"canon"}
+{"poet":"Carol Ann Duffy","title":"Warming Her Pearls","source":"copyrighted","tier":"stretch"}
+{"poet":"Carol Ann Duffy","title":"Valentine","source":"copyrighted","tier":"stretch"}
+{"poet":"Carol Ann Duffy","title":"Prayer","source":"copyrighted","tier":"stretch"}
+{"poet":"Carol Ann Duffy","title":"Anne Hathaway","source":"copyrighted","tier":"stretch"}
+{"poet":"Tony Hoagland","title":"A Color of the Sky","source":"copyrighted","tier":"stretch"}
+{"poet":"Tony Hoagland","title":"Lucky","source":"copyrighted","tier":"stretch"}
+{"poet":"Tony Hoagland","title":"In Praise of Their Divorce","source":"copyrighted","tier":"stretch"}
+{"poet":"Billy Collins","title":"The Lanyard","source":"copyrighted","tier":"stretch"}
+{"poet":"Billy Collins","title":"On Turning Ten","source":"copyrighted","tier":"stretch"}
+{"poet":"Billy Collins","title":"Forgetfulness","source":"copyrighted","tier":"stretch"}
+{"poet":"Billy Collins","title":"Introduction to Poetry","source":"copyrighted","tier":"stretch"}
+{"poet":"Wendell Berry","title":"The Peace of Wild Things","source":"copyrighted","tier":"stretch"}
+{"poet":"Wendell Berry","title":"Manifesto: The Mad Farmer Liberation Front","source":"copyrighted","tier":"stretch"}
+{"poet":"Wendell Berry","title":"How to Be a Poet","source":"copyrighted","tier":"stretch"}
+{"poet":"Stevie Smith","title":"Not Waving but Drowning","source":"copyrighted","tier":"canon"}
+{"poet":"Philip Levine","title":"What Work Is","source":"copyrighted","tier":"stretch"}
+{"poet":"Philip Levine","title":"They Feed They Lion","source":"copyrighted","tier":"stretch"}
+{"poet":"Philip Levine","title":"The Simple Truth","source":"copyrighted","tier":"stretch"}
+{"poet":"Philip Levine","title":"You Can Have It","source":"copyrighted","tier":"stretch"}
