@@ -506,8 +506,15 @@ function renderStanza(q) {
   q.stanza.forEach((s, i) => {
     const p = document.createElement("p");
     p.className = "rf-lyric-stanza-line";
-    if (i === matchIdx || i === partnerIdx) p.classList.add("is-match");
-    p.textContent = s;
+    if (i === matchIdx) {
+      p.classList.add("is-match");
+      p.innerHTML = highlightSurface(s, q.surface);
+    } else if (i === partnerIdx) {
+      p.classList.add("is-match");
+      p.innerHTML = highlightSurface(s, q.partner.word);
+    } else {
+      p.textContent = s;
+    }
     wrap.appendChild(p);
   });
   return wrap;
