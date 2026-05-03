@@ -1135,6 +1135,15 @@ input[type="text"]::placeholder {
   padding-top: 10px;
   border-top: 1px solid var(--ink-ghost);
 }
+/* When the inflected footer sits directly below the popover header
+   (no tier-1 items in between), the head's own border-bottom already
+   separates the two — drop the footer's top border + spacing so we
+   don't render a dead band. */
+.rf-lyric-inflected.rf-lyric-inflected--first {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
 /* Header strip: vermilion-soft hover band signals "click anywhere on
    this row to toggle". Same affordance pattern as the quote rows. */
 .rf-lyric-inflected-head {

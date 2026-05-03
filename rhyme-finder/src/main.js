@@ -348,7 +348,13 @@ function decorateWithLyrics(el, word) {
   if (tier1.length > POP_CAP) {
     pop.appendChild(renderShowMore(tier1.slice(POP_CAP), word, pop));
   }
-  if (tier2.length) pop.appendChild(renderInflectedFooter(tier2));
+  if (tier2.length) {
+    const footer = renderInflectedFooter(tier2);
+    // No tier-1 between header and footer → drop the redundant separator
+    // and the surrounding margin so the popover doesn't show a dead band.
+    if (!tier1.length) footer.classList.add("rf-lyric-inflected--first");
+    pop.appendChild(footer);
+  }
 
   el.appendChild(pop);
 
