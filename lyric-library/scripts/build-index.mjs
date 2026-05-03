@@ -212,11 +212,14 @@ for (const f of files) {
         if (tokens.length === 0) continue;
         lineCount++;
 
-        const nonStopIdx = tokens
-          .map((t, i) => (STOPWORDS.has(t) ? -1 : i))
-          .filter((i) => i >= 0);
-        const firstNon = nonStopIdx[0];
-        const lastNon = nonStopIdx[nonStopIdx.length - 1];
+        // Position is decided by the literal first/last *token* in the line,
+        // not by the first/last content word — Genius gives one line per
+        // newline, and the rhyme-bearing word is whatever the line actually
+        // ends with ("over" in "When this love is over?", not "love").
+        // Stopwords are still excluded from the index further down — they
+        // just don't get their position label stolen by the next non-stopword.
+        const firstNon = 0;
+        const lastNon = tokens.length - 1;
 
         // Compute partner once per line (not per word); cache for end-pos
         // quotes from this line. Mid-line quotes get null.
