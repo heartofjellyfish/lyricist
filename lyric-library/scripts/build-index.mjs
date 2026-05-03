@@ -285,13 +285,25 @@ for (const f of files) {
 
 // De-dup identical quotes. Choruses repeat the same lyric verbatim across
 // the song; we key on (artist, song, line text) so those collapse to one.
-// Earlier versions keyed on lineIdx, which let chorus repeats slip through
-// because each repetition has a different position in the song.
+// `canonicalize` folds Cyrillic-looking-like-Latin homoglyphs (Genius
+// data sometimes has them mid-word — "whеn" vs "when") and case so two
+// visually-identical lines hash to the same signature. Display still
+// uses the raw `q.line`.
+const HOMOGLYPHS = {
+  // Cyrillic → Latin lookalikes, lowercase + uppercase
+  "а":"a","е":"e","о":"o","р":"p","с":"c","у":"y","х":"x",
+  "А":"A","В":"B","Е":"E","К":"K","М":"M","Н":"H","О":"O",
+  "Р":"P","С":"C","Т":"T","Х":"X","У":"Y","і":"i","І":"I",
+};
+function canonicalize(s) {
+  return [...s].map((c) => HOMOGLYPHS[c] ?? c).join("").toLowerCase();
+}
+
 for (const [k, arr] of index) {
   const seen = new Set();
   const dedup = [];
   for (const q of arr) {
-    const sig = `${q.artist}|${q.song}|${q.line}`;
+    const sig = `${q.artist}|${q.song}|${canonicalize(q.line)}`;
     if (seen.has(sig)) continue;
     seen.add(sig);
     dedup.push(q);
