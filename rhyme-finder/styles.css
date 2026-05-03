@@ -871,27 +871,26 @@ input[type="text"]::placeholder {
   margin: 0 0 36px;
   padding: 18px 0 22px;
   border-bottom: 1px solid var(--hair);
-  display: grid;
-  grid-template-columns: minmax(150px, 200px) 1fr;
-  gap: 28px;
-  align-items: start;
 }
 .rf-source-panel:empty { display: none; }
 
+/* Horizontal eyebrow: "LINES USING see · 5 AT LINE END · 3 ARTISTS"
+   sits as one mono caps line above the quotes, with a hair-soft
+   divider below it. Lyrics get the full panel width. */
 .rf-source-panel-rail {
   font-family: var(--mono);
   font-size: 9.5px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ink-faded);
-  padding-top: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--hair-soft);
 }
 .rf-source-panel-rail-eyebrow { color: var(--vermilion); }
 .rf-source-panel-rail-eyebrow em { font-style: italic; color: var(--ink); }
-.rf-source-panel-rail-meta { color: var(--ink-faded); font-size: 9px; }
+.rf-source-panel-rail-sep { margin: 0 8px; opacity: 0.5; }
+.rf-source-panel-rail-meta { color: var(--ink-faded); }
 
 .rf-source-panel-quotes { display: flex; flex-direction: column; gap: 14px; }
 
@@ -932,7 +931,8 @@ input[type="text"]::placeholder {
 }
 
 @media (max-width: 720px) {
-  .rf-source-panel { grid-template-columns: 1fr; gap: 12px; }
+  /* Source-panel is already a single column; on narrow viewports the
+     quote rows stack the line above the attribution. */
   .rf-source-panel-quote { grid-template-columns: 1fr; gap: 4px; }
 }
 

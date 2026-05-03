@@ -676,8 +676,9 @@ function renderSourcePanel(word) {
   const rail = document.createElement("div");
   rail.className = "rf-source-panel-rail";
   rail.innerHTML =
-    `<div class="rf-source-panel-rail-eyebrow">Lines using <em>${escapeHtml(word)}</em></div>` +
-    `<div class="rf-source-panel-rail-meta">${ends.length} at line end · ${artists} artist${artists === 1 ? "" : "s"}</div>`;
+    `<span class="rf-source-panel-rail-eyebrow">Lines using <em>${escapeHtml(word)}</em></span>` +
+    `<span class="rf-source-panel-rail-sep">·</span>` +
+    `<span class="rf-source-panel-rail-meta">${ends.length} at line end · ${artists} artist${artists === 1 ? "" : "s"}</span>`;
   panel.appendChild(rail);
 
   const col = document.createElement("div");
