@@ -516,7 +516,11 @@ function renderInflectedFooter(tier2) {
   wrap.appendChild(list);
 
   let rendered = false;
-  toggle.addEventListener("click", (e) => {
+  // Click anywhere on the footer header (label or toggle button) expands.
+  // Clicks inside the already-rendered list don't collapse — the user
+  // may be selecting / reading.
+  wrap.addEventListener("click", (e) => {
+    if (e.target.closest(".rf-lyric-inflected-list")) return;
     e.stopPropagation();
     if (!rendered) {
       rendered = true;

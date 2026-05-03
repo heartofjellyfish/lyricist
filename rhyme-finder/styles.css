@@ -1097,7 +1097,13 @@ input[type="text"]::placeholder {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  cursor: pointer;
 }
+.rf-lyric-inflected:hover .rf-lyric-inflected-label,
+.rf-lyric-inflected:hover .rf-lyric-inflected-toggle { color: var(--vermilion); }
+/* Once the list is rendered, the cursor reverts inside it so users can
+   read / select without thinking they'll collapse the footer. */
+.rf-lyric-inflected-list { cursor: auto; }
 .rf-lyric-inflected-label {
   font-family: var(--mono);
   font-size: 9px;
