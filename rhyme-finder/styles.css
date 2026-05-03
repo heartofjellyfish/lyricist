@@ -995,8 +995,11 @@ input[type="text"]::placeholder {
   opacity: 0;
   visibility: hidden;
   transform: translateY(-2px);
-  transition: opacity 120ms ease, transform 120ms ease, visibility 0s linear 60ms;
-  pointer-events: none;
+  /* 200ms close delay gives the user ample time to traverse the gap
+     into the popover. visibility: hidden blocks pointer events on its
+     own — no need for a conditional pointer-events: none, which used
+     to switch off instantly and stranded the bridge mid-traverse. */
+  transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 200ms;
   text-align: left;
 }
 .rf-word.rf-has-lyrics:hover .rf-lyric-pop,
@@ -1006,7 +1009,6 @@ input[type="text"]::placeholder {
   visibility: visible;
   transform: translateY(0);
   transition-delay: 0s;
-  pointer-events: auto;
 }
 .rf-word.rf-pinned .rf-lyric-pop {
   z-index: 60;
@@ -1023,10 +1025,10 @@ input[type="text"]::placeholder {
   .rf-lyric-pop::before {
     content: "";
     position: absolute;
-    top: -10px;
-    left: 0;
-    right: 0;
-    height: 10px;
+    top: -12px;
+    left: -16px;
+    right: -16px;
+    height: 12px;
   }
 }
 
