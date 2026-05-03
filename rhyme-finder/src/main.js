@@ -325,6 +325,14 @@ function decorateWithLyrics(el, word) {
   const tier2 = quotes.filter((q) => isEnd(q) && !isExactSurface(q));
   if (!tier1.length && !tier2.length) return; // nothing rhyme-relevant
 
+  // Within each tier, lift quotes that have a rhyme partner — they
+  // make the rhyme visible as a couplet rather than a lone line. Stable
+  // sort preserves the original popularity / line-length ordering
+  // within each (with-partner / without-partner) bucket.
+  const partnerFirst = (a, b) => (a.partner ? 0 : 1) - (b.partner ? 0 : 1);
+  tier1.sort(partnerFirst);
+  tier2.sort(partnerFirst);
+
   el.classList.add("rf-has-lyrics");
 
   // Badge: chunky vermilion dot + count when at least one tier-1
@@ -645,13 +653,15 @@ function renderSourcePanel(word) {
     panel.style.display = "none";
     return;
   }
-  // Sort exact surface matches first, inflected after. Preserve original
-  // order within each group (already ranked by song popularity at build).
+  // Sort: exact-surface first, then quotes-with-partner first within
+  // each surface group. Stable sort preserves the build-time ranking
+  // (song popularity / line length) within each bucket.
   const wordLower = word.toLowerCase();
   ends.sort((a, b) => {
     const aExact = (a.surface || "").toLowerCase() === wordLower ? 0 : 1;
     const bExact = (b.surface || "").toLowerCase() === wordLower ? 0 : 1;
-    return aExact - bExact;
+    if (aExact !== bExact) return aExact - bExact;
+    return (a.partner ? 0 : 1) - (b.partner ? 0 : 1);
   });
   panel.style.display = "";
   const artists = new Set(ends.map((q) => q.credit || q.artist)).size;
