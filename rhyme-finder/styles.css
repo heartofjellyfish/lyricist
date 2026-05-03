@@ -895,11 +895,13 @@ input[type="text"]::placeholder {
 
 .rf-source-panel-quotes { display: flex; flex-direction: column; gap: 14px; }
 
+.rf-source-panel-item { margin: 0; }
 .rf-source-panel-quote {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: baseline;
   gap: 18px;
+  cursor: pointer;
   padding: 4px 6px 6px 8px;
   margin: -4px -6px -6px -8px;
   border-left: 2px solid transparent;
@@ -909,6 +911,9 @@ input[type="text"]::placeholder {
   background: rgba(177, 59, 44, 0.10);
   border-left-color: var(--vermilion);
 }
+/* Click-to-expand stanza mirrors the candidate-popover pattern. */
+.rf-source-panel-item .rf-lyric-stanza { margin-top: 6px; }
+.rf-source-panel-item.is-open .rf-lyric-stanza { display: block; }
 .rf-source-panel-line {
   font-family: var(--display);
   font-style: italic;

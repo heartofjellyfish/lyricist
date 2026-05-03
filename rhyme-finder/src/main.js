@@ -584,17 +584,34 @@ function renderSourcePanel(word) {
   col.className = "rf-source-panel-quotes";
   const cap = 2;
 
-  const buildRow = (q) => {
+  // Each row is wrapped in an item so the click-to-expand stanza
+  // pattern from the candidate popover works here too. Click the
+  // row → toggle `.is-open` on the wrapping item → stanza shows.
+  const buildItem = (q) => {
+    const item = document.createElement("article");
+    item.className = "rf-source-panel-item";
+
     const row = document.createElement("div");
     row.className = "rf-source-panel-quote";
     row.innerHTML =
       `<div class="rf-source-panel-line">${highlightSurface(q.line, q.surface)}</div>` +
       `<div class="rf-source-panel-attr">${escapeHtml(q.credit || q.artist)} · ` +
       `<span class="rf-lyric-attr-song">${escapeHtml(q.songTitle || q.song)}</span></div>`;
-    return row;
+    item.appendChild(row);
+
+    if (Array.isArray(q.stanza) && q.stanza.length) {
+      row.addEventListener("click", (e) => {
+        e.stopPropagation();
+        item.classList.toggle("is-open");
+      });
+      item.appendChild(renderStanza(q));
+    } else {
+      row.style.cursor = "default";
+    }
+    return item;
   };
 
-  for (const q of ends.slice(0, cap)) col.appendChild(buildRow(q));
+  for (const q of ends.slice(0, cap)) col.appendChild(buildItem(q));
 
   if (ends.length > cap) {
     const more = document.createElement("button");
@@ -603,7 +620,7 @@ function renderSourcePanel(word) {
     more.textContent = `Show ${ends.length - cap} more`;
     more.addEventListener("click", () => {
       const frag = document.createDocumentFragment();
-      for (const q of ends.slice(cap)) frag.appendChild(buildRow(q));
+      for (const q of ends.slice(cap)) frag.appendChild(buildItem(q));
       col.insertBefore(frag, more);
       more.remove();
     });
