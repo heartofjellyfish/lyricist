@@ -967,16 +967,16 @@ input[type="text"]::placeholder {
   transform: translateY(-1px);
   flex: none;
 }
-/* Inflected-only candidates: same anatomy, smaller paler dot + ink-
-   faded count. The size + colour drop together signal "fuzzier" without
-   needing a new glyph. */
+/* Inflected-only candidates: same vermilion hue, just a smaller dot
+   and a lighter count weight. Stays in the red family so it reads as
+   "still a lyric match", just less assertive than an exact hit. */
 .rf-lyric-badge.rf-lyric-badge--inflected {
-  color: var(--ink-faded);
+  color: var(--vermilion);
   font-weight: 400;
 }
 .rf-lyric-badge.rf-lyric-badge--inflected::before {
-  width: 4px; height: 4px;
-  background: var(--ink-faded);
+  width: 3px; height: 3px;
+  background: var(--vermilion);
 }
 
 .rf-lyric-pop {
