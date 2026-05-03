@@ -327,14 +327,17 @@ function decorateWithLyrics(el, word) {
 
   el.classList.add("rf-has-lyrics");
 
-  // Badge: "· N" when at least one tier-1 (exact) match exists,
-  // "~ N" (ink-faded) when only tier-2 (inflected) matches exist.
-  // The tilde is a visual hint for "approximate / fuzzy" — songwriters
-  // recognise it from chord notation; the colour drop reinforces.
+  // Badge: chunky vermilion dot + count when at least one tier-1
+  // (exact end-of-line) match exists; smaller, ink-faded dot + count
+  // when only tier-2 (inflected) matches exist. The dot is a ::before
+  // pseudo on .rf-lyric-badge — see styles.css.
   const badge = document.createElement("span");
-  const exactOnly = tier1.length > 0;
-  badge.className = exactOnly ? "rf-lyric-badge" : "rf-lyric-badge rf-lyric-badge--inflected";
-  badge.textContent = exactOnly ? `· ${tier1.length}` : `~ ${tier2.length}`;
+  const hasExact = tier1.length > 0;
+  badge.className = hasExact ? "rf-lyric-badge" : "rf-lyric-badge rf-lyric-badge--inflected";
+  const count = document.createElement("span");
+  count.className = "rf-lyric-badge-count";
+  count.textContent = String(hasExact ? tier1.length : tier2.length);
+  badge.appendChild(count);
   el.appendChild(badge);
 
   const pop = document.createElement("div");

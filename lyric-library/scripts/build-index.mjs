@@ -14,8 +14,18 @@ const ROOT = resolve(__dirname, "..");
 const RAW_DIR = resolve(ROOT, "raw");
 const OUT_DIR = resolve(ROOT, "..", "wordlists", "lyric-library");
 const CMU_PATH = resolve(ROOT, "..", "wordlists", "cmu-dict.json");
+const CMU_OVERRIDES_PATH = resolve(ROOT, "..", "wordlists", "cmu-overrides.json");
 
 const CMU = JSON.parse(readFileSync(CMU_PATH, "utf8"));
+// Apply hand-curated overrides last so they win against the base CMU entry
+// (matches the precedence in /src/pronunciation.js + /rhyme-finder/src/pronunciation.js).
+{
+  const raw = JSON.parse(readFileSync(CMU_OVERRIDES_PATH, "utf8"));
+  for (const word in raw) {
+    if (word.startsWith("_")) continue; // metadata keys like "_comment"
+    CMU[word.toLowerCase()] = raw[word];
+  }
+}
 
 const MAX_LINE_LEN = 80;
 const MAX_QUOTES_PER_WORD = 30;
