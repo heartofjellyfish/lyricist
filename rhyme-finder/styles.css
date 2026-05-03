@@ -1134,17 +1134,28 @@ input[type="text"]::placeholder {
   margin-top: 12px;
   padding-top: 10px;
   border-top: 1px solid var(--ink-ghost);
+}
+/* Header strip: vermilion-soft hover band signals "click anywhere on
+   this row to toggle". Same affordance pattern as the quote rows. */
+.rf-lyric-inflected-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
   cursor: pointer;
+  padding: 4px 8px;
+  margin: 0 -8px;
+  border-left: 2px solid transparent;
+  transition: background 100ms ease, border-color 100ms ease;
 }
-.rf-lyric-inflected:hover .rf-lyric-inflected-label,
-.rf-lyric-inflected:hover .rf-lyric-inflected-toggle { color: var(--vermilion); }
-/* Once the list is rendered, the cursor reverts inside it so users can
-   read / select without thinking they'll collapse the footer. */
+.rf-lyric-inflected-head:hover {
+  background: rgba(177, 59, 44, 0.10);
+  border-left-color: var(--vermilion);
+}
+.rf-lyric-inflected-head:hover .rf-lyric-inflected-label,
+.rf-lyric-inflected-head:hover .rf-lyric-inflected-toggle { color: var(--vermilion); }
+/* The list inside reverts cursor so users can read / select. */
 .rf-lyric-inflected-list { cursor: auto; }
 .rf-lyric-inflected-label {
   font-family: var(--mono);
@@ -1198,6 +1209,7 @@ input[type="text"]::placeholder {
   border-left-color: var(--vermilion);
 }
 .rf-lyric-inflected-line {
+  display: block;
   font-family: var(--display);
   font-style: italic;
   font-size: 14.5px;
@@ -1207,13 +1219,13 @@ input[type="text"]::placeholder {
 .rf-lyric-inflected-item .rf-lyric-stanza { margin-top: 6px; display: none; }
 .rf-lyric-inflected-item.is-open .rf-lyric-stanza { display: block; }
 .rf-lyric-inflected-attr {
+  display: block;
+  margin-top: 2px;
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-faded);
-  margin-left: 6px;
-  white-space: nowrap;
 }
 
 .rf-lyric-more {

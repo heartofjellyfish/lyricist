@@ -504,18 +504,26 @@ function renderInflectedFooter(tier2) {
   const surfaces = [...new Set(tier2.map((q) => q.surface))].slice(0, 2);
   const hint = surfaces.length ? ` (${surfaces.join(" · ")})` : "";
 
+  // Header strip: label + Show/Hide toggle together, framed so the
+  // user sees a clear "click anywhere on this row to expand/collapse"
+  // affordance via a vermilion-soft hover band.
+  const head = document.createElement("div");
+  head.className = "rf-lyric-inflected-head";
+
   const label = document.createElement("div");
   label.className = "rf-lyric-inflected-label";
   label.innerHTML =
     `+ ${tier2.length} inflected match${tier2.length === 1 ? "" : "es"}` +
     `<span style="opacity:0.6">${escapeHtml(hint)}</span>`;
-  wrap.appendChild(label);
+  head.appendChild(label);
 
   const toggle = document.createElement("button");
   toggle.type = "button";
   toggle.className = "rf-lyric-inflected-toggle";
   toggle.textContent = "Show ↓";
-  wrap.appendChild(toggle);
+  head.appendChild(toggle);
+
+  wrap.appendChild(head);
 
   const list = document.createElement("ul");
   list.className = "rf-lyric-inflected-list";
