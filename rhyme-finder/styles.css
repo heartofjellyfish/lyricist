@@ -863,59 +863,112 @@ input[type="text"]::placeholder {
   .rf-seal { right: -42px; width: 36px; height: 36px; font-size: 18px; }
 }
 
-/* ── Lyric Library badge + popover (Phase 1.5) ────────────────────── */
+/* ── Source-word panel (Phase 1.7) ─────────────────────────────────
+   Always-visible strip just under the source-summary header. Anchors
+   the searched word's two best end-position quotes so they live
+   above the candidate fold rather than buried in popovers. */
+.rf-source-panel {
+  margin: 0 0 36px;
+  padding: 18px 0 22px;
+  border-bottom: 1px solid var(--hair);
+  display: grid;
+  grid-template-columns: minmax(150px, 200px) 1fr;
+  gap: 28px;
+  align-items: start;
+}
+.rf-source-panel:empty { display: none; }
+
+.rf-source-panel-rail {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rf-source-panel-rail-eyebrow { color: var(--vermilion); }
+.rf-source-panel-rail-eyebrow em { font-style: italic; color: var(--ink); }
+.rf-source-panel-rail-meta { color: var(--ink-faded); font-size: 9px; }
+
+.rf-source-panel-quotes { display: flex; flex-direction: column; gap: 14px; }
+
+.rf-source-panel-quote {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 18px;
+  padding: 4px 6px 6px 8px;
+  margin: -4px -6px -6px -8px;
+  border-left: 2px solid transparent;
+  transition: background 100ms ease, border-color 100ms ease;
+}
+.rf-source-panel-quote:hover {
+  background: rgba(177, 59, 44, 0.10);
+  border-left-color: var(--vermilion);
+}
+.rf-source-panel-line {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.35;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.rf-source-panel-attr {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .rf-source-panel { grid-template-columns: 1fr; gap: 12px; }
+  .rf-source-panel-quote { grid-template-columns: 1fr; gap: 4px; }
+}
+
+/* ── Lyric badge + popover (Phase 1.7 — editorial cut) ────────────
+   The popover only ever shows tier-1 (exact match at line end) by
+   default; tier-2 (inflected end-position) lives behind a single
+   faint footer toggle. Tier-3 / 4 (mid-line) are removed from this
+   surface entirely — they belong in a future word-study tool. */
 .rf-word.rf-has-lyrics { position: relative; cursor: pointer; }
 
-/* Badge: a vermilion dot followed by the total count. The dot is the
-   primary signal; the digit is just the magnitude. Replaces the old
-   "· N/M" string — section split now happens inside the popover header. */
 .rf-lyric-badge {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 3px;
-  margin-left: 5px;
-  vertical-align: 1px;
-  font-style: normal;
   font-family: var(--mono);
-  font-weight: 500;
   font-size: 10px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   color: var(--vermilion);
-}
-.rf-lyric-badge::before {
-  content: "";
-  display: inline-block;
-  width: 6px; height: 6px;
-  background: var(--vermilion);
-  border-radius: 50%;
-  transform: translateY(-1px);
-  flex: none;
+  margin-left: 4px;
+  vertical-align: 1px;
+  font-weight: 500;
+  font-style: normal;
 }
 
 .rf-lyric-pop {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 0;
   z-index: 50;
-  width: 380px;
-  max-height: 520px;
+  width: 420px;
+  max-width: 92vw;
+  max-height: 540px;
   overflow-y: auto;
-  /* Padding now lives on .rf-lyric-pop-head + .rf-lyric-pop-body so the
-     header strip can have its own background gradient. */
+  padding: 12px 16px 14px;
   background: var(--paper);
   border: 1px solid var(--ink);
   box-shadow: 4px 4px 0 var(--ink-ghost);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-2px);
-  /* Step 9: visibility delay shortened from 120ms → 60ms. Imperceptible
-     to deliberate users, kills the diagonal-cross flash when sweeping
-     between adjacent words. */
   transition: opacity 120ms ease, transform 120ms ease, visibility 0s linear 60ms;
   pointer-events: none;
   text-align: left;
 }
-
 .rf-word.rf-has-lyrics:hover .rf-lyric-pop,
 .rf-word.rf-has-lyrics:focus-within .rf-lyric-pop,
 .rf-word.rf-pinned .rf-lyric-pop {
@@ -923,31 +976,22 @@ input[type="text"]::placeholder {
   visibility: visible;
   transform: translateY(0);
   transition-delay: 0s;
-}
-
-/* Pinned: leaf-stack shadow — paper-deep fill, 1px ink offset, ink-ghost
-   shadow — reads as a stack of two pages, distinct from the hover state's
-   single soft shadow. */
-.rf-word.rf-pinned .rf-lyric-pop {
   pointer-events: auto;
+}
+.rf-word.rf-pinned .rf-lyric-pop {
   z-index: 60;
-  box-shadow:
-    4px 4px 0 var(--paper-deep),
-    4px 4px 0 1px var(--ink),
-    8px 8px 0 var(--ink-ghost);
+  box-shadow: 5px 5px 0 var(--ink);
 }
 
-/* Header strip: word + summary line, with close × hidden until pinned. */
-.rf-lyric-pop-head {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
+.rf-lyric-head {
+  display: flex;
   align-items: baseline;
-  padding: 12px 14px 10px;
-  border-bottom: 1px solid var(--ink);
-  background: linear-gradient(to bottom, rgba(26, 20, 14, 0.04), transparent 60%);
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ink-ghost);
+  margin-bottom: 10px;
 }
-.rf-lyric-pop-word {
+.rf-lyric-head-word {
   font-family: var(--display);
   font-style: italic;
   font-weight: 600;
@@ -955,151 +999,177 @@ input[type="text"]::placeholder {
   line-height: 1;
   color: var(--ink);
 }
-.rf-lyric-pop-summary {
+.rf-lyric-head-meta {
   font-family: var(--mono);
   font-size: 9.5px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-faded);
-  margin-top: 6px;
+  flex: 1;
 }
-.rf-lyric-pop-summary b { color: var(--vermilion); font-weight: 500; }
-
-.rf-lyric-pop-close {
-  display: none;
-  width: 22px; height: 22px;
-  align-items: center; justify-content: center;
-  border: 1px solid var(--ink);
-  background: var(--paper);
+.rf-lyric-head-pin {
+  appearance: none;
+  border: none;
+  background: transparent;
   font-family: var(--mono);
   font-size: 11px;
-  line-height: 1;
-  color: var(--ink);
-  padding: 0;
-  cursor: pointer;
-}
-.rf-word.rf-pinned .rf-lyric-pop-close { display: inline-flex; }
-.rf-lyric-pop-close:hover { background: var(--ink); color: var(--paper); }
-
-.rf-lyric-pop-body { padding: 6px 14px 12px; }
-
-.rf-lyric-section + .rf-lyric-section {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--ink-ghost);
-}
-
-/* Section head: sentence-case label on the left (vermilion), count + artist
-   meta on the right (mono caps, muted). Vermilion stays on the label only,
-   so the popover edge (ink) doesn't double up with another vermilion bar. */
-.rf-lyric-section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 6px 0 8px;
-}
-.rf-lyric-section-label {
-  font-family: var(--display);
-  font-style: italic;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--vermilion);
-  letter-spacing: 0.01em;
-}
-.rf-lyric-section-meta {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--ink-faded);
+  cursor: pointer;
+  padding: 0 2px;
 }
+.rf-lyric-head-pin:hover { color: var(--vermilion); }
+.rf-word.rf-pinned .rf-lyric-head-pin { color: var(--vermilion); }
 
+.rf-lyric-item { margin: 0; padding: 0; }
 .rf-lyric-item + .rf-lyric-item {
-  margin-top: 12px;
+  margin-top: 10px;
   padding-top: 10px;
   border-top: 1px dashed var(--ink-ghost);
 }
+.rf-lyric-quote {
+  cursor: pointer;
+  padding: 4px 8px 6px;
+  margin: -4px -8px -6px;
+  border-left: 2px solid transparent;
+  transition: background 100ms ease, border-color 100ms ease;
+}
+.rf-lyric-quote:hover {
+  background: rgba(177, 59, 44, 0.10);
+  border-left-color: var(--vermilion);
+}
 
-/* Matched line first; context lives in a collapsible grid wrapper. */
-.rf-lyric-line {
+.rf-lyric-line,
+.rf-lyric-partner {
   font-family: var(--display);
   font-style: italic;
   font-size: 17px;
   line-height: 1.4;
   color: var(--ink);
-  margin: 1px 0;
+  margin: 0;
+  text-wrap: pretty;
 }
+.rf-lyric-mark { background: transparent; color: var(--vermilion); font-weight: 600; }
 
-.rf-lyric-mark {
-  background: transparent;
-  color: var(--vermilion);
-  font-weight: 600;
-}
-
-/* Attribution row: who on the left, + context toggle on the right.
-   Sentence case (drop uppercase), bold artist name only. */
 .rf-lyric-attr {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+}
+.rf-lyric-attr-song { font-style: italic; text-transform: none; letter-spacing: 0.04em; }
+
+.rf-lyric-stanza {
+  display: none;
+  margin: 8px 0 0;
+  padding: 8px 0 2px 12px;
+  border-left: 1px solid var(--ink);
+}
+.rf-lyric-item.is-open .rf-lyric-stanza { display: block; }
+.rf-lyric-stanza-line {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-faded);
+  margin: 0;
+}
+.rf-lyric-stanza-line.is-match {
+  color: var(--ink);
+  background: rgba(177, 59, 44, 0.10);
+  padding: 1px 6px;
+  margin: 1px -6px;
+}
+
+.rf-lyric-inflected {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ink-ghost);
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.rf-lyric-inflected-label {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--ink-faded);
 }
-.rf-lyric-attr .who { color: var(--ink-soft); }
-.rf-lyric-attr .who b { color: var(--ink); font-weight: 500; }
-
-.rf-lyric-ctx-wrap {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 180ms ease;
+.rf-lyric-inflected-toggle {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+  cursor: pointer;
+  padding: 0;
 }
-.rf-lyric-item.is-open .rf-lyric-ctx-wrap {
-  grid-template-rows: 1fr;
-  margin-top: 6px;
+.rf-lyric-inflected-list {
+  display: none;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
 }
-.rf-lyric-ctx-inner { overflow: hidden; }
-
-.rf-lyric-ctx {
+.rf-lyric-inflected.is-expanded .rf-lyric-inflected-list { display: block; }
+.rf-lyric-inflected-item {
   font-family: var(--display);
   font-style: italic;
-  font-size: 14px;
-  line-height: 1.35;
-  color: var(--ink-faded);
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--ink-soft);
   margin: 0;
+  padding: 4px 0;
+}
+.rf-lyric-inflected-item + .rf-lyric-inflected-item {
+  border-top: 1px dashed var(--ink-ghost);
+}
+.rf-lyric-inflected-attr {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  margin-left: 6px;
+  white-space: nowrap;
 }
 
-.rf-lyric-ctx-toggle {
-  background: none;
-  border: none;
+.rf-lyric-more {
+  margin-top: 10px;
   padding: 0;
-  margin: 0;
-  font: inherit;
-  color: var(--ink-faded);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+  background: transparent;
+  border: none;
   cursor: pointer;
-  letter-spacing: inherit;
 }
-.rf-lyric-ctx-toggle::before { content: "+ context"; }
-.rf-lyric-item.is-open .rf-lyric-ctx-toggle::before { content: "− context"; }
-.rf-lyric-item.is-open .rf-lyric-ctx-toggle { color: var(--vermilion); }
+.rf-lyric-more:hover { color: var(--vermilion-deep); }
 
-/* Mobile: touch + narrow viewport → bottom sheet. The hover popover
-   would otherwise overflow the right edge on phones. */
+/* Mobile bottom sheet — preserved from 1.5/1.6. Pinned popover docks
+   to the viewport bottom; html.rf-sheet-open scroll-locks the page
+   and dims the backdrop. */
 @media (hover: none) and (max-width: 720px) {
   .rf-lyric-pop {
     position: fixed;
     inset: auto 0 0 0;
     width: 100%;
+    max-width: none;
     max-height: 70vh;
     border: none;
     border-top: 1px solid var(--ink);
     box-shadow: 0 -4px 24px rgba(26, 20, 14, 0.2);
   }
-  .rf-lyric-pop-close { display: inline-flex !important; }
   .rf-lyric-pop::before {
     content: "";
     display: block;
@@ -1117,143 +1187,3 @@ input[type="text"]::placeholder {
     background: rgba(26, 20, 14, 0.35);
   }
 }
-
-/* ── Phase 1.6 — spotlight + pin + partner pair + inline expand ────── */
-
-/* §4 · Soft-fill spotlight on the matched line when context is open. */
-.rf-lyric-item.is-open .rf-lyric-line {
-  position: relative;
-  background: rgba(177, 59, 44, 0.12);
-  padding: 4px 10px 4px 14px;
-  margin-left: -10px;
-  margin-right: -10px;
-}
-.rf-lyric-item.is-open .rf-lyric-line::before {
-  content: "";
-  position: absolute;
-  left: 0; top: 4px; bottom: 4px;
-  width: 2px;
-  background: var(--vermilion);
-}
-.rf-lyric-item.is-open .rf-lyric-ctx {
-  font-size: 13px;
-  line-height: 1.5;
-  padding: 0 4px;
-}
-
-/* §6 · Partner couplet — used for end-position quotes that have a partner.
-   The matched line + partner line stack together; an ink rule on the left
-   and a small `↳ rhymes · type` tag join them. */
-.rf-lyric-pair {
-  display: grid;
-  grid-template-columns: 14px 1fr;
-  gap: 0 12px;
-  align-items: stretch;
-}
-.rf-lyric-pair-rule {
-  grid-row: 1 / span 3;
-  position: relative;
-}
-.rf-lyric-pair-rule::before {
-  content: "";
-  position: absolute;
-  left: 6px; top: 8px; bottom: 8px;
-  width: 1px;
-  background: var(--ink-ghost);
-}
-.rf-lyric-pair-rule::after {
-  content: "";
-  position: absolute;
-  left: 4px; top: calc(50% - 2px);
-  width: 5px; height: 5px;
-  background: var(--vermilion);
-  border-radius: 50%;
-}
-.rf-lyric-pair-tag {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-faded);
-  padding: 2px 0;
-}
-.rf-lyric-pair-tag b { color: var(--vermilion); font-weight: 500; }
-
-/* §3 · "Show N more" — the section now expands in place. */
-.rf-lyric-more {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 6px 10px;
-  background: transparent;
-  border: 1px solid var(--vermilion);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--vermilion);
-  cursor: pointer;
-  transition: background 120ms ease, color 120ms ease;
-}
-.rf-lyric-more::after {
-  content: "↓";
-  transition: transform 200ms ease;
-}
-.rf-lyric-more:hover { background: var(--vermilion); color: var(--paper); }
-.rf-lyric-section.is-expanded .rf-lyric-more::after { transform: rotate(180deg); }
-
-/* §5 · Pin glyph in the popover header. The pin is *additive* to the
-   click-on-word pinning that Phase 1.5 introduced — it just makes the
-   affordance discoverable. */
-.rf-lyric-pop-tools {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.rf-lyric-pin {
-  width: 18px; height: 18px;
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  padding: 0;
-  color: var(--ink);
-  opacity: 0.55;
-  transition: opacity 120ms ease, color 120ms ease, transform 120ms ease;
-}
-.rf-lyric-pin:hover { opacity: 1; transform: rotate(-12deg) scale(1.1); }
-.rf-lyric-pin svg { display: block; width: 100%; height: 100%; }
-.rf-lyric-pin[aria-pressed="true"] {
-  opacity: 1;
-  color: var(--vermilion);
-  transform: none;
-}
-
-/* Hint shown next to the pin glyph until the user pins their first quote
-   in this session — JS toggles `.rf-lyric-pin-hint-suppress` on <html>
-   to hide it everywhere. */
-.rf-lyric-pin-hint {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-faded);
-  opacity: 0;
-  transition: opacity 200ms ease 600ms;
-  white-space: nowrap;
-}
-.rf-lyric-pin-hint b { color: var(--ink); font-weight: 500; }
-.rf-word.rf-has-lyrics:hover .rf-lyric-pin-hint { opacity: 0.7; }
-.rf-word.rf-pinned .rf-lyric-pin-hint { display: none; }
-html.rf-pin-hint-suppress .rf-lyric-pin-hint { display: none; }
-
-/* §6 · Section role tag (Verse / Chorus / Bridge) in the attribution row. */
-.rf-lyric-role {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-faded);
-  margin-left: 6px;
-}
-.rf-lyric-role.is-chorus { color: var(--vermilion); }
