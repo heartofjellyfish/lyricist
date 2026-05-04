@@ -15,17 +15,58 @@ const sourceSummary = document.getElementById("source-summary");
 const results = document.getElementById("results");
 
 // ── Tier metadata ───────────────────────────────────────────────────
-// `rule` is the concise technical definition shown next to the title.
-// (The longer "feel" prose used to live here — moved to the legend
-// footer for users who want it.)
+// Each tier carries:
+//   label    — the editorial name shown in the title
+//   subtitle — feel-based one-liner shown next to the label
+//   rule     — Pattison's technical definition (kept in popover)
+//   example  — a concrete example pair, shown in the popover
+//   stability — 1..5 (5 = most resolved). Drives the spectrum cells +
+//                left-bar colour fade.
 const TIER_META = {
-  perfect:     { label: "Perfect rhyme",  stability: 5, rule: "same vowel + same coda" },
-  family:      { label: "Family rhyme",   stability: 4, rule: "same vowel + coda from same family" },
-  additive:    { label: "Additive",       stability: 3, rule: "extra coda consonant on one side" },
-  subtractive: { label: "Subtractive",    stability: 3, rule: "missing coda consonant on one side" },
-  assonance:   { label: "Assonance",      stability: 2, rule: "same vowel, unrelated coda" },
-  consonance:  { label: "Consonance",     stability: 1, rule: "different vowels, same coda" },
+  perfect: {
+    label: "Perfect rhyme",
+    subtitle: "full resolution",
+    stability: 5,
+    rule: "Same vowel, same closing consonants. The rhyme lands clean and full.",
+    example: "cat / hat — same AE vowel, same T ending",
+  },
+  family: {
+    label: "Family rhyme",
+    subtitle: "close resolution",
+    stability: 4,
+    rule: "Same vowel; the closing consonants differ but come from the same phonetic family (e.g. T↔D, P↔B, K↔G).",
+    example: "cat / pad — AE vowel; T and D are both stops",
+  },
+  additive: {
+    label: "Additive",
+    subtitle: "trailing resolution",
+    stability: 3,
+    rule: "Same vowel and same closing consonants, with one extra consonant on one side.",
+    example: "love / loved — extra D on one side",
+  },
+  subtractive: {
+    label: "Subtractive",
+    subtitle: "clipped resolution",
+    stability: 3,
+    rule: "Same vowel and same closing consonants, but one side stops one consonant earlier.",
+    example: "cried / cry — one side missing the final D",
+  },
+  assonance: {
+    label: "Assonance",
+    subtitle: "loose resolution",
+    stability: 2,
+    rule: "Same vowel only; the closing consonants are unrelated.",
+    example: "love / dot — both AH, but V and T have nothing in common",
+  },
+  consonance: {
+    label: "Consonance",
+    subtitle: "faint resolution",
+    stability: 1,
+    rule: "Different vowels, same closing consonants.",
+    example: "love / live — both end in V; AH versus IH",
+  },
 };
+const TIER_TYPES = ["perfect", "family", "additive", "subtractive", "assonance", "consonance"];
 
 // ── Cliché pair list (Pattison's repeat offenders) ──────────────────
 // Bidirectional — order doesn't matter.
@@ -171,41 +212,147 @@ function renderResults(source, buckets) {
     results.innerHTML = `<div class="rf-empty">No rhyme candidates found in corpus. Try a more common word.</div>`;
     return;
   }
+  // Stability gradient legend — anchors the reader: the tiers below
+  // are sorted from stable (top) to loose (bottom).
+  const legend = document.createElement("div");
+  legend.className = "rf-stability-legend";
+  legend.innerHTML = `
+    <span class="rf-stability-legend-end">stable rhyme</span>
+    <span class="rf-stability-legend-track" aria-hidden="true">
+      <span class="rf-stability-legend-fill"></span>
+    </span>
+    <span class="rf-stability-legend-end">loose rhyme</span>
+  `;
+  results.appendChild(legend);
   for (const type of TYPE_ORDER) {
     const candidates = buckets[type] || [];
     if (candidates.length === 0) continue;
     results.appendChild(renderTier(type, candidates, source));
   }
+  // Ensure the global dismiss handler is wired even on searches where
+  // no candidate happens to have a lyric badge — tier popovers still
+  // need to close on outside-click / Esc.
+  installGlobalDismissHandlers();
+}
+
+// Tier-info popover: definition + 6-stop spectrum highlighting the
+// current tier + a concrete example. The "family" tier additionally
+// shows a consonant family chart so the reader can see *why* certain
+// codas count as related.
+function renderTierPopover(type) {
+  const meta = TIER_META[type];
+  const pop = document.createElement("div");
+  pop.className = "rf-tier-pop";
+
+  // Definition row
+  const def = document.createElement("div");
+  def.className = "rf-tier-pop-section";
+  def.innerHTML =
+    `<div class="rf-tier-pop-eyebrow">What it is</div>` +
+    `<p class="rf-tier-pop-body">${escapeHtml(meta.rule)}</p>`;
+  pop.appendChild(def);
+
+  // 6-stop spectrum showing every tier with the current one highlighted
+  const spec = document.createElement("div");
+  spec.className = "rf-tier-pop-section";
+  spec.innerHTML =
+    `<div class="rf-tier-pop-eyebrow">Where it sits</div>` +
+    `<ol class="rf-tier-spectrum-stops">` +
+    TIER_TYPES.map((t) => {
+      const isCurrent = t === type;
+      return (
+        `<li class="rf-tier-spectrum-stop${isCurrent ? " is-current" : ""}" data-stability="${TIER_META[t].stability}">` +
+        `<span class="rf-tier-spectrum-dot"></span>` +
+        `<span class="rf-tier-spectrum-label">${escapeHtml(TIER_META[t].label)}</span>` +
+        `</li>`
+      );
+    }).join("") +
+    `</ol>` +
+    `<div class="rf-tier-pop-axis"><span>most resolved</span><span>least resolved</span></div>`;
+  pop.appendChild(spec);
+
+  // Example row
+  const ex = document.createElement("div");
+  ex.className = "rf-tier-pop-section";
+  ex.innerHTML =
+    `<div class="rf-tier-pop-eyebrow">Example</div>` +
+    `<p class="rf-tier-pop-body rf-tier-pop-example">${escapeHtml(meta.example)}</p>`;
+  pop.appendChild(ex);
+
+  // Family chart — only for the family tier. Shows voicing pairs in
+  // each manner-of-articulation column.
+  if (type === "family") {
+    pop.appendChild(renderFamilyChart());
+  }
+
+  // Click inside popover shouldn't bubble out (would dismiss on
+  // outside-click handler). The handler below stops propagation.
+  pop.addEventListener("click", (e) => e.stopPropagation());
+  return pop;
+}
+
+function renderFamilyChart() {
+  const wrap = document.createElement("div");
+  wrap.className = "rf-tier-pop-section";
+  // Plosives: b/p, d/t, g/k. Fricatives: v/f, TH/th, z/s, zh/sh, j/ch.
+  // Nasals: m, n, ng (no unvoiced counterparts in English coda inventory).
+  const rows = [
+    { label: "Voiced", cells: ["b","d","g","v","TH","z","zh","j","m","n","ng"] },
+    { label: "Unvoiced", cells: ["p","t","k","f","th","s","sh","ch","","",""] },
+  ];
+  const headerSpans = [
+    { label: "Plosives", span: 3 },
+    { label: "Fricatives", span: 5 },
+    { label: "Nasals", span: 3 },
+  ];
+  let html =
+    `<div class="rf-tier-pop-eyebrow">Family chart</div>` +
+    `<table class="rf-tier-family-chart"><thead><tr><th></th>` +
+    headerSpans.map((h) => `<th colspan="${h.span}" class="rf-tier-family-group">${escapeHtml(h.label)}</th>`).join("") +
+    `</tr></thead><tbody>`;
+  for (const row of rows) {
+    html +=
+      `<tr><th class="rf-tier-family-row-label">${escapeHtml(row.label)}</th>` +
+      row.cells
+        .map((c) => `<td${c ? "" : ' class="rf-tier-family-empty"'}>${escapeHtml(c)}</td>`)
+        .join("") +
+      `</tr>`;
+  }
+  html += `</tbody></table>` +
+    `<p class="rf-tier-pop-body rf-tier-pop-note">Each column is a family pair — same place + manner, only the voicing differs.</p>`;
+  wrap.innerHTML = html;
+  return wrap;
 }
 
 function renderTier(type, candidates, source) {
   const meta = TIER_META[type];
   const tier = document.createElement("article");
   tier.className = "rf-tier";
+  tier.dataset.stability = String(meta.stability);
 
   const head = document.createElement("header");
   head.className = "rf-tier-head";
   head.dataset.stability = String(meta.stability);
-  // Five-cell scale: only the cell at the tier's stability position is
-  // filled. Leftmost cell = stab 1 (unstable), rightmost = stab 5 (stable).
-  const activeIdx = meta.stability - 1;
-  const cells = Array.from({ length: 5 }, (_, i) => {
-    return `<span class="rf-cell ${i === activeIdx ? "rf-cell-on" : ""}"></span>`;
-  }).join("");
   head.innerHTML = `
-    <div class="rf-tier-titlebox">
-      <div class="rf-tier-title">
+    <button class="rf-tier-titlebox" type="button" aria-label="What is ${escapeHtml(meta.label)}?">
+      <span class="rf-tier-title">
         ${escapeHtml(meta.label)}
-        <span class="rf-tier-rule">${escapeHtml(meta.rule)}</span>
-      </div>
-      <div class="rf-spectrum" title="Pattison stability — ${meta.stability} of 5">
-        <span class="rf-spectrum-end">unstable</span>
-        <span class="rf-cells">${cells}</span>
-        <span class="rf-spectrum-end">stable</span>
-      </div>
-    </div>
+        <span class="rf-tier-subtitle">— ${escapeHtml(meta.subtitle)}</span>
+        <span class="rf-tier-info" aria-hidden="true">?</span>
+      </span>
+    </button>
     <span class="rf-tier-count">${candidates.length}</span>
   `;
+  // Click anywhere on the title strip → toggle this tier's info popover.
+  const titleBtn = head.querySelector(".rf-tier-titlebox");
+  const pop = renderTierPopover(type);
+  head.appendChild(pop);
+  titleBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const wasOpen = head.classList.contains("rf-tier-head-open");
+    document.querySelectorAll(".rf-tier-head-open").forEach((h) => h.classList.remove("rf-tier-head-open"));
+    if (!wasOpen) head.classList.add("rf-tier-head-open");
+  });
   tier.appendChild(head);
 
   const body = document.createElement("div");
@@ -392,16 +539,27 @@ function installGlobalDismissHandlers() {
     document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
     document.documentElement.classList.remove("rf-sheet-open");
   };
+  const closeTierPopovers = () => {
+    document.querySelectorAll(".rf-tier-head-open").forEach((h) => h.classList.remove("rf-tier-head-open"));
+  };
 
   document.addEventListener("click", (e) => {
-    // Don't dismiss when the click landed inside a popover — quote /
-    // stanza / inflected-footer interactions all live there.
+    // Tier popover dismiss — don't dismiss when click is inside a tier
+    // popover or on the title button itself (the title handler manages
+    // its own toggle).
+    if (!e.target.closest(".rf-tier-pop") && !e.target.closest(".rf-tier-titlebox")) {
+      closeTierPopovers();
+    }
+    // Lyric popover dismiss — don't dismiss when click landed inside one.
     if (e.target.closest(".rf-lyric-pop")) return;
     unpinAll();
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") unpinAll();
+    if (e.key === "Escape") {
+      unpinAll();
+      closeTierPopovers();
+    }
   });
 }
 
@@ -680,7 +838,15 @@ function renderSourcePanel(word) {
   const isEnd = (q) => (q.position ?? q.wordPos) === "end";
   const ends = quotes.filter(isEnd);
   if (!ends.length) {
-    panel.style.display = "none";
+    // Empty state — keep the panel visible with a quiet message so the
+    // user knows the corpus simply doesn't have an end-position use yet,
+    // not that the search is broken.
+    panel.style.display = "";
+    panel.innerHTML =
+      `<div class="rf-source-panel-head">` +
+      `<h2 class="rf-source-panel-title">How songwriters use <em>${escapeHtml(word)}</em></h2>` +
+      `<div class="rf-source-panel-meta">no line-end uses in the corpus yet — try a rhyme below</div>` +
+      `</div>`;
     return;
   }
   // Sort: exact-surface first, then quotes-with-partner first within
@@ -696,13 +862,14 @@ function renderSourcePanel(word) {
   panel.style.display = "";
   const artists = new Set(ends.map((q) => q.credit || q.artist)).size;
 
-  const rail = document.createElement("div");
-  rail.className = "rf-source-panel-rail";
-  rail.innerHTML =
-    `<span class="rf-source-panel-rail-eyebrow">Lines using <em>${escapeHtml(word)}</em></span>` +
-    `<span class="rf-source-panel-rail-sep">·</span>` +
-    `<span class="rf-source-panel-rail-meta">${ends.length} at line end · ${artists} artist${artists === 1 ? "" : "s"}</span>`;
-  panel.appendChild(rail);
+  // Section heading reads as editorial content rather than metadata —
+  // sets the tone that this panel is curated reading, not a stat strip.
+  const head = document.createElement("div");
+  head.className = "rf-source-panel-head";
+  head.innerHTML =
+    `<h2 class="rf-source-panel-title">How songwriters use <em>${escapeHtml(word)}</em></h2>` +
+    `<div class="rf-source-panel-meta">${ends.length} at line end · ${artists} artist${artists === 1 ? "" : "s"}</div>`;
+  panel.appendChild(head);
 
   const col = document.createElement("div");
   col.className = "rf-source-panel-quotes";
