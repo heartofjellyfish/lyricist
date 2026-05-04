@@ -1,0 +1,37 @@
+{
+  "builtAt": "2026-05-04T00:17:07.046Z",
+  "totalArtists": 1,
+  "totalSongs": 3,
+  "artists": {
+    "adrianne-lenker": {
+      "credit": "Adrianne Lenker",
+      "fetchedAt": "2026-05-04T00:17:07.044Z",
+      "songCount": 3,
+      "songs": [
+        {
+          "title": "anything",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-anything-lyrics",
+          "chars": 2366
+        },
+        {
+          "title": "symbol",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-symbol-lyrics",
+          "chars": 1083
+        },
+        {
+          "title": "cradle",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-cradle-lyrics",
+          "chars": 587
+        }
+      ]
+    }
+  },
+  "lastRun": {
+    "fetchedThisRun": 3,
+    "failures": [],
+    "durationSec": 5
+  }
+}

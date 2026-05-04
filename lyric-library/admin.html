@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lyric Library · curation admin</title>
+<style>
+  :root {
+    --paper: #dcc28e;
+    --paper-deep: #c8a567;
+    --ink: #1a140e;
+    --ink-soft: #3a2e1f;
+    --ink-faded: #6e5a3c;
+    --ink-ghost: rgba(26, 20, 14, 0.14);
+    --vermilion: #b13b2c;
+    --vermilion-deep: #8a2a1e;
+    --display: "Cormorant Garamond", "Songti SC", "STSong", serif;
+    --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px clamp(20px, 4vw, 60px) 60px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  h1 {
+    margin: 0 0 4px;
+    font-size: 28px;
+    font-weight: 600;
+    font-style: italic;
+  }
+  .sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faded);
+    margin-bottom: 22px;
+  }
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .tab {
+    padding: 8px 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faded);
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: transparent;
+  }
+  .tab.active {
+    color: var(--ink);
+    background: rgba(26, 20, 14, 0.05);
+    border-color: var(--ink);
+    margin-bottom: -1px;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    align-items: center;
+    margin-bottom: 22px;
+    padding: 12px 14px;
+    border: 1px solid var(--ink);
+    background: rgba(26, 20, 14, 0.03);
+  }
+  .controls label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faded);
+  }
+  .controls input, .controls select {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid var(--ink);
+    background: var(--paper-deep);
+    color: var(--ink);
+  }
+  .controls input { min-width: 220px; }
+  .stats {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-faded);
+  }
+  .stats b { color: var(--vermilion); font-weight: 500; }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .summary-card {
+    border: 1px solid var(--ink-ghost);
+    padding: 10px 14px;
+    background: rgba(26, 20, 14, 0.02);
+  }
+  .summary-card .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faded);
+  }
+  .summary-card .value {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--ink);
+  }
+  .summary-card.tier-mirror .value { color: var(--vermilion); }
+
+  .entry {
+    border: 1px solid var(--ink-ghost);
+    background: rgba(26, 20, 14, 0.02);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+  }
+  .entry-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .entry-head:hover { color: var(--vermilion-deep); }
+  .entry-artist {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 600;
+    flex: 1;
+    min-width: 0;
+  }
+  .entry-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faded);
+    display: flex;
+    gap: 12px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border: 1px solid currentColor;
+    font-size: 9px;
+  }
+  .badge.tier-mirror { color: var(--vermilion); }
+  .badge.tier-canon { color: var(--ink-soft); }
+  .badge.tier-stretch { color: var(--ink-faded); }
+  .badge.mode-top { color: var(--ink-faded); font-style: italic; }
+  .badge.mode-picks { color: var(--ink-soft); }
+
+  .titles {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--ink-ghost);
+    font-size: 14px;
+    columns: 2;
+    column-gap: 24px;
+  }
+  .entry.open .titles { display: block; }
+  .titles .title {
+    break-inside: avoid;
+    margin: 1px 0;
+    color: var(--ink-soft);
+  }
+  .titles .top-note {
+    column-span: all;
+    color: var(--ink-faded);
+    font-style: italic;
+  }
+  .note {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-faded);
+    margin-top: 6px;
+  }
+  .empty {
+    padding: 40px;
+    text-align: center;
+    font-style: italic;
+    color: var(--ink-faded);
+  }
+  .reject { opacity: 0.4; text-decoration: line-through; }
+
+  .poem-row {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    padding: 6px 12px;
+    border-bottom: 1px dashed var(--ink-ghost);
+  }
+  .poem-row:hover { background: rgba(26, 20, 14, 0.04); }
+  .poem-poet { font-weight: 600; min-width: 220px; }
+  .poem-title { font-style: italic; flex: 1; color: var(--ink-soft); }
+  .poem-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faded);
+    display: flex;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Lyric Library · curation admin</h1>
+<div class="sub">Browse the corpus · queued (curation list) and integrated (actually fetched)</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="integrated">Integrated <span id="int-count" style="opacity:0.5"></span></button>
+  <button class="tab" data-tab="songs">Queued · Songs</button>
+  <button class="tab" data-tab="poems">Queued · Poems</button>
+</div>
+
+<div class="controls">
+  <label>Tier
+    <select id="tier-filter">
+      <option value="">all</option>
+      <option value="mirror">mirror</option>
+      <option value="canon">canon</option>
+      <option value="stretch">stretch</option>
+    </select>
+  </label>
+  <label>Search
+    <input id="search" type="text" placeholder="artist, poet, title..." autocomplete="off" />
+  </label>
+  <label>Sort
+    <select id="sort">
+      <option value="tier">by tier</option>
+      <option value="artist">by artist a-z</option>
+      <option value="count">by song count desc</option>
+    </select>
+  </label>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="summary" id="summary"></div>
+
+<div id="integrated-view"></div>
+<div id="songs-view" style="display:none"></div>
+<div id="poems-view" style="display:none"></div>
+
+<script>
+const state = {
+  tab: "integrated",
+  songs: [],
+  poems: [],
+  manifest: null,
+};
+
+async function loadData() {
+  const [s, p, m] = await Promise.all([
+    fetch("/lyric-library/curated/songs.jsonl").then(r => r.text()).catch(() => ""),
+    fetch("/lyric-library/curated/poems.jsonl").then(r => r.text()).catch(() => ""),
+    fetch("/lyric-library/manifest.json").then(r => r.ok ? r.json() : null).catch(() => null),
+  ]);
+  state.songs = parseJsonl(s);
+  state.poems = parseJsonl(p);
+  state.manifest = m;
+  // poll manifest every 5s so we see fetch progress live
+  setInterval(async () => {
+    try {
+      const r = await fetch("/lyric-library/manifest.json?_=" + Date.now());
+      if (r.ok) {
+        state.manifest = await r.json();
+        if (state.tab === "integrated") render();
+      }
+    } catch {}
+  }, 5000);
+  render();
+}
+
+function parseJsonl(text) {
+  return text.split("\n").filter(l => l.trim()).map(l => {
+    try { return JSON.parse(l); } catch { return null; }
+  }).filter(Boolean);
+}
+
+function render() {
+  const tier = document.getElementById("tier-filter").value;
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const sort = document.getElementById("sort").value;
+
+  document.getElementById("integrated-view").style.display = "none";
+  document.getElementById("songs-view").style.display = "none";
+  document.getElementById("poems-view").style.display = "none";
+  document.getElementById("tier-filter").parentElement.style.display = state.tab === "integrated" ? "none" : "";
+
+  if (state.tab === "integrated") {
+    document.getElementById("integrated-view").style.display = "";
+    renderIntegrated(q, sort);
+    return;
+  }
+  document.getElementById("summary").style.display = "";
+  if (state.tab === "songs") {
+    document.getElementById("songs-view").style.display = "";
+    renderSongs(filterSort(state.songs, tier, q, sort));
+  } else {
+    document.getElementById("poems-view").style.display = "";
+    renderPoems(filterSort(state.poems, tier, q, sort));
+  }
+
+  renderSummary();
+}
+
+function filterSort(items, tier, q, sort) {
+  let out = items.slice();
+  if (tier) out = out.filter(e => e.tier === tier);
+  if (q) {
+    out = out.filter(e => {
+      const hay = [
+        e.artist, e.poet, e.title,
+        ...(e.titles || []),
+      ].filter(Boolean).join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  if (sort === "artist") {
+    out.sort((a, b) => (a.artist || a.poet || "").localeCompare(b.artist || b.poet || ""));
+  } else if (sort === "count") {
+    out.sort((a, b) => songCount(b) - songCount(a));
+  } else {
+    const tierOrder = { mirror: 0, canon: 1, stretch: 2 };
+    out.sort((a, b) =>
+      (tierOrder[a.tier] ?? 9) - (tierOrder[b.tier] ?? 9) ||
+      (a.artist || a.poet || "").localeCompare(b.artist || b.poet || "")
+    );
+  }
+  return out;
+}
+
+function songCount(e) {
+  if (e.titles) return e.titles.length;
+  if (e.n) return e.n;
+  return 1;
+}
+
+function renderIntegrated(q, sort) {
+  const el = document.getElementById("integrated-view");
+  if (!state.manifest || !state.manifest.artists || Object.keys(state.manifest.artists).length === 0) {
+    el.innerHTML = `<div class="empty">No fetched data yet. Run <code>node lyric-library/scripts/fetch-curated.mjs</code> to populate.</div>`;
+    return;
+  }
+  let entries = Object.entries(state.manifest.artists).map(([slug, a]) => ({ slug, ...a }));
+  if (q) {
+    entries = entries.filter(a => {
+      const hay = [a.credit, a.slug, ...(a.songs || []).map(s => s.title)].join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  if (sort === "artist") entries.sort((a, b) => a.credit.localeCompare(b.credit));
+  else if (sort === "count") entries.sort((a, b) => b.songCount - a.songCount);
+  else entries.sort((a, b) => b.songCount - a.songCount); // default desc
+
+  const lr = state.manifest.lastRun;
+  const header = `
+    <div class="summary">
+      <div class="summary-card tier-mirror"><div class="label">artists fetched</div><div class="value">${state.manifest.totalArtists}</div></div>
+      <div class="summary-card tier-mirror"><div class="label">songs fetched</div><div class="value">${state.manifest.totalSongs}</div></div>
+      ${lr ? `<div class="summary-card"><div class="label">last run</div><div class="value" style="font-size:14px;font-style:normal">+${lr.fetchedThisRun} in ${lr.durationSec}s · ${lr.failures.length} fail</div></div>` : ""}
+      <div class="summary-card"><div class="label">built at</div><div class="value" style="font-size:12px;font-style:normal">${(state.manifest.builtAt || "").slice(0,19).replace("T"," ")}</div></div>
+    </div>`;
+
+  const body = entries.map(a => {
+    const titles = (a.songs || []).map(s =>
+      `<div class="title">· ${escapeHtml(s.title)}${s.year ? ` <span style="color:var(--ink-faded);font-family:var(--mono);font-size:10px"> ${s.year}</span>` : ""}</div>`
+    ).join("");
+    return `
+      <div class="entry">
+        <div class="entry-head" onclick="this.parentElement.classList.toggle('open')">
+          <div class="entry-artist">${escapeHtml(a.credit)}</div>
+          <div class="entry-meta">
+            <span class="badge tier-mirror">${a.songCount} fetched</span>
+            <span style="color:var(--ink-faded);font-family:var(--mono);font-size:10px">${(a.fetchedAt || "").slice(0,10)}</span>
+          </div>
+        </div>
+        <div class="titles">${titles}</div>
+      </div>`;
+  }).join("");
+
+  el.innerHTML = header + body;
+  document.getElementById("int-count").textContent = `(${state.manifest.totalSongs})`;
+  document.getElementById("stats").innerHTML = `<b>${entries.length}</b> artists · <b>${state.manifest.totalSongs}</b> songs`;
+  document.getElementById("summary").style.display = "none";
+}
+
+function renderSongs(items) {
+  const el = document.getElementById("songs-view");
+  if (!items.length) {
+    el.innerHTML = `<div class="empty">No matching entries.</div>`;
+    return;
+  }
+  el.innerHTML = items.map(e => {
+    const count = songCount(e);
+    const titles = e.titles
+      ? e.titles.map(t => `<div class="title">· ${escapeHtml(t)}</div>`).join("")
+      : `<div class="top-note">mode:top — at fetch time, Genius returns its top ${e.n} popular songs for this artist (we don't know which until fetch runs)</div>`;
+    return `
+      <div class="entry${e.reject ? " reject" : ""}">
+        <div class="entry-head" onclick="this.parentElement.classList.toggle('open')">
+          <div class="entry-artist">${escapeHtml(e.artist)}</div>
+          <div class="entry-meta">
+            <span class="badge tier-${e.tier}">${e.tier}</span>
+            <span class="badge mode-${e.mode}">${e.mode}</span>
+            <span>${count} ${e.mode === "top" ? "(top-N)" : "title" + (count === 1 ? "" : "s")}</span>
+          </div>
+        </div>
+        <div class="titles">
+          ${titles}
+          ${e.note ? `<div class="note">note: ${escapeHtml(e.note)}</div>` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderPoems(items) {
+  const el = document.getElementById("poems-view");
+  if (!items.length) {
+    el.innerHTML = `<div class="empty">No matching entries.</div>`;
+    return;
+  }
+  el.innerHTML = items.map(e => `
+    <div class="poem-row${e.reject ? " reject" : ""}">
+      <div class="poem-poet">${escapeHtml(e.poet)}</div>
+      <div class="poem-title">${escapeHtml(e.title)}</div>
+      <div class="poem-meta">
+        <span class="badge tier-${e.tier}">${e.tier}</span>
+        <span>${e.source}</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderSummary() {
+  const items = state.tab === "songs" ? state.songs : state.poems;
+  const tiers = { mirror: 0, canon: 0, stretch: 0 };
+  let totalSongs = 0;
+  for (const e of items) {
+    if (e.tier && e.tier in tiers) tiers[e.tier]++;
+    totalSongs += songCount(e);
+  }
+  const cards = state.tab === "songs"
+    ? [
+        { label: "entries", value: items.length, tier: "" },
+        { label: "songs (after expansion)", value: totalSongs, tier: "" },
+        { label: "mirror", value: tiers.mirror, tier: "mirror" },
+        { label: "canon", value: tiers.canon, tier: "canon" },
+        { label: "stretch", value: tiers.stretch, tier: "stretch" },
+      ]
+    : [
+        { label: "entries", value: items.length, tier: "" },
+        { label: "mirror", value: tiers.mirror, tier: "mirror" },
+        { label: "canon", value: tiers.canon, tier: "canon" },
+        { label: "stretch", value: tiers.stretch, tier: "stretch" },
+      ];
+  document.getElementById("summary").innerHTML = cards.map(c => `
+    <div class="summary-card${c.tier ? " tier-" + c.tier : ""}">
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}</div>
+    </div>
+  `).join("");
+
+  const visible = document.querySelectorAll("#" + state.tab + "-view .entry, #" + state.tab + "-view .poem-row").length;
+  document.getElementById("stats").innerHTML = `<b>${visible}</b> visible / ${items.length} total`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
+
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    state.tab = t.dataset.tab;
+    render();
+  });
+});
+document.getElementById("tier-filter").addEventListener("change", render);
+document.getElementById("search").addEventListener("input", render);
+document.getElementById("sort").addEventListener("change", render);
+
+loadData();
+</script>
+</body>
+</html>
