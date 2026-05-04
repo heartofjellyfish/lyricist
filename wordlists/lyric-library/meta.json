@@ -11,6 +11,11 @@
       "songCount": 14
     },
     {
+      "slug": "anais-mitchell",
+      "credit": "Anaïs Mitchell",
+      "songCount": 11
+    },
+    {
       "slug": "andy-shauf",
       "credit": "Andy Shauf",
       "songCount": 12
@@ -91,6 +96,11 @@
       "songCount": 21
     },
     {
+      "slug": "father-john-misty",
+      "credit": "Father John Misty",
+      "songCount": 14
+    },
+    {
       "slug": "fiona-apple",
       "credit": "Fiona Apple",
       "songCount": 22
@@ -99,6 +109,11 @@
       "slug": "gillian-welch",
       "credit": "Gillian Welch",
       "songCount": 16
+    },
+    {
+      "slug": "jackson-browne",
+      "credit": "Jackson Browne",
+      "songCount": 12
     },
     {
       "slug": "jason-isbell",
@@ -121,6 +136,11 @@
       "songCount": 18
     },
     {
+      "slug": "joe-henry",
+      "credit": "Joe Henry",
+      "songCount": 9
+    },
+    {
       "slug": "john-lennon",
       "credit": "John Lennon",
       "songCount": 19
@@ -136,9 +156,19 @@
       "songCount": 21
     },
     {
+      "slug": "kate-bush",
+      "credit": "Kate Bush",
+      "songCount": 17
+    },
+    {
       "slug": "keren-ann",
       "credit": "Keren Ann",
       "songCount": 5
+    },
+    {
+      "slug": "kris-kristofferson",
+      "credit": "Kris Kristofferson",
+      "songCount": 11
     },
     {
       "slug": "lana-del-rey",
@@ -161,9 +191,19 @@
       "songCount": 14
     },
     {
+      "slug": "loudon-wainwright-iii",
+      "credit": "Loudon Wainwright III",
+      "songCount": 10
+    },
+    {
       "slug": "lucinda-williams",
       "credit": "Lucinda Williams",
       "songCount": 15
+    },
+    {
+      "slug": "lyle-lovett",
+      "credit": "Lyle Lovett",
+      "songCount": 12
     },
     {
       "slug": "magnolia-electric-co",
@@ -206,6 +246,11 @@
       "songCount": 1
     },
     {
+      "slug": "nick-drake",
+      "credit": "Nick Drake",
+      "songCount": 20
+    },
+    {
       "slug": "paul-mccartney",
       "credit": "Paul McCartney",
       "songCount": 13
@@ -214,6 +259,16 @@
       "slug": "paul-simon",
       "credit": "Paul Simon",
       "songCount": 21
+    },
+    {
+      "slug": "phil-ochs",
+      "credit": "Phil Ochs",
+      "songCount": 14
+    },
+    {
+      "slug": "phoebe-bridgers",
+      "credit": "Phoebe Bridgers",
+      "songCount": 15
     },
     {
       "slug": "pink-floyd",
@@ -236,6 +291,16 @@
       "songCount": 8
     },
     {
+      "slug": "regina-spektor",
+      "credit": "Regina Spektor",
+      "songCount": 13
+    },
+    {
+      "slug": "richard-thompson",
+      "credit": "Richard Thompson",
+      "songCount": 15
+    },
+    {
       "slug": "roger-waters",
       "credit": "Roger Waters",
       "songCount": 19
@@ -249,6 +314,11 @@
       "slug": "sufjan-stevens",
       "credit": "Sufjan Stevens",
       "songCount": 20
+    },
+    {
+      "slug": "the-magnetic-fields",
+      "credit": "The Magnetic Fields",
+      "songCount": 19
     },
     {
       "slug": "thom-yorke",
@@ -286,10 +356,10 @@
       "songCount": 19
     }
   ],
-  "builtAt": "2026-05-04T01:05:02.422Z",
-  "totalSongs": 859,
-  "totalLines": 31879,
-  "totalTokens": 202231,
-  "totalEndQuotesWithPartner": 16062,
-  "totalEndQuotes": 29456
+  "builtAt": "2026-05-04T01:13:04.408Z",
+  "totalSongs": 1051,
+  "totalLines": 38663,
+  "totalTokens": 244491,
+  "totalEndQuotesWithPartner": 19819,
+  "totalEndQuotes": 35873
 }
