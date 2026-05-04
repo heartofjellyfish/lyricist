@@ -212,18 +212,6 @@ function renderResults(source, buckets) {
     results.innerHTML = `<div class="rf-empty">No rhyme candidates found in corpus. Try a more common word.</div>`;
     return;
   }
-  // Stability gradient legend — anchors the reader: the tiers below
-  // are sorted from stable (top) to loose (bottom).
-  const legend = document.createElement("div");
-  legend.className = "rf-stability-legend";
-  legend.innerHTML = `
-    <span class="rf-stability-legend-end">stable rhyme</span>
-    <span class="rf-stability-legend-track" aria-hidden="true">
-      <span class="rf-stability-legend-fill"></span>
-    </span>
-    <span class="rf-stability-legend-end">loose rhyme</span>
-  `;
-  results.appendChild(legend);
   for (const type of TYPE_ORDER) {
     const candidates = buckets[type] || [];
     if (candidates.length === 0) continue;
