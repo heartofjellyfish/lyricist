@@ -29,6 +29,7 @@ const TIER_META = {
     stability: 5,
     rule: "Same vowel, same closing consonants. The rhyme lands clean and full.",
     example: "cat / hat — same AE vowel, same T ending",
+    note: "Across all tiers, the two words still need to begin differently. love / love isn't a rhyme; love / dove is.",
   },
   family: {
     label: "Family rhyme",
@@ -67,6 +68,17 @@ const TIER_META = {
   },
 };
 const TIER_TYPES = ["perfect", "family", "additive", "subtractive", "assonance", "consonance"];
+
+// Pattison's stability scale is 5 stops, not 6 — Additive and Subtractive
+// share a stability rank (3). We merge them in the popover spectrum so
+// the visual matches the underlying axis.
+const SPECTRUM_STOPS = [
+  { types: ["perfect"], label: "Perfect" },
+  { types: ["family"], label: "Family" },
+  { types: ["additive", "subtractive"], label: "Additive / Subtractive" },
+  { types: ["assonance"], label: "Assonance" },
+  { types: ["consonance"], label: "Consonance" },
+];
 
 // ── Cliché pair list (Pattison's repeat offenders) ──────────────────
 // Bidirectional — order doesn't matter.
@@ -194,15 +206,66 @@ form.addEventListener("submit", (e) => {
 function renderSource(source) {
   const codaText = source.coda.length > 0 ? source.coda.join("·") : "—";
   // The vowel and coda values are wrapped in .rf-tag-val so the design
-  // can highlight the phonetic kernel in vermilion against the muted tag
-  // label. The first tag (masculine/feminine) is rendered as an inverted
-  // pill via :first-of-type selector — no inner span needed.
+  // can highlight the phonetic kernel in vermilion against the muted
+  // tag label. The first tag (masculine/feminine) is a button — click
+  // opens a popover explaining the term, with examples.
+  const stressLabel = source.masculine ? "masculine" : "feminine";
   sourceSummary.innerHTML = `
     <span class="rf-source-word">${escapeHtml(source.word)}</span>
-    <span class="rf-source-tag">${source.masculine ? "masculine" : "feminine"}</span>
+    <button class="rf-source-tag rf-source-tag-stress" type="button" aria-label="What does ${stressLabel} mean?">
+      ${stressLabel}<span class="rf-tier-info" aria-hidden="true">?</span>
+    </button>
     <span class="rf-source-tag">vowel <span class="rf-tag-val">${escapeHtml(source.stressedVowel)}</span></span>
     <span class="rf-source-tag">coda <span class="rf-tag-val">${escapeHtml(codaText)}</span></span>
   `;
+  // Wire up the stress popover.
+  const stressBtn = sourceSummary.querySelector(".rf-source-tag-stress");
+  const stressPop = renderStressPopover(source.masculine);
+  stressBtn.appendChild(stressPop);
+  stressBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const wasOpen = stressBtn.classList.contains("rf-source-tag-open");
+    document.querySelectorAll(".rf-source-tag-open").forEach((t) => t.classList.remove("rf-source-tag-open"));
+    if (!wasOpen) stressBtn.classList.add("rf-source-tag-open");
+  });
+}
+
+function renderStressPopover(isMasculine) {
+  const pop = document.createElement("div");
+  pop.className = "rf-tier-pop";
+  pop.addEventListener("click", (e) => e.stopPropagation());
+
+  const label = isMasculine ? "Masculine" : "Feminine";
+  const definition = isMasculine
+    ? "Ends on a stressed syllable. The rhyme lands on the final beat — common, clean, and song-friendly."
+    : "Ends with one unstressed syllable after the stressed one. The rhyme lands a beat earlier and trails off softly.";
+
+  // Examples curated to be common, recognisable rhyme words.
+  const examples = isMasculine
+    ? "love · dove · today · believe · forgot"
+    : "river · mother · follow · breaking · mountain";
+
+  const def = document.createElement("div");
+  def.className = "rf-tier-pop-section";
+  def.innerHTML =
+    `<div class="rf-tier-pop-eyebrow">${escapeHtml(label)} rhyme</div>` +
+    `<p class="rf-tier-pop-body">${escapeHtml(definition)}</p>`;
+  pop.appendChild(def);
+
+  const ex = document.createElement("div");
+  ex.className = "rf-tier-pop-section";
+  ex.innerHTML =
+    `<div class="rf-tier-pop-eyebrow">Examples</div>` +
+    `<p class="rf-tier-pop-body rf-tier-pop-example">${escapeHtml(examples)}</p>`;
+  pop.appendChild(ex);
+
+  const note = document.createElement("div");
+  note.className = "rf-tier-pop-section";
+  note.innerHTML =
+    `<p class="rf-tier-pop-note">Masculine and feminine endings rarely sing together — the rhyme lands on a different beat. Rhyme Finder shows mismatches with a dotted underline.</p>`;
+  pop.appendChild(note);
+
+  return pop;
 }
 
 function renderResults(source, buckets) {
@@ -246,17 +309,19 @@ function renderTierPopover(type) {
   spec.innerHTML =
     `<div class="rf-tier-pop-eyebrow">Where it sits</div>` +
     `<ol class="rf-tier-spectrum-stops">` +
-    TIER_TYPES.map((t) => {
-      const isCurrent = t === type;
+    `<span class="rf-tier-spectrum-track" aria-hidden="true"></span>` +
+    SPECTRUM_STOPS.map((stop) => {
+      const isCurrent = stop.types.includes(type);
+      const stab = TIER_META[stop.types[0]].stability;
       return (
-        `<li class="rf-tier-spectrum-stop${isCurrent ? " is-current" : ""}" data-stability="${TIER_META[t].stability}">` +
-        `<span class="rf-tier-spectrum-dot"></span>` +
-        `<span class="rf-tier-spectrum-label">${escapeHtml(TIER_META[t].label)}</span>` +
+        `<li class="rf-tier-spectrum-stop${isCurrent ? " is-current" : ""}" data-stability="${stab}">` +
+        `<span class="rf-tier-spectrum-dot-slot"><span class="rf-tier-spectrum-dot"></span></span>` +
+        `<span class="rf-tier-spectrum-label">${escapeHtml(stop.label)}</span>` +
         `</li>`
       );
     }).join("") +
     `</ol>` +
-    `<div class="rf-tier-pop-axis"><span>most resolved</span><span>least resolved</span></div>`;
+    `<div class="rf-tier-pop-axis"><span>most stable</span><span>least stable</span></div>`;
   pop.appendChild(spec);
 
   // Example row
@@ -266,6 +331,15 @@ function renderTierPopover(type) {
     `<div class="rf-tier-pop-eyebrow">Example</div>` +
     `<p class="rf-tier-pop-body rf-tier-pop-example">${escapeHtml(meta.example)}</p>`;
   pop.appendChild(ex);
+
+  // Optional note (currently used by Perfect to surface the universal
+  // "different onset" rule that applies to every tier).
+  if (meta.note) {
+    const note = document.createElement("div");
+    note.className = "rf-tier-pop-section";
+    note.innerHTML = `<p class="rf-tier-pop-note">${escapeHtml(meta.note)}</p>`;
+    pop.appendChild(note);
+  }
 
   // Family chart — only for the family tier. Shows voicing pairs in
   // each manner-of-articulation column.
@@ -527,17 +601,18 @@ function installGlobalDismissHandlers() {
     document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
     document.documentElement.classList.remove("rf-sheet-open");
   };
-  const closeTierPopovers = () => {
+  const closeAllInfoPopovers = () => {
     document.querySelectorAll(".rf-tier-head-open").forEach((h) => h.classList.remove("rf-tier-head-open"));
+    document.querySelectorAll(".rf-source-tag-open").forEach((t) => t.classList.remove("rf-source-tag-open"));
   };
 
   document.addEventListener("click", (e) => {
-    // Tier popover dismiss — don't dismiss when click is inside a tier
-    // popover or on the title button itself (the title handler manages
-    // its own toggle).
-    if (!e.target.closest(".rf-tier-pop") && !e.target.closest(".rf-tier-titlebox")) {
-      closeTierPopovers();
-    }
+    // Info popovers (tier + stress) dismiss on any click outside their
+    // trigger or popover body. The triggers manage their own toggle.
+    const insidePopover = e.target.closest(".rf-tier-pop");
+    const insideTrigger =
+      e.target.closest(".rf-tier-titlebox") || e.target.closest(".rf-source-tag-stress");
+    if (!insidePopover && !insideTrigger) closeAllInfoPopovers();
     // Lyric popover dismiss — don't dismiss when click landed inside one.
     if (e.target.closest(".rf-lyric-pop")) return;
     unpinAll();
@@ -546,7 +621,7 @@ function installGlobalDismissHandlers() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       unpinAll();
-      closeTierPopovers();
+      closeAllInfoPopovers();
     }
   });
 }
