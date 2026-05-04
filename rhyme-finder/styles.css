@@ -1259,6 +1259,10 @@ input[type="text"]::placeholder {
   border-left: 2px solid transparent;
   transition: background 100ms ease, color 100ms ease, border-color 100ms ease;
 }
+/* Hidden quotes are kept in the DOM but suppressed via display:none —
+   used by the reversible Show-more / Collapse toggle so the second click
+   restores the previous state without re-rendering. */
+.rf-lyric-hidden { display: none !important; }
 .rf-lyric-more:hover {
   background: rgba(177, 59, 44, 0.10);
   border-left-color: var(--vermilion);

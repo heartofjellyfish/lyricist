@@ -354,7 +354,7 @@ function decorateWithLyrics(el, word) {
 
   for (const q of tier1.slice(0, POP_CAP)) pop.appendChild(renderEndQuote(q, word));
   if (tier1.length > POP_CAP) {
-    pop.appendChild(renderShowMore(tier1.slice(POP_CAP), word, pop));
+    pop.appendChild(renderToggleMore(tier1.slice(POP_CAP), (q) => renderEndQuote(q, word), pop));
   }
   if (tier2.length) {
     if (!tier1.length) {
@@ -620,19 +620,29 @@ function ensureBottomVisible(item) {
   }
 }
 
-// "Show N more" inside the popover — one-shot inline expand. After
-// clicking, the rest are rendered in place and the button removes itself.
-function renderShowMore(rest, word, popEl) {
+// Generic reversible "Show N more / Collapse" toggle. Items are
+// rendered up-front (so first click is instant) and toggled visible
+// via the .rf-lyric-hidden class, which the CSS hides via display:none.
+// `container` is where the rest items live; the button itself is
+// returned and the caller appends it after the container.
+function renderToggleMore(rest, build, container) {
+  const hiddenItems = rest.map((q) => {
+    const el = build(q);
+    el.classList.add("rf-lyric-hidden");
+    container.appendChild(el);
+    return el;
+  });
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "rf-lyric-more";
-  btn.textContent = `Show ${rest.length} more`;
+  const collapsedLabel = `Show ${rest.length} more`;
+  const expandedLabel = "Collapse";
+  btn.textContent = collapsedLabel;
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
-    const frag = document.createDocumentFragment();
-    for (const q of rest) frag.appendChild(renderEndQuote(q, word));
-    popEl.insertBefore(frag, btn);
-    btn.remove();
+    const wasHidden = hiddenItems[0]?.classList.contains("rf-lyric-hidden");
+    hiddenItems.forEach((el) => el.classList.toggle("rf-lyric-hidden"));
+    btn.textContent = wasHidden ? expandedLabel : collapsedLabel;
   });
   return btn;
 }
@@ -651,18 +661,7 @@ function renderInlineInflectedList(tier2, popEl) {
   wrap.appendChild(list);
 
   if (tier2.length > POP_CAP) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "rf-lyric-more";
-    btn.textContent = `Show ${tier2.length - POP_CAP} more`;
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const frag = document.createDocumentFragment();
-      for (const q of tier2.slice(POP_CAP)) frag.appendChild(buildInflectedItem(q));
-      list.appendChild(frag);
-      btn.remove();
-    });
-    wrap.appendChild(btn);
+    wrap.appendChild(renderToggleMore(tier2.slice(POP_CAP), buildInflectedItem, list));
   }
   return wrap;
 }
@@ -737,19 +736,8 @@ function renderSourcePanel(word) {
   };
 
   for (const q of ends.slice(0, cap)) col.appendChild(buildItem(q));
-
   if (ends.length > cap) {
-    const more = document.createElement("button");
-    more.type = "button";
-    more.className = "rf-lyric-more";
-    more.textContent = `Show ${ends.length - cap} more`;
-    more.addEventListener("click", () => {
-      const frag = document.createDocumentFragment();
-      for (const q of ends.slice(cap)) frag.appendChild(buildItem(q));
-      col.insertBefore(frag, more);
-      more.remove();
-    });
-    col.appendChild(more);
+    col.appendChild(renderToggleMore(ends.slice(cap), buildItem, col));
   }
   panel.appendChild(col);
 }
