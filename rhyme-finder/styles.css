@@ -643,41 +643,24 @@ input[type="text"]::placeholder {
   padding: 4px 9px;
   letter-spacing: 0.2em;
 }
-/* Stress tag is a button — needs default chrome reset, position
-   relative to anchor its info popover. */
-button.rf-source-tag-stress {
-  appearance: none;
-  border: none;
-  cursor: pointer;
-  font: inherit;
+/* Stress tag carries an info popover that appears on hover. The tag
+   visually stays the inverted dark pill from `.rf-source-tag:first-of-type`
+   — only the cursor and the hover-trigger are added. */
+.rf-source-tag-stress {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  cursor: help;
 }
-.rf-source-tag-stress .rf-tier-info {
-  /* Inverted: tag is dark with paper text — info badge needs paper border */
-  border-color: rgba(220, 194, 142, 0.6);
-  color: var(--paper);
-  width: 14px;
-  height: 14px;
-  font-size: 9px;
-  vertical-align: 0;
-}
-.rf-source-tag-stress.rf-source-tag-open .rf-tier-info {
-  background: var(--paper);
-  color: var(--ink);
-  border-color: var(--paper);
-}
-/* The popover anchors to the button bottom-left like the tier popovers. */
-.rf-source-tag-stress .rf-tier-pop {
+/* The popover resets the parent's mono caps + 0.2em letter-spacing so
+   the prose inside reads as body text. */
+.rf-source-tag-stress > .rf-tier-pop {
   letter-spacing: 0;
   text-transform: none;
   font-weight: 400;
   color: var(--ink);
-  /* Reset because parent button has letter-spacing 0.2em + uppercase */
 }
-.rf-source-tag-open > .rf-tier-pop {
+.rf-source-tag-stress:hover > .rf-tier-pop,
+.rf-source-tag-stress:focus-visible > .rf-tier-pop,
+.rf-source-tag-stress:focus-within > .rf-tier-pop {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);

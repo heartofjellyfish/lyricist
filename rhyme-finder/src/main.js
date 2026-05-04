@@ -207,27 +207,17 @@ function renderSource(source) {
   const codaText = source.coda.length > 0 ? source.coda.join("·") : "—";
   // The vowel and coda values are wrapped in .rf-tag-val so the design
   // can highlight the phonetic kernel in vermilion against the muted
-  // tag label. The first tag (masculine/feminine) is a button — click
-  // opens a popover explaining the term, with examples.
+  // tag label. The masculine/feminine tag carries an info popover that
+  // appears on hover (cursor: help) — no extra glyph, no click needed.
   const stressLabel = source.masculine ? "masculine" : "feminine";
   sourceSummary.innerHTML = `
     <span class="rf-source-word">${escapeHtml(source.word)}</span>
-    <button class="rf-source-tag rf-source-tag-stress" type="button" aria-label="What does ${stressLabel} mean?">
-      ${stressLabel}<span class="rf-tier-info" aria-hidden="true">?</span>
-    </button>
+    <span class="rf-source-tag rf-source-tag-stress" tabindex="0">${stressLabel}</span>
     <span class="rf-source-tag">vowel <span class="rf-tag-val">${escapeHtml(source.stressedVowel)}</span></span>
     <span class="rf-source-tag">coda <span class="rf-tag-val">${escapeHtml(codaText)}</span></span>
   `;
-  // Wire up the stress popover.
-  const stressBtn = sourceSummary.querySelector(".rf-source-tag-stress");
-  const stressPop = renderStressPopover(source.masculine);
-  stressBtn.appendChild(stressPop);
-  stressBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const wasOpen = stressBtn.classList.contains("rf-source-tag-open");
-    document.querySelectorAll(".rf-source-tag-open").forEach((t) => t.classList.remove("rf-source-tag-open"));
-    if (!wasOpen) stressBtn.classList.add("rf-source-tag-open");
-  });
+  const stressTag = sourceSummary.querySelector(".rf-source-tag-stress");
+  stressTag.appendChild(renderStressPopover(source.masculine));
 }
 
 function renderStressPopover(isMasculine) {
@@ -601,19 +591,16 @@ function installGlobalDismissHandlers() {
     document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
     document.documentElement.classList.remove("rf-sheet-open");
   };
-  const closeAllInfoPopovers = () => {
+  const closeTierPopovers = () => {
     document.querySelectorAll(".rf-tier-head-open").forEach((h) => h.classList.remove("rf-tier-head-open"));
-    document.querySelectorAll(".rf-source-tag-open").forEach((t) => t.classList.remove("rf-source-tag-open"));
   };
 
   document.addEventListener("click", (e) => {
-    // Info popovers (tier + stress) dismiss on any click outside their
-    // trigger or popover body. The triggers manage their own toggle.
-    const insidePopover = e.target.closest(".rf-tier-pop");
-    const insideTrigger =
-      e.target.closest(".rf-tier-titlebox") || e.target.closest(".rf-source-tag-stress");
-    if (!insidePopover && !insideTrigger) closeAllInfoPopovers();
-    // Lyric popover dismiss — don't dismiss when click landed inside one.
+    // Tier info popover dismiss — stress popover is hover-driven and
+    // needs no click handling here.
+    if (!e.target.closest(".rf-tier-pop") && !e.target.closest(".rf-tier-titlebox")) {
+      closeTierPopovers();
+    }
     if (e.target.closest(".rf-lyric-pop")) return;
     unpinAll();
   });
@@ -621,7 +608,7 @@ function installGlobalDismissHandlers() {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       unpinAll();
-      closeAllInfoPopovers();
+      closeTierPopovers();
     }
   });
 }
