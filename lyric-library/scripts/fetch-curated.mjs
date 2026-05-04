@@ -53,7 +53,11 @@ function loadExisting(slug) {
   try { return JSON.parse(readFileSync(p, "utf8")); } catch { return null; }
 }
 
-const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
+// Unicode-aware normalization: decompose diacritics then strip them, so
+// "Déjà Vu" → "dejavu" matches "Deja Vu" → "dejavu".
+const norm = (s) => (s ?? "")
+  .normalize("NFD").replace(/[̀-ͯ]/g, "")
+  .toLowerCase().replace(/[^a-z0-9]+/g, "");
 
 function alreadyHasTitle(existing, queryTitle) {
   if (!existing?.songs) return false;

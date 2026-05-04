@@ -6,6 +6,11 @@
       "songCount": 28
     },
     {
+      "slug": "aesop-rock",
+      "credit": "Aesop Rock",
+      "songCount": 13
+    },
+    {
       "slug": "aimee-mann",
       "credit": "Aimee Mann",
       "songCount": 14
@@ -33,12 +38,22 @@
     {
       "slug": "arcade-fire",
       "credit": "Arcade Fire",
-      "songCount": 14
+      "songCount": 15
+    },
+    {
+      "slug": "aretha-franklin",
+      "credit": "Aretha Franklin",
+      "songCount": 8
     },
     {
       "slug": "bahamas",
       "credit": "Bahamas",
       "songCount": 8
+    },
+    {
+      "slug": "beirut",
+      "credit": "Beirut",
+      "songCount": 10
     },
     {
       "slug": "big-thief",
@@ -61,6 +76,11 @@
       "songCount": 7
     },
     {
+      "slug": "billie-holiday",
+      "credit": "Billie Holiday",
+      "songCount": 7
+    },
+    {
       "slug": "black-box-recorder",
       "credit": "Black Box Recorder",
       "songCount": 5
@@ -68,7 +88,7 @@
     {
       "slug": "bob-dylan",
       "credit": "Bob Dylan",
-      "songCount": 24
+      "songCount": 34
     },
     {
       "slug": "bon-iver",
@@ -81,6 +101,31 @@
       "songCount": 10
     },
     {
+      "slug": "bright-eyes",
+      "credit": "Bright Eyes",
+      "songCount": 17
+    },
+    {
+      "slug": "bruce-springsteen",
+      "credit": "Bruce Springsteen",
+      "songCount": 24
+    },
+    {
+      "slug": "burt-bacharach",
+      "credit": "Burt Bacharach",
+      "songCount": 9
+    },
+    {
+      "slug": "carly-simon",
+      "credit": "Carly Simon",
+      "songCount": 6
+    },
+    {
+      "slug": "carole-king",
+      "credit": "Carole King",
+      "songCount": 12
+    },
+    {
       "slug": "cass-mccombs",
       "credit": "Cass McCombs",
       "songCount": 10
@@ -91,8 +136,18 @@
       "songCount": 8
     },
     {
+      "slug": "cat-stevens",
+      "credit": "Cat Stevens",
+      "songCount": 10
+    },
+    {
       "slug": "cole-porter",
       "credit": "Cole Porter",
+      "songCount": 13
+    },
+    {
+      "slug": "counting-crows",
+      "credit": "Counting Crows",
       "songCount": 13
     },
     {
@@ -111,14 +166,34 @@
       "songCount": 14
     },
     {
+      "slug": "dangelo",
+      "credit": "DAngelo",
+      "songCount": 6
+    },
+    {
       "slug": "david-bowie",
       "credit": "David Bowie",
       "songCount": 20
     },
     {
+      "slug": "death-cab-for-cutie",
+      "credit": "Death Cab for Cutie",
+      "songCount": 15
+    },
+    {
       "slug": "dire-straits",
       "credit": "Dire Straits",
       "songCount": 10
+    },
+    {
+      "slug": "don-henley",
+      "credit": "Don Henley",
+      "songCount": 5
+    },
+    {
+      "slug": "donny-hathaway",
+      "credit": "Donny Hathaway",
+      "songCount": 8
     },
     {
       "slug": "dr-dog",
@@ -131,6 +206,16 @@
       "songCount": 0
     },
     {
+      "slug": "eagles",
+      "credit": "Eagles",
+      "songCount": 9
+    },
+    {
+      "slug": "earl-sweatshirt",
+      "credit": "Earl Sweatshirt",
+      "songCount": 11
+    },
+    {
       "slug": "eden-ahbez",
       "credit": "Eden Ahbez",
       "songCount": 4
@@ -141,6 +226,16 @@
       "songCount": 21
     },
     {
+      "slug": "eminem",
+      "credit": "Eminem",
+      "songCount": 17
+    },
+    {
+      "slug": "erykah-badu",
+      "credit": "Erykah Badu",
+      "songCount": 7
+    },
+    {
       "slug": "father-john-misty",
       "credit": "Father John Misty",
       "songCount": 14
@@ -149,6 +244,21 @@
       "slug": "fiona-apple",
       "credit": "Fiona Apple",
       "songCount": 22
+    },
+    {
+      "slug": "fleetwood-mac",
+      "credit": "Fleetwood Mac",
+      "songCount": 11
+    },
+    {
+      "slug": "florence-the-machine",
+      "credit": "Florence + the Machine",
+      "songCount": 14
+    },
+    {
+      "slug": "frank-ocean",
+      "credit": "Frank Ocean",
+      "songCount": 18
     },
     {
       "slug": "gillian-welch",
@@ -166,14 +276,29 @@
       "songCount": 12
     },
     {
+      "slug": "harry-nilsson",
+      "credit": "Harry Nilsson",
+      "songCount": 7
+    },
+    {
       "slug": "hoagy-carmichael",
       "credit": "Hoagy Carmichael",
       "songCount": 6
     },
     {
+      "slug": "hozier",
+      "credit": "Hozier",
+      "songCount": 18
+    },
+    {
       "slug": "iris-dement",
       "credit": "Iris DeMent",
       "songCount": 10
+    },
+    {
+      "slug": "iron-wine",
+      "credit": "Iron & Wine",
+      "songCount": 15
     },
     {
       "slug": "irving-berlin",
@@ -186,6 +311,11 @@
       "songCount": 12
     },
     {
+      "slug": "james-taylor",
+      "credit": "James Taylor",
+      "songCount": 8
+    },
+    {
       "slug": "jason-isbell",
       "credit": "Jason Isbell",
       "songCount": 18
@@ -196,24 +326,39 @@
       "songCount": 2
     },
     {
+      "slug": "jeff-buckley",
+      "credit": "Jeff Buckley",
+      "songCount": 11
+    },
+    {
       "slug": "jeff-tweedy",
       "credit": "Jeff Tweedy",
       "songCount": 5
     },
     {
+      "slug": "jimmy-webb",
+      "credit": "Jimmy Webb",
+      "songCount": 8
+    },
+    {
       "slug": "joanna-newsom",
       "credit": "Joanna Newsom",
-      "songCount": 18
+      "songCount": 19
     },
     {
       "slug": "joe-henry",
       "credit": "Joe Henry",
-      "songCount": 9
+      "songCount": 10
     },
     {
       "slug": "john-lennon",
       "credit": "John Lennon",
       "songCount": 19
+    },
+    {
+      "slug": "john-martyn",
+      "credit": "John Martyn",
+      "songCount": 11
     },
     {
       "slug": "john-moreland",
@@ -246,9 +391,19 @@
       "songCount": 7
     },
     {
+      "slug": "kae-tempest",
+      "credit": "Kae Tempest",
+      "songCount": 13
+    },
+    {
       "slug": "kate-bush",
       "credit": "Kate Bush",
       "songCount": 17
+    },
+    {
+      "slug": "kendrick-lamar",
+      "credit": "Kendrick Lamar",
+      "songCount": 25
     },
     {
       "slug": "keren-ann",
@@ -271,9 +426,19 @@
       "songCount": 35
     },
     {
+      "slug": "lauryn-hill",
+      "credit": "Lauryn Hill",
+      "songCount": 10
+    },
+    {
       "slug": "leonard-cohen",
       "credit": "Leonard Cohen",
-      "songCount": 21
+      "songCount": 29
+    },
+    {
+      "slug": "lorde",
+      "credit": "Lorde",
+      "songCount": 19
     },
     {
       "slug": "lorenz-hart",
@@ -331,13 +496,28 @@
       "songCount": 6
     },
     {
+      "slug": "mf-doom",
+      "credit": "MF DOOM",
+      "songCount": 8
+    },
+    {
       "slug": "mitski",
       "credit": "Mitski",
       "songCount": 15
     },
     {
+      "slug": "mos-def",
+      "credit": "Mos Def",
+      "songCount": 0
+    },
+    {
       "slug": "mount-eerie",
       "credit": "Mount Eerie",
+      "songCount": 13
+    },
+    {
+      "slug": "nas",
+      "credit": "Nas",
       "songCount": 13
     },
     {
@@ -359,6 +539,26 @@
       "slug": "nick-drake",
       "credit": "Nick Drake",
       "songCount": 20
+    },
+    {
+      "slug": "open-mike-eagle",
+      "credit": "Open Mike Eagle",
+      "songCount": 7
+    },
+    {
+      "slug": "otis-redding",
+      "credit": "Otis Redding",
+      "songCount": 4
+    },
+    {
+      "slug": "patti-smith",
+      "credit": "Patti Smith",
+      "songCount": 7
+    },
+    {
+      "slug": "patty-griffin",
+      "credit": "Patty Griffin",
+      "songCount": 8
     },
     {
       "slug": "paul-mccartney",
@@ -386,6 +586,11 @@
       "songCount": 7
     },
     {
+      "slug": "pj-harvey",
+      "credit": "PJ Harvey",
+      "songCount": 16
+    },
+    {
       "slug": "purple-mountains",
       "credit": "Purple Mountains",
       "songCount": 8
@@ -408,7 +613,7 @@
     {
       "slug": "regina-spektor",
       "credit": "Regina Spektor",
-      "songCount": 13
+      "songCount": 14
     },
     {
       "slug": "richard-thompson",
@@ -416,9 +621,19 @@
       "songCount": 15
     },
     {
+      "slug": "robert-wyatt",
+      "credit": "Robert Wyatt",
+      "songCount": 5
+    },
+    {
       "slug": "roger-waters",
       "credit": "Roger Waters",
       "songCount": 19
+    },
+    {
+      "slug": "roy-harper",
+      "credit": "Roy Harper",
+      "songCount": 8
     },
     {
       "slug": "rufus-wainwright",
@@ -426,8 +641,18 @@
       "songCount": 13
     },
     {
+      "slug": "sade",
+      "credit": "Sade",
+      "songCount": 8
+    },
+    {
       "slug": "sam-cooke",
       "credit": "Sam Cooke",
+      "songCount": 9
+    },
+    {
+      "slug": "sandy-denny",
+      "credit": "Sandy Denny",
       "songCount": 9
     },
     {
@@ -439,6 +664,16 @@
       "slug": "silver-jews",
       "credit": "Silver Jews",
       "songCount": 12
+    },
+    {
+      "slug": "smokey-robinson",
+      "credit": "Smokey Robinson",
+      "songCount": 7
+    },
+    {
+      "slug": "solange",
+      "credit": "Solange",
+      "songCount": 9
     },
     {
       "slug": "stephen-foster",
@@ -458,7 +693,7 @@
     {
       "slug": "stevie-wonder",
       "credit": "Stevie Wonder",
-      "songCount": 18
+      "songCount": 19
     },
     {
       "slug": "sturgill-simpson",
@@ -471,6 +706,41 @@
       "songCount": 20
     },
     {
+      "slug": "suzanne-vega",
+      "credit": "Suzanne Vega",
+      "songCount": 7
+    },
+    {
+      "slug": "sza",
+      "credit": "SZA",
+      "songCount": 10
+    },
+    {
+      "slug": "taylor-swift",
+      "credit": "Taylor Swift",
+      "songCount": 28
+    },
+    {
+      "slug": "the-1975",
+      "credit": "The 1975",
+      "songCount": 13
+    },
+    {
+      "slug": "the-band",
+      "credit": "The Band",
+      "songCount": 14
+    },
+    {
+      "slug": "the-beatles",
+      "credit": "The Beatles",
+      "songCount": 21
+    },
+    {
+      "slug": "the-decemberists",
+      "credit": "The Decemberists",
+      "songCount": 17
+    },
+    {
       "slug": "the-magnetic-fields",
       "credit": "The Magnetic Fields",
       "songCount": 19
@@ -481,9 +751,19 @@
       "songCount": 16
     },
     {
+      "slug": "the-national",
+      "credit": "The National",
+      "songCount": 20
+    },
+    {
       "slug": "thom-yorke",
       "credit": "Thom Yorke",
       "songCount": 20
+    },
+    {
+      "slug": "tom-petty",
+      "credit": "Tom Petty",
+      "songCount": 7
     },
     {
       "slug": "tom-waits",
@@ -499,6 +779,11 @@
       "slug": "townes-van-zandt",
       "credit": "Townes Van Zandt",
       "songCount": 18
+    },
+    {
+      "slug": "tracy-chapman",
+      "credit": "Tracy Chapman",
+      "songCount": 6
     },
     {
       "slug": "tyler-childers",
@@ -521,10 +806,10 @@
       "songCount": 19
     }
   ],
-  "builtAt": "2026-05-04T01:27:12.278Z",
-  "totalSongs": 1376,
-  "totalLines": 49136,
-  "totalTokens": 313096,
-  "totalEndQuotesWithPartner": 25367,
-  "totalEndQuotes": 45515
+  "builtAt": "2026-05-04T02:03:37.965Z",
+  "totalSongs": 2046,
+  "totalLines": 80750,
+  "totalTokens": 528263,
+  "totalEndQuotesWithPartner": 40589,
+  "totalEndQuotes": 73714
 }
