@@ -6,6 +6,11 @@
       "songCount": 28
     },
     {
+      "slug": "aimee-mann",
+      "credit": "Aimee Mann",
+      "songCount": 14
+    },
+    {
       "slug": "andy-shauf",
       "credit": "Andy Shauf",
       "songCount": 12
@@ -31,6 +36,11 @@
       "songCount": 16
     },
     {
+      "slug": "black-box-recorder",
+      "credit": "Black Box Recorder",
+      "songCount": 5
+    },
+    {
       "slug": "bob-dylan",
       "credit": "Bob Dylan",
       "songCount": 24
@@ -49,6 +59,11 @@
       "slug": "cassandra-jenkins",
       "credit": "Cassandra Jenkins",
       "songCount": 8
+    },
+    {
+      "slug": "damien-rice",
+      "credit": "Damien Rice",
+      "songCount": 14
     },
     {
       "slug": "david-bowie",
@@ -81,9 +96,19 @@
       "songCount": 22
     },
     {
+      "slug": "gillian-welch",
+      "credit": "Gillian Welch",
+      "songCount": 16
+    },
+    {
       "slug": "jason-isbell",
       "credit": "Jason Isbell",
       "songCount": 18
+    },
+    {
+      "slug": "jason-molina",
+      "credit": "Jason Molina",
+      "songCount": 2
     },
     {
       "slug": "jeff-tweedy",
@@ -91,14 +116,29 @@
       "songCount": 5
     },
     {
+      "slug": "joanna-newsom",
+      "credit": "Joanna Newsom",
+      "songCount": 18
+    },
+    {
       "slug": "john-lennon",
       "credit": "John Lennon",
       "songCount": 19
     },
     {
+      "slug": "john-prine",
+      "credit": "John Prine",
+      "songCount": 20
+    },
+    {
       "slug": "joni-mitchell",
       "credit": "Joni Mitchell",
       "songCount": 21
+    },
+    {
+      "slug": "keren-ann",
+      "credit": "Keren Ann",
+      "songCount": 5
     },
     {
       "slug": "lana-del-rey",
@@ -126,6 +166,11 @@
       "songCount": 15
     },
     {
+      "slug": "magnolia-electric-co",
+      "credit": "Magnolia Electric Co.",
+      "songCount": 5
+    },
+    {
       "slug": "mark-knopfler",
       "credit": "Mark Knopfler",
       "songCount": 10
@@ -136,6 +181,11 @@
       "songCount": 6
     },
     {
+      "slug": "mitski",
+      "credit": "Mitski",
+      "songCount": 15
+    },
+    {
       "slug": "mount-eerie",
       "credit": "Mount Eerie",
       "songCount": 13
@@ -144,6 +194,16 @@
       "slug": "neil-young",
       "credit": "Neil Young",
       "songCount": 19
+    },
+    {
+      "slug": "neutral-milk-hotel",
+      "credit": "Neutral Milk Hotel",
+      "songCount": 10
+    },
+    {
+      "slug": "nick-cave",
+      "credit": "Nick Cave",
+      "songCount": 1
     },
     {
       "slug": "paul-mccartney",
@@ -166,9 +226,24 @@
       "songCount": 19
     },
     {
+      "slug": "randy-newman",
+      "credit": "Randy Newman",
+      "songCount": 17
+    },
+    {
+      "slug": "ray-lamontagne",
+      "credit": "Ray LaMontagne",
+      "songCount": 8
+    },
+    {
       "slug": "roger-waters",
       "credit": "Roger Waters",
       "songCount": 19
+    },
+    {
+      "slug": "stephen-sondheim",
+      "credit": "Stephen Sondheim",
+      "songCount": 6
     },
     {
       "slug": "sufjan-stevens",
@@ -186,6 +261,21 @@
       "songCount": 20
     },
     {
+      "slug": "tori-amos",
+      "credit": "Tori Amos",
+      "songCount": 17
+    },
+    {
+      "slug": "townes-van-zandt",
+      "credit": "Townes Van Zandt",
+      "songCount": 18
+    },
+    {
+      "slug": "warren-zevon",
+      "credit": "Warren Zevon",
+      "songCount": 17
+    },
+    {
       "slug": "weyes-blood",
       "credit": "Weyes Blood",
       "songCount": 8
@@ -196,10 +286,10 @@
       "songCount": 19
     }
   ],
-  "builtAt": "2026-05-04T00:55:53.654Z",
-  "totalSongs": 651,
-  "totalLines": 24445,
-  "totalTokens": 154742,
-  "totalEndQuotesWithPartner": 12275,
-  "totalEndQuotes": 22521
+  "builtAt": "2026-05-04T01:05:02.422Z",
+  "totalSongs": 859,
+  "totalLines": 31879,
+  "totalTokens": 202231,
+  "totalEndQuotesWithPartner": 16062,
+  "totalEndQuotes": 29456
 }
