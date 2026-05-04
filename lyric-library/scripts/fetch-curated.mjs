@@ -53,16 +53,30 @@ function loadExisting(slug) {
   try { return JSON.parse(readFileSync(p, "utf8")); } catch { return null; }
 }
 
-function alreadyHasTitle(existing, title) {
+const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+function alreadyHasTitle(existing, queryTitle) {
   if (!existing?.songs) return false;
-  const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
-  const target = norm(title);
-  return existing.songs.some(s => norm(s.title) === target);
+  const target = norm(queryTitle);
+  // Dedup on queryTitle (what we asked for) so resume after a partial match
+  // doesn't re-query and double-up. Fall back to title for legacy data.
+  return existing.songs.some(s => norm(s.queryTitle ?? s.title) === target);
+}
+
+// Heuristic: reject obvious-bad matches where Genius returned an article,
+// chart list, or unrelated content instead of the song we asked for.
+function isLikelyBadMatch(queryTitle, matchedTitle) {
+  const q = norm(queryTitle);
+  const m = norm(matchedTitle);
+  // Article/list patterns: "100 Best Albums", "Songs of YYYY", chart titles
+  if (/(\d{2,3}best|bestalbums|bestsongs|topsongs|charts?|tracklist|review|articles?)/i.test(matchedTitle)) return true;
+  // If matched title is wildly longer than query and they share no overlap
+  if (m.length > q.length * 4 && !m.includes(q) && !q.includes(m.slice(0, Math.min(q.length, 8)))) return true;
+  return false;
 }
 
 async function resolveArtist(query) {
   const hits = await Client.songs.search(query);
-  const norm = (s) => s.toLowerCase().replace(/[^a-z]/g, "");
   const target = norm(query);
   for (const h of hits) {
     if (norm(h.artist?.name ?? "") === target) return h.artist;
@@ -130,18 +144,39 @@ async function fetchPicksForArtist(entry, accum) {
     try {
       const query = `${title} ${credit}`;
       const hits = await Client.songs.search(query);
-      // Prefer hits where artist matches; else first hit.
-      const norm = (s) => s.toLowerCase().replace(/[^a-z]/g, "");
       const wantArtist = norm(credit);
-      const match = hits.find(h => norm(h.artist?.name ?? "") === wantArtist) ?? hits[0];
+      const wantTitle = norm(title);
+      // Among artist-matching hits, pick the one whose title best matches the
+      // query — substring match preferred, then closest length. Avoids landing
+      // on a different song by the same artist when Genius's relevance ranker
+      // misfires (e.g. "Ten" → "Free Treasure" both by Lenker).
+      const artistHits = hits.filter(h => norm(h.artist?.name ?? "") === wantArtist);
+      let match = artistHits.find(h => norm(h.title).includes(wantTitle) || wantTitle.includes(norm(h.title)));
+      if (!match && artistHits.length) {
+        // No clean substring match — closest length wins as a weak signal
+        match = artistHits.sort((a, b) =>
+          Math.abs(norm(a.title).length - wantTitle.length) - Math.abs(norm(b.title).length - wantTitle.length)
+        )[0];
+      }
+      if (!match) match = hits[0]; // last resort
       if (!match) {
         console.warn(`    ✗ ${title}: no Genius match`);
         accum.failures.push({ artist: credit, title, reason: "no match" });
         continue;
       }
+      // Reject if matched title doesn't share enough with query title.
+      const m = norm(match.title);
+      const titleOverlap = m.includes(wantTitle) || wantTitle.includes(m) ||
+        (wantTitle.length >= 4 && m.length >= 4 && (m.startsWith(wantTitle.slice(0, 4)) || wantTitle.startsWith(m.slice(0, 4))));
+      if (isLikelyBadMatch(title, match.title) || norm(match.artist?.name ?? "") !== wantArtist || !titleOverlap) {
+        console.warn(`    ✗ ${title}: rejected match → ${match.title} (${match.artist?.name})`);
+        accum.failures.push({ artist: credit, title, reason: `bad match: ${match.title}` });
+        continue;
+      }
       const lyrics = await match.lyrics();
       out.songs.push({
         title: match.title,
+        queryTitle: title,           // remember what we asked for, for resume-dedup
         slug: slugify(match.title),
         year: match.releasedAt ? Number(String(match.releasedAt).slice(0, 4)) : null,
         url: match.url,

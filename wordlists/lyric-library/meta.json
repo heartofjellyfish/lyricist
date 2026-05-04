@@ -3,7 +3,22 @@
     {
       "slug": "adrianne-lenker",
       "credit": "Adrianne Lenker",
-      "songCount": 29
+      "songCount": 28
+    },
+    {
+      "slug": "andy-shauf",
+      "credit": "Andy Shauf",
+      "songCount": 12
+    },
+    {
+      "slug": "arcade-fire",
+      "credit": "Arcade Fire",
+      "songCount": 14
+    },
+    {
+      "slug": "bahamas",
+      "credit": "Bahamas",
+      "songCount": 8
     },
     {
       "slug": "big-thief",
@@ -11,24 +26,84 @@
       "songCount": 49
     },
     {
+      "slug": "bill-callahan",
+      "credit": "Bill Callahan",
+      "songCount": 16
+    },
+    {
       "slug": "bob-dylan",
       "credit": "Bob Dylan",
       "songCount": 24
     },
     {
+      "slug": "bon-iver",
+      "credit": "Bon Iver",
+      "songCount": 13
+    },
+    {
+      "slug": "cass-mccombs",
+      "credit": "Cass McCombs",
+      "songCount": 10
+    },
+    {
+      "slug": "cassandra-jenkins",
+      "credit": "Cassandra Jenkins",
+      "songCount": 8
+    },
+    {
+      "slug": "david-bowie",
+      "credit": "David Bowie",
+      "songCount": 20
+    },
+    {
+      "slug": "dire-straits",
+      "credit": "Dire Straits",
+      "songCount": 10
+    },
+    {
+      "slug": "dr-dog",
+      "credit": "Dr. Dog",
+      "songCount": 8
+    },
+    {
+      "slug": "eden-ahbez",
+      "credit": "Eden Ahbez",
+      "songCount": 4
+    },
+    {
+      "slug": "elliott-smith",
+      "credit": "Elliott Smith",
+      "songCount": 21
+    },
+    {
+      "slug": "fiona-apple",
+      "credit": "Fiona Apple",
+      "songCount": 22
+    },
+    {
       "slug": "jason-isbell",
       "credit": "Jason Isbell",
-      "songCount": 19
+      "songCount": 18
+    },
+    {
+      "slug": "jeff-tweedy",
+      "credit": "Jeff Tweedy",
+      "songCount": 5
     },
     {
       "slug": "john-lennon",
       "credit": "John Lennon",
-      "songCount": 18
+      "songCount": 19
     },
     {
       "slug": "joni-mitchell",
       "credit": "Joni Mitchell",
       "songCount": 21
+    },
+    {
+      "slug": "lana-del-rey",
+      "credit": "Lana Del Rey",
+      "songCount": 22
     },
     {
       "slug": "laura-marling",
@@ -39,6 +114,31 @@
       "slug": "leonard-cohen",
       "credit": "Leonard Cohen",
       "songCount": 21
+    },
+    {
+      "slug": "lou-reed",
+      "credit": "Lou Reed",
+      "songCount": 14
+    },
+    {
+      "slug": "lucinda-williams",
+      "credit": "Lucinda Williams",
+      "songCount": 15
+    },
+    {
+      "slug": "mark-knopfler",
+      "credit": "Mark Knopfler",
+      "songCount": 10
+    },
+    {
+      "slug": "men-i-trust",
+      "credit": "Men I Trust",
+      "songCount": 6
+    },
+    {
+      "slug": "mount-eerie",
+      "credit": "Mount Eerie",
+      "songCount": 13
     },
     {
       "slug": "neil-young",
@@ -79,12 +179,27 @@
       "slug": "thom-yorke",
       "credit": "Thom Yorke",
       "songCount": 20
+    },
+    {
+      "slug": "tom-waits",
+      "credit": "Tom Waits",
+      "songCount": 20
+    },
+    {
+      "slug": "weyes-blood",
+      "credit": "Weyes Blood",
+      "songCount": 8
+    },
+    {
+      "slug": "wilco",
+      "credit": "Wilco",
+      "songCount": 19
     }
   ],
-  "builtAt": "2026-05-04T00:31:47.040Z",
-  "totalSongs": 354,
-  "totalLines": 13684,
-  "totalTokens": 87069,
-  "totalEndQuotesWithPartner": 7287,
-  "totalEndQuotes": 12682
+  "builtAt": "2026-05-04T00:55:53.654Z",
+  "totalSongs": 651,
+  "totalLines": 24445,
+  "totalTokens": 154742,
+  "totalEndQuotesWithPartner": 12275,
+  "totalEndQuotes": 22521
 }
