@@ -733,7 +733,7 @@
     {
       "slug": "the-beatles",
       "credit": "The Beatles",
-      "songCount": 21
+      "songCount": 124
     },
     {
       "slug": "the-decemberists",
@@ -806,10 +806,10 @@
       "songCount": 19
     }
   ],
-  "builtAt": "2026-05-04T02:03:37.965Z",
-  "totalSongs": 2046,
-  "totalLines": 80750,
-  "totalTokens": 528263,
-  "totalEndQuotesWithPartner": 40589,
-  "totalEndQuotes": 73714
+  "builtAt": "2026-05-04T04:36:55.543Z",
+  "totalSongs": 2149,
+  "totalLines": 83934,
+  "totalTokens": 546303,
+  "totalEndQuotesWithPartner": 41678,
+  "totalEndQuotes": 76235
 }

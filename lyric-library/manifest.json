@@ -1,11 +1,11 @@
 {
-  "builtAt": "2026-05-04T02:03:37.501Z",
+  "builtAt": "2026-05-04T04:36:55.094Z",
   "totalArtists": 161,
-  "totalSongs": 2046,
+  "totalSongs": 2149,
   "artists": {
     "adrianne-lenker": {
       "credit": "Adrianne Lenker",
-      "fetchedAt": "2026-05-04T01:55:18.450Z",
+      "fetchedAt": "2026-05-04T04:29:10.974Z",
       "songCount": 28,
       "songs": [
         {
@@ -514,7 +514,7 @@
     },
     "andy-shauf": {
       "credit": "Andy Shauf",
-      "fetchedAt": "2026-05-04T01:57:01.890Z",
+      "fetchedAt": "2026-05-04T04:30:54.430Z",
       "songCount": 12,
       "songs": [
         {
@@ -684,7 +684,7 @@
     },
     "arcade-fire": {
       "credit": "Arcade Fire",
-      "fetchedAt": "2026-05-04T01:56:59.090Z",
+      "fetchedAt": "2026-05-04T04:30:51.319Z",
       "songCount": 15,
       "songs": [
         {
@@ -836,7 +836,7 @@
     },
     "bahamas": {
       "credit": "Bahamas",
-      "fetchedAt": "2026-05-04T01:56:47.670Z",
+      "fetchedAt": "2026-05-04T04:30:42.622Z",
       "songCount": 8,
       "songs": [
         {
@@ -958,7 +958,7 @@
     },
     "big-thief": {
       "credit": "Big Thief",
-      "fetchedAt": "2026-05-04T01:55:18.452Z",
+      "fetchedAt": "2026-05-04T04:29:10.977Z",
       "songCount": 49,
       "songs": [
         {
@@ -1259,7 +1259,7 @@
     },
     "bill-callahan": {
       "credit": "Bill Callahan",
-      "fetchedAt": "2026-05-04T01:56:42.115Z",
+      "fetchedAt": "2026-05-04T04:30:38.472Z",
       "songCount": 16,
       "songs": [
         {
@@ -1515,7 +1515,7 @@
     },
     "black-box-recorder": {
       "credit": "Black Box Recorder",
-      "fetchedAt": "2026-05-04T01:58:03.911Z",
+      "fetchedAt": "2026-05-04T04:31:59.369Z",
       "songCount": 5,
       "songs": [
         {
@@ -1552,7 +1552,7 @@
     },
     "bob-dylan": {
       "credit": "Bob Dylan",
-      "fetchedAt": "2026-05-04T02:02:33.739Z",
+      "fetchedAt": "2026-05-04T04:36:40.315Z",
       "songCount": 34,
       "songs": [
         {
@@ -1763,7 +1763,7 @@
     },
     "bon-iver": {
       "credit": "Bon Iver",
-      "fetchedAt": "2026-05-04T01:57:09.139Z",
+      "fetchedAt": "2026-05-04T04:31:01.885Z",
       "songCount": 13,
       "songs": [
         {
@@ -2358,7 +2358,7 @@
     },
     "cass-mccombs": {
       "credit": "Cass McCombs",
-      "fetchedAt": "2026-05-04T01:56:32.839Z",
+      "fetchedAt": "2026-05-04T04:30:28.455Z",
       "songCount": 10,
       "songs": [
         {
@@ -2425,7 +2425,7 @@
     },
     "cassandra-jenkins": {
       "credit": "Cassandra Jenkins",
-      "fetchedAt": "2026-05-04T01:57:00.180Z",
+      "fetchedAt": "2026-05-04T04:30:52.456Z",
       "songCount": 8,
       "songs": [
         {
@@ -2857,7 +2857,7 @@
     },
     "damien-rice": {
       "credit": "Damien Rice",
-      "fetchedAt": "2026-05-04T01:58:02.924Z",
+      "fetchedAt": "2026-05-04T04:31:58.404Z",
       "songCount": 14,
       "songs": [
         {
@@ -2991,7 +2991,7 @@
     },
     "david-bowie": {
       "credit": "David Bowie",
-      "fetchedAt": "2026-05-04T01:56:31.516Z",
+      "fetchedAt": "2026-05-04T04:30:25.034Z",
       "songCount": 20,
       "songs": [
         {
@@ -3215,7 +3215,7 @@
     },
     "dire-straits": {
       "credit": "Dire Straits",
-      "fetchedAt": "2026-05-04T01:57:01.894Z",
+      "fetchedAt": "2026-05-04T04:30:54.433Z",
       "songCount": 10,
       "songs": [
         {
@@ -3374,7 +3374,7 @@
     },
     "dr-dog": {
       "credit": "Dr. Dog",
-      "fetchedAt": "2026-05-04T01:56:38.813Z",
+      "fetchedAt": "2026-05-04T04:30:34.670Z",
       "songCount": 8,
       "songs": [
         {
@@ -3569,7 +3569,7 @@
     },
     "eden-ahbez": {
       "credit": "Eden Ahbez",
-      "fetchedAt": "2026-05-04T01:56:35.654Z",
+      "fetchedAt": "2026-05-04T04:30:31.214Z",
       "songCount": 4,
       "songs": [
         {
@@ -3600,7 +3600,7 @@
     },
     "elliott-smith": {
       "credit": "Elliott Smith",
-      "fetchedAt": "2026-05-04T01:56:37.345Z",
+      "fetchedAt": "2026-05-04T04:30:32.973Z",
       "songCount": 21,
       "songs": [
         {
@@ -3982,7 +3982,7 @@
     },
     "fiona-apple": {
       "credit": "Fiona Apple",
-      "fetchedAt": "2026-05-04T01:56:59.093Z",
+      "fetchedAt": "2026-05-04T04:30:51.322Z",
       "songCount": 22,
       "songs": [
         {
@@ -4400,7 +4400,7 @@
     },
     "gillian-welch": {
       "credit": "Gillian Welch",
-      "fetchedAt": "2026-05-04T01:57:14.497Z",
+      "fetchedAt": "2026-05-04T04:31:07.560Z",
       "songCount": 16,
       "songs": [
         {
@@ -5233,7 +5233,7 @@
     },
     "jason-isbell": {
       "credit": "Jason Isbell",
-      "fetchedAt": "2026-05-04T01:56:17.457Z",
+      "fetchedAt": "2026-05-04T04:30:09.076Z",
       "songCount": 18,
       "songs": [
         {
@@ -5348,7 +5348,7 @@
     },
     "jason-molina": {
       "credit": "Jason Molina",
-      "fetchedAt": "2026-05-04T01:57:26.392Z",
+      "fetchedAt": "2026-05-04T04:31:19.252Z",
       "songCount": 2,
       "songs": [
         {
@@ -5440,7 +5440,7 @@
     },
     "jeff-tweedy": {
       "credit": "Jeff Tweedy",
-      "fetchedAt": "2026-05-04T01:56:43.725Z",
+      "fetchedAt": "2026-05-04T04:30:40.122Z",
       "songCount": 5,
       "songs": [
         {
@@ -5720,7 +5720,7 @@
     },
     "john-lennon": {
       "credit": "John Lennon",
-      "fetchedAt": "2026-05-04T01:55:47.815Z",
+      "fetchedAt": "2026-05-04T04:29:39.636Z",
       "songCount": 19,
       "songs": [
         {
@@ -6163,7 +6163,7 @@
     },
     "joni-mitchell": {
       "credit": "Joni Mitchell",
-      "fetchedAt": "2026-05-04T01:55:33.978Z",
+      "fetchedAt": "2026-05-04T04:29:27.088Z",
       "songCount": 21,
       "songs": [
         {
@@ -6787,7 +6787,7 @@
     },
     "keren-ann": {
       "credit": "Keren Ann",
-      "fetchedAt": "2026-05-04T01:58:02.922Z",
+      "fetchedAt": "2026-05-04T04:31:58.402Z",
       "songCount": 5,
       "songs": [
         {
@@ -6897,7 +6897,7 @@
     },
     "lana-del-rey": {
       "credit": "Lana Del Rey",
-      "fetchedAt": "2026-05-04T01:57:09.144Z",
+      "fetchedAt": "2026-05-04T04:31:01.887Z",
       "songCount": 22,
       "songs": [
         {
@@ -7036,7 +7036,7 @@
     },
     "laura-marling": {
       "credit": "Laura Marling",
-      "fetchedAt": "2026-05-04T01:55:57.648Z",
+      "fetchedAt": "2026-05-04T04:29:48.050Z",
       "songCount": 35,
       "songs": [
         {
@@ -7320,7 +7320,7 @@
     },
     "leonard-cohen": {
       "credit": "Leonard Cohen",
-      "fetchedAt": "2026-05-04T02:02:33.735Z",
+      "fetchedAt": "2026-05-04T04:36:40.311Z",
       "songCount": 29,
       "songs": [
         {
@@ -7689,7 +7689,7 @@
     },
     "lou-reed": {
       "credit": "Lou Reed",
-      "fetchedAt": "2026-05-04T01:56:31.514Z",
+      "fetchedAt": "2026-05-04T04:30:25.032Z",
       "songCount": 14,
       "songs": [
         {
@@ -7847,7 +7847,7 @@
     },
     "lucinda-williams": {
       "credit": "Lucinda Williams",
-      "fetchedAt": "2026-05-04T01:56:31.517Z",
+      "fetchedAt": "2026-05-04T04:30:25.035Z",
       "songCount": 15,
       "songs": [
         {
@@ -8023,7 +8023,7 @@
     },
     "magnolia-electric-co": {
       "credit": "Magnolia Electric Co.",
-      "fetchedAt": "2026-05-04T01:57:21.053Z",
+      "fetchedAt": "2026-05-04T04:31:14.258Z",
       "songCount": 5,
       "songs": [
         {
@@ -8060,7 +8060,7 @@
     },
     "mark-knopfler": {
       "credit": "Mark Knopfler",
-      "fetchedAt": "2026-05-04T01:57:01.893Z",
+      "fetchedAt": "2026-05-04T04:30:54.432Z",
       "songCount": 10,
       "songs": [
         {
@@ -8243,7 +8243,7 @@
     },
     "men-i-trust": {
       "credit": "Men I Trust",
-      "fetchedAt": "2026-05-04T01:56:46.705Z",
+      "fetchedAt": "2026-05-04T04:30:41.623Z",
       "songCount": 6,
       "songs": [
         {
@@ -8341,7 +8341,7 @@
     },
     "mitski": {
       "credit": "Mitski",
-      "fetchedAt": "2026-05-04T01:57:12.021Z",
+      "fetchedAt": "2026-05-04T04:31:04.841Z",
       "songCount": 15,
       "songs": [
         {
@@ -8444,7 +8444,7 @@
     },
     "mount-eerie": {
       "credit": "Mount Eerie",
-      "fetchedAt": "2026-05-04T01:56:31.518Z",
+      "fetchedAt": "2026-05-04T04:30:25.036Z",
       "songCount": 13,
       "songs": [
         {
@@ -8614,7 +8614,7 @@
     },
     "neil-young": {
       "credit": "Neil Young",
-      "fetchedAt": "2026-05-04T01:56:12.417Z",
+      "fetchedAt": "2026-05-04T04:30:04.232Z",
       "songCount": 19,
       "songs": [
         {
@@ -8735,7 +8735,7 @@
     },
     "neutral-milk-hotel": {
       "credit": "Neutral Milk Hotel",
-      "fetchedAt": "2026-05-04T01:57:13.072Z",
+      "fetchedAt": "2026-05-04T04:31:06.147Z",
       "songCount": 10,
       "songs": [
         {
@@ -8802,7 +8802,7 @@
     },
     "nick-cave": {
       "credit": "Nick Cave",
-      "fetchedAt": "2026-05-04T01:58:01.751Z",
+      "fetchedAt": "2026-05-04T04:31:57.225Z",
       "songCount": 1,
       "songs": [
         {
@@ -9126,7 +9126,7 @@
     },
     "paul-mccartney": {
       "credit": "Paul McCartney",
-      "fetchedAt": "2026-05-04T01:56:10.548Z",
+      "fetchedAt": "2026-05-04T04:30:01.016Z",
       "songCount": 13,
       "songs": [
         {
@@ -9211,7 +9211,7 @@
     },
     "paul-simon": {
       "credit": "Paul Simon",
-      "fetchedAt": "2026-05-04T01:55:59.277Z",
+      "fetchedAt": "2026-05-04T04:29:49.670Z",
       "songCount": 21,
       "songs": [
         {
@@ -9532,7 +9532,7 @@
     },
     "pink-floyd": {
       "credit": "Pink Floyd",
-      "fetchedAt": "2026-05-04T01:55:33.976Z",
+      "fetchedAt": "2026-05-04T04:29:27.086Z",
       "songCount": 7,
       "songs": [
         {
@@ -9739,7 +9739,7 @@
     },
     "radiohead": {
       "credit": "Radiohead",
-      "fetchedAt": "2026-05-04T01:56:31.507Z",
+      "fetchedAt": "2026-05-04T04:30:25.028Z",
       "songCount": 19,
       "songs": [
         {
@@ -9969,7 +9969,7 @@
     },
     "ray-lamontagne": {
       "credit": "Ray LaMontagne",
-      "fetchedAt": "2026-05-04T01:57:13.069Z",
+      "fetchedAt": "2026-05-04T04:31:06.146Z",
       "songCount": 8,
       "songs": [
         {
@@ -10249,7 +10249,7 @@
     },
     "roger-waters": {
       "credit": "Roger Waters",
-      "fetchedAt": "2026-05-04T01:55:33.974Z",
+      "fetchedAt": "2026-05-04T04:29:27.084Z",
       "songCount": 19,
       "songs": [
         {
@@ -11284,7 +11284,7 @@
     },
     "sufjan-stevens": {
       "credit": "Sufjan Stevens",
-      "fetchedAt": "2026-05-04T01:55:22.646Z",
+      "fetchedAt": "2026-05-04T04:29:15.049Z",
       "songCount": 20,
       "songs": [
         {
@@ -11878,8 +11878,8 @@
     },
     "the-beatles": {
       "credit": "The Beatles",
-      "fetchedAt": "2026-05-04T02:02:05.904Z",
-      "songCount": 21,
+      "fetchedAt": "2026-05-04T04:36:38.496Z",
+      "songCount": 124,
       "songs": [
         {
           "title": "Eleanor Rigby",
@@ -12006,6 +12006,624 @@
           "year": null,
           "url": "https://genius.com/The-beatles-tomorrow-never-knows-lyrics",
           "chars": 947
+        },
+        {
+          "title": "I Saw Her Standing There",
+          "year": null,
+          "url": "https://genius.com/The-beatles-i-saw-her-standing-there-lyrics",
+          "chars": 1616
+        },
+        {
+          "title": "Misery",
+          "year": null,
+          "url": "https://genius.com/The-beatles-misery-lyrics",
+          "chars": 1249
+        },
+        {
+          "title": "Please Please Me",
+          "year": null,
+          "url": "https://genius.com/The-beatles-please-please-me-lyrics",
+          "chars": 1718
+        },
+        {
+          "title": "Love Me Do",
+          "year": null,
+          "url": "https://genius.com/The-beatles-love-me-do-lyrics",
+          "chars": 1138
+        },
+        {
+          "title": "P.S. I Love You",
+          "year": null,
+          "url": "https://genius.com/The-beatles-ps-i-love-you-lyrics",
+          "chars": 1259
+        },
+        {
+          "title": "Twist and Shout",
+          "year": null,
+          "url": "https://genius.com/The-beatles-twist-and-shout-lyrics",
+          "chars": 2082
+        },
+        {
+          "title": "It Won’t Be Long",
+          "year": null,
+          "url": "https://genius.com/The-beatles-it-wont-be-long-lyrics",
+          "chars": 1337
+        },
+        {
+          "title": "All My Loving",
+          "year": null,
+          "url": "https://genius.com/The-beatles-all-my-loving-lyrics",
+          "chars": 1330
+        },
+        {
+          "title": "Don’t Bother Me",
+          "year": null,
+          "url": "https://genius.com/The-beatles-dont-bother-me-lyrics",
+          "chars": 1393
+        },
+        {
+          "title": "All I’ve Got to Do",
+          "year": null,
+          "url": "https://genius.com/The-beatles-all-ive-got-to-do-lyrics",
+          "chars": 1301
+        },
+        {
+          "title": "Till There Was You",
+          "year": null,
+          "url": "https://genius.com/The-beatles-till-there-was-you-lyrics",
+          "chars": 989
+        },
+        {
+          "title": "A Hard Day’s Night",
+          "year": null,
+          "url": "https://genius.com/The-beatles-a-hard-days-night-lyrics",
+          "chars": 1818
+        },
+        {
+          "title": "I Should Have Known Better",
+          "year": null,
+          "url": "https://genius.com/The-beatles-i-should-have-known-better-lyrics",
+          "chars": 1199
+        },
+        {
+          "title": "If I Fell",
+          "year": null,
+          "url": "https://genius.com/The-beatles-if-i-fell-lyrics",
+          "chars": 1346
+        },
+        {
+          "title": "And I Love Her",
+          "year": null,
+          "url": "https://genius.com/The-beatles-and-i-love-her-lyrics",
+          "chars": 835
+        },
+        {
+          "title": "Things We Said Today",
+          "year": null,
+          "url": "https://genius.com/The-beatles-things-we-said-today-lyrics",
+          "chars": 1395
+        },
+        {
+          "title": "I’ll Be Back",
+          "year": null,
+          "url": "https://genius.com/The-beatles-ill-be-back-lyrics",
+          "chars": 903
+        },
+        {
+          "title": "Can’t Buy Me Love",
+          "year": null,
+          "url": "https://genius.com/The-beatles-cant-buy-me-love-lyrics",
+          "chars": 1458
+        },
+        {
+          "title": "No Reply",
+          "year": null,
+          "url": "https://genius.com/The-beatles-no-reply-lyrics",
+          "chars": 1258
+        },
+        {
+          "title": "I’m a Loser",
+          "year": null,
+          "url": "https://genius.com/The-beatles-im-a-loser-lyrics",
+          "chars": 1386
+        },
+        {
+          "title": "I’ll Follow the Sun",
+          "year": null,
+          "url": "https://genius.com/The-beatles-ill-follow-the-sun-lyrics",
+          "chars": 962
+        },
+        {
+          "title": "Eight Days a Week",
+          "year": null,
+          "url": "https://genius.com/The-beatles-eight-days-a-week-lyrics",
+          "chars": 1759
+        },
+        {
+          "title": "I Don’t Want to Spoil the Party",
+          "year": null,
+          "url": "https://genius.com/The-beatles-i-dont-want-to-spoil-the-party-lyrics",
+          "chars": 1303
+        },
+        {
+          "title": "Every Little Thing",
+          "year": null,
+          "url": "https://genius.com/The-beatles-every-little-thing-lyrics",
+          "chars": 830
+        },
+        {
+          "title": "Help!",
+          "year": null,
+          "url": "https://genius.com/The-beatles-help-lyrics",
+          "chars": 2247
+        },
+        {
+          "title": "The Night Before",
+          "year": null,
+          "url": "https://genius.com/The-beatles-the-night-before-lyrics",
+          "chars": 1604
+        },
+        {
+          "title": "You’ve Got to Hide Your Love Away",
+          "year": null,
+          "url": "https://genius.com/The-beatles-youve-got-to-hide-your-love-away-lyrics",
+          "chars": 940
+        },
+        {
+          "title": "Ticket to Ride",
+          "year": null,
+          "url": "https://genius.com/The-beatles-ticket-to-ride-lyrics",
+          "chars": 2026
+        },
+        {
+          "title": "I’ve Just Seen a Face",
+          "year": null,
+          "url": "https://genius.com/The-beatles-ive-just-seen-a-face-lyrics",
+          "chars": 1429
+        },
+        {
+          "title": "Drive My Car",
+          "year": null,
+          "url": "https://genius.com/The-beatles-drive-my-car-lyrics",
+          "chars": 1437
+        },
+        {
+          "title": "You Won’t See Me",
+          "year": null,
+          "url": "https://genius.com/The-beatles-you-wont-see-me-lyrics",
+          "chars": 1987
+        },
+        {
+          "title": "Nowhere Man",
+          "year": null,
+          "url": "https://genius.com/The-beatles-nowhere-man-lyrics",
+          "chars": 1826
+        },
+        {
+          "title": "Think for Yourself",
+          "year": null,
+          "url": "https://genius.com/The-beatles-think-for-yourself-lyrics",
+          "chars": 1284
+        },
+        {
+          "title": "The Word",
+          "year": null,
+          "url": "https://genius.com/The-beatles-the-word-lyrics",
+          "chars": 1362
+        },
+        {
+          "title": "Michelle",
+          "year": null,
+          "url": "https://genius.com/The-beatles-michelle-lyrics",
+          "chars": 1494
+        },
+        {
+          "title": "Girl",
+          "year": null,
+          "url": "https://genius.com/The-beatles-girl-lyrics",
+          "chars": 1854
+        },
+        {
+          "title": "I’m Looking Through You",
+          "year": null,
+          "url": "https://genius.com/The-beatles-im-looking-through-you-lyrics",
+          "chars": 1395
+        },
+        {
+          "title": "In My Life",
+          "year": null,
+          "url": "https://genius.com/The-beatles-in-my-life-lyrics",
+          "chars": 1403
+        },
+        {
+          "title": "If I Needed Someone",
+          "year": null,
+          "url": "https://genius.com/The-beatles-if-i-needed-someone-lyrics",
+          "chars": 1054
+        },
+        {
+          "title": "Taxman",
+          "year": null,
+          "url": "https://genius.com/The-beatles-taxman-lyrics",
+          "chars": 1860
+        },
+        {
+          "title": "I’m Only Sleeping",
+          "year": null,
+          "url": "https://genius.com/The-beatles-im-only-sleeping-lyrics",
+          "chars": 2083
+        },
+        {
+          "title": "Yellow Submarine",
+          "year": null,
+          "url": "https://genius.com/The-beatles-yellow-submarine-lyrics",
+          "chars": 1920
+        },
+        {
+          "title": "She Said She Said",
+          "year": null,
+          "url": "https://genius.com/The-beatles-she-said-she-said-lyrics",
+          "chars": 1388
+        },
+        {
+          "title": "Good Day Sunshine",
+          "year": null,
+          "url": "https://genius.com/The-beatles-good-day-sunshine-lyrics",
+          "chars": 1085
+        },
+        {
+          "title": "And Your Bird Can Sing",
+          "year": null,
+          "url": "https://genius.com/The-beatles-and-your-bird-can-sing-lyrics",
+          "chars": 1108
+        },
+        {
+          "title": "Got to Get You into My Life",
+          "year": null,
+          "url": "https://genius.com/The-beatles-got-to-get-you-into-my-life-lyrics",
+          "chars": 1360
+        },
+        {
+          "title": "Sgt. Pepper’s Lonely Hearts Club Band",
+          "year": null,
+          "url": "https://genius.com/The-beatles-sgt-peppers-lonely-hearts-club-band-lyrics",
+          "chars": 1454
+        },
+        {
+          "title": "With a Little Help from My Friends",
+          "year": null,
+          "url": "https://genius.com/The-beatles-with-a-little-help-from-my-friends-lyrics",
+          "chars": 2352
+        },
+        {
+          "title": "Getting Better",
+          "year": null,
+          "url": "https://genius.com/The-beatles-getting-better-lyrics",
+          "chars": 2378
+        },
+        {
+          "title": "Fixing a Hole",
+          "year": null,
+          "url": "https://genius.com/The-beatles-fixing-a-hole-lyrics",
+          "chars": 1323
+        },
+        {
+          "title": "Being for the Benefit of Mr. Kite!",
+          "year": null,
+          "url": "https://genius.com/The-beatles-being-for-the-benefit-of-mr-kite-lyrics",
+          "chars": 1191
+        },
+        {
+          "title": "Within You Without You",
+          "year": null,
+          "url": "https://genius.com/The-beatles-within-you-without-you-lyrics",
+          "chars": 1231
+        },
+        {
+          "title": "When I’m Sixty-Four",
+          "year": null,
+          "url": "https://genius.com/The-beatles-when-im-sixty-four-lyrics",
+          "chars": 1384
+        },
+        {
+          "title": "Lovely Rita",
+          "year": null,
+          "url": "https://genius.com/The-beatles-lovely-rita-lyrics",
+          "chars": 2329
+        },
+        {
+          "title": "Good Morning Good Morning",
+          "year": null,
+          "url": "https://genius.com/The-beatles-good-morning-good-morning-lyrics",
+          "chars": 2223
+        },
+        {
+          "title": "Magical Mystery Tour",
+          "year": null,
+          "url": "https://genius.com/The-beatles-magical-mystery-tour-lyrics",
+          "chars": 1665
+        },
+        {
+          "title": "The Fool on the Hill",
+          "year": null,
+          "url": "https://genius.com/The-beatles-the-fool-on-the-hill-lyrics",
+          "chars": 1518
+        },
+        {
+          "title": "Hello, Goodbye",
+          "year": null,
+          "url": "https://genius.com/The-beatles-hello-goodbye-lyrics",
+          "chars": 2118
+        },
+        {
+          "title": "Baby, You’re a Rich Man",
+          "year": null,
+          "url": "https://genius.com/The-beatles-baby-youre-a-rich-man-lyrics",
+          "chars": 1471
+        },
+        {
+          "title": "All You Need Is Love",
+          "year": null,
+          "url": "https://genius.com/The-beatles-all-you-need-is-love-lyrics",
+          "chars": 2598
+        },
+        {
+          "title": "Back in the U.S.S.R.",
+          "year": null,
+          "url": "https://genius.com/The-beatles-back-in-the-ussr-lyrics",
+          "chars": 1885
+        },
+        {
+          "title": "Glass Onion",
+          "year": null,
+          "url": "https://genius.com/The-beatles-glass-onion-lyrics",
+          "chars": 1152
+        },
+        {
+          "title": "Ob-La-Di, Ob-La-Da",
+          "year": null,
+          "url": "https://genius.com/The-beatles-ob-la-di-ob-la-da-lyrics",
+          "chars": 2204
+        },
+        {
+          "title": "Martha My Dear",
+          "year": null,
+          "url": "https://genius.com/The-beatles-martha-my-dear-lyrics",
+          "chars": 1062
+        },
+        {
+          "title": "I’m So Tired",
+          "year": null,
+          "url": "https://genius.com/The-beatles-im-so-tired-lyrics",
+          "chars": 1164
+        },
+        {
+          "title": "Rocky Raccoon",
+          "year": null,
+          "url": "https://genius.com/The-beatles-rocky-raccoon-lyrics",
+          "chars": 2177
+        },
+        {
+          "title": "I Will",
+          "year": null,
+          "url": "https://genius.com/The-beatles-i-will-lyrics",
+          "chars": 667
+        },
+        {
+          "title": "Julia",
+          "year": null,
+          "url": "https://genius.com/The-beatles-julia-lyrics",
+          "chars": 899
+        },
+        {
+          "title": "Mother Nature’s Son",
+          "year": null,
+          "url": "https://genius.com/The-beatles-mother-natures-son-lyrics",
+          "chars": 874
+        },
+        {
+          "title": "Sexy Sadie",
+          "year": null,
+          "url": "https://genius.com/The-beatles-sexy-sadie-lyrics",
+          "chars": 1516
+        },
+        {
+          "title": "Long, Long, Long",
+          "year": null,
+          "url": "https://genius.com/The-beatles-long-long-long-lyrics",
+          "chars": 717
+        },
+        {
+          "title": "Honey Pie",
+          "year": null,
+          "url": "https://genius.com/The-beatles-honey-pie-lyrics",
+          "chars": 1390
+        },
+        {
+          "title": "Cry Baby Cry",
+          "year": null,
+          "url": "https://genius.com/The-beatles-cry-baby-cry-lyrics",
+          "chars": 1901
+        },
+        {
+          "title": "Hey Bulldog",
+          "year": null,
+          "url": "https://genius.com/The-beatles-hey-bulldog-lyrics",
+          "chars": 1706
+        },
+        {
+          "title": "It’s All Too Much",
+          "year": null,
+          "url": "https://genius.com/The-beatles-its-all-too-much-lyrics",
+          "chars": 2080
+        },
+        {
+          "title": "All Together Now",
+          "year": null,
+          "url": "https://genius.com/The-beatles-all-together-now-lyrics",
+          "chars": 1715
+        },
+        {
+          "title": "Come Together",
+          "year": null,
+          "url": "https://genius.com/The-beatles-come-together-lyrics",
+          "chars": 1578
+        },
+        {
+          "title": "Maxwell’s Silver Hammer",
+          "year": null,
+          "url": "https://genius.com/The-beatles-maxwells-silver-hammer-lyrics",
+          "chars": 1757
+        },
+        {
+          "title": "Oh! Darling",
+          "year": null,
+          "url": "https://genius.com/The-beatles-oh-darling-lyrics",
+          "chars": 1196
+        },
+        {
+          "title": "Octopus’s Garden",
+          "year": null,
+          "url": "https://genius.com/The-beatles-octopuss-garden-lyrics",
+          "chars": 1686
+        },
+        {
+          "title": "Here Comes the Sun",
+          "year": null,
+          "url": "https://genius.com/The-beatles-here-comes-the-sun-lyrics",
+          "chars": 1626
+        },
+        {
+          "title": "Because",
+          "year": null,
+          "url": "https://genius.com/The-beatles-because-lyrics",
+          "chars": 586
+        },
+        {
+          "title": "You Never Give Me Your Money",
+          "year": null,
+          "url": "https://genius.com/The-beatles-you-never-give-me-your-money-lyrics",
+          "chars": 1781
+        },
+        {
+          "title": "Sun King",
+          "year": null,
+          "url": "https://genius.com/The-beatles-sun-king-lyrics",
+          "chars": 610
+        },
+        {
+          "title": "She Came In Through the Bathroom Window",
+          "year": null,
+          "url": "https://genius.com/The-beatles-she-came-in-through-the-bathroom-window-lyrics",
+          "chars": 1096
+        },
+        {
+          "title": "Golden Slumbers",
+          "year": null,
+          "url": "https://genius.com/The-beatles-golden-slumbers-lyrics",
+          "chars": 754
+        },
+        {
+          "title": "Carry That Weight",
+          "year": null,
+          "url": "https://genius.com/The-beatles-carry-that-weight-lyrics",
+          "chars": 857
+        },
+        {
+          "title": "The End",
+          "year": null,
+          "url": "https://genius.com/The-beatles-the-end-lyrics",
+          "chars": 675
+        },
+        {
+          "title": "Her Majesty",
+          "year": null,
+          "url": "https://genius.com/The-beatles-her-majesty-lyrics",
+          "chars": 626
+        },
+        {
+          "title": "Two of Us",
+          "year": null,
+          "url": "https://genius.com/The-beatles-two-of-us-lyrics",
+          "chars": 1681
+        },
+        {
+          "title": "Dig a Pony",
+          "year": null,
+          "url": "https://genius.com/The-beatles-dig-a-pony-lyrics",
+          "chars": 1327
+        },
+        {
+          "title": "I Me Mine",
+          "year": null,
+          "url": "https://genius.com/The-beatles-i-me-mine-lyrics",
+          "chars": 1136
+        },
+        {
+          "title": "I’ve Got a Feeling",
+          "year": null,
+          "url": "https://genius.com/The-beatles-ive-got-a-feeling-lyrics",
+          "chars": 2039
+        },
+        {
+          "title": "For You Blue",
+          "year": null,
+          "url": "https://genius.com/The-beatles-for-you-blue-lyrics",
+          "chars": 1040
+        },
+        {
+          "title": "Get Back",
+          "year": null,
+          "url": "https://genius.com/The-beatles-get-back-lyrics",
+          "chars": 1549
+        },
+        {
+          "title": "One After 909",
+          "year": null,
+          "url": "https://genius.com/The-beatles-one-after-909-lyrics",
+          "chars": 1746
+        },
+        {
+          "title": "Day Tripper",
+          "year": null,
+          "url": "https://genius.com/The-beatles-day-tripper-lyrics",
+          "chars": 1249
+        },
+        {
+          "title": "We Can Work It Out",
+          "year": null,
+          "url": "https://genius.com/The-beatles-we-can-work-it-out-lyrics",
+          "chars": 1649
+        },
+        {
+          "title": "Paperback Writer",
+          "year": null,
+          "url": "https://genius.com/The-beatles-paperback-writer-lyrics",
+          "chars": 1934
+        },
+        {
+          "title": "Rain",
+          "year": null,
+          "url": "https://genius.com/The-beatles-rain-lyrics",
+          "chars": 1380
+        },
+        {
+          "title": "Lady Madonna",
+          "year": null,
+          "url": "https://genius.com/The-beatles-lady-madonna-lyrics",
+          "chars": 1562
+        },
+        {
+          "title": "Don’t Let Me Down",
+          "year": null,
+          "url": "https://genius.com/The-beatles-dont-let-me-down-lyrics",
+          "chars": 1370
+        },
+        {
+          "title": "The Ballad of John and Yoko",
+          "year": null,
+          "url": "https://genius.com/The-beatles-the-ballad-of-john-and-yoko-lyrics",
+          "chars": 2273
         }
       ]
     },
@@ -12471,7 +13089,7 @@
     },
     "thom-yorke": {
       "credit": "Thom Yorke",
-      "fetchedAt": "2026-05-04T01:56:28.718Z",
+      "fetchedAt": "2026-05-04T04:30:22.260Z",
       "songCount": 20,
       "songs": [
         {
@@ -12647,7 +13265,7 @@
     },
     "tom-waits": {
       "credit": "Tom Waits",
-      "fetchedAt": "2026-05-04T01:56:31.512Z",
+      "fetchedAt": "2026-05-04T04:30:25.030Z",
       "songCount": 20,
       "songs": [
         {
@@ -12774,7 +13392,7 @@
     },
     "tori-amos": {
       "credit": "Tori Amos",
-      "fetchedAt": "2026-05-04T01:57:10.522Z",
+      "fetchedAt": "2026-05-04T04:31:03.287Z",
       "songCount": 17,
       "songs": [
         {
@@ -13229,7 +13847,7 @@
     },
     "weyes-blood": {
       "credit": "Weyes Blood",
-      "fetchedAt": "2026-05-04T01:57:03.141Z",
+      "fetchedAt": "2026-05-04T04:30:55.734Z",
       "songCount": 8,
       "songs": [
         {
@@ -13284,7 +13902,7 @@
     },
     "wilco": {
       "credit": "Wilco",
-      "fetchedAt": "2026-05-04T01:56:42.118Z",
+      "fetchedAt": "2026-05-04T04:30:38.475Z",
       "songCount": 19,
       "songs": [
         {
