@@ -643,12 +643,12 @@ input[type="text"]::placeholder {
   padding: 4px 9px;
   letter-spacing: 0.2em;
 }
-/* Stress tag carries an info popover that appears on hover. The tag
-   visually stays the inverted dark pill from `.rf-source-tag:first-of-type`
-   — only the cursor and the hover-trigger are added. */
+/* Stress tag carries an info popover that appears on hover (desktop)
+   or tap-to-focus (touch — tabindex="0" makes it focusable, and
+   :focus-within shows the popover; tapping elsewhere blurs it). */
 .rf-source-tag-stress {
   position: relative;
-  cursor: help;
+  cursor: pointer;
 }
 /* The popover resets the parent's mono caps + 0.2em letter-spacing so
    the prose inside reads as body text. */
@@ -657,6 +657,7 @@ input[type="text"]::placeholder {
   text-transform: none;
   font-weight: 400;
   color: var(--ink);
+  pointer-events: none;
 }
 .rf-source-tag-stress:hover > .rf-tier-pop,
 .rf-source-tag-stress:focus-visible > .rf-tier-pop,
@@ -665,6 +666,7 @@ input[type="text"]::placeholder {
   visibility: visible;
   transform: translateY(0);
   transition-delay: 0s;
+  pointer-events: auto;
 }
 
 /* Highlight the phonetic kernel — the vowel & coda values */
