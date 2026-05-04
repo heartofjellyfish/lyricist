@@ -1,12 +1,12 @@
 {
-  "builtAt": "2026-05-04T00:17:07.046Z",
-  "totalArtists": 1,
-  "totalSongs": 3,
+  "builtAt": "2026-05-04T00:31:46.599Z",
+  "totalArtists": 16,
+  "totalSongs": 354,
   "artists": {
     "adrianne-lenker": {
       "credit": "Adrianne Lenker",
-      "fetchedAt": "2026-05-04T00:17:07.044Z",
-      "songCount": 3,
+      "fetchedAt": "2026-05-04T00:18:29.901Z",
+      "songCount": 29,
       "songs": [
         {
           "title": "anything",
@@ -25,13 +25,2219 @@
           "year": null,
           "url": "https://genius.com/Adrianne-lenker-cradle-lyrics",
           "chars": 587
+        },
+        {
+          "title": "womb",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-womb-lyrics",
+          "chars": 808
+        },
+        {
+          "title": "terminal paradise",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-terminal-paradise-lyrics",
+          "chars": 575
+        },
+        {
+          "title": "blue and red horses",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-blue-and-red-horses-lyrics",
+          "chars": 1220
+        },
+        {
+          "title": "The 100 Best Albums of 2018",
+          "year": null,
+          "url": "https://genius.com/Indielens-the-100-best-albums-of-2018-annotated",
+          "chars": 2727
+        },
+        {
+          "title": "Free Treasure",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-free-treasure-lyrics",
+          "chars": 1475
+        },
+        {
+          "title": "two reverse",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-two-reverse-lyrics",
+          "chars": 673
+        },
+        {
+          "title": "ingydar",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-ingydar-lyrics",
+          "chars": 1554
+        },
+        {
+          "title": "forwards beckon rebound",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-forwards-beckon-rebound-lyrics",
+          "chars": 1116
+        },
+        {
+          "title": "heavy focus",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-heavy-focus-lyrics",
+          "chars": 622
+        },
+        {
+          "title": "half return",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-half-return-lyrics",
+          "chars": 981
+        },
+        {
+          "title": "dragon eyes",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-dragon-eyes-lyrics",
+          "chars": 915
+        },
+        {
+          "title": "come",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-come-lyrics",
+          "chars": 531
+        },
+        {
+          "title": "zombie girl",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-zombie-girl-lyrics",
+          "chars": 1048
+        },
+        {
+          "title": "my angel",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-my-angel-lyrics",
+          "chars": 644
+        },
+        {
+          "title": "not a lot, just forever",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-not-a-lot-just-forever-lyrics",
+          "chars": 1198
+        },
+        {
+          "title": "Real House",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-real-house-lyrics",
+          "chars": 1513
+        },
+        {
+          "title": "Sadness As a Gift",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-sadness-as-a-gift-lyrics",
+          "chars": 1395
+        },
+        {
+          "title": "Fool",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-fool-lyrics",
+          "chars": 1241
+        },
+        {
+          "title": "No Machine",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-no-machine-lyrics",
+          "chars": 981
+        },
+        {
+          "title": "Donut Seam",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-donut-seam-lyrics",
+          "chars": 1182
+        },
+        {
+          "title": "Ruined",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-ruined-lyrics",
+          "chars": 1621
+        },
+        {
+          "title": "Cell Phone Says",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-cell-phone-says-lyrics",
+          "chars": 758
+        },
+        {
+          "title": "born for loving you (live)",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-born-for-loving-you-live-lyrics",
+          "chars": 1754
+        },
+        {
+          "title": "Evol",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-evol-lyrics",
+          "chars": 855
+        },
+        {
+          "title": "Vampire Empire",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-vampire-empire-lyrics",
+          "chars": 2085
+        },
+        {
+          "title": "Indiana",
+          "year": null,
+          "url": "https://genius.com/Adrianne-lenker-and-buck-meek-indiana-lyrics",
+          "chars": 1376
+        }
+      ]
+    },
+    "big-thief": {
+      "credit": "Big Thief",
+      "fetchedAt": "2026-05-04T00:20:29.131Z",
+      "songCount": 49,
+      "songs": [
+        {
+          "title": "Masterpiece",
+          "year": null,
+          "url": "https://genius.com/Big-thief-masterpiece-lyrics",
+          "chars": 1597
+        },
+        {
+          "title": "Paul",
+          "year": null,
+          "url": "https://genius.com/Big-thief-paul-lyrics",
+          "chars": 1636
+        },
+        {
+          "title": "Real Love",
+          "year": null,
+          "url": "https://genius.com/Big-thief-real-love-lyrics",
+          "chars": 1052
+        },
+        {
+          "title": "Lorraine",
+          "year": null,
+          "url": "https://genius.com/Big-thief-lorraine-lyrics",
+          "chars": 684
+        },
+        {
+          "title": "Vegas",
+          "year": null,
+          "url": "https://genius.com/Big-thief-vegas-lyrics",
+          "chars": 804
+        },
+        {
+          "title": "Interstate",
+          "year": null,
+          "url": "https://genius.com/Big-thief-interstate-lyrics",
+          "chars": 1054
+        },
+        {
+          "title": "Velvet Ring",
+          "year": null,
+          "url": "https://genius.com/Big-thief-velvet-ring-lyrics",
+          "chars": 999
+        },
+        {
+          "title": "Animals",
+          "year": null,
+          "url": "https://genius.com/Big-thief-animals-lyrics",
+          "chars": 572
+        },
+        {
+          "title": "Parallels",
+          "year": null,
+          "url": "https://genius.com/Big-thief-parallels-lyrics",
+          "chars": 1382
+        },
+        {
+          "title": "Pretty Things",
+          "year": null,
+          "url": "https://genius.com/Big-thief-pretty-things-lyrics",
+          "chars": 1187
+        },
+        {
+          "title": "Shark Smile",
+          "year": null,
+          "url": "https://genius.com/Big-thief-shark-smile-lyrics",
+          "chars": 1137
+        },
+        {
+          "title": "Mythological Beauty",
+          "year": null,
+          "url": "https://genius.com/Big-thief-mythological-beauty-lyrics",
+          "chars": 1976
+        },
+        {
+          "title": "Mary",
+          "year": null,
+          "url": "https://genius.com/Big-thief-mary-lyrics",
+          "chars": 2496
+        },
+        {
+          "title": "Watering",
+          "year": null,
+          "url": "https://genius.com/Big-thief-watering-lyrics",
+          "chars": 891
+        },
+        {
+          "title": "Capacity",
+          "year": null,
+          "url": "https://genius.com/Big-thief-capacity-lyrics",
+          "chars": 1204
+        },
+        {
+          "title": "Coma",
+          "year": null,
+          "url": "https://genius.com/Big-thief-coma-lyrics",
+          "chars": 958
+        },
+        {
+          "title": "Black Diamonds",
+          "year": null,
+          "url": "https://genius.com/Big-thief-black-diamonds-lyrics",
+          "chars": 1519
+        },
+        {
+          "title": "Objects",
+          "year": null,
+          "url": "https://genius.com/Big-thief-objects-lyrics",
+          "chars": 1055
+        },
+        {
+          "title": "Contact",
+          "year": null,
+          "url": "https://genius.com/Big-thief-contact-lyrics",
+          "chars": 413
+        },
+        {
+          "title": "UFOF",
+          "year": null,
+          "url": "https://genius.com/Big-thief-ufof-lyrics",
+          "chars": 1384
+        },
+        {
+          "title": "Cattails",
+          "year": null,
+          "url": "https://genius.com/Big-thief-cattails-lyrics",
+          "chars": 1351
+        },
+        {
+          "title": "From",
+          "year": null,
+          "url": "https://genius.com/Big-thief-from-lyrics",
+          "chars": 826
+        },
+        {
+          "title": "Open Desert",
+          "year": null,
+          "url": "https://genius.com/Big-thief-open-desert-lyrics",
+          "chars": 713
+        },
+        {
+          "title": "Orange",
+          "year": null,
+          "url": "https://genius.com/Big-thief-orange-lyrics",
+          "chars": 1068
+        },
+        {
+          "title": "Jenni",
+          "year": null,
+          "url": "https://genius.com/Big-thief-jenni-lyrics",
+          "chars": 495
+        },
+        {
+          "title": "Strange",
+          "year": null,
+          "url": "https://genius.com/Big-thief-strange-lyrics",
+          "chars": 805
+        },
+        {
+          "title": "Century",
+          "year": null,
+          "url": "https://genius.com/Big-thief-century-lyrics",
+          "chars": 813
+        },
+        {
+          "title": "Rock and Sing",
+          "year": null,
+          "url": "https://genius.com/Big-thief-rock-and-sing-lyrics",
+          "chars": 576
+        },
+        {
+          "title": "Forgotten Eyes",
+          "year": null,
+          "url": "https://genius.com/Big-thief-forgotten-eyes-lyrics",
+          "chars": 1296
+        },
+        {
+          "title": "The Toy",
+          "year": null,
+          "url": "https://genius.com/Big-thief-the-toy-lyrics",
+          "chars": 855
+        },
+        {
+          "title": "Two Hands",
+          "year": null,
+          "url": "https://genius.com/Big-thief-two-hands-lyrics",
+          "chars": 1086
+        },
+        {
+          "title": "Shoulders",
+          "year": null,
+          "url": "https://genius.com/Big-thief-shoulders-lyrics",
+          "chars": 1166
+        },
+        {
+          "title": "Not",
+          "year": null,
+          "url": "https://genius.com/Big-thief-not-lyrics",
+          "chars": 1775
+        },
+        {
+          "title": "Wolf",
+          "year": null,
+          "url": "https://genius.com/Big-thief-wolf-lyrics",
+          "chars": 828
+        },
+        {
+          "title": "Replaced",
+          "year": null,
+          "url": "https://genius.com/Big-thief-replaced-lyrics",
+          "chars": 892
+        },
+        {
+          "title": "Cut My Hair",
+          "year": null,
+          "url": "https://genius.com/Big-thief-cut-my-hair-lyrics",
+          "chars": 730
+        },
+        {
+          "title": "Change",
+          "year": null,
+          "url": "https://genius.com/Big-thief-change-lyrics",
+          "chars": 1293
+        },
+        {
+          "title": "Time Escaping",
+          "year": null,
+          "url": "https://genius.com/Big-thief-time-escaping-lyrics",
+          "chars": 1613
+        },
+        {
+          "title": "Spud Infinity",
+          "year": null,
+          "url": "https://genius.com/Big-thief-spud-infinity-lyrics",
+          "chars": 1398
+        },
+        {
+          "title": "Certainty",
+          "year": null,
+          "url": "https://genius.com/Big-thief-certainty-lyrics",
+          "chars": 965
+        },
+        {
+          "title": "Sparrow",
+          "year": null,
+          "url": "https://genius.com/Big-thief-sparrow-lyrics",
+          "chars": 1214
+        },
+        {
+          "title": "Little Things",
+          "year": null,
+          "url": "https://genius.com/Big-thief-little-things-lyrics",
+          "chars": 1495
+        },
+        {
+          "title": "Heavy Bend",
+          "year": null,
+          "url": "https://genius.com/Big-thief-heavy-bend-lyrics",
+          "chars": 820
+        },
+        {
+          "title": "Flower of Blood",
+          "year": null,
+          "url": "https://genius.com/Big-thief-flower-of-blood-lyrics",
+          "chars": 807
+        },
+        {
+          "title": "Simulation Swarm",
+          "year": null,
+          "url": "https://genius.com/Big-thief-simulation-swarm-lyrics",
+          "chars": 2131
+        },
+        {
+          "title": "Promise Is a Pendulum",
+          "year": null,
+          "url": "https://genius.com/Big-thief-promise-is-a-pendulum-lyrics",
+          "chars": 1665
+        },
+        {
+          "title": "Dried Roses",
+          "year": null,
+          "url": "https://genius.com/Big-thief-dried-roses-lyrics",
+          "chars": 884
+        },
+        {
+          "title": "12,000 Lines",
+          "year": null,
+          "url": "https://genius.com/Big-thief-12000-lines-lyrics",
+          "chars": 799
+        },
+        {
+          "title": "Love Love Love",
+          "year": null,
+          "url": "https://genius.com/Big-thief-love-love-love-lyrics",
+          "chars": 1522
+        }
+      ]
+    },
+    "bob-dylan": {
+      "credit": "Bob Dylan",
+      "fetchedAt": "2026-05-04T00:24:41.706Z",
+      "songCount": 24,
+      "songs": [
+        {
+          "title": "Visions of Johanna",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-visions-of-johanna-lyrics",
+          "chars": 2752
+        },
+        {
+          "title": "Tangled Up in Blue",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-tangled-up-in-blue-lyrics",
+          "chars": 3245
+        },
+        {
+          "title": "Like a Rolling Stone",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-like-a-rolling-stone-lyrics",
+          "chars": 2397
+        },
+        {
+          "title": "Desolation Row",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-desolation-row-lyrics",
+          "chars": 3840
+        },
+        {
+          "title": "Mr. Tambourine Man",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-mr-tambourine-man-lyrics",
+          "chars": 2691
+        },
+        {
+          "title": "Don’t Think Twice, It’s All Right",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-dont-think-twice-its-all-right-lyrics",
+          "chars": 1574
+        },
+        {
+          "title": "A Hard Rain’s A-Gonna Fall",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-a-hard-rains-a-gonna-fall-lyrics",
+          "chars": 3134
+        },
+        {
+          "title": "The Times They Are A-Changin’",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-the-times-they-are-a-changin-lyrics",
+          "chars": 1657
+        },
+        {
+          "title": "Idiot Wind",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-idiot-wind-lyrics",
+          "chars": 3758
+        },
+        {
+          "title": "Shelter from the Storm",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-shelter-from-the-storm-lyrics",
+          "chars": 2666
+        },
+        {
+          "title": "Blowin’ in the Wind",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-blowin-in-the-wind-lyrics",
+          "chars": 1278
+        },
+        {
+          "title": "Boots of Spanish Leather",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-boots-of-spanish-leather-lyrics",
+          "chars": 1787
+        },
+        {
+          "title": "Girl from the North Country",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-girl-from-the-north-country-lyrics",
+          "chars": 1104
+        },
+        {
+          "title": "Sad-Eyed Lady of the Lowlands",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-sad-eyed-lady-of-the-lowlands-lyrics",
+          "chars": 3254
+        },
+        {
+          "title": "Brownsville Girl",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-brownsville-girl-lyrics",
+          "chars": 6136
+        },
+        {
+          "title": "Not Dark Yet",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-not-dark-yet-lyrics",
+          "chars": 1464
+        },
+        {
+          "title": "Highlands",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-highlands-lyrics",
+          "chars": 4773
+        },
+        {
+          "title": "Mississippi",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-mississippi-lyrics",
+          "chars": 2515
+        },
+        {
+          "title": "Simple Twist of Fate",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-simple-twist-of-fate-lyrics",
+          "chars": 1676
+        },
+        {
+          "title": "Just Like a Woman",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-just-like-a-woman-lyrics",
+          "chars": 1354
+        },
+        {
+          "title": "Forever Young (Demo)",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-forever-young-demo-lyrics",
+          "chars": 766
+        },
+        {
+          "title": "Love Minus Zero/No Limit",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-love-minus-zero-no-limit-lyrics",
+          "chars": 1344
+        },
+        {
+          "title": "Subterranean Homesick Blues",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-subterranean-homesick-blues-lyrics",
+          "chars": 2052
+        },
+        {
+          "title": "It’s Alright, Ma (I’m Only Bleeding)",
+          "year": null,
+          "url": "https://genius.com/Bob-dylan-its-alright-ma-im-only-bleeding-lyrics",
+          "chars": 4126
+        }
+      ]
+    },
+    "jason-isbell": {
+      "credit": "Jason Isbell",
+      "fetchedAt": "2026-05-04T00:29:52.817Z",
+      "songCount": 19,
+      "songs": [
+        {
+          "title": "If We Were Vampires",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-and-the-400-unit-if-we-were-vampires-lyrics",
+          "chars": 1504
+        },
+        {
+          "title": "Cover Me Up",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-cover-me-up-lyrics",
+          "chars": 1611
+        },
+        {
+          "title": "Elephant",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-elephant-lyrics",
+          "chars": 1441
+        },
+        {
+          "title": "Live Oak",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-live-oak-lyrics",
+          "chars": 2046
+        },
+        {
+          "title": "Last of My Kind",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-and-the-400-unit-last-of-my-kind-lyrics",
+          "chars": 1695
+        },
+        {
+          "title": "Decoration Day",
+          "year": null,
+          "url": "https://genius.com/Mike-cooley-patterson-hood-and-jason-isbell-decoration-day-lyrics",
+          "chars": 1552
+        },
+        {
+          "title": "Now That Your Dollar Bills Have Sprouted Wings",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-now-that-your-dollar-bills-have-sprouted-wings-lyrics",
+          "chars": 1319
+        },
+        {
+          "title": "Speed Trap Town",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-speed-trap-town-lyrics",
+          "chars": 1639
+        },
+        {
+          "title": "Outfit",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-outfit-annotated",
+          "chars": 1739
+        },
+        {
+          "title": "Dress Blues",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-dress-blues-lyrics",
+          "chars": 1644
+        },
+        {
+          "title": "Anxiety",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-and-the-400-unit-anxiety-lyrics",
+          "chars": 1979
+        },
+        {
+          "title": "White Man’s World",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-and-the-400-unit-white-mans-world-lyrics",
+          "chars": 1630
+        },
+        {
+          "title": "Something More Than Free",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-something-more-than-free-lyrics",
+          "chars": 1572
+        },
+        {
+          "title": "Stockholm",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-stockholm-lyrics",
+          "chars": 1110
+        },
+        {
+          "title": "Different Days",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-different-days-lyrics",
+          "chars": 1628
+        },
+        {
+          "title": "Hope the High Road",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-and-the-400-unit-hope-the-high-road-lyrics",
+          "chars": 1507
+        },
+        {
+          "title": "Clips",
+          "year": null,
+          "url": "https://genius.com/Llegos-clips-lyrics",
+          "chars": 40537
+        },
+        {
+          "title": "Flagship",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-flagship-lyrics",
+          "chars": 1491
+        },
+        {
+          "title": "Stockholm",
+          "year": null,
+          "url": "https://genius.com/Jason-isbell-stockholm-lyrics",
+          "chars": 1110
+        }
+      ]
+    },
+    "john-lennon": {
+      "credit": "John Lennon",
+      "fetchedAt": "2026-05-04T00:25:24.284Z",
+      "songCount": 18,
+      "songs": [
+        {
+          "title": "Imagine",
+          "year": null,
+          "url": "https://genius.com/John-lennon-imagine-lyrics",
+          "chars": 964
+        },
+        {
+          "title": "Working Class Hero",
+          "year": null,
+          "url": "https://genius.com/John-lennon-working-class-hero-lyrics",
+          "chars": 1555
+        },
+        {
+          "title": "Mother",
+          "year": null,
+          "url": "https://genius.com/John-lennon-mother-lyrics",
+          "chars": 826
+        },
+        {
+          "title": "God",
+          "year": null,
+          "url": "https://genius.com/John-lennon-god-lyrics",
+          "chars": 1074
+        },
+        {
+          "title": "Watching the Wheels",
+          "year": null,
+          "url": "https://genius.com/John-lennon-watching-the-wheels-lyrics",
+          "chars": 1380
+        },
+        {
+          "title": "Jealous Guy",
+          "year": null,
+          "url": "https://genius.com/John-lennon-jealous-guy-lyrics",
+          "chars": 1224
+        },
+        {
+          "title": "Across the Universe",
+          "year": null,
+          "url": "https://genius.com/David-bowie-across-the-universe-lyrics",
+          "chars": 1817
+        },
+        {
+          "title": "Help!",
+          "year": null,
+          "url": "https://genius.com/John-lennon-help-lyrics",
+          "chars": 1278
+        },
+        {
+          "title": "JOHN LENNON",
+          "year": null,
+          "url": "https://genius.com/Oscar-a-solano-john-lennon-lyrics",
+          "chars": 2179
+        },
+        {
+          "title": "How To Write Like John Lennon",
+          "year": null,
+          "url": "https://genius.com/Ashley-chittock-how-to-write-like-john-lennon-annotated",
+          "chars": 4533
+        },
+        {
+          "title": "12/12 Songs",
+          "year": null,
+          "url": "https://genius.com/Bennyswoons-12-12-songs-annotated",
+          "chars": 6200
+        },
+        {
+          "title": "Julia",
+          "year": null,
+          "url": "https://genius.com/John-lennon-julia-lyrics",
+          "chars": 563
+        },
+        {
+          "title": "And Lovin’ You",
+          "year": null,
+          "url": "https://genius.com/Tom-paxton-and-lovin-you-lyrics",
+          "chars": 1030
+        },
+        {
+          "title": "Oh My Love",
+          "year": null,
+          "url": "https://genius.com/John-lennon-oh-my-love-lyrics",
+          "chars": 601
+        },
+        {
+          "title": "A Day In The Life",
+          "year": null,
+          "url": "https://genius.com/John-lennon-a-day-in-the-life-lyrics",
+          "chars": 1050
+        },
+        {
+          "title": "I Found Out (Take 3 / Raw Studio Mix)",
+          "year": null,
+          "url": "https://genius.com/John-lennon-i-found-out-take-3-raw-studio-mix-lyrics",
+          "chars": 2293
+        },
+        {
+          "title": "Instant Karma! (We All Shine On)",
+          "year": null,
+          "url": "https://genius.com/John-lennon-and-yoko-ono-instant-karma-we-all-shine-on-lyrics",
+          "chars": 1568
+        },
+        {
+          "title": "Woman",
+          "year": null,
+          "url": "https://genius.com/John-lennon-woman-lyrics",
+          "chars": 1257
+        }
+      ]
+    },
+    "joni-mitchell": {
+      "credit": "Joni Mitchell",
+      "fetchedAt": "2026-05-04T00:22:55.936Z",
+      "songCount": 21,
+      "songs": [
+        {
+          "title": "Both Sides Now",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-both-sides-now-lyrics",
+          "chars": 1835
+        },
+        {
+          "title": "A Case of You",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-a-case-of-you-lyrics",
+          "chars": 1640
+        },
+        {
+          "title": "River",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-river-lyrics",
+          "chars": 1369
+        },
+        {
+          "title": "Blue",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-blue-lyrics",
+          "chars": 892
+        },
+        {
+          "title": "California",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-california-lyrics",
+          "chars": 2024
+        },
+        {
+          "title": "The Last Time I Saw Richard",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-the-last-time-i-saw-richard-lyrics",
+          "chars": 1763
+        },
+        {
+          "title": "Coyote",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-coyote-lyrics",
+          "chars": 2769
+        },
+        {
+          "title": "Hejira",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-hejira-lyrics",
+          "chars": 2039
+        },
+        {
+          "title": "Amelia",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-amelia-lyrics",
+          "chars": 1631
+        },
+        {
+          "title": "Refuge of the Roads",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-refuge-of-the-roads-lyrics",
+          "chars": 1804
+        },
+        {
+          "title": "The Boho Dance",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-the-boho-dance-lyrics",
+          "chars": 1465
+        },
+        {
+          "title": "Help Me",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-help-me-lyrics",
+          "chars": 1223
+        },
+        {
+          "title": "Free Man in Paris",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-free-man-in-paris-lyrics",
+          "chars": 1337
+        },
+        {
+          "title": "Big Yellow Taxi",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-big-yellow-taxi-lyrics",
+          "chars": 1651
+        },
+        {
+          "title": "Woodstock",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-woodstock-lyrics",
+          "chars": 1306
+        },
+        {
+          "title": "For Free",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-for-free-lyrics",
+          "chars": 1095
+        },
+        {
+          "title": "Cactus Tree",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-cactus-tree-lyrics",
+          "chars": 2235
+        },
+        {
+          "title": "The Circle Game",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-the-circle-game-lyrics",
+          "chars": 2049
+        },
+        {
+          "title": "Court and Spark",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-court-and-spark-lyrics",
+          "chars": 953
+        },
+        {
+          "title": "Down to You",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-down-to-you-lyrics",
+          "chars": 1343
+        },
+        {
+          "title": "Song for Sharon",
+          "year": null,
+          "url": "https://genius.com/Joni-mitchell-song-for-sharon-lyrics",
+          "chars": 2981
+        }
+      ]
+    },
+    "laura-marling": {
+      "credit": "Laura Marling",
+      "fetchedAt": "2026-05-04T00:27:02.508Z",
+      "songCount": 35,
+      "songs": [
+        {
+          "title": "Caroline",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-caroline-lyrics",
+          "chars": 1027
+        },
+        {
+          "title": "Ghosts",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-ghosts-lyrics",
+          "chars": 1686
+        },
+        {
+          "title": "Master Hunter",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-master-hunter-lyrics",
+          "chars": 2773
+        },
+        {
+          "title": "Wild Once",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-wild-once-lyrics",
+          "chars": 1072
+        },
+        {
+          "title": "Sophia",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-sophia-lyrics",
+          "chars": 1368
+        },
+        {
+          "title": "Salinas",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-salinas-lyrics",
+          "chars": 1792
+        },
+        {
+          "title": "Don’t Pass Me By",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-dont-pass-me-by-lyrics",
+          "chars": 857
+        },
+        {
+          "title": "Wild Fire",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-wild-fire-lyrics",
+          "chars": 1615
+        },
+        {
+          "title": "Soothing",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-soothing-lyrics",
+          "chars": 616
+        },
+        {
+          "title": "Nothing, Not Nearly",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-nothing-not-nearly-lyrics",
+          "chars": 1334
+        },
+        {
+          "title": "Strange Girl",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-strange-girl-lyrics",
+          "chars": 1524
+        },
+        {
+          "title": "Held Down",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-held-down-lyrics",
+          "chars": 1687
+        },
+        {
+          "title": "The End of the Affair",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-the-end-of-the-affair-lyrics",
+          "chars": 715
+        },
+        {
+          "title": "Song For Our Daughter",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-song-for-our-daughter-lyrics",
+          "chars": 1087
+        },
+        {
+          "title": "Alas I Cannot Swim",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-alas-i-cannot-swim-lyrics",
+          "chars": 1170
+        },
+        {
+          "title": "I Was an Eagle",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-i-was-an-eagle-lyrics",
+          "chars": 1611
+        },
+        {
+          "title": "Devil’s Resting Place",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-devils-resting-place-lyrics",
+          "chars": 1391
+        },
+        {
+          "title": "Failure",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-failure-lyrics",
+          "chars": 1261
+        },
+        {
+          "title": "I Speak Because I Can",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-i-speak-because-i-can-lyrics",
+          "chars": 1320
+        },
+        {
+          "title": "Devil’s Spoke",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-devils-spoke-lyrics",
+          "chars": 1463
+        },
+        {
+          "title": "What He Wrote",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-what-he-wrote-lyrics",
+          "chars": 1779
+        },
+        {
+          "title": "Rambling Man",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-rambling-man-lyrics",
+          "chars": 1389
+        },
+        {
+          "title": "New Romantic",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-new-romantic-lyrics",
+          "chars": 1943
+        },
+        {
+          "title": "My Manic and I",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-my-manic-and-i-lyrics",
+          "chars": 2469
+        },
+        {
+          "title": "Night After Night",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-night-after-night-lyrics",
+          "chars": 1426
+        },
+        {
+          "title": "Saved These Words",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-saved-these-words-lyrics",
+          "chars": 1050
+        },
+        {
+          "title": "Patterns",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-patterns-lyrics",
+          "chars": 810
+        },
+        {
+          "title": "Always This Way",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-always-this-way-lyrics",
+          "chars": 969
+        },
+        {
+          "title": "Hope in the Air",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-hope-in-the-air-lyrics",
+          "chars": 2079
+        },
+        {
+          "title": "Blow By Blow",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-blow-by-blow-lyrics",
+          "chars": 839
+        },
+        {
+          "title": "2019 Music Log by jeffersuhn",
+          "year": null,
+          "url": "https://genius.com/Listening-logs-2019-music-log-by-jeffersuhn-annotated",
+          "chars": 10357
+        },
+        {
+          "title": "Strange",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-strange-lyrics",
+          "chars": 1599
+        },
+        {
+          "title": "Daisy",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-daisy-lyrics",
+          "chars": 1107
+        },
+        {
+          "title": "Old Stone",
+          "year": null,
+          "url": "https://genius.com/Laura-marling-old-stone-lyrics",
+          "chars": 1048
+        },
+        {
+          "title": "April 2020 Singles Release Calendar",
+          "year": null,
+          "url": "https://genius.com/Genius-april-2020-singles-release-calendar-annotated",
+          "chars": 20709
+        }
+      ]
+    },
+    "leonard-cohen": {
+      "credit": "Leonard Cohen",
+      "fetchedAt": "2026-05-04T00:23:44.108Z",
+      "songCount": 21,
+      "songs": [
+        {
+          "title": "Hallelujah",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-hallelujah-lyrics",
+          "chars": 2382
+        },
+        {
+          "title": "Famous Blue Raincoat",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-famous-blue-raincoat-lyrics",
+          "chars": 1731
+        },
+        {
+          "title": "Suzanne",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-suzanne-lyrics",
+          "chars": 1979
+        },
+        {
+          "title": "Bird on the Wire",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-bird-on-the-wire-lyrics",
+          "chars": 1112
+        },
+        {
+          "title": "Chelsea Hotel No. 2",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-chelsea-hotel-no-2-lyrics",
+          "chars": 1603
+        },
+        {
+          "title": "So Long, Marianne",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-so-long-marianne-lyrics",
+          "chars": 1916
+        },
+        {
+          "title": "Hey, That’s No Way to Say Goodbye",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-hey-thats-no-way-to-say-goodbye-lyrics",
+          "chars": 1366
+        },
+        {
+          "title": "Sisters of Mercy",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-sisters-of-mercy-lyrics",
+          "chars": 1416
+        },
+        {
+          "title": "Dance Me to the End of Love",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-dance-me-to-the-end-of-love-lyrics",
+          "chars": 1468
+        },
+        {
+          "title": "Everybody Knows",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-everybody-knows-lyrics",
+          "chars": 2365
+        },
+        {
+          "title": "First We Take Manhattan",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-first-we-take-manhattan-lyrics",
+          "chars": 1822
+        },
+        {
+          "title": "Tower of Song",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-tower-of-song-lyrics",
+          "chars": 1847
+        },
+        {
+          "title": "Anthem",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-anthem-lyrics",
+          "chars": 1695
+        },
+        {
+          "title": "In My Secret Life",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-in-my-secret-life-lyrics",
+          "chars": 1280
+        },
+        {
+          "title": "Avalanche",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-avalanche-lyrics",
+          "chars": 1451
+        },
+        {
+          "title": "The Stranger Song",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-the-stranger-song-lyrics",
+          "chars": 3399
+        },
+        {
+          "title": "You Want It Darker",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-you-want-it-darker-lyrics",
+          "chars": 1729
+        },
+        {
+          "title": "Going Home",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-going-home-lyrics",
+          "chars": 1464
+        },
+        {
+          "title": "Take This Waltz",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-take-this-waltz-lyrics",
+          "chars": 2367
+        },
+        {
+          "title": "The Partisan",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-the-partisan-lyrics",
+          "chars": 1367
+        },
+        {
+          "title": "Joan of Arc",
+          "year": null,
+          "url": "https://genius.com/Leonard-cohen-joan-of-arc-lyrics",
+          "chars": 1876
+        }
+      ]
+    },
+    "neil-young": {
+      "credit": "Neil Young",
+      "fetchedAt": "2026-05-04T00:29:08.209Z",
+      "songCount": 19,
+      "songs": [
+        {
+          "title": "Old Man",
+          "year": null,
+          "url": "https://genius.com/Neil-young-old-man-lyrics",
+          "chars": 1294
+        },
+        {
+          "title": "Heart of Gold",
+          "year": null,
+          "url": "https://genius.com/Neil-young-heart-of-gold-lyrics",
+          "chars": 1019
+        },
+        {
+          "title": "Helpless (Unplugged)",
+          "year": null,
+          "url": "https://genius.com/Neil-young-helpless-unplugged-lyrics",
+          "chars": 835
+        },
+        {
+          "title": "Powderfinger",
+          "year": null,
+          "url": "https://genius.com/Neil-young-and-crazy-horse-powderfinger-lyrics",
+          "chars": 1412
+        },
+        {
+          "title": "Cortez the Killer",
+          "year": null,
+          "url": "https://genius.com/Neil-young-and-crazy-horse-cortez-the-killer-lyrics",
+          "chars": 1288
+        },
+        {
+          "title": "After the Gold Rush",
+          "year": null,
+          "url": "https://genius.com/Neil-young-after-the-gold-rush-lyrics",
+          "chars": 1226
+        },
+        {
+          "title": "Sugar Mountain",
+          "year": null,
+          "url": "https://genius.com/Neil-young-sugar-mountain-lyrics",
+          "chars": 1960
+        },
+        {
+          "title": "The Needle and the Damage Done",
+          "year": null,
+          "url": "https://genius.com/Neil-young-the-needle-and-the-damage-done-lyrics",
+          "chars": 746
+        },
+        {
+          "title": "Tonight’s the Night",
+          "year": null,
+          "url": "https://genius.com/Neil-young-tonights-the-night-lyrics",
+          "chars": 1547
+        },
+        {
+          "title": "Like a Hurricane",
+          "year": null,
+          "url": "https://genius.com/Neil-young-and-crazy-horse-like-a-hurricane-lyrics",
+          "chars": 1397
+        },
+        {
+          "title": "Harvest Moon",
+          "year": null,
+          "url": "https://genius.com/Neil-young-harvest-moon-lyrics",
+          "chars": 1146
+        },
+        {
+          "title": "Birds",
+          "year": null,
+          "url": "https://genius.com/Neil-young-birds-lyrics",
+          "chars": 592
+        },
+        {
+          "title": "Only Love Can Break Your Heart",
+          "year": null,
+          "url": "https://genius.com/Neil-young-only-love-can-break-your-heart-lyrics",
+          "chars": 1171
+        },
+        {
+          "title": "Cinnamon Girl",
+          "year": null,
+          "url": "https://genius.com/Neil-young-and-crazy-horse-cinnamon-girl-lyrics",
+          "chars": 829
+        },
+        {
+          "title": "Tell Me Why",
+          "year": null,
+          "url": "https://genius.com/Neil-young-tell-me-why-lyrics",
+          "chars": 737
+        },
+        {
+          "title": "Don’t Let It Bring You Down",
+          "year": null,
+          "url": "https://genius.com/Neil-young-dont-let-it-bring-you-down-lyrics",
+          "chars": 1151
+        },
+        {
+          "title": "Ohio",
+          "year": null,
+          "url": "https://genius.com/Neil-young-ohio-lyrics",
+          "chars": 1148
+        },
+        {
+          "title": "Long May You Run",
+          "year": null,
+          "url": "https://genius.com/Neil-young-long-may-you-run-lyrics",
+          "chars": 823
+        },
+        {
+          "title": "Pocahontas",
+          "year": null,
+          "url": "https://genius.com/Neil-young-pocahontas-lyrics",
+          "chars": 1263
+        }
+      ]
+    },
+    "paul-mccartney": {
+      "credit": "Paul McCartney",
+      "fetchedAt": "2026-05-04T00:28:25.048Z",
+      "songCount": 13,
+      "songs": [
+        {
+          "title": "Maybe I’m Amazed",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-maybe-im-amazed-lyrics",
+          "chars": 1301
+        },
+        {
+          "title": "Junk",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-junk-lyrics",
+          "chars": 740
+        },
+        {
+          "title": "Let It Be (Live / 1990)",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-let-it-be-live-1990-lyrics",
+          "chars": 875
+        },
+        {
+          "title": "Eleanor Rigby/Eleanor’s Dream",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-eleanor-rigby-eleanors-dream-lyrics",
+          "chars": 1169
+        },
+        {
+          "title": "Yesterday",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-yesterday-lyrics",
+          "chars": 492
+        },
+        {
+          "title": "Bye Bye Blackbird",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-bye-bye-blackbird-lyrics",
+          "chars": 765
+        },
+        {
+          "title": "For No One",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-for-no-one-lyrics",
+          "chars": 1002
+        },
+        {
+          "title": "Here, There and Everywhere",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-here-there-and-everywhere-lyrics",
+          "chars": 553
+        },
+        {
+          "title": "Hey Jude (Live / 2002)",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-hey-jude-live-2002-lyrics",
+          "chars": 1020
+        },
+        {
+          "title": "Let ’em In (Live / 2002)",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-let-em-in-live-2002-lyrics",
+          "chars": 1559
+        },
+        {
+          "title": "Bluebird [Band on the Run]",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-bluebird-band-on-the-run-lyrics",
+          "chars": 1351
+        },
+        {
+          "title": "Jenny Wren",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-jenny-wren-lyrics",
+          "chars": 826
+        },
+        {
+          "title": "Calico Skies",
+          "year": null,
+          "url": "https://genius.com/Paul-mccartney-calico-skies-lyrics",
+          "chars": 1036
+        }
+      ]
+    },
+    "paul-simon": {
+      "credit": "Paul Simon",
+      "fetchedAt": "2026-05-04T00:27:51.714Z",
+      "songCount": 21,
+      "songs": [
+        {
+          "title": "The Sound of Silence",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-the-sound-of-silence-lyrics",
+          "chars": 1328
+        },
+        {
+          "title": "America",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-america-lyrics",
+          "chars": 1114
+        },
+        {
+          "title": "The Boxer",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-the-boxer-lyrics",
+          "chars": 1205
+        },
+        {
+          "title": "Bridge Over Troubled Water",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-bridge-over-troubled-water-lyrics",
+          "chars": 780
+        },
+        {
+          "title": "Graceland",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-graceland-lyrics",
+          "chars": 1911
+        },
+        {
+          "title": "You Can Call Me Al",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-you-can-call-me-al-lyrics",
+          "chars": 2361
+        },
+        {
+          "title": "The Cool, Cool River",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-the-cool-cool-river-lyrics",
+          "chars": 1842
+        },
+        {
+          "title": "Train in the Distance",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-train-in-the-distance-lyrics",
+          "chars": 1709
+        },
+        {
+          "title": "Hearts and Bones",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-hearts-and-bones-lyrics",
+          "chars": 1921
+        },
+        {
+          "title": "Slip Slidin’ Away",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-slip-slidin-away-lyrics",
+          "chars": 2100
+        },
+        {
+          "title": "American Tune",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-american-tune-lyrics",
+          "chars": 1528
+        },
+        {
+          "title": "Still Crazy After All These Years",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-still-crazy-after-all-these-years-lyrics",
+          "chars": 1156
+        },
+        {
+          "title": "50 Ways to Leave Your Lover",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-50-ways-to-leave-your-lover-lyrics",
+          "chars": 2006
+        },
+        {
+          "title": "The Only Living Boy In New York",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-the-only-living-boy-in-new-york-lyrics",
+          "chars": 950
+        },
+        {
+          "title": "San Francisco",
+          "year": null,
+          "url": "https://genius.com/Stu-larsen-san-francisco-lyrics",
+          "chars": 1374
+        },
+        {
+          "title": "Old Friends",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-old-friends-lyrics",
+          "chars": 555
+        },
+        {
+          "title": "Diamonds on the Soles of Her Shoes",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-diamonds-on-the-soles-of-her-shoes-lyrics",
+          "chars": 2431
+        },
+        {
+          "title": "Late in the Evening",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-late-in-the-evening-lyrics",
+          "chars": 1744
+        },
+        {
+          "title": "I Am a Rock",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-i-am-a-rock-lyrics",
+          "chars": 1137
+        },
+        {
+          "title": "Kathy’s Song",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-kathys-song-lyrics",
+          "chars": 879
+        },
+        {
+          "title": "Father and Daughter",
+          "year": null,
+          "url": "https://genius.com/Paul-simon-father-and-daughter-lyrics",
+          "chars": 1619
+        }
+      ]
+    },
+    "pink-floyd": {
+      "credit": "Pink Floyd",
+      "fetchedAt": "2026-05-04T00:22:11.042Z",
+      "songCount": 7,
+      "songs": [
+        {
+          "title": "Shine On You Crazy Diamond",
+          "year": null,
+          "url": "https://genius.com/Pink-floyd-shine-on-you-crazy-diamond-lyrics",
+          "chars": 2210
+        },
+        {
+          "title": "High Hopes",
+          "year": null,
+          "url": "https://genius.com/Pink-floyd-high-hopes-lyrics",
+          "chars": 1705
+        },
+        {
+          "title": "Welcome to the Machine",
+          "year": null,
+          "url": "https://genius.com/Pink-floyd-welcome-to-the-machine-lyrics",
+          "chars": 1017
+        },
+        {
+          "title": "Have a Cigar",
+          "year": null,
+          "url": "https://genius.com/Pink-floyd-have-a-cigar-lyrics",
+          "chars": 1199
+        },
+        {
+          "title": "One of My Turns",
+          "year": null,
+          "url": "https://genius.com/Pink-floyd-one-of-my-turns-lyrics",
+          "chars": 1756
+        },
+        {
+          "title": "Don’t Leave Me Now",
+          "year": null,
+          "url": "https://genius.com/Pink-floyd-dont-leave-me-now-lyrics",
+          "chars": 860
+        },
+        {
+          "title": "Nobody Home",
+          "year": null,
+          "url": "https://genius.com/Pink-floyd-nobody-home-lyrics",
+          "chars": 1847
+        }
+      ]
+    },
+    "radiohead": {
+      "credit": "Radiohead",
+      "fetchedAt": "2026-05-04T00:31:28.178Z",
+      "songCount": 19,
+      "songs": [
+        {
+          "title": "No Surprises",
+          "year": null,
+          "url": "https://genius.com/Radiohead-no-surprises-lyrics",
+          "chars": 1081
+        },
+        {
+          "title": "Fake Plastic Trees",
+          "year": null,
+          "url": "https://genius.com/Radiohead-fake-plastic-trees-lyrics",
+          "chars": 1182
+        },
+        {
+          "title": "Karma Police",
+          "year": null,
+          "url": "https://genius.com/Radiohead-karma-police-lyrics",
+          "chars": 1083
+        },
+        {
+          "title": "Pyramid Song",
+          "year": null,
+          "url": "https://genius.com/Radiohead-pyramid-song-lyrics",
+          "chars": 999
+        },
+        {
+          "title": "Lucky",
+          "year": null,
+          "url": "https://genius.com/Radiohead-lucky-lyrics",
+          "chars": 875
+        },
+        {
+          "title": "Let Down",
+          "year": null,
+          "url": "https://genius.com/Radiohead-let-down-lyrics",
+          "chars": 1417
+        },
+        {
+          "title": "How to Disappear Completely",
+          "year": null,
+          "url": "https://genius.com/Radiohead-how-to-disappear-completely-lyrics",
+          "chars": 909
+        },
+        {
+          "title": "Idioteque",
+          "year": null,
+          "url": "https://genius.com/Radiohead-idioteque-lyrics",
+          "chars": 2230
+        },
+        {
+          "title": "Reckoner",
+          "year": null,
+          "url": "https://genius.com/Radiohead-reckoner-lyrics",
+          "chars": 704
+        },
+        {
+          "title": "Daydreaming",
+          "year": null,
+          "url": "https://genius.com/Radiohead-daydreaming-lyrics",
+          "chars": 907
+        },
+        {
+          "title": "Codex",
+          "year": null,
+          "url": "https://genius.com/Radiohead-codex-lyrics",
+          "chars": 558
+        },
+        {
+          "title": "Videotape",
+          "year": null,
+          "url": "https://genius.com/Radiohead-videotape-lyrics",
+          "chars": 911
+        },
+        {
+          "title": "Nude",
+          "year": null,
+          "url": "https://genius.com/Radiohead-nude-lyrics",
+          "chars": 707
+        },
+        {
+          "title": "Black Star",
+          "year": null,
+          "url": "https://genius.com/Radiohead-black-star-lyrics",
+          "chars": 1349
+        },
+        {
+          "title": "Paranoid Android",
+          "year": null,
+          "url": "https://genius.com/Radiohead-paranoid-android-lyrics",
+          "chars": 1639
+        },
+        {
+          "title": "Lotus Flower",
+          "year": null,
+          "url": "https://genius.com/Radiohead-lotus-flower-lyrics",
+          "chars": 1526
+        },
+        {
+          "title": "All I Need",
+          "year": null,
+          "url": "https://genius.com/Radiohead-all-i-need-lyrics",
+          "chars": 953
+        },
+        {
+          "title": "True Love Waits",
+          "year": null,
+          "url": "https://genius.com/Radiohead-true-love-waits-lyrics",
+          "chars": 739
+        },
+        {
+          "title": "Weird Fishes/Arpeggi",
+          "year": null,
+          "url": "https://genius.com/Radiohead-weird-fishes-arpeggi-lyrics",
+          "chars": 957
+        }
+      ]
+    },
+    "roger-waters": {
+      "credit": "Roger Waters",
+      "fetchedAt": "2026-05-04T00:21:57.635Z",
+      "songCount": 19,
+      "songs": [
+        {
+          "title": "Déjà Vu",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-deja-vu-lyrics",
+          "chars": 1296
+        },
+        {
+          "title": "Wish You Were Here (Live at Rose Garden Arena, Portland, Oregon, 27th June 2000)",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-wish-you-were-here-live-at-rose-garden-arena-portland-oregon-27th-june-2000-lyrics",
+          "chars": 882
+        },
+        {
+          "title": "Time",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-time-lyrics",
+          "chars": 1452
+        },
+        {
+          "title": "Money",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-money-lyrics",
+          "chars": 1954
+        },
+        {
+          "title": "Brain Damage",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-brain-damage-lyrics",
+          "chars": 1010
+        },
+        {
+          "title": "Eclipse",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-eclipse-lyrics",
+          "chars": 647
+        },
+        {
+          "title": "Comfortably Numb",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-comfortably-numb-lyrics",
+          "chars": 1414
+        },
+        {
+          "title": "Dogs (Live at Rose Garden Arena Portland, Oregon, 27th June 2000)",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-dogs-live-at-rose-garden-arena-portland-oregon-27th-june-2000-lyrics",
+          "chars": 2110
+        },
+        {
+          "title": "Sheep",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-sheep-lyrics",
+          "chars": 1245
+        },
+        {
+          "title": "Hey You",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-hey-you-lyrics",
+          "chars": 885
+        },
+        {
+          "title": "Mother",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-mother-lyrics",
+          "chars": 1386
+        },
+        {
+          "title": "Goodbye Blue Sky",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-goodbye-blue-sky-lyrics",
+          "chars": 816
+        },
+        {
+          "title": "Southampton Dock",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-southampton-dock-lyrics",
+          "chars": 699
+        },
+        {
+          "title": "Two Suns In The Sunset (The Lockdown Sessions)",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-two-suns-in-the-sunset-the-lockdown-sessions-lyrics",
+          "chars": 981
+        },
+        {
+          "title": "Amused to Death",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-amused-to-death-lyrics",
+          "chars": 3190
+        },
+        {
+          "title": "The Gunner’s Dream (The Lockdown Sessions)",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-the-gunners-dream-the-lockdown-sessions-lyrics",
+          "chars": 1295
+        },
+        {
+          "title": "Vera",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-vera-lyrics",
+          "chars": 206
+        },
+        {
+          "title": "Bring the Boys Back Home",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-bring-the-boys-back-home-lyrics",
+          "chars": 353
+        },
+        {
+          "title": "Us and Them",
+          "year": null,
+          "url": "https://genius.com/Roger-waters-us-and-them-lyrics",
+          "chars": 870
+        }
+      ]
+    },
+    "sufjan-stevens": {
+      "credit": "Sufjan Stevens",
+      "fetchedAt": "2026-05-04T00:21:09.821Z",
+      "songCount": 20,
+      "songs": [
+        {
+          "title": "Casimir Pulaski Day",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-casimir-pulaski-day-lyrics",
+          "chars": 1871
+        },
+        {
+          "title": "John Wayne Gacy Jr.",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-john-wayne-gacy-jr-lyrics",
+          "chars": 1128
+        },
+        {
+          "title": "Romulus",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-romulus-lyrics",
+          "chars": 1444
+        },
+        {
+          "title": "Chicago",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-chicago-lyrics",
+          "chars": 1813
+        },
+        {
+          "title": "Decatur, or, Round of Applause for Your Stepmother!",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-decatur-or-round-of-applause-for-your-stepmother-lyrics",
+          "chars": 1647
+        },
+        {
+          "title": "Should Have Known Better",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-should-have-known-better-lyrics",
+          "chars": 1855
+        },
+        {
+          "title": "Death with Dignity",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-death-with-dignity-lyrics",
+          "chars": 1491
+        },
+        {
+          "title": "Fourth of July",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-fourth-of-july-lyrics",
+          "chars": 1645
+        },
+        {
+          "title": "No Shade in the Shadow of the Cross",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-no-shade-in-the-shadow-of-the-cross-lyrics",
+          "chars": 912
+        },
+        {
+          "title": "Eugene",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-eugene-lyrics",
+          "chars": 1295
+        },
+        {
+          "title": "Visions of Gideon",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-visions-of-gideon-lyrics",
+          "chars": 1580
+        },
+        {
+          "title": "Mystery of Love",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-mystery-of-love-lyrics",
+          "chars": 1379
+        },
+        {
+          "title": "The Predatory Wasp of the Palisades Is Out to Get Us!",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-the-predatory-wasp-of-the-palisades-is-out-to-get-us-lyrics",
+          "chars": 2792
+        },
+        {
+          "title": "Holland",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-holland-lyrics",
+          "chars": 536
+        },
+        {
+          "title": "Vito’s Ordination Song",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-vitos-ordination-song-lyrics",
+          "chars": 1863
+        },
+        {
+          "title": "To Be Alone with You",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-to-be-alone-with-you-lyrics",
+          "chars": 779
+        },
+        {
+          "title": "The Dress Looks Nice on You",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-the-dress-looks-nice-on-you-lyrics",
+          "chars": 906
+        },
+        {
+          "title": "Drawn to the Blood",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-drawn-to-the-blood-lyrics",
+          "chars": 861
+        },
+        {
+          "title": "Tonya Harding (in D major)",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-tonya-harding-in-d-major-lyrics",
+          "chars": 1631
+        },
+        {
+          "title": "Carrie & Lowell",
+          "year": null,
+          "url": "https://genius.com/Sufjan-stevens-carrie-and-lowell-lyrics",
+          "chars": 1122
+        }
+      ]
+    },
+    "thom-yorke": {
+      "credit": "Thom Yorke",
+      "fetchedAt": "2026-05-04T00:30:47.693Z",
+      "songCount": 20,
+      "songs": [
+        {
+          "title": "Black Swan",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-black-swan-lyrics",
+          "chars": 1392
+        },
+        {
+          "title": "Hearing Damage",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-hearing-damage-lyrics",
+          "chars": 746
+        },
+        {
+          "title": "Suspirium",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-suspirium-lyrics",
+          "chars": 790
+        },
+        {
+          "title": "Dawn Chorus",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-dawn-chorus-lyrics",
+          "chars": 1170
+        },
+        {
+          "title": "Last I Heard (...He Was Circling the Drain)",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-last-i-heard-he-was-circling-the-drain-lyrics",
+          "chars": 1098
+        },
+        {
+          "title": "Twist",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-twist-lyrics",
+          "chars": 890
+        },
+        {
+          "title": "Skip Divided",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-skip-divided-lyrics",
+          "chars": 1758
+        },
+        {
+          "title": "Harrowdown Hill",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-harrowdown-hill-lyrics",
+          "chars": 1901
+        },
+        {
+          "title": "The Eraser",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-the-eraser-lyrics",
+          "chars": 1258
+        },
+        {
+          "title": "Salsa de Fuego",
+          "year": null,
+          "url": "https://genius.com/Beacon-light-salsa-de-fuego-lyrics",
+          "chars": 3217
+        },
+        {
+          "title": "DJ Self Freestyle",
+          "year": null,
+          "url": "https://genius.com/A-ap-ferg-dj-self-freestyle-lyrics",
+          "chars": 3152
+        },
+        {
+          "title": "Atoms for Peace",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-atoms-for-peace-lyrics",
+          "chars": 1057
+        },
+        {
+          "title": "Analyse",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-analyse-lyrics",
+          "chars": 1058
+        },
+        {
+          "title": "Cymbal Rush",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-cymbal-rush-lyrics",
+          "chars": 816
+        },
+        {
+          "title": "I Am a Very Rude Person",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-i-am-a-very-rude-person-lyrics",
+          "chars": 974
+        },
+        {
+          "title": "Evolution of Radiohead",
+          "year": null,
+          "url": "https://genius.com/David-eisen-evolution-of-radiohead-annotated",
+          "chars": 4639
+        },
+        {
+          "title": "The Clock",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-the-clock-lyrics",
+          "chars": 594
+        },
+        {
+          "title": "And It Rained All Night",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-and-it-rained-all-night-lyrics",
+          "chars": 983
+        },
+        {
+          "title": "Has Ended",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-has-ended-lyrics",
+          "chars": 713
+        },
+        {
+          "title": "5.17",
+          "year": null,
+          "url": "https://genius.com/Thom-yorke-517-lyrics",
+          "chars": 314
         }
       ]
     }
-  },
-  "lastRun": {
-    "fetchedThisRun": 3,
-    "failures": [],
-    "durationSec": 5
   }
 }
