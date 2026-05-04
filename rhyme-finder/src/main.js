@@ -485,7 +485,8 @@ function renderEndQuote(q, word) {
   if (Array.isArray(q.stanza) && q.stanza.length) {
     quote.addEventListener("click", (e) => {
       e.stopPropagation();
-      item.classList.toggle("is-open");
+      const opened = item.classList.toggle("is-open");
+      if (opened) ensureBottomVisible(item);
     });
     item.appendChild(quote);
     item.appendChild(renderStanza(q));
@@ -589,11 +590,34 @@ function buildInflectedItem(q) {
     row.style.cursor = "pointer";
     row.addEventListener("click", (e) => {
       e.stopPropagation();
-      li.classList.toggle("is-open");
+      const opened = li.classList.toggle("is-open");
+      if (opened) ensureBottomVisible(li);
     });
     li.appendChild(renderStanza(q));
   }
   return li;
+}
+
+// After expanding an item inside a scrollable popover, scroll the
+// popover just enough that the item's new bottom is on screen — no
+// jump on collapse, the popover scroll stays put so the quote
+// remains in the same visual position.
+function ensureBottomVisible(item) {
+  const scroller = item.closest(".rf-lyric-pop");
+  if (!scroller) return;
+  // getBoundingClientRect forces a synchronous layout flush so the
+  // freshly-revealed stanza is already measured. Reading immediately
+  // is more reliable than rAF (which can be throttled on background
+  // tabs / headless contexts).
+  const itemRect = item.getBoundingClientRect();
+  const scrollerRect = scroller.getBoundingClientRect();
+  const overflow = itemRect.bottom - scrollerRect.bottom;
+  if (overflow > 0) {
+    // `behavior: smooth` is a niceness; we keep it for real browsers.
+    // (Some headless environments ignore smooth and the call no-ops —
+    // not a runtime concern but a debugging gotcha.)
+    scroller.scrollBy({ top: overflow + 8, behavior: "smooth" });
+  }
 }
 
 // "Show N more" inside the popover — one-shot inline expand. After
