@@ -16,9 +16,19 @@
       "songCount": 11
     },
     {
+      "slug": "andrew-bird",
+      "credit": "Andrew Bird",
+      "songCount": 13
+    },
+    {
       "slug": "andy-shauf",
       "credit": "Andy Shauf",
       "songCount": 12
+    },
+    {
+      "slug": "angel-olsen",
+      "credit": "Angel Olsen",
+      "songCount": 14
     },
     {
       "slug": "arcade-fire",
@@ -41,6 +51,16 @@
       "songCount": 16
     },
     {
+      "slug": "bill-fay",
+      "credit": "Bill Fay",
+      "songCount": 8
+    },
+    {
+      "slug": "bill-withers",
+      "credit": "Bill Withers",
+      "songCount": 7
+    },
+    {
       "slug": "black-box-recorder",
       "credit": "Black Box Recorder",
       "songCount": 5
@@ -56,6 +76,11 @@
       "songCount": 13
     },
     {
+      "slug": "bonnie-prince-billy",
+      "credit": "Bonnie Prince Billy",
+      "songCount": 10
+    },
+    {
       "slug": "cass-mccombs",
       "credit": "Cass McCombs",
       "songCount": 10
@@ -64,6 +89,21 @@
       "slug": "cassandra-jenkins",
       "credit": "Cassandra Jenkins",
       "songCount": 8
+    },
+    {
+      "slug": "cole-porter",
+      "credit": "Cole Porter",
+      "songCount": 13
+    },
+    {
+      "slug": "curtis-mayfield",
+      "credit": "Curtis Mayfield",
+      "songCount": 11
+    },
+    {
+      "slug": "damien-jurado",
+      "credit": "Damien Jurado",
+      "songCount": 10
     },
     {
       "slug": "damien-rice",
@@ -84,6 +124,11 @@
       "slug": "dr-dog",
       "credit": "Dr. Dog",
       "songCount": 8
+    },
+    {
+      "slug": "e-y-harburg",
+      "credit": "E.Y. Harburg",
+      "songCount": 0
     },
     {
       "slug": "eden-ahbez",
@@ -109,6 +154,31 @@
       "slug": "gillian-welch",
       "credit": "Gillian Welch",
       "songCount": 16
+    },
+    {
+      "slug": "guy-clark",
+      "credit": "Guy Clark",
+      "songCount": 13
+    },
+    {
+      "slug": "hank-williams",
+      "credit": "Hank Williams",
+      "songCount": 12
+    },
+    {
+      "slug": "hoagy-carmichael",
+      "credit": "Hoagy Carmichael",
+      "songCount": 6
+    },
+    {
+      "slug": "iris-dement",
+      "credit": "Iris DeMent",
+      "songCount": 10
+    },
+    {
+      "slug": "irving-berlin",
+      "credit": "Irving Berlin",
+      "songCount": 9
     },
     {
       "slug": "jackson-browne",
@@ -146,14 +216,34 @@
       "songCount": 19
     },
     {
+      "slug": "john-moreland",
+      "credit": "John Moreland",
+      "songCount": 9
+    },
+    {
       "slug": "john-prine",
       "credit": "John Prine",
       "songCount": 20
     },
     {
+      "slug": "johnny-mercer",
+      "credit": "Johnny Mercer",
+      "songCount": 9
+    },
+    {
       "slug": "joni-mitchell",
       "credit": "Joni Mitchell",
       "songCount": 21
+    },
+    {
+      "slug": "julien-baker",
+      "credit": "Julien Baker",
+      "songCount": 14
+    },
+    {
+      "slug": "justin-townes-earle",
+      "credit": "Justin Townes Earle",
+      "songCount": 7
     },
     {
       "slug": "kate-bush",
@@ -186,6 +276,16 @@
       "songCount": 21
     },
     {
+      "slug": "lorenz-hart",
+      "credit": "Lorenz Hart",
+      "songCount": 0
+    },
+    {
+      "slug": "lori-mckenna",
+      "credit": "Lori McKenna",
+      "songCount": 9
+    },
+    {
       "slug": "lou-reed",
       "credit": "Lou Reed",
       "songCount": 14
@@ -214,6 +314,16 @@
       "slug": "mark-knopfler",
       "credit": "Mark Knopfler",
       "songCount": 10
+    },
+    {
+      "slug": "marvin-gaye",
+      "credit": "Marvin Gaye",
+      "songCount": 8
+    },
+    {
+      "slug": "mary-gauthier",
+      "credit": "Mary Gauthier",
+      "songCount": 9
     },
     {
       "slug": "men-i-trust",
@@ -276,6 +386,11 @@
       "songCount": 7
     },
     {
+      "slug": "purple-mountains",
+      "credit": "Purple Mountains",
+      "songCount": 8
+    },
+    {
       "slug": "radiohead",
       "credit": "Radiohead",
       "songCount": 19
@@ -306,9 +421,49 @@
       "songCount": 19
     },
     {
+      "slug": "rufus-wainwright",
+      "credit": "Rufus Wainwright",
+      "songCount": 13
+    },
+    {
+      "slug": "sam-cooke",
+      "credit": "Sam Cooke",
+      "songCount": 9
+    },
+    {
+      "slug": "sharon-van-etten",
+      "credit": "Sharon Van Etten",
+      "songCount": 10
+    },
+    {
+      "slug": "silver-jews",
+      "credit": "Silver Jews",
+      "songCount": 12
+    },
+    {
+      "slug": "stephen-foster",
+      "credit": "Stephen Foster",
+      "songCount": 6
+    },
+    {
       "slug": "stephen-sondheim",
       "credit": "Stephen Sondheim",
       "songCount": 6
+    },
+    {
+      "slug": "steve-earle",
+      "credit": "Steve Earle",
+      "songCount": 12
+    },
+    {
+      "slug": "stevie-wonder",
+      "credit": "Stevie Wonder",
+      "songCount": 18
+    },
+    {
+      "slug": "sturgill-simpson",
+      "credit": "Sturgill Simpson",
+      "songCount": 8
     },
     {
       "slug": "sufjan-stevens",
@@ -319,6 +474,11 @@
       "slug": "the-magnetic-fields",
       "credit": "The Magnetic Fields",
       "songCount": 19
+    },
+    {
+      "slug": "the-mountain-goats",
+      "credit": "The Mountain Goats",
+      "songCount": 16
     },
     {
       "slug": "thom-yorke",
@@ -341,6 +501,11 @@
       "songCount": 18
     },
     {
+      "slug": "tyler-childers",
+      "credit": "Tyler Childers",
+      "songCount": 12
+    },
+    {
       "slug": "warren-zevon",
       "credit": "Warren Zevon",
       "songCount": 17
@@ -356,10 +521,10 @@
       "songCount": 19
     }
   ],
-  "builtAt": "2026-05-04T01:13:04.408Z",
-  "totalSongs": 1051,
-  "totalLines": 38663,
-  "totalTokens": 244491,
-  "totalEndQuotesWithPartner": 19819,
-  "totalEndQuotes": 35873
+  "builtAt": "2026-05-04T01:27:12.278Z",
+  "totalSongs": 1376,
+  "totalLines": 49136,
+  "totalTokens": 313096,
+  "totalEndQuotesWithPartner": 25367,
+  "totalEndQuotes": 45515
 }
