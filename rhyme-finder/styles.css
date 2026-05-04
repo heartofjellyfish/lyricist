@@ -871,27 +871,26 @@ input[type="text"]::placeholder {
   margin: 0 0 36px;
   padding: 18px 0 22px;
   border-bottom: 1px solid var(--hair);
-  display: grid;
-  grid-template-columns: minmax(150px, 200px) 1fr;
-  gap: 28px;
-  align-items: start;
 }
 .rf-source-panel:empty { display: none; }
 
+/* Horizontal eyebrow: "LINES USING see · 5 AT LINE END · 3 ARTISTS"
+   sits as one mono caps line above the quotes, with a hair-soft
+   divider below it. Lyrics get the full panel width. */
 .rf-source-panel-rail {
   font-family: var(--mono);
   font-size: 9.5px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ink-faded);
-  padding-top: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--hair-soft);
 }
 .rf-source-panel-rail-eyebrow { color: var(--vermilion); }
 .rf-source-panel-rail-eyebrow em { font-style: italic; color: var(--ink); }
-.rf-source-panel-rail-meta { color: var(--ink-faded); font-size: 9px; }
+.rf-source-panel-rail-sep { margin: 0 8px; opacity: 0.5; }
+.rf-source-panel-rail-meta { color: var(--ink-faded); }
 
 .rf-source-panel-quotes { display: flex; flex-direction: column; gap: 14px; }
 
@@ -932,7 +931,8 @@ input[type="text"]::placeholder {
 }
 
 @media (max-width: 720px) {
-  .rf-source-panel { grid-template-columns: 1fr; gap: 12px; }
+  /* Source-panel is already a single column; on narrow viewports the
+     quote rows stack the line above the attribution. */
   .rf-source-panel-quote { grid-template-columns: 1fr; gap: 4px; }
 }
 
@@ -995,8 +995,11 @@ input[type="text"]::placeholder {
   opacity: 0;
   visibility: hidden;
   transform: translateY(-2px);
-  transition: opacity 120ms ease, transform 120ms ease, visibility 0s linear 60ms;
-  pointer-events: none;
+  /* 200ms close delay gives the user ample time to traverse the gap
+     into the popover. visibility: hidden blocks pointer events on its
+     own — no need for a conditional pointer-events: none, which used
+     to switch off instantly and stranded the bridge mid-traverse. */
+  transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 200ms;
   text-align: left;
 }
 .rf-word.rf-has-lyrics:hover .rf-lyric-pop,
@@ -1006,11 +1009,27 @@ input[type="text"]::placeholder {
   visibility: visible;
   transform: translateY(0);
   transition-delay: 0s;
-  pointer-events: auto;
 }
 .rf-word.rf-pinned .rf-lyric-pop {
   z-index: 60;
   box-shadow: 5px 5px 0 var(--ink);
+}
+
+/* Hover-bridge: the visual gap between the word and the popover (top:
+   calc(100% + 8px)) was a dead zone — moving the mouse from word into
+   popover crossed it and the popover dismissed. The ::before pseudo
+   extends the popover's hoverable area upward by 10px to cover the
+   gap. Invisible. Desktop only — mobile reuses ::before for the
+   bottom-sheet drag-handle pill. */
+@media (hover: hover) {
+  .rf-lyric-pop::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: -16px;
+    right: -16px;
+    height: 12px;
+  }
 }
 
 .rf-lyric-head {
@@ -1117,17 +1136,37 @@ input[type="text"]::placeholder {
   margin-top: 12px;
   padding-top: 10px;
   border-top: 1px solid var(--ink-ghost);
+}
+/* When the inflected footer sits directly below the popover header
+   (no tier-1 items in between), the head's own border-bottom already
+   separates the two — drop the footer's top border + spacing so we
+   don't render a dead band. */
+.rf-lyric-inflected.rf-lyric-inflected--first {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+/* Header strip: vermilion-soft hover band signals "click anywhere on
+   this row to toggle". Same affordance pattern as the quote rows. */
+.rf-lyric-inflected-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
   cursor: pointer;
+  padding: 4px 8px;
+  margin: 0 -8px;
+  border-left: 2px solid transparent;
+  transition: background 100ms ease, border-color 100ms ease;
 }
-.rf-lyric-inflected:hover .rf-lyric-inflected-label,
-.rf-lyric-inflected:hover .rf-lyric-inflected-toggle { color: var(--vermilion); }
-/* Once the list is rendered, the cursor reverts inside it so users can
-   read / select without thinking they'll collapse the footer. */
+.rf-lyric-inflected-head:hover {
+  background: rgba(177, 59, 44, 0.10);
+  border-left-color: var(--vermilion);
+}
+.rf-lyric-inflected-head:hover .rf-lyric-inflected-label,
+.rf-lyric-inflected-head:hover .rf-lyric-inflected-toggle { color: var(--vermilion); }
+/* The list inside reverts cursor so users can read / select. */
 .rf-lyric-inflected-list { cursor: auto; }
 .rf-lyric-inflected-label {
   font-family: var(--mono);
@@ -1156,6 +1195,9 @@ input[type="text"]::placeholder {
   width: 100%;
 }
 .rf-lyric-inflected.is-expanded .rf-lyric-inflected-list { display: block; }
+/* Inline variant: shown directly in the popover when there's no tier-1
+   collapsible footer to gate it. Always visible. */
+.rf-lyric-inflected-list.rf-lyric-inflected-list--inline { display: block; }
 .rf-lyric-inflected-item {
   font-family: var(--display);
   font-style: italic;
@@ -1181,6 +1223,7 @@ input[type="text"]::placeholder {
   border-left-color: var(--vermilion);
 }
 .rf-lyric-inflected-line {
+  display: block;
   font-family: var(--display);
   font-style: italic;
   font-size: 14.5px;
@@ -1190,18 +1233,20 @@ input[type="text"]::placeholder {
 .rf-lyric-inflected-item .rf-lyric-stanza { margin-top: 6px; display: none; }
 .rf-lyric-inflected-item.is-open .rf-lyric-stanza { display: block; }
 .rf-lyric-inflected-attr {
+  display: block;
+  margin-top: 2px;
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-faded);
-  margin-left: 6px;
-  white-space: nowrap;
 }
 
 .rf-lyric-more {
+  display: block;
+  width: 100%;
   margin-top: 10px;
-  padding: 0;
+  padding: 8px 10px;
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.14em;
@@ -1210,8 +1255,15 @@ input[type="text"]::placeholder {
   background: transparent;
   border: none;
   cursor: pointer;
+  text-align: left;
+  border-left: 2px solid transparent;
+  transition: background 100ms ease, color 100ms ease, border-color 100ms ease;
 }
-.rf-lyric-more:hover { color: var(--vermilion-deep); }
+.rf-lyric-more:hover {
+  background: rgba(177, 59, 44, 0.10);
+  border-left-color: var(--vermilion);
+  color: var(--vermilion-deep);
+}
 
 /* Mobile bottom sheet — preserved from 1.5/1.6. Pinned popover docks
    to the viewport bottom; html.rf-sheet-open scroll-locks the page

@@ -325,6 +325,14 @@ function decorateWithLyrics(el, word) {
   const tier2 = quotes.filter((q) => isEnd(q) && !isExactSurface(q));
   if (!tier1.length && !tier2.length) return; // nothing rhyme-relevant
 
+  // Within each tier, lift quotes that have a rhyme partner — they
+  // make the rhyme visible as a couplet rather than a lone line. Stable
+  // sort preserves the original popularity / line-length ordering
+  // within each (with-partner / without-partner) bucket.
+  const partnerFirst = (a, b) => (a.partner ? 0 : 1) - (b.partner ? 0 : 1);
+  tier1.sort(partnerFirst);
+  tier2.sort(partnerFirst);
+
   el.classList.add("rf-has-lyrics");
 
   // Badge: chunky vermilion dot + count when at least one tier-1
@@ -348,7 +356,17 @@ function decorateWithLyrics(el, word) {
   if (tier1.length > POP_CAP) {
     pop.appendChild(renderShowMore(tier1.slice(POP_CAP), word, pop));
   }
-  if (tier2.length) pop.appendChild(renderInflectedFooter(tier2));
+  if (tier2.length) {
+    if (!tier1.length) {
+      // No exact matches → tier-2 is all the user has. Render the first
+      // POP_CAP items inline (no toggle), with "Show N more" for the
+      // rest. Same default density as tier-1.
+      pop.appendChild(renderInlineInflectedList(tier2, pop));
+    } else {
+      // Exact matches lead; tier-2 lives in the collapsible footer.
+      pop.appendChild(renderInflectedFooter(tier2));
+    }
+  }
 
   el.appendChild(pop);
 
@@ -488,8 +506,15 @@ function renderStanza(q) {
   q.stanza.forEach((s, i) => {
     const p = document.createElement("p");
     p.className = "rf-lyric-stanza-line";
-    if (i === matchIdx || i === partnerIdx) p.classList.add("is-match");
-    p.textContent = s;
+    if (i === matchIdx) {
+      p.classList.add("is-match");
+      p.innerHTML = highlightSurface(s, q.surface);
+    } else if (i === partnerIdx) {
+      p.classList.add("is-match");
+      p.innerHTML = highlightSurface(s, q.partner.word);
+    } else {
+      p.textContent = s;
+    }
     wrap.appendChild(p);
   });
   return wrap;
@@ -504,18 +529,26 @@ function renderInflectedFooter(tier2) {
   const surfaces = [...new Set(tier2.map((q) => q.surface))].slice(0, 2);
   const hint = surfaces.length ? ` (${surfaces.join(" · ")})` : "";
 
+  // Header strip: label + Show/Hide toggle together, framed so the
+  // user sees a clear "click anywhere on this row to expand/collapse"
+  // affordance via a vermilion-soft hover band.
+  const head = document.createElement("div");
+  head.className = "rf-lyric-inflected-head";
+
   const label = document.createElement("div");
   label.className = "rf-lyric-inflected-label";
   label.innerHTML =
     `+ ${tier2.length} inflected match${tier2.length === 1 ? "" : "es"}` +
     `<span style="opacity:0.6">${escapeHtml(hint)}</span>`;
-  wrap.appendChild(label);
+  head.appendChild(label);
 
   const toggle = document.createElement("button");
   toggle.type = "button";
   toggle.className = "rf-lyric-inflected-toggle";
   toggle.textContent = "Show ↓";
-  wrap.appendChild(toggle);
+  head.appendChild(toggle);
+
+  wrap.appendChild(head);
 
   const list = document.createElement("ul");
   list.className = "rf-lyric-inflected-list";
@@ -580,6 +613,36 @@ function renderShowMore(rest, word, popEl) {
   return btn;
 }
 
+// Inline-expanded inflected list — used when there are no tier-1
+// matches, so tier-2 is all we can show. Render POP_CAP items
+// directly (same default density as tier-1) and a Show-more button
+// for the rest.
+function renderInlineInflectedList(tier2, popEl) {
+  const wrap = document.createElement("div");
+  wrap.className = "rf-lyric-inflected-inline";
+
+  const list = document.createElement("ul");
+  list.className = "rf-lyric-inflected-list rf-lyric-inflected-list--inline";
+  for (const q of tier2.slice(0, POP_CAP)) list.appendChild(buildInflectedItem(q));
+  wrap.appendChild(list);
+
+  if (tier2.length > POP_CAP) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "rf-lyric-more";
+    btn.textContent = `Show ${tier2.length - POP_CAP} more`;
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const frag = document.createDocumentFragment();
+      for (const q of tier2.slice(POP_CAP)) frag.appendChild(buildInflectedItem(q));
+      list.appendChild(frag);
+      btn.remove();
+    });
+    wrap.appendChild(btn);
+  }
+  return wrap;
+}
+
 // ── Source-word panel ──────────────────────────────────────────────
 // Always-visible strip directly under the source summary header. Two
 // end-position quotes for the searched word, with the same expand-in-
@@ -597,14 +660,25 @@ function renderSourcePanel(word) {
     panel.style.display = "none";
     return;
   }
+  // Sort: exact-surface first, then quotes-with-partner first within
+  // each surface group. Stable sort preserves the build-time ranking
+  // (song popularity / line length) within each bucket.
+  const wordLower = word.toLowerCase();
+  ends.sort((a, b) => {
+    const aExact = (a.surface || "").toLowerCase() === wordLower ? 0 : 1;
+    const bExact = (b.surface || "").toLowerCase() === wordLower ? 0 : 1;
+    if (aExact !== bExact) return aExact - bExact;
+    return (a.partner ? 0 : 1) - (b.partner ? 0 : 1);
+  });
   panel.style.display = "";
   const artists = new Set(ends.map((q) => q.credit || q.artist)).size;
 
   const rail = document.createElement("div");
   rail.className = "rf-source-panel-rail";
   rail.innerHTML =
-    `<div class="rf-source-panel-rail-eyebrow">Lines using <em>${escapeHtml(word)}</em></div>` +
-    `<div class="rf-source-panel-rail-meta">${ends.length} at line end · ${artists} artist${artists === 1 ? "" : "s"}</div>`;
+    `<span class="rf-source-panel-rail-eyebrow">Lines using <em>${escapeHtml(word)}</em></span>` +
+    `<span class="rf-source-panel-rail-sep">·</span>` +
+    `<span class="rf-source-panel-rail-meta">${ends.length} at line end · ${artists} artist${artists === 1 ? "" : "s"}</span>`;
   panel.appendChild(rail);
 
   const col = document.createElement("div");
