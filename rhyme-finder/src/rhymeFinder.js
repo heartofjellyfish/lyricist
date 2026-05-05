@@ -199,6 +199,7 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
       syllables: entry.syllables,
       codaRelation: cls.codaRelation,
       familyCloseness: cls.familyCloseness, // tight | medium | loose (family only)
+      trailingSame: cls.trailingSame ?? true, // foot-level rhyme integrity for feminine pairs
       commonRank,
       score: lyricScore(entry.text, commonRank),
     });
@@ -236,17 +237,27 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
     const stressA = a.masculine === source.masculine ? 0 : 1;
     const stressB = b.masculine === source.masculine ? 0 : 1;
     if (stressA !== stressB) return stressA - stressB;
-    // 2. Family closeness (family bucket only). Within the same family
+    // 2. Foot integrity (feminine sources only). A matching trailing means
+    //    the WHOLE foot rhymes (dreaming/meaning); a mismatched trailing
+    //    means only the stressed syllable echoes (dreaming/demon, the
+    //    passion/ashes pattern). The full foot rhyme always sounds stronger
+    //    to the ear, so it sorts first regardless of stressed-coda closeness.
+    if (!source.masculine) {
+      const trailA = a.trailingSame ? 0 : 1;
+      const trailB = b.trailingSame ? 0 : 1;
+      if (trailA !== trailB) return trailA - trailB;
+    }
+    // 3. Family closeness (family bucket only). Within the same family
     //    type, tight (partner) > medium (companion) > loose (cross).
     if (type === "family") {
       const closeA = FAMILY_CLOSENESS_ORDER[a.familyCloseness] ?? 1;
       const closeB = FAMILY_CLOSENESS_ORDER[b.familyCloseness] ?? 1;
       if (closeA !== closeB) return closeA - closeB;
     }
-    // 3. Lyric-familiarity score: lyric corpus appearances dominate;
+    // 4. Lyric-familiarity score: lyric corpus appearances dominate;
     //    top-7000 commonRank is fallback for words the corpus undercovers.
     if (a.score !== b.score) return b.score - a.score;
-    // 4. Alphabetical for stable ordering on ties.
+    // 5. Alphabetical for stable ordering on ties.
     return a.word.localeCompare(b.word);
   }
 
