@@ -669,6 +669,57 @@ input[type="text"]::placeholder {
   pointer-events: auto;
 }
 
+/* Stress popover: a wider 2-column comparison so the reader can
+   contrast masculine vs feminine in one glance instead of toggling
+   between two single-column popovers. */
+.rf-stress-pop { width: 520px; }
+.rf-stress-pop-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 18px;
+}
+.rf-stress-pop-col {
+  padding: 0 4px;
+}
+.rf-stress-pop-col + .rf-stress-pop-col {
+  border-left: 1px dashed var(--ink-ghost);
+  padding-left: 14px;
+}
+/* The column matching the searched word's stress class is marked so
+   the reader can see where they stand in the comparison. */
+.rf-stress-pop-col.is-current .rf-tier-pop-eyebrow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.rf-stress-pop-current-tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: var(--paper);
+  background: var(--vermilion);
+  padding: 2px 6px;
+  border-radius: 1px;
+}
+.rf-stress-pop-examples-label {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+}
+@media (max-width: 720px) {
+  .rf-stress-pop { width: 92vw; }
+  .rf-stress-pop-cols { grid-template-columns: 1fr; gap: 14px; }
+  .rf-stress-pop-col + .rf-stress-pop-col {
+    border-left: none;
+    border-top: 1px dashed var(--ink-ghost);
+    padding-left: 4px;
+    padding-top: 12px;
+  }
+}
+
 /* Highlight the phonetic kernel — the vowel & coda values */
 .rf-source-tag .rf-tag-val {
   color: var(--vermilion);
