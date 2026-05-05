@@ -469,30 +469,25 @@ function renderWordRow(words, source) {
   return row;
 }
 
-// "10-second shortlist" tiering. Bold flags candidates that combine all
-// the positive signals (subtitle frequency, songwriter attestation,
-// tight family link if applicable) and aren't dragged down by any
-// gating signal (cliché pair, mas/fem mismatch with source, looser
-// cross-axis family link). The candidate's `score` already combines
-// lyricApps × 200 + max(0, 7000 − commonRank), so this function only
-// thresholds + gates.
+// "10-second shortlist" tiering. The candidate's `score` already
+// combines lyricApps × 200 + max(0, 7000 − commonRank), so this
+// thresholds the score directly. Cliché, mas/fem mismatch, and
+// family-loose closeness each carry their own visual channels
+// (strikethrough, dotted underline, sort position) and are not
+// re-encoded as gates here — the user reads each warning alongside
+// the bold/normal/italic signal.
 //
-//   bold (very common): score ≥ 5000 AND no gates active
-//   normal (common):    score ≥ 1000 OR (high score but a gate trips)
+//   bold (very common): score ≥ 5000
+//   normal (common):    score ≥ 1000
 //   italic (uncommon):  score < 1000 — borderline, may surprise listener
 //
 // Score calibration:
 //   * 5000 ≈ 25 lyric appearances alone, OR rank 2000 in subtitle corpus,
 //     OR a meaningful combination of both.
 //   * 1000 ≈ 5 lyric appearances, OR rank 6000 in subtitle corpus.
-function recommendationTier(candidate, source, cliche, mismatch) {
+function recommendationTier(candidate) {
   const score = candidate.score ?? 0;
-  // Gates: even a high score doesn't warrant bold if these flags fire.
-  // Cliché pairs are pre-marked junk; mas/fem mismatch costs a beat
-  // when sung; loose cross-axis family links are the weakest sub-tier
-  // in the family bucket. None deserve "look here first" emphasis.
-  const gated = cliche || mismatch || candidate.familyCloseness === "loose";
-  if (score >= 5000 && !gated) return "very-common";
+  if (score >= 5000) return "very-common";
   if (score >= 1000) return "common";
   return "uncommon";
 }
@@ -503,7 +498,7 @@ function renderWord(candidate, source) {
 
   const cliche = isCliche(source.word, candidate.word);
   const mismatch = candidate.masculine !== source.masculine;
-  const tier = recommendationTier(candidate, source, cliche, mismatch);
+  const tier = recommendationTier(candidate);
 
   el.classList.add(`rf-c-${tier}`);
   if (cliche) el.classList.add("rf-cliche");
