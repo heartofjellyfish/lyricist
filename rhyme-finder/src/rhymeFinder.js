@@ -18,22 +18,30 @@ import {
 let CORPUS_ENTRIES = null;
 let REAL_WORDS = null;
 let COMMON_RANK = null;
+let LYRIC_FREQ = null;
 let WORDLISTS_PROMISE = null;
 
 const WORDLISTS_BASE = new URL("../wordlists/", import.meta.url);
+// lyric-frequency.json lives at the repo-root /wordlists/, not the
+// rhyme-finder-local /rhyme-finder/wordlists/, so it shares the index file
+// with the lyric-library quote viewer (lyricLibrary.js).
+const ROOT_WORDLISTS_BASE = new URL("../../wordlists/", import.meta.url);
 
 async function loadWordlists() {
-  if (REAL_WORDS && COMMON_RANK) return;
+  if (REAL_WORDS && COMMON_RANK && LYRIC_FREQ) return;
   if (!WORDLISTS_PROMISE) {
     WORDLISTS_PROMISE = (async () => {
-      const [wordnetResp, commonResp] = await Promise.all([
+      const [wordnetResp, commonResp, freqResp] = await Promise.all([
         fetch(new URL("wordnet-words.json", WORDLISTS_BASE)),
         fetch(new URL("common-10k.txt", WORDLISTS_BASE)),
+        fetch(new URL("lyric-frequency.json", ROOT_WORDLISTS_BASE)),
       ]);
       if (!wordnetResp.ok) throw new Error(`wordnet-words.json ${wordnetResp.status}`);
       if (!commonResp.ok) throw new Error(`common-10k.txt ${commonResp.status}`);
+      if (!freqResp.ok) throw new Error(`lyric-frequency.json ${freqResp.status}`);
       const wordnetArr = await wordnetResp.json();
       const commonText = await commonResp.text();
+      LYRIC_FREQ = await freqResp.json();
       REAL_WORDS = new Set(wordnetArr);
       COMMON_RANK = new Map();
       const commonLines = commonText.split(/\r?\n/u).filter(Boolean);
@@ -41,9 +49,33 @@ async function loadWordlists() {
         COMMON_RANK.set(w.toLowerCase(), i);
         REAL_WORDS.add(w.toLowerCase()); // top-10k is also valid English
       });
+      // Lyric library entries are themselves a real-word signal: any token
+      // attested in a curated song lyric is a real lyric word, even if
+      // wordnet doesn't know it (slang, contractions like "ain't").
+      for (const w of Object.keys(LYRIC_FREQ)) REAL_WORDS.add(w);
     })();
   }
   await WORDLISTS_PROMISE;
+}
+
+// Lyric-familiarity score. Two signals, both grounded in real data —
+// no wordnet baseline, no length heuristics, no special cases. As the
+// lyric corpus expands, real lyric vocabulary accumulates apps and
+// borderline survivors (ye, dee, qui at 1-6 apps today) get out-ranked
+// out of buckets automatically.
+//
+//   * lyricApps × 200 — direct evidence from curated song lyrics. 1 app
+//     ≈ rank 6800, 5 apps ≈ rank 6000, 30 apps (corpus cap) ≈ rank 4000.
+//   * top-7000 commonRank — general-English fallback for words the lyric
+//     corpus hasn't yet attested. Past rank 7000, the top-10k tail is
+//     dominated by tech/business jargon and proper nouns — credit nothing.
+//
+// Words scoring 0 are filtered out as likely listener-confusing tokens.
+function lyricScore(word, commonRank) {
+  const apps = LYRIC_FREQ[word] || 0;
+  const appsBoost = apps * 200;
+  const rankBoost = commonRank < 7000 ? 7000 - commonRank : 0;
+  return appsBoost + rankBoost;
 }
 
 function buildCorpus() {
@@ -158,6 +190,7 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
     // in walkthrough lists, so users learn why a candidate doesn't work.
     if (!cls.isRhyme && cls.type !== "identity") continue;
 
+    const commonRank = COMMON_RANK.get(entry.text) ?? Infinity;
     collected[cls.type].push({
       word: entry.text,
       stability: cls.stability,
@@ -166,60 +199,99 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
       syllables: entry.syllables,
       codaRelation: cls.codaRelation,
       familyCloseness: cls.familyCloseness, // tight | medium | loose (family only)
-      commonRank: COMMON_RANK.get(entry.text) ?? Infinity,
+      commonRank,
+      score: lyricScore(entry.text, commonRank),
     });
   }
 
-  // Sort criteria within a bucket, in order:
-  //   1. matching stress class first (mas/fem agreement)
-  //   2. fewer syllables first — single-syllable words are lyric staples
-  //      and Pattison's textbook examples are almost all 1-syll
-  //   3. lower commonRank first (most-common songwriter words within tier)
-  //   4. alphabetical
+  // Per-type ceilings. Sized to the natural shape of each rhyme type:
+  // identity is always small (a few exact-suffix matches); perfect/family
+  // are mid-sized; additive/assonance/consonance are structurally huge for
+  // vowel-ending sources (every English consonant is a candidate). A
+  // bucket caps at min(TYPE_MAX, # of quality candidates) — when the
+  // corpus is sparse, the bucket shrinks honestly rather than padding
+  // with junk.
+  const TYPE_MAX = {
+    identity: 50,
+    perfect: 200,
+    family: 300,
+    additive: 350,
+    subtractive: 200,
+    assonance: 350,
+    consonance: 350,
+  };
+
+  // Per-syllable quotas. Within a bucket, reserve roughly these shares
+  // for 1, 2, 3, and 4+ syllable words so the user sees variety, not
+  // 200 1-syll near-duplicates. Underflow in any group flows to the next
+  // (1-syll first) — single-syllable words are lyric staples and most
+  // valuable when available.
+  const SYLLABLE_QUOTAS = [0.4, 0.3, 0.2, 0.1];
+
   const FAMILY_CLOSENESS_ORDER = { tight: 0, medium: 1, loose: 2 };
-  function compareWithin(a, b) {
+
+  function compareWithin(type, a, b) {
+    // 1. Mas/fem stress agreement — pairs that match the source's stress
+    //    class come first; mas-vs-fem mismatches are usable but weaker.
     const stressA = a.masculine === source.masculine ? 0 : 1;
     const stressB = b.masculine === source.masculine ? 0 : 1;
     if (stressA !== stressB) return stressA - stressB;
-    const syllA = a.syllables ?? 1;
-    const syllB = b.syllables ?? 1;
-    if (syllA !== syllB) return syllA - syllB;
-    if (a.commonRank !== b.commonRank) return a.commonRank - b.commonRank;
+    // 2. Family closeness (family bucket only). Within the same family
+    //    type, tight (partner) > medium (companion) > loose (cross).
+    if (type === "family") {
+      const closeA = FAMILY_CLOSENESS_ORDER[a.familyCloseness] ?? 1;
+      const closeB = FAMILY_CLOSENESS_ORDER[b.familyCloseness] ?? 1;
+      if (closeA !== closeB) return closeA - closeB;
+    }
+    // 3. Lyric-familiarity score: lyric corpus appearances dominate;
+    //    top-7000 commonRank is fallback for words the corpus undercovers.
+    if (a.score !== b.score) return b.score - a.score;
+    // 4. Alphabetical for stable ordering on ties.
     return a.word.localeCompare(b.word);
   }
 
   for (const type of types) {
     const all = collected[type];
-    if (type === "family") {
-      // Family bucket: each closeness sub-tier gets a quota so cross-axis
-      // pairs (Pattison's "further away" cases — afraid/break, safe/age,
-      // leave/teeth) aren't crowded out by the very numerous tight pairs.
-      // Quotas: 50% tight, 30% medium, 20% loose. Underflow flows to the
-      // next sub-tier. Final list re-sorted by closeness then within rules
-      // so the reader still sees tightest matches first (silent sort,
-      // no UI labels).
-      const tight = all.filter((e) => e.familyCloseness === "tight").sort(compareWithin);
-      const medium = all.filter((e) => e.familyCloseness === "medium").sort(compareWithin);
-      const loose = all.filter((e) => e.familyCloseness === "loose").sort(compareWithin);
-      const quotaTight = Math.ceil(perBucket * 0.5);
-      const quotaMedium = Math.ceil(perBucket * 0.3);
-      const quotaLoose = perBucket - quotaTight - quotaMedium;
-      const takeTight = Math.min(tight.length, quotaTight);
-      let remaining = perBucket - takeTight;
-      const takeMedium = Math.min(medium.length, Math.min(quotaMedium, remaining));
-      remaining -= takeMedium;
-      const takeLoose = Math.min(loose.length, remaining);
-      remaining -= takeLoose;
-      // Distribute any leftover slots back to tight (most useful tier).
-      const extraTight = Math.min(tight.length - takeTight, remaining);
-      buckets[type] = [
-        ...tight.slice(0, takeTight + extraTight),
-        ...medium.slice(0, takeMedium),
-        ...loose.slice(0, takeLoose),
-      ];
-    } else {
-      buckets[type] = all.sort(compareWithin).slice(0, perBucket);
+    const max = TYPE_MAX[type] ?? perBucket;
+
+    // Step 1 — quality filter. score === 0 means: not in top-7000 AND
+    // zero lyric appearances. These are corpus gaps the user will trip
+    // over (lxi, sie, klee, naif…). Drop them.
+    const filtered = all.filter((e) => e.score > 0);
+
+    // Step 2 — group by syllable count (capping at 4+ as a single bucket).
+    // Sort within each group by the shared rule.
+    const bySyll = [[], [], [], []]; // 1, 2, 3, 4+
+    for (const e of filtered) {
+      const idx = Math.min(4, Math.max(1, e.syllables ?? 1)) - 1;
+      bySyll[idx].push(e);
     }
+    for (const group of bySyll) group.sort((a, b) => compareWithin(type, a, b));
+
+    // Step 3 — apply per-syllable quotas with overflow. Dynamic scaling:
+    // cap = min(TYPE_MAX, available_after_filter); short corpora produce
+    // short buckets, padded with nothing.
+    const cap = Math.min(max, filtered.length);
+    const targetPerSyll = SYLLABLE_QUOTAS.map((q) => Math.floor(cap * q));
+    const takes = bySyll.map((g, i) => Math.min(g.length, targetPerSyll[i]));
+
+    // Distribute remaining slots greedily — earlier syllable groups
+    // (1-syll first) preferred since most lyric staples live there.
+    let remaining = cap - takes.reduce((a, b) => a + b, 0);
+    while (remaining > 0) {
+      let progress = false;
+      for (let i = 0; i < bySyll.length && remaining > 0; i += 1) {
+        if (takes[i] < bySyll[i].length) {
+          takes[i] += 1;
+          remaining -= 1;
+          progress = true;
+        }
+      }
+      if (!progress) break;
+    }
+
+    // Step 4 — combine in syllable order (UI groups by syllables anyway).
+    buckets[type] = bySyll.flatMap((g, i) => g.slice(0, takes[i]));
   }
 
   return {

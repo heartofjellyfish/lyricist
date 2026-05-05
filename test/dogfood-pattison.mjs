@@ -25,11 +25,13 @@ const { findRhymes } = await import("../rhyme-finder/src/rhymeFinder.js");
 // Stub fetch for findRhymes' wordlists (wordnet + common-10k).
 const wordnet = JSON.parse(readFileSync(join(here, "..", "rhyme-finder", "wordlists", "wordnet-words.json"), "utf8"));
 const common = readFileSync(join(here, "..", "rhyme-finder", "wordlists", "common-10k.txt"), "utf8");
+const lyricFreq = JSON.parse(readFileSync(join(here, "..", "wordlists", "lyric-frequency.json"), "utf8"));
 const origFetch = globalThis.fetch;
 globalThis.fetch = async (url) => {
   const u = url.toString();
   if (u.endsWith("wordnet-words.json")) return new Response(JSON.stringify(wordnet));
   if (u.endsWith("common-10k.txt")) return new Response(common);
+  if (u.endsWith("lyric-frequency.json")) return new Response(JSON.stringify(lyricFreq));
   return origFetch(url);
 };
 

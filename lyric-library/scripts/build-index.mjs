@@ -83,14 +83,20 @@ function parseSongStructure(raw) {
 }
 
 // Normalize curly quotes; split on whitespace + most punctuation but keep
-// internal apostrophes (don't, I'll, '90s).
+// internal apostrophes (don't, I'll, '90s) and hyphens (six-pack).
+//
+// Final filter is strict: a token must be lowercase letters with at most
+// internal apostrophes / hyphens. This rejects encoding residue like
+// "leave‚" or "rain…" — text-extraction bugs where exotic Unicode
+// punctuation slipped through the splitter — while preserving legitimate
+// slang / dropped-g forms (dwellin, tickin, ain't, c'mon, '90s).
 function tokenize(line) {
   const norm = line.replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
   const raw = norm.split(/[\s,.;:!?()"—–\-—–\/\\\[\]{}]+/);
   return raw
     .map((t) => t.replace(/^'+|'+$/g, ""))
-    .filter((t) => /[a-zA-Z]/.test(t))
-    .map((t) => t.toLowerCase());
+    .map((t) => t.toLowerCase())
+    .filter((t) => /^[a-z][a-z'-]*$/.test(t));
 }
 
 // Verb + noun lemma; pick shorter when changed (handles plurals / -s reliably).
