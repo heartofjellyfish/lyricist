@@ -596,13 +596,19 @@ export function classifyRhyme(wordA, wordB) {
   const vowelMatch = a.stressedVowel === b.stressedVowel;
   const codaCmp = compareCodas(a.coda, b.coda);
 
-  // Feminine rhymes: per Pattison, the unstressed trailing is "usually
-  // identity, but [doesn't] have to be." We only enforce trailing identity
-  // for the resolved tiers (perfect / family / additive) — there the
-  // mismatch genuinely breaks the rhyme. For weaker tiers (assonance,
-  // consonance, partial), Pattison's worksheets explicitly use feminine
-  // pairs with mismatched trailings (lonely/voting, lonely/solely) as
-  // valid feminine assonance; rejecting those would be wrong.
+  // Feminine rhyme covers the whole foot — stressed syllable + unstressed
+  // trailing — so when the trailing diverges, the foot-level rhyme breaks.
+  // Strength of the surviving link depends on what the stressed syllable
+  // alone is doing:
+  //   * perfect-coda + mismatched trailing → demote to family-tight
+  //     (passion/ashes — the stressed match is strong enough to carry).
+  //   * family-coda or additive-coda + mismatched trailing → demote to
+  //     assonance (dreaming/nina, river/listen — only the vowel ring
+  //     survives; lonely/voting in Pattison's book lands here).
+  // Weaker tiers (assonance, consonance, partial) don't enforce trailing
+  // identity — Pattison's worksheets explicitly use mismatched-trailing
+  // feminine pairs (lonely/solely, lonely/smokey) as valid feminine
+  // assonance.
   const trailingSame = trailingsMatch(a.trailing, b.trailing);
   const bothFeminine = !a.masculine && !b.masculine;
   const femTrailingMismatch = bothFeminine && !trailingSame;
@@ -658,6 +664,35 @@ export function classifyRhyme(wordA, wordB) {
       explanation:
         "Perfect rhyme — same vowel, same coda, different onset. Maximum resolution; certainty, commitment, slamming the door shut." +
         femNote,
+    };
+  }
+
+  // Feminine pair with mismatched trailing AND non-perfect stressed coda:
+  // the foot-level rhyme is broken on both halves (coda only family/additive,
+  // trailing diverges), so neither carries through. Demote to assonance —
+  // only the shared vowel survives. Pattison files lonely/voting here for
+  // the same reason.
+  if (
+    vowelMatch &&
+    femTrailingMismatch &&
+    (codaCmp.relation === "family" || codaCmp.relation === "additive")
+  ) {
+    return {
+      type: "assonance",
+      stability: 2,
+      isRhyme: true,
+      wordA,
+      wordB,
+      masculineA: a.masculine,
+      masculineB: b.masculine,
+      stressedVowelA: a.stressedVowel,
+      stressedVowelB: b.stressedVowel,
+      codaA: a.coda,
+      codaB: b.coda,
+      codaRelation: codaCmp,
+      trailingSame,
+      explanation:
+        `Feminine assonance — stressed vowels match and the codas are ${codaCmp.relation === "family" ? "in the same phonetic family" : "one consonant apart"}, but the unstressed trailings diverge. The foot doesn't close together; only the vowel ring carries the link.`,
     };
   }
 
