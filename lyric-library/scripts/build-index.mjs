@@ -28,7 +28,11 @@ const CMU = JSON.parse(readFileSync(CMU_PATH, "utf8"));
 }
 
 const MAX_LINE_LEN = 80;
-const MAX_QUOTES_PER_WORD = 30;
+// Cap raised from 30 → 60 because we now emit only end-position quotes.
+// The UI renders only end-position (Phase 1.7); mid-line and start-line
+// quotes were dead weight on disk + on the wire. Dropping them lets each
+// hot word carry twice as many genuinely-useful end-rhyme uses.
+const MAX_QUOTES_PER_WORD = 60;
 const PARTNER_WINDOW = 4; // search ±N lines within the same stanza for a rhyme partner
 
 if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
@@ -243,16 +247,17 @@ for (const f of files) {
         // No stopword filter — for a rhyme finder, even "the" / "of" / "is"
         // are valid end-rhyme words ("a foggy day in London town" / "the").
         // Songwriters lean on prepositions and articles for slant rhymes.
-        const seenInLine = new Set();
-        for (let i = 0; i < tokens.length; i++) {
-          const t = tokens[i];
+        // Only end-position tokens become quotes — Phase 1.7 UI doesn't
+        // render mid-line or start-of-line matches anywhere. Emitting
+        // them was costing us index size + payload weight for content
+        // the user never sees. Surface form is still indexed, so words
+        // never used at line-end (e.g. "the") simply don't appear.
+        const t = tokens[lastNon];
+        if (t) {
           const key = lemma(t);
-          if (seenInLine.has(key)) continue;
-          seenInLine.add(key);
-          const pos = i === firstNon ? "start" : i === lastNon ? "end" : "middle";
           if (!index.has(key)) index.set(key, []);
-          if (pos === "end") meta.totalEndQuotes++;
-          if (pos === "end" && partner) meta.totalEndQuotesWithPartner++;
+          meta.totalEndQuotes++;
+          if (partner) meta.totalEndQuotesWithPartner++;
 
           index.get(key).push({
             artist: artistSlug,
@@ -260,20 +265,19 @@ for (const f of files) {
             song: song.slug,
             songTitle: song.title,
             year: song.year,
-            // Back-compat fallback: prev/next adjacent lines (Phase 1.5 UI used
-            // these). Phase 1.6 UI consumes `stanza` instead and treats these
-            // as a fallback when stanza is missing.
             linePrev: truncate(flatLines[songLineIdx - 1] ?? ""),
             line: truncate(lineObj.text),
             lineNext: truncate(flatLines[songLineIdx + 1] ?? ""),
             lineIdx: songLineIdx,
-            // Phase 1.6 fields (named to match the design spec):
-            section_label: stanza.section,       // "Chorus" | "Verse 1" | null
-            stanza: stanzaTexts,                 // every line in the matched stanza, truncated
-            stanzaLineIdx: lineInStanzaIdx,      // matched line's index inside `stanza`
-            partner: pos === "end" ? partner : null, // { line, stanzaLineIdx, word, type } | null
-            position: pos === "end" ? "end" : "mid", // collapsed binary per spec
-            wordPos: pos,                        // legacy: retain start/middle distinction for ranking
+            section_label: stanza.section,
+            stanza: stanzaTexts,
+            stanzaLineIdx: lineInStanzaIdx,
+            partner,
+            // `position` and `wordPos` are always "end" now that mid-line
+            // emission is gone. Both kept for API compatibility with the
+            // Phase 1.7 UI consumer that still reads them.
+            position: "end",
+            wordPos: "end",
             surface: t,
             _songOrder: songIdx,
           });
@@ -317,12 +321,11 @@ for (const [k, arr] of index) {
   index.set(k, dedup);
 }
 
-// Rank: end > middle > start, then song popularity, then short lines first.
-const POS_RANK = { end: 0, middle: 1, start: 2 };
+// Rank by song popularity (lower _songOrder = more popular), then by
+// shorter line length. All quotes are now end-position so the prior
+// position-rank step is gone.
 for (const [k, arr] of index) {
   arr.sort((a, b) => {
-    const p = POS_RANK[a.wordPos] - POS_RANK[b.wordPos];
-    if (p !== 0) return p;
     const so = a._songOrder - b._songOrder;
     if (so !== 0) return so;
     return a.line.length - b.line.length;
