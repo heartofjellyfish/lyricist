@@ -66,8 +66,15 @@ const TIER_META = {
     rule: "Different vowels, same closing consonants.",
     example: "love / live — both end in V; AH versus IH",
   },
+  identity: {
+    label: "Identity",
+    subtitle: "echo, not rhyme",
+    stability: 0,
+    rule: "The stressed syllable sounds the same in both words — same onset, same vowel, same coda. The ear hears repetition rather than tension/resolution, so it's not a rhyme. Useful to recognize and avoid.",
+    example: "fuse / confuse — both stressed syllables are 'fuse'",
+  },
 };
-const TIER_TYPES = ["perfect", "family", "additive", "subtractive", "assonance", "consonance"];
+const TIER_TYPES = ["perfect", "family", "additive", "subtractive", "assonance", "consonance", "identity"];
 
 // Pattison's stability scale is 5 stops, not 6 — Additive and Subtractive
 // share a stability rank (3). We merge them in the popover spectrum so
@@ -153,7 +160,7 @@ async function runSearch(word, { updateUrl = true } = {}) {
   try {
     // Yield to the event loop so the loading UI paints before the scan.
     await new Promise((r) => setTimeout(r, 0));
-    const { source, buckets } = await findRhymes({ word, perBucket: 60 });
+    const { source, buckets } = await findRhymes({ word, perBucket: 200 });
     // Prefetch lyric-library letter buckets for the source word + every
     // candidate word so renderWord() can synchronously decorate badges.
     const allWords = [source.word];
@@ -296,26 +303,37 @@ function renderTierPopover(type) {
     `<p class="rf-tier-pop-body">${escapeHtml(meta.rule)}</p>`;
   pop.appendChild(def);
 
-  // 6-stop spectrum showing every tier with the current one highlighted
-  const spec = document.createElement("div");
-  spec.className = "rf-tier-pop-section";
-  spec.innerHTML =
-    `<div class="rf-tier-pop-eyebrow">Where it sits</div>` +
-    `<ol class="rf-tier-spectrum-stops">` +
-    `<span class="rf-tier-spectrum-track" aria-hidden="true"></span>` +
-    SPECTRUM_STOPS.map((stop) => {
-      const isCurrent = stop.types.includes(type);
-      const stab = TIER_META[stop.types[0]].stability;
-      return (
-        `<li class="rf-tier-spectrum-stop${isCurrent ? " is-current" : ""}" data-stability="${stab}">` +
-        `<span class="rf-tier-spectrum-dot-slot"><span class="rf-tier-spectrum-dot"></span></span>` +
-        `<span class="rf-tier-spectrum-label">${escapeHtml(stop.label)}</span>` +
-        `</li>`
-      );
-    }).join("") +
-    `</ol>` +
-    `<div class="rf-tier-pop-axis"><span>most stable</span><span>least stable</span></div>`;
-  pop.appendChild(spec);
+  // 5-stop spectrum showing every rhyme tier with the current one
+  // highlighted. Identity is NOT a rhyme — it sits off the scale, so we
+  // skip the spectrum and show a short "off the scale" note instead.
+  if (type === "identity") {
+    const offScale = document.createElement("div");
+    offScale.className = "rf-tier-pop-section";
+    offScale.innerHTML =
+      `<div class="rf-tier-pop-eyebrow">Where it sits</div>` +
+      `<p class="rf-tier-pop-note">Off the rhyme scale — identity is repetition, not resolution. Listed here so you can recognize and avoid it.</p>`;
+    pop.appendChild(offScale);
+  } else {
+    const spec = document.createElement("div");
+    spec.className = "rf-tier-pop-section";
+    spec.innerHTML =
+      `<div class="rf-tier-pop-eyebrow">Where it sits</div>` +
+      `<ol class="rf-tier-spectrum-stops">` +
+      `<span class="rf-tier-spectrum-track" aria-hidden="true"></span>` +
+      SPECTRUM_STOPS.map((stop) => {
+        const isCurrent = stop.types.includes(type);
+        const stab = TIER_META[stop.types[0]].stability;
+        return (
+          `<li class="rf-tier-spectrum-stop${isCurrent ? " is-current" : ""}" data-stability="${stab}">` +
+          `<span class="rf-tier-spectrum-dot-slot"><span class="rf-tier-spectrum-dot"></span></span>` +
+          `<span class="rf-tier-spectrum-label">${escapeHtml(stop.label)}</span>` +
+          `</li>`
+        );
+      }).join("") +
+      `</ol>` +
+      `<div class="rf-tier-pop-axis"><span>most stable</span><span>least stable</span></div>`;
+    pop.appendChild(spec);
+  }
 
   // Example row
   const ex = document.createElement("div");

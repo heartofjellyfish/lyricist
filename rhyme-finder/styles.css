@@ -765,6 +765,9 @@ input[type="text"]::placeholder {
 .rf-tier[data-stability="3"] { border-left-color: rgba(177, 59, 44, 0.50); }
 .rf-tier[data-stability="2"] { border-left-color: rgba(177, 59, 44, 0.30); }
 .rf-tier[data-stability="1"] { border-left-color: rgba(177, 59, 44, 0.15); }
+/* Identity is off the rhyme scale — neutral grey rather than vermilion. */
+.rf-tier[data-stability="0"] { border-left-color: rgba(60, 50, 40, 0.25); border-left-style: dashed; }
+.rf-tier[data-stability="0"] .rf-tier-title { color: rgba(26, 20, 14, 0.65); }
 
 .rf-tier-head {
   display: grid;
