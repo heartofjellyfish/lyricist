@@ -1153,10 +1153,13 @@ input[type="text"]::placeholder {
 }
 
 .rf-word.rf-cliche {
-  color: var(--ink);
+  /* Translucent ink instead of opacity — opacity creates a stacking
+     context that bled through to the popover, making it look ~45%
+     transparent. Colour-alpha keeps the dim text + strikethrough but
+     leaves descendants (badge, popover) at full opacity. */
+  color: rgba(26, 20, 14, 0.45);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
-  opacity: 0.45;
 }
 
 .rf-word-flag {
