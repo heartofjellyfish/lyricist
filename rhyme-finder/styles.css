@@ -1076,6 +1076,21 @@ input[type="text"]::placeholder {
 .rf-word.rf-c-common { font-weight: 500; font-style: normal; color: var(--ink); }
 .rf-word.rf-c-uncommon { font-weight: 400; font-style: italic; color: var(--ink-faded); }
 
+/* Pinned candidate — the word stays vermilion (same hue as hover) so
+   the reader can spot which word the popover belongs to from the
+   surrounding tier. Higher specificity than every commonness tier and
+   the cliché override so the colour wins. Cliché's strikethrough +
+   opacity dim still apply, just in vermilion. */
+.rf-word.rf-pinned,
+.rf-word.rf-pinned.rf-c-very-common,
+.rf-word.rf-pinned.rf-c-common,
+.rf-word.rf-pinned.rf-c-uncommon,
+.rf-word.rf-pinned.rf-cliche,
+.rf-word.rf-pinned.rf-mismatch {
+  color: var(--vermilion);
+  opacity: 1;
+}
+
 .rf-word.rf-mismatch {
   color: var(--ink-faded);
   text-decoration: underline dotted;

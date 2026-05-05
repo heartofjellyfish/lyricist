@@ -220,34 +220,37 @@ function renderSource(source) {
   stressTag.appendChild(renderStressPopover(source.masculine));
 }
 
-function renderStressPopover(isMasculine) {
+function renderStressPopover(currentIsMasculine) {
   const pop = document.createElement("div");
-  pop.className = "rf-tier-pop";
+  pop.className = "rf-tier-pop rf-stress-pop";
   pop.addEventListener("click", (e) => e.stopPropagation());
 
-  const label = isMasculine ? "Masculine" : "Feminine";
-  const definition = isMasculine
-    ? "Ends on a stressed syllable. The rhyme lands on the final beat — common, clean, and song-friendly."
-    : "Ends with one unstressed syllable after the stressed one. The rhyme lands a beat earlier and trails off softly.";
-
-  // Examples curated to be common, recognisable rhyme words.
-  const examples = isMasculine
-    ? "love · dove · today · believe · forgot"
-    : "river · mother · follow · breaking · mountain";
-
-  const def = document.createElement("div");
-  def.className = "rf-tier-pop-section";
-  def.innerHTML =
-    `<div class="rf-tier-pop-eyebrow">${escapeHtml(label)} rhyme</div>` +
-    `<p class="rf-tier-pop-body">${escapeHtml(definition)}</p>`;
-  pop.appendChild(def);
-
-  const ex = document.createElement("div");
-  ex.className = "rf-tier-pop-section";
-  ex.innerHTML =
-    `<div class="rf-tier-pop-eyebrow">Examples</div>` +
-    `<p class="rf-tier-pop-body rf-tier-pop-example">${escapeHtml(examples)}</p>`;
-  pop.appendChild(ex);
+  // Two-column comparison — masculine on the left, feminine on the
+  // right. The column matching the searched word's stress class is
+  // marked .is-current so the reader can tell where they stand.
+  const cols = document.createElement("div");
+  cols.className = "rf-tier-pop-section rf-stress-pop-cols";
+  const buildCol = (kind) => {
+    const isMasculine = kind === "masculine";
+    const def = isMasculine
+      ? "Ends on a stressed syllable. The rhyme lands on the final beat — common, clean, and song-friendly."
+      : "Ends with one unstressed syllable after the stressed one. The rhyme lands a beat earlier and trails off softly.";
+    const examples = isMasculine
+      ? "love · dove · today · believe · forgot"
+      : "river · mother · follow · breaking · mountain";
+    const isCurrent = isMasculine === currentIsMasculine;
+    return (
+      `<div class="rf-stress-pop-col${isCurrent ? " is-current" : ""}">` +
+      `<div class="rf-tier-pop-eyebrow">${isMasculine ? "Masculine" : "Feminine"}` +
+      `${isCurrent ? ' <span class="rf-stress-pop-current-tag">this word</span>' : ""}</div>` +
+      `<p class="rf-tier-pop-body">${escapeHtml(def)}</p>` +
+      `<div class="rf-stress-pop-examples-label">Examples</div>` +
+      `<p class="rf-tier-pop-body rf-tier-pop-example">${escapeHtml(examples)}</p>` +
+      `</div>`
+    );
+  };
+  cols.innerHTML = buildCol("masculine") + buildCol("feminine");
+  pop.appendChild(cols);
 
   const note = document.createElement("div");
   note.className = "rf-tier-pop-section";
