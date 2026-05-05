@@ -254,10 +254,19 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
     const all = collected[type];
     const max = TYPE_MAX[type] ?? perBucket;
 
-    // Step 1 — quality filter. score === 0 means: not in top-7000 AND
-    // zero lyric appearances. These are corpus gaps the user will trip
-    // over (lxi, sie, klee, naif…). Drop them.
-    const filtered = all.filter((e) => e.score > 0);
+    // Step 1 — dynamic quality filter. Normally drop score === 0 (apps == 0
+    // AND commonRank >= 7000) — words like lxi, sie, klee, naif live there
+    // alongside textbook-perfect-but-lyric-rare words. But when the strong
+    // pool is below FLOOR, we relax the filter so sparse buckets aren't
+    // empty: every score=0 candidate already passed isAcceptableWord (real
+    // English per wordnet ∪ top-10k ∪ lyric-corpus) so we're not letting in
+    // junk, just less common rhymes.
+    //
+    // Examples this rescues: dreaming → gleaming, beaming, teeming, scheming;
+    // memory → emery; rhythm → algorithm; broken → outspoken, unspoken.
+    const FLOOR = 10;
+    const strong = all.filter((e) => e.score > 0);
+    const filtered = strong.length >= FLOOR ? strong : all;
 
     // Step 2 — group by syllable count (capping at 4+ as a single bucket).
     // Sort within each group by the shared rule.
