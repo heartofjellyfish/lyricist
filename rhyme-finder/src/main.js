@@ -87,51 +87,46 @@ const SPECTRUM_STOPS = [
   { types: ["consonance"], label: "Consonance" },
 ];
 
-// ── Cliché pair list (Pattison's repeat offenders) ──────────────────
-// Bidirectional — order doesn't matter.
-const CLICHE_PAIRS_RAW = [
-  ["love", "above"],
-  ["love", "of"],
-  ["heart", "apart"],
-  ["heart", "start"],
-  ["fire", "desire"],
-  ["fire", "higher"],
-  ["night", "light"],
-  ["night", "sight"],
-  ["true", "you"],
-  ["true", "blue"],
-  ["moon", "june"],
-  ["moon", "soon"],
-  ["moon", "tune"],
-  ["rain", "pain"],
-  ["sky", "high"],
-  ["sky", "fly"],
-  ["sky", "why"],
-  ["dance", "romance"],
-  ["mind", "find"],
-  ["dream", "scheme"],
-  ["girl", "world"],
-  ["soul", "whole"],
-  ["arms", "charms"],
-  ["eyes", "skies"],
-  ["eyes", "lies"],
-  ["heart", "part"],
-  ["away", "stay"],
-  ["away", "today"],
-];
+// ── Cliché pair list (corpus-derived) ─────────────────────────────────
+// Loaded from /wordlists/cliche-pairs.json at first search. The list is
+// the top-N most-co-occurring rhyme pairs at line-end across the lyric
+// library — the most-overworked pairs in your taste profile, by
+// definition. Replaces the prior hand-curated Pattison-era list (which
+// included dead pairs like moon/june and missed live ones like
+// back/black, storm/warm, breath/death).
+//
+// Re-derived by scripts/buildClicheList.mjs whenever the corpus expands.
+let CLICHE_INDEX = null;
+let CLICHE_LOADING = null;
 
-const CLICHE_INDEX = (() => {
-  const idx = new Map();
-  for (const [a, b] of CLICHE_PAIRS_RAW) {
-    if (!idx.has(a)) idx.set(a, new Set());
-    if (!idx.has(b)) idx.set(b, new Set());
-    idx.get(a).add(b);
-    idx.get(b).add(a);
+async function loadCliches() {
+  if (CLICHE_INDEX) return;
+  if (!CLICHE_LOADING) {
+    CLICHE_LOADING = (async () => {
+      const resp = await fetch("/wordlists/cliche-pairs.json");
+      if (!resp.ok) {
+        // Don't break the app on a missing file — just no cliché flags.
+        CLICHE_INDEX = new Map();
+        return;
+      }
+      const pairs = await resp.json();
+      const idx = new Map();
+      for (const [a, b] of pairs) {
+        const al = a.toLowerCase();
+        const bl = b.toLowerCase();
+        if (!idx.has(al)) idx.set(al, new Set());
+        if (!idx.has(bl)) idx.set(bl, new Set());
+        idx.get(al).add(bl);
+        idx.get(bl).add(al);
+      }
+      CLICHE_INDEX = idx;
+    })();
   }
-  return idx;
-})();
+  await CLICHE_LOADING;
+}
 
 function isCliche(sourceWord, candidateWord) {
+  if (!CLICHE_INDEX) return false; // not loaded yet — fail safe (no flag)
   const set = CLICHE_INDEX.get(sourceWord.toLowerCase());
   return Boolean(set && set.has(candidateWord.toLowerCase()));
 }
@@ -163,9 +158,11 @@ async function runSearch(word, { updateUrl = true } = {}) {
     const { source, buckets } = await findRhymes({ word, perBucket: 200 });
     // Prefetch lyric-library letter buckets for the source word + every
     // candidate word so renderWord() can synchronously decorate badges.
+    // Also pull in the corpus-derived cliché pair list — both are needed
+    // before render can flag candidates correctly.
     const allWords = [source.word];
     for (const t of TYPE_ORDER) for (const c of buckets[t] ?? []) allWords.push(c.word);
-    await prefetchForWords(allWords);
+    await Promise.all([prefetchForWords(allWords), loadCliches()]);
     renderSource(source);
     renderSourcePanel(source.word);
     renderResults(source, buckets);

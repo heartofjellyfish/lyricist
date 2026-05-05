@@ -254,6 +254,42 @@ To add an override:
 5. No code change needed — both pronunciation modules apply
    overrides at load time.
 
+### Lyric corpus & derived wordlists
+
+Rhyme Finder uses three wordlists derived from the lyric library
+(`wordlists/lyric-library/*.json`). All three are committed as static
+assets and **must be rebuilt whenever the lyric library expands**.
+
+| derived file | builder | purpose |
+|---|---|---|
+| `wordlists/lyric-frequency.json` | `scripts/buildLyricFrequency.mjs` | word → song-appearance count, drives the lyric-familiarity score |
+| `wordlists/cliche-pairs.json` | `scripts/buildClicheList.mjs` | top-50 most-co-occurring rhyme pairs at line-end, drives the cliché flag |
+| `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
+
+**Re-run protocol after corpus expansion:**
+
+```sh
+# 1. Re-index raw lyrics (if you've added new song JSONs)
+node lyric-library/scripts/build-index.mjs
+
+# 2. Rebuild the derived wordlists from the new index
+node scripts/buildLyricFrequency.mjs
+node scripts/buildClicheList.mjs
+
+# 3. Commit the regenerated JSONs (and the underlying lyric-library/*.json)
+git add wordlists/lyric-frequency.json wordlists/cliche-pairs.json wordlists/lyric-library/
+git commit -m "Corpus expansion: <which artists/songs added>"
+```
+
+The cliché list in particular is only as good as the corpus it's derived
+from — pairs that show up a lot in your curated artists become "cliché" in
+the tool. When you add new artists, the list should reflect their cliché
+landscape too.
+
+`common-10k.txt` is independent — it's derived from OpenSubtitles 2018,
+not from your lyric library. Only rebuild via `buildCommonTopK.mjs` if
+you swap the source frequency list.
+
 ### Common known CMU bugs that DON'T need overrides
 
 The classifier already handles these patterns algorithmically:
