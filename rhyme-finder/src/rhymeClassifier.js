@@ -87,6 +87,18 @@ export function phoneticFamilyOf(consonant) {
   return "other";
 }
 
+// Broad phonetic group, ignoring voicing. Pattison's table at the end of
+// Ch 4 lumps all plosives (b/d/g/p/t/k) into one family, all fricatives
+// (v/TH/z/zh/j/f/th/s/sh/ch) into one family, and the nasals (m/n/ng).
+// Cross-axis pairs (different position AND different voicing) are still
+// "family rhymes" per Pattison — just looser ones, the "further away" cases.
+function broadGroupOf(consonant) {
+  const f = phoneticFamilyOf(consonant);
+  if (f === "plosive-voiced" || f === "plosive-unvoiced") return "plosive";
+  if (f === "fricative-voiced" || f === "fricative-unvoiced") return "fricative";
+  return f; // nasal, liquid, other — these don't extend further.
+}
+
 export function arePartners(a, b) {
   return PARTNER_SET.has(keyForPair(a, b));
 }
@@ -95,10 +107,23 @@ export function areCompanions(a, b) {
   return COMPANION_SET.has(keyForPair(a, b));
 }
 
-// Same phonetic family (either partners or companions or identical family role).
+// Cross-axis: same broad family group, but neither partners nor companions.
+// E.g., T↔B (both plosives, different position AND voicing), F↔Z, P↔D.
+// The "2-hop" family relation Pattison treats as family-but-further-away.
+export function areCross(a, b) {
+  if (a === b) return false;
+  if (arePartners(a, b) || areCompanions(a, b)) return false;
+  const g = broadGroupOf(a);
+  if (g !== broadGroupOf(b)) return false;
+  return g === "plosive" || g === "fricative" || g === "nasal";
+}
+
+// Same phonetic family — partners, companions, OR cross-axis (all part of
+// Pattison's broad family groups). Closeness within family is exposed
+// via the per-position "kind" labels (same/partners/companions/cross).
 export function sameFamily(a, b) {
   if (a === b) return true;
-  return arePartners(a, b) || areCompanions(a, b);
+  return arePartners(a, b) || areCompanions(a, b) || areCross(a, b);
 }
 
 // ── Look up phonemes ────────────────────────────────────────────────
@@ -165,6 +190,67 @@ function lastStressedVowelIndex(phonemes) {
   return -1;
 }
 
+// English onset clusters that the stressed-syllable extractor will accept.
+// Used by maxOnsetStart to decide where the previous syllable's coda ends
+// and the stressed syllable's onset begins.
+const VALID_ONSETS_2 = new Set([
+  // Plosive + liquid
+  "P R", "B R", "T R", "D R", "K R", "G R",
+  "P L", "B L", "K L", "G L",
+  // Plosive + W (as in "twin", "quick" /kw/)
+  "T W", "D W", "K W", "G W",
+  // Fricative + liquid
+  "F R", "TH R", "SH R", "F L", "S L",
+  // S + sonorant/plosive
+  "S P", "S T", "S K", "S M", "S N", "S W",
+  "TH W", "HH W",
+  // Consonant + palatal Y (CMU writes "few" as F Y UW)
+  "P Y", "B Y", "T Y", "D Y", "K Y", "G Y",
+  "M Y", "N Y", "L Y", "F Y", "V Y", "S Y", "Z Y", "HH Y",
+]);
+const VALID_ONSETS_3 = new Set([
+  "S P R", "S P L", "S T R", "S K R", "S K W",
+]);
+
+// Find the start index of the stressed-syllable onset cluster using the
+// Maximum Onset Principle: take the LONGEST valid English onset cluster
+// at the right edge of the inter-vowel consonant run. Anything left of
+// that belongs to the previous syllable's coda.
+//
+// Examples:
+//   confuse  N-F-Y → "N F Y" invalid, "F Y" valid → onset [F, Y]
+//   haystack S-T   → "S T" valid → onset [S, T]
+//   birthplace TH-P-L → "TH P L" invalid, "P L" valid → onset [P, L]
+//   attention T    → single consonant → onset [T]
+//
+// Compound-vs-prefix ambiguity (e.g. misplace = MIS|PLACE morphologically,
+// but max-onset gives MI|SPLACE) is resolved separately by the
+// phoneme-suffix-with-different-syllable-count rule in the identity check.
+function maxOnsetStart(phonemes, stressIdx) {
+  let firstConsIdx = stressIdx - 1;
+  while (firstConsIdx >= 0 && !isVowel(phonemes[firstConsIdx])) {
+    firstConsIdx -= 1;
+  }
+  const clusterStart = firstConsIdx + 1;
+  const clusterLen = stressIdx - clusterStart;
+  if (clusterLen === 0) return stressIdx;
+  // No previous vowel: the whole word starts with this cluster — all onset.
+  if (firstConsIdx < 0) return clusterStart;
+  // Single intervocalic consonant: V.CV pattern, consonant goes to onset.
+  if (clusterLen === 1) return clusterStart;
+  // Try the longest valid onset cluster at the right edge.
+  if (clusterLen >= 3) {
+    const c3 = phonemes.slice(stressIdx - 3, stressIdx).join(" ");
+    if (VALID_ONSETS_3.has(c3)) return stressIdx - 3;
+  }
+  if (clusterLen >= 2) {
+    const c2 = phonemes.slice(stressIdx - 2, stressIdx).join(" ");
+    if (VALID_ONSETS_2.has(c2)) return stressIdx - 2;
+  }
+  // Fall back: only the last consonant is onset, rest goes to previous coda.
+  return stressIdx - 1;
+}
+
 export function analyzeWord(word) {
   const phonemes = phonemesFor(word);
   if (!phonemes || phonemes.length === 0) {
@@ -174,13 +260,10 @@ export function analyzeWord(word) {
   const stressIdx = lastStressedVowelIndex(phonemes);
   if (stressIdx === -1) return null;
 
-  // Onset: consonants from the start of the stressed syllable.
-  // Walk backward from stressIdx collecting consonants until we hit another vowel.
-  const onsetStart = (() => {
-    let i = stressIdx - 1;
-    while (i >= 0 && !isVowel(phonemes[i])) i -= 1;
-    return i + 1;
-  })();
+  // Onset: consonants forming the stressed syllable's onset cluster.
+  // Apply Maximum Onset Principle (rising sonority) so cross-syllable
+  // clusters like the "N" in "con-fuse" stay with the previous syllable.
+  const onsetStart = maxOnsetStart(phonemes, stressIdx);
   const onset = phonemes.slice(onsetStart, stressIdx);
 
   // Coda: consonants immediately after the stressed vowel, up to the next vowel (if any).
@@ -212,8 +295,9 @@ export function analyzeWord(word) {
 //   { relation: "additive", extra: [...consonants], side: "A" | "B" }
 //   { relation: "unrelated" }
 
-// Compare two consonant sequences position-by-position, allowing each
-// position to be same / partners / companions. Returns null if not aligned.
+// Compare two consonant sequences position-by-position. Each position
+// must be same / partners / companions / cross (all four count as "in
+// the same broad family group"). Returns null if any position is unrelated.
 function alignCodas(codaA, codaB) {
   if (codaA.length !== codaB.length) return null;
   const notes = [];
@@ -228,6 +312,9 @@ function alignCodas(codaA, codaB) {
       anyDifferent = true;
     } else if (areCompanions(a, b)) {
       notes.push({ a, b, kind: "companions" });
+      anyDifferent = true;
+    } else if (areCross(a, b)) {
+      notes.push({ a, b, kind: "cross" });
       anyDifferent = true;
     } else {
       return null;
@@ -314,21 +401,60 @@ function trailingsMatch(a, b) {
   return true;
 }
 
-function isSuffixOfOther(phA, phB) {
-  if (phA.length === phB.length) return phA.every((p, i) => p === phB[i]);
-  const [shorter, longer] = phA.length < phB.length ? [phA, phB] : [phB, phA];
-  const tail = longer.slice(longer.length - shorter.length);
-  if (!tail.every((p, i) => p === shorter[i])) return false;
+// Identity per Pattison (Ch 1): the ear hears repetition, not tension.
+// Two routes converge here, both fired by checkIdentity():
+//
+//   Route A — stressed-syllable match. The analyzed onset, stressed
+//     vowel, and coda are all equal. Catches command/commanding (mas vs
+//     fem, same stressed syll), attention/detention/intention (different
+//     unstressed prefixes, identical stressed-syll-onward content).
+//
+//   Route B — phoneme-suffix with different syllable count. The shorter
+//     word's phonemes (ignoring stress digit) appear as the tail of the
+//     longer word's phonemes, and the syllable counts differ. Catches
+//     fuse/confuse, place/replace, place/birthplace, place/misplace —
+//     where the longer word adds an unstressed prefix syllable, so the
+//     onset clusters don't compare cleanly under the "drop first
+//     intervocalic consonant" heuristic but the suffix relation is
+//     unambiguous.
+//
+// The syllable-count guard on Route B is what keeps scare/care, stop/top,
+// spice/ice from false-firing as identity — those have matching tails but
+// the same syllable count, so they're real rhymes (different cluster
+// onsets in the stressed syllable).
 
-  // Identity only fires when the shared content INCLUDES the stressed
-  // syllable's onset. If the shorter word starts with a vowel
-  // (e.g. "action" inside "fraction", "eyes" inside "lies"), the
-  // shared part has no leading consonant — extending the longer word
-  // with new consonants in front gives a DIFFERENT stressed-syllable
-  // onset, which is real tension/resolution, i.e. a real rhyme.
-  // True identity requires the shorter word to start with a consonant
-  // (fuse/confuse, place/replace).
-  return !isVowel(shorter[0]);
+function syllableCount(phonemes) {
+  let n = 0;
+  for (const p of phonemes) {
+    if (VOWEL_RE.test(p)) n += 1;
+  }
+  return n;
+}
+
+function sameStressedSyllable(a, b) {
+  if (a.onset.length !== b.onset.length) return false;
+  for (let i = 0; i < a.onset.length; i += 1) {
+    if (a.onset[i] !== b.onset[i]) return false;
+  }
+  if (a.stressedVowel !== b.stressedVowel) return false;
+  if (a.coda.length !== b.coda.length) return false;
+  for (let i = 0; i < a.coda.length; i += 1) {
+    if (a.coda[i] !== b.coda[i]) return false;
+  }
+  return true;
+}
+
+function phonemeSuffixDifferentSyll(phA, phB) {
+  if (phA.length === phB.length) return false;
+  const sylA = syllableCount(phA);
+  const sylB = syllableCount(phB);
+  if (sylA === sylB) return false;
+  const [shorter, longer] = phA.length < phB.length ? [phA, phB] : [phB, phA];
+  const offset = longer.length - shorter.length;
+  for (let i = 0; i < shorter.length; i += 1) {
+    if (vowelBase(shorter[i]) !== vowelBase(longer[offset + i])) return false;
+  }
+  return true;
 }
 
 // ── Main classifier ─────────────────────────────────────────────────
@@ -354,21 +480,24 @@ export function classifyRhyme(wordA, wordB) {
     };
   }
 
-  // Identity, broadly defined:
+  // Identity per Pattison (Ch 1): the ear hears repetition, not tension.
+  // Three cases all collapse to the same rule:
   //   (1) Same spelled word — literal repetition.
   //   (2) Identical phoneme sequences — homophones (peace/piece).
-  //   (3) One word's phoneme sequence is a suffix of the other, and they
-  //       share the same stressed-syllable-onward content (fuse/confuse,
-  //       place/replace). The stressed syllables have the same onset, so
-  //       there's no tension → echo, not rhyme.
+  //   (3) Stressed syllables share the same onset + vowel + coda
+  //       (fuse/confuse, place/birthplace, attention/detention,
+  //       command/commanding). Trailing may differ (mas vs fem with
+  //       same stressed syll = identity, no rhyme to find).
+  const sameSpelling = normalizeWordKey(wordA) === normalizeWordKey(wordB);
   const phonemesEqual =
     a.phonemes.length === b.phonemes.length &&
     a.phonemes.every((p, i) => p === b.phonemes[i]);
-  const sameSpelling = normalizeWordKey(wordA) === normalizeWordKey(wordB);
-  const suffixRelation =
-    !phonemesEqual && isSuffixOfOther(a.phonemes, b.phonemes);
+  const sameStressed =
+    !phonemesEqual &&
+    (sameStressedSyllable(a, b) ||
+      phonemeSuffixDifferentSyll(a.phonemes, b.phonemes));
 
-  if (sameSpelling || phonemesEqual || suffixRelation) {
+  if (sameSpelling || phonemesEqual || sameStressed) {
     return {
       type: "identity",
       stability: 0,
@@ -383,7 +512,7 @@ export function classifyRhyme(wordA, wordB) {
         ? "Same word — repetition, not rhyme."
         : phonemesEqual
         ? "Homophones — identical pronunciation. The ear hears echo, not tension."
-        : "Identity — one word is contained in the other's pronunciation (e.g. 'fuse'/'confuse'). Stressed syllables share an onset, so no tension/resolution.",
+        : "Identity — stressed syllables share the same onset, vowel, and coda. The ear hears repetition, not tension/resolution.",
     };
   }
 
@@ -467,34 +596,51 @@ export function classifyRhyme(wordA, wordB) {
   const vowelMatch = a.stressedVowel === b.stressedVowel;
   const codaCmp = compareCodas(a.coda, b.coda);
 
-  // Feminine rhymes: per Pattison, the stressed syllables must rhyme AND
-  // the trailing unstressed syllable(s) must be identity. If the trailings
-  // differ ("falling" vs "policy"), it's not a rhyme — the ear hears the
-  // mismatch in the unstressed tail.
+  // Feminine rhymes: per Pattison, the unstressed trailing is "usually
+  // identity, but [doesn't] have to be." We only enforce trailing identity
+  // for the resolved tiers (perfect / family / additive) — there the
+  // mismatch genuinely breaks the rhyme. For weaker tiers (assonance,
+  // consonance, partial), Pattison's worksheets explicitly use feminine
+  // pairs with mismatched trailings (lonely/voting, lonely/solely) as
+  // valid feminine assonance; rejecting those would be wrong.
   const trailingSame = trailingsMatch(a.trailing, b.trailing);
-  if (!a.masculine && !b.masculine && !trailingSame) {
-    return {
-      type: "mismatched",
-      stability: 0,
-      isRhyme: false,
-      wordA,
-      wordB,
-      masculineA: a.masculine,
-      masculineB: b.masculine,
-      stressedVowelA: a.stressedVowel,
-      stressedVowelB: b.stressedVowel,
-      trailingSame,
-      explanation:
-        "Feminine pair with non-matching trailing syllables. The stressed syllables may rhyme, but the unstressed tails diverge — the ear catches the mismatch.",
-    };
-  }
+  const bothFeminine = !a.masculine && !b.masculine;
+  const femTrailingMismatch = bothFeminine && !trailingSame;
   const femNote =
     a.masculine
       ? ""
-      : " (Feminine — trailing syllables match, extending the resolution.)";
+      : trailingSame
+      ? " (Feminine — trailing syllables match, extending the resolution.)"
+      : " (Feminine — trailings differ, weakening the resolution.)";
 
   // Now the main decision tree:
   if (vowelMatch && codaCmp.relation === "same") {
+    // Feminine pair with mismatched trailings (passion/ashes type) —
+    // the stressed syllable is a full perfect match but the unstressed
+    // tail diverges, so the rhyme doesn't slam the door shut. Pattison
+    // calls these "not perfect rhymes, but their sonic connection is
+    // undeniable" — that's family-strength territory.
+    if (femTrailingMismatch) {
+      return {
+        type: "family",
+        stability: 4,
+        familyCloseness: "tight",
+        isRhyme: true,
+        wordA,
+        wordB,
+        masculineA: a.masculine,
+        masculineB: b.masculine,
+        stressedVowelA: a.stressedVowel,
+        stressedVowelB: b.stressedVowel,
+        codaA: a.coda,
+        codaB: b.coda,
+        codaRelation: codaCmp,
+        trailingSame,
+        explanation:
+          "Feminine pair — perfect on the stressed syllable but the unstressed tails differ. Strong sonic link without the full slam-the-door close." +
+          femNote,
+      };
+    }
     return {
       type: "perfect",
       stability: 5,
@@ -516,12 +662,24 @@ export function classifyRhyme(wordA, wordB) {
   }
 
   if (vowelMatch && codaCmp.relation === "family") {
-    const strong = codaCmp.notes.every(
-      (n) => n.kind === "same" || n.kind === "partners"
-    );
+    // Closeness within the family tier. Three sub-tiers, exposed only as
+    // a sort key (no UI label) — let the user scan tightest matches first
+    // without having to learn Pattison's vocabulary. The whole pair's
+    // closeness is the loosest single position (the bottleneck the ear hears).
+    //   tight   — every position is same or partners
+    //   medium  — at least one companion, no cross
+    //   loose   — at least one cross-axis swap (Pattison's "further away")
+    const hasCross = codaCmp.notes.some((n) => n.kind === "cross");
+    const hasCompanion = codaCmp.notes.some((n) => n.kind === "companions");
+    const familyCloseness = hasCross
+      ? "loose"
+      : hasCompanion
+      ? "medium"
+      : "tight";
     return {
       type: "family",
       stability: 4,
+      familyCloseness,
       isRhyme: true,
       wordA,
       wordB,
@@ -535,8 +693,12 @@ export function classifyRhyme(wordA, wordB) {
       trailingSame,
       explanation:
         `Family rhyme — same vowel, coda consonants in the same phonetic family. ${
-          strong ? "Strong link (partners)." : "Companion link — a touch looser."
-        } Mostly resolved with a fresh edge; an escape from cliché-prone perfect pairs.` +
+          familyCloseness === "tight"
+            ? "Tight link — close to a perfect rhyme."
+            : familyCloseness === "medium"
+            ? "Solid family link with a fresh edge."
+            : "Looser family link — phonetically further away but still in the same family."
+        } Mostly resolved; an escape from cliché-prone perfect pairs.` +
         femNote,
     };
   }
@@ -640,6 +802,37 @@ export function classifyRhyme(wordA, wordB) {
       trailingSame,
       explanation:
         "Loose consonance — different vowels, coda consonants in the same phonetic family. Very suspended; risks missing entirely.",
+    };
+  }
+
+  // Consonance with R/L color (word/card, snarl/curl): vowels differ,
+  // codas differ by exactly one liquid (R or L), and the BASE codas after
+  // removing the liquid match identically. Pattison treats these as
+  // consonance — the L/R colors the cluster but the terminating consonant
+  // still matches at the end of the line.
+  if (
+    !vowelMatch &&
+    codaCmp.relation === "additive" &&
+    codaCmp.extra.length === 1 &&
+    LIQUIDS.has(codaCmp.extra[0]) &&
+    codaCmp.baseHasFamilyDiff === false
+  ) {
+    return {
+      type: "consonance",
+      stability: 1,
+      isRhyme: true,
+      wordA,
+      wordB,
+      masculineA: a.masculine,
+      masculineB: b.masculine,
+      stressedVowelA: a.stressedVowel,
+      stressedVowelB: b.stressedVowel,
+      codaA: a.coda,
+      codaB: b.coda,
+      codaRelation: codaCmp,
+      trailingSame,
+      explanation:
+        "Consonance with R/L color — different vowels, the codas terminate on the same consonant but one side carries an extra liquid (R/L) before it. The shared ending consonant lands the rhyme.",
     };
   }
 

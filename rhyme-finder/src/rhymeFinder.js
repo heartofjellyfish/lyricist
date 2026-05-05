@@ -65,7 +65,7 @@ function buildCorpus() {
   return entries;
 }
 
-const TYPE_ORDER = ["perfect", "family", "additive", "subtractive", "assonance", "consonance"];
+const TYPE_ORDER = ["perfect", "family", "additive", "subtractive", "assonance", "consonance", "identity"];
 
 // Exclude obviously useless tokens before any quality filter. Possessives,
 // abbreviations like "abc", and tokens with stray numbers / punctuation.
@@ -153,7 +153,10 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
 
     const cls = classifyRhyme(word, entry.text);
     if (!collected[cls.type]) continue;
-    if (!cls.isRhyme) continue;
+    // Identity entries have isRhyme=false but should still be surfaced —
+    // Pattison's textbook includes them as "(oops! Identity.)" annotations
+    // in walkthrough lists, so users learn why a candidate doesn't work.
+    if (!cls.isRhyme && cls.type !== "identity") continue;
 
     collected[cls.type].push({
       word: entry.text,
@@ -162,30 +165,61 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
       masculine: cls.masculineB,
       syllables: entry.syllables,
       codaRelation: cls.codaRelation,
+      familyCloseness: cls.familyCloseness, // tight | medium | loose (family only)
       commonRank: COMMON_RANK.get(entry.text) ?? Infinity,
     });
   }
 
-  // Sort and trim each bucket:
+  // Sort criteria within a bucket, in order:
   //   1. matching stress class first (mas/fem agreement)
-  //   2. lower commonRank first (most-common songwriter words first)
-  //   3. fewer syllables first
+  //   2. fewer syllables first — single-syllable words are lyric staples
+  //      and Pattison's textbook examples are almost all 1-syll
+  //   3. lower commonRank first (most-common songwriter words within tier)
   //   4. alphabetical
+  const FAMILY_CLOSENESS_ORDER = { tight: 0, medium: 1, loose: 2 };
+  function compareWithin(a, b) {
+    const stressA = a.masculine === source.masculine ? 0 : 1;
+    const stressB = b.masculine === source.masculine ? 0 : 1;
+    if (stressA !== stressB) return stressA - stressB;
+    const syllA = a.syllables ?? 1;
+    const syllB = b.syllables ?? 1;
+    if (syllA !== syllB) return syllA - syllB;
+    if (a.commonRank !== b.commonRank) return a.commonRank - b.commonRank;
+    return a.word.localeCompare(b.word);
+  }
+
   for (const type of types) {
-    const sorted = collected[type].sort((a, b) => {
-      const stressA = a.masculine === source.masculine ? 0 : 1;
-      const stressB = b.masculine === source.masculine ? 0 : 1;
-      if (stressA !== stressB) return stressA - stressB;
-
-      if (a.commonRank !== b.commonRank) return a.commonRank - b.commonRank;
-
-      const syllA = a.syllables ?? 1;
-      const syllB = b.syllables ?? 1;
-      if (syllA !== syllB) return syllA - syllB;
-
-      return a.word.localeCompare(b.word);
-    });
-    buckets[type] = sorted.slice(0, perBucket);
+    const all = collected[type];
+    if (type === "family") {
+      // Family bucket: each closeness sub-tier gets a quota so cross-axis
+      // pairs (Pattison's "further away" cases — afraid/break, safe/age,
+      // leave/teeth) aren't crowded out by the very numerous tight pairs.
+      // Quotas: 50% tight, 30% medium, 20% loose. Underflow flows to the
+      // next sub-tier. Final list re-sorted by closeness then within rules
+      // so the reader still sees tightest matches first (silent sort,
+      // no UI labels).
+      const tight = all.filter((e) => e.familyCloseness === "tight").sort(compareWithin);
+      const medium = all.filter((e) => e.familyCloseness === "medium").sort(compareWithin);
+      const loose = all.filter((e) => e.familyCloseness === "loose").sort(compareWithin);
+      const quotaTight = Math.ceil(perBucket * 0.5);
+      const quotaMedium = Math.ceil(perBucket * 0.3);
+      const quotaLoose = perBucket - quotaTight - quotaMedium;
+      const takeTight = Math.min(tight.length, quotaTight);
+      let remaining = perBucket - takeTight;
+      const takeMedium = Math.min(medium.length, Math.min(quotaMedium, remaining));
+      remaining -= takeMedium;
+      const takeLoose = Math.min(loose.length, remaining);
+      remaining -= takeLoose;
+      // Distribute any leftover slots back to tight (most useful tier).
+      const extraTight = Math.min(tight.length - takeTight, remaining);
+      buckets[type] = [
+        ...tight.slice(0, takeTight + extraTight),
+        ...medium.slice(0, takeMedium),
+        ...loose.slice(0, takeLoose),
+      ];
+    } else {
+      buckets[type] = all.sort(compareWithin).slice(0, perBucket);
+    }
   }
 
   return {

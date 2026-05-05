@@ -1,5 +1,19 @@
 {
-  "_comment": "Hand-curated overrides for CMU 0.7b transcription errors. Each entry replaces the dictionary's pronunciation for a single word. Format matches CMU: space-separated ARPAbet phonemes with stress digits 0/1/2. Add an entry when you spot a CMU mis-transcription verified against Wiktionary US IPA.",
+  "_comment": "Hand-curated overrides for CMU 0.7b. Format matches CMU: space-separated ARPAbet phonemes with stress digits 0/1/2. Three classes of fixes:\n  (1) Outright transcription errors (typology, intention).\n  (2) Missing words that appear in Pattison's worksheets (pretention, jezebel, fibber, twerp).\n  (3) Stress-digit fixes for compound or affixed endings — CMU often marks the second component as unstressed when songwriters/Pattison treat it as secondary-stressed (suburb, iceberg, egomaniac, kleptomaniac).\n  (4) Syllabification quirks where CMU inserts a schwa that shouldn't be there (solely).",
 
-  "typology": "T AY2 P AA1 L AH0 JH IY0"
+  "typology": "T AY2 P AA1 L AH0 JH IY0",
+
+  "intention": "IH0 N T EH1 N SH AH0 N",
+  "pretention": "P R IY0 T EH1 N SH AH0 N",
+
+  "jezebel": "JH EH1 Z AH0 B EH2 L",
+  "fibber": "F IH1 B ER0",
+  "twerp": "T W ER1 P",
+
+  "suburb": "S AH1 B ER2 B",
+  "iceberg": "AY1 S B ER2 G",
+  "egomaniac": "IY2 G OW0 M EY1 N IY0 AE2 K",
+  "kleptomaniac": "K L EH2 P T AH0 M EY1 N IY0 AE2 K",
+
+  "solely": "S OW1 L L IY0"
 }
