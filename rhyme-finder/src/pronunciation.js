@@ -28,6 +28,18 @@ const VOWEL_LABELS = {
 
 export const PRONUNCIATION_MAP = new Map();
 
+// Cot/caught merger: AA and AO have collapsed into one vowel for most
+// modern American speakers, so water/potter, dawn/john, talk/rock all
+// sound like perfect rhymes even though CMU keeps them as different
+// vowels. CMU is itself inconsistent (caught/cot pre-merged; dawn/don
+// not). Normalize on load so every downstream consumer — classifier,
+// finder prefilter, UI display — sees one canonical vowel. Boston/NYC/
+// UK speakers who keep them distinct will get false-positive perfect
+// rhymes; acceptable default for the American songwriting audience.
+export function normalizePhonemes(s) {
+  return s.replace(/\bAO/gu, "AA");
+}
+
 let LOAD_PROMISE = null;
 
 export function ensurePronunciation() {
@@ -43,7 +55,7 @@ export function ensurePronunciation() {
       if (!dictResp.ok) throw new Error(`Failed to load CMU dict: ${dictResp.status}`);
       const obj = await dictResp.json();
       for (const word in obj) {
-        PRONUNCIATION_MAP.set(word, obj[word].split(" "));
+        PRONUNCIATION_MAP.set(word, normalizePhonemes(obj[word]).split(" "));
       }
       // Apply overrides last so they win against the base CMU entry.
       // Overrides patch known CMU transcription errors (e.g. typology).
@@ -51,7 +63,7 @@ export function ensurePronunciation() {
         const overrides = await overridesResp.json();
         for (const word in overrides) {
           if (word.startsWith("_")) continue; // skip _comment etc.
-          PRONUNCIATION_MAP.set(word.toLowerCase(), overrides[word].split(" "));
+          PRONUNCIATION_MAP.set(word.toLowerCase(), normalizePhonemes(overrides[word]).split(" "));
         }
       }
     })();

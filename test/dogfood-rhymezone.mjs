@@ -17,18 +17,18 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { classifyRhyme, analyzeWord } from "../rhyme-finder/src/rhymeClassifier.js";
-import { PRONUNCIATION_MAP, deriveRhymeInfo } from "../rhyme-finder/src/pronunciation.js";
+import { PRONUNCIATION_MAP, deriveRhymeInfo, normalizePhonemes } from "../rhyme-finder/src/pronunciation.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const wlRoot = join(here, "..", "wordlists");
 const wlRf = join(here, "..", "rhyme-finder", "wordlists");
 
 const dict = JSON.parse(readFileSync(join(wlRoot, "cmu-dict.json"), "utf8"));
-for (const w in dict) PRONUNCIATION_MAP.set(w, dict[w].split(" "));
+for (const w in dict) PRONUNCIATION_MAP.set(w, normalizePhonemes(dict[w]).split(" "));
 const overrides = JSON.parse(readFileSync(join(wlRoot, "cmu-overrides.json"), "utf8"));
 for (const w in overrides) {
   if (w.startsWith("_")) continue;
-  PRONUNCIATION_MAP.set(w.toLowerCase(), overrides[w].split(" "));
+  PRONUNCIATION_MAP.set(w.toLowerCase(), normalizePhonemes(overrides[w]).split(" "));
 }
 
 const wordnetArr = JSON.parse(readFileSync(join(wlRf, "wordnet-words.json"), "utf8"));

@@ -8,17 +8,17 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { classifyRhyme } from "../rhyme-finder/src/rhymeClassifier.js";
-import { PRONUNCIATION_MAP } from "../rhyme-finder/src/pronunciation.js";
+import { PRONUNCIATION_MAP, normalizePhonemes } from "../rhyme-finder/src/pronunciation.js";
 
 // Node's fetch doesn't yet support file:// URLs, so populate the map directly.
 const here = dirname(fileURLToPath(import.meta.url));
 const wordlistsDir = join(here, "..", "wordlists");
 const dict = JSON.parse(readFileSync(join(wordlistsDir, "cmu-dict.json"), "utf8"));
-for (const w in dict) PRONUNCIATION_MAP.set(w, dict[w].split(" "));
+for (const w in dict) PRONUNCIATION_MAP.set(w, normalizePhonemes(dict[w]).split(" "));
 const overrides = JSON.parse(readFileSync(join(wordlistsDir, "cmu-overrides.json"), "utf8"));
 for (const w in overrides) {
   if (w.startsWith("_")) continue;
-  PRONUNCIATION_MAP.set(w.toLowerCase(), overrides[w].split(" "));
+  PRONUNCIATION_MAP.set(w.toLowerCase(), normalizePhonemes(overrides[w]).split(" "));
 }
 
 const { findRhymes } = await import("../rhyme-finder/src/rhymeFinder.js");
