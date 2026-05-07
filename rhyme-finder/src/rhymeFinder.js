@@ -113,6 +113,23 @@ const SHORT_ALLOWED = new Set([
   "ah", "oh", "ow", "hi", "ya", "ye",
 ]);
 
+// Roman numerals length≥2 (lxi, viii, mcmlxv) — wordnet has these as
+// noun entries but they're useless lyric candidates. The single-letter
+// "i"/"v"/"x"/"l"/"c"/"d"/"m" forms are handled by SHORT_ALLOWED (only "i"
+// and "a" pass; the rest fail the length<2 check anyway via the consonant
+// cluster filter).
+const ROMAN_NUMERAL_RE = /^[ivxlcdm]+$/u;
+
+// Tokens that pass isAcceptableWord (in wordnet/top-10k/lyric-corpus) but
+// are useless lyric candidates: surnames-as-noun-entries, transliterations,
+// loanword fragments, dictionary residue. Edited as-found, not derived.
+const JUNK_TOKENS = new Set([
+  // Loanword fragments / transliterations CMU & wordnet have
+  "sie", "naif", "klee", "fae", "che", "ya",
+  // Random surnames passing as wordnet entries
+  "brunn", "chun", "jun", "kai", "doi", "foy", "hoy", "loy",
+]);
+
 function isWellFormedToken(word) {
   if (!TOKEN_OK.test(word)) return false;
   if (word.length < 2 && !SHORT_ALLOWED.has(word)) return false;
@@ -131,6 +148,8 @@ function isLikelyAcronym(word, syllables) {
 function isAcceptableWord(word, syllables) {
   if (word.length <= 2) return SHORT_ALLOWED.has(word);
   if (isLikelyAcronym(word, syllables)) return false;
+  if (ROMAN_NUMERAL_RE.test(word)) return false;
+  if (JUNK_TOKENS.has(word)) return false;
   if (!REAL_WORDS.has(word)) return false;
   return true;
 }
@@ -205,22 +224,24 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
     });
   }
 
-  // Per-type ceilings. Sized to the natural shape of each rhyme type:
-  // identity is always small (a few exact-suffix matches); perfect/family
-  // are mid-sized; additive/assonance/consonance are structurally huge for
-  // vowel-ending sources (every English consonant is a candidate). A
-  // bucket caps at min(TYPE_MAX, # of quality candidates) — when the
-  // corpus is sparse, the bucket shrinks honestly rather than padding
-  // with junk.
-  const TYPE_MAX = {
-    identity: 50,
-    perfect: 200,
-    family: 300,
-    additive: 350,
-    subtractive: 200,
-    assonance: 350,
-    consonance: 350,
-  };
+  // The "default visible" cap. UI shows this many candidates per bucket up
+  // front; remaining candidates are tagged tier="lower" and revealed when
+  // the user clicks a "show lower-quality" button. The cap formula is
+  // dynamic per source: cap = clamp(strong × 2, MIN, MAX).
+  //
+  //   * sparse buckets (strong < 10): cap = MIN, show whatever's available
+  //   * proportional middle: cap = strong × 2, every strong word brings
+  //     one weak slot; rescues real-but-lyric-rare words like gleaming,
+  //     mainland, combined, refined
+  //   * abundant (strong > 100): cap = MAX, opinionated ceiling for huge
+  //     buckets like memory-assonance (~900 strong)
+  //
+  // The MULT=2 ratio matches the empirical median strong/total ratio
+  // (47.5%) across a 236-source survey — every strong candidate is paired
+  // with one weak slot, on average.
+  const DEFAULT_CAP_MIN = 20;
+  const DEFAULT_CAP_MAX = 200;
+  const DEFAULT_CAP_MULT = 2;
 
   // Per-syllable quotas. Within a bucket, reserve roughly these shares
   // for 1, 2, 3, and 4+ syllable words so the user sees variety, not
@@ -263,40 +284,31 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
 
   for (const type of types) {
     const all = collected[type];
-    const max = TYPE_MAX[type] ?? perBucket;
 
-    // Step 1 — dynamic quality filter. Normally drop score === 0 (apps == 0
-    // AND commonRank >= 7000) — words like lxi, sie, klee, naif live there
-    // alongside textbook-perfect-but-lyric-rare words. But when the strong
-    // pool is below FLOOR, we relax the filter so sparse buckets aren't
-    // empty: every score=0 candidate already passed isAcceptableWord (real
-    // English per wordnet ∪ top-10k ∪ lyric-corpus) so we're not letting in
-    // junk, just less common rhymes.
-    //
-    // Examples this rescues: dreaming → gleaming, beaming, teeming, scheming;
-    // memory → emery; rhythm → algorithm; broken → outspoken, unspoken.
-    const FLOOR = 10;
-    const strong = all.filter((e) => e.score > 0);
-    const filtered = strong.length >= FLOOR ? strong : all;
-
-    // Step 2 — group by syllable count (capping at 4+ as a single bucket).
-    // Sort within each group by the shared rule.
+    // Step 1 — group by syllable count + sort. No score>0 hard filter:
+    // every candidate that passed isAcceptableWord is a real word; the
+    // score is a sort-priority signal, not a gate. Junk has been rejected
+    // upstream by ROMAN_NUMERAL_RE / JUNK_TOKENS / isLikelyAcronym.
     const bySyll = [[], [], [], []]; // 1, 2, 3, 4+
-    for (const e of filtered) {
+    for (const e of all) {
       const idx = Math.min(4, Math.max(1, e.syllables ?? 1)) - 1;
       bySyll[idx].push(e);
     }
     for (const group of bySyll) group.sort((a, b) => compareWithin(type, a, b));
 
-    // Step 3 — apply per-syllable quotas with overflow. Dynamic scaling:
-    // cap = min(TYPE_MAX, available_after_filter); short corpora produce
-    // short buckets, padded with nothing.
-    const cap = Math.min(max, filtered.length);
+    // Step 2 — compute the "default visible" cap with the dynamic formula.
+    const strongCount = all.reduce((n, e) => n + (e.score > 0 ? 1 : 0), 0);
+    const defaultCap = Math.min(
+      DEFAULT_CAP_MAX,
+      Math.max(DEFAULT_CAP_MIN, strongCount * DEFAULT_CAP_MULT),
+    );
+    const cap = Math.min(defaultCap, all.length);
+
+    // Step 3 — apply per-syllable quotas to the default tier (so the
+    // default-visible candidates have variety across syllable counts, not
+    // 200 1-syll near-duplicates).
     const targetPerSyll = SYLLABLE_QUOTAS.map((q) => Math.floor(cap * q));
     const takes = bySyll.map((g, i) => Math.min(g.length, targetPerSyll[i]));
-
-    // Distribute remaining slots greedily — earlier syllable groups
-    // (1-syll first) preferred since most lyric staples live there.
     let remaining = cap - takes.reduce((a, b) => a + b, 0);
     while (remaining > 0) {
       let progress = false;
@@ -310,8 +322,21 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
       if (!progress) break;
     }
 
-    // Step 4 — combine in syllable order (UI groups by syllables anyway).
-    buckets[type] = bySyll.flatMap((g, i) => g.slice(0, takes[i]));
+    // Step 4 — emit default tier first, then lower tier. Within each
+    // tier, candidates stay in syllable order. The UI renders default
+    // immediately and reveals lower behind a "show more" button.
+    const defaultTier = [];
+    const lowerTier = [];
+    for (let i = 0; i < bySyll.length; i += 1) {
+      const g = bySyll[i];
+      const t = takes[i];
+      for (let j = 0; j < g.length; j += 1) {
+        const tagged = { ...g[j], tier: j < t ? "default" : "lower" };
+        if (j < t) defaultTier.push(tagged);
+        else lowerTier.push(tagged);
+      }
+    }
+    buckets[type] = [...defaultTier, ...lowerTier];
   }
 
   return {

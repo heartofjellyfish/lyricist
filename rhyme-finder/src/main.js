@@ -428,10 +428,39 @@ function renderTier(type, candidates, source) {
   const body = document.createElement("div");
   body.className = "rf-tier-body";
 
-  // Group candidates by syllable count so the eye can scan from short
-  // (most singable) to longer.
+  // Split into default-visible vs lower-quality. Default candidates render
+  // immediately; lower candidates are hidden behind a "show less common"
+  // button and revealed all at once on click.
+  const defaultCands = candidates.filter((c) => c.tier !== "lower");
+  const lowerCands = candidates.filter((c) => c.tier === "lower");
+
+  appendSyllableSubgroups(body, defaultCands, source);
+
+  if (lowerCands.length > 0) {
+    const btn = document.createElement("button");
+    btn.className = "rf-tier-show-lower";
+    btn.type = "button";
+    btn.textContent = `Show ${lowerCands.length} less common`;
+    btn.addEventListener("click", () => {
+      const lowerWrap = document.createElement("div");
+      lowerWrap.className = "rf-tier-lower";
+      appendSyllableSubgroups(lowerWrap, lowerCands, source);
+      body.insertBefore(lowerWrap, btn);
+      btn.remove();
+    });
+    body.appendChild(btn);
+  }
+
+  tier.appendChild(body);
+  return tier;
+}
+
+// Group `cands` by syllable count and append subgroups to `parent`.
+// Shared by default-tier and lower-tier rendering so both keep the same
+// 1-syll → multi-syll scan order.
+function appendSyllableSubgroups(parent, cands, source) {
   const bySyll = new Map();
-  for (const c of candidates) {
+  for (const c of cands) {
     const s = Math.max(1, c.syllables ?? 1);
     if (!bySyll.has(s)) bySyll.set(s, []);
     bySyll.get(s).push(c);
@@ -439,11 +468,8 @@ function renderTier(type, candidates, source) {
   const sylls = [...bySyll.keys()].sort((a, b) => a - b);
   for (const s of sylls) {
     const label = s === 1 ? "1 syllable" : `${s} syllables`;
-    body.appendChild(renderSubgroup(label, bySyll.get(s), source));
+    parent.appendChild(renderSubgroup(label, bySyll.get(s), source));
   }
-
-  tier.appendChild(body);
-  return tier;
 }
 
 function renderSubgroup(label, words, source) {

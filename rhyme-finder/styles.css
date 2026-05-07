@@ -1083,6 +1083,43 @@ input[type="text"]::placeholder {
 .rf-subgroup { margin-top: 20px; }
 .rf-subgroup:first-of-type { margin-top: 0; }
 
+/* "Show less common" affordance + revealed lower-tier subgroups.
+   The button sits at the bottom of the default-tier render; clicking
+   replaces it with the lower-tier subgroups, slightly dimmed. */
+.rf-tier-show-lower {
+  margin-top: 22px;
+  padding: 6px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid currentColor;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+.rf-tier-show-lower:hover { opacity: 1; }
+
+.rf-tier-lower {
+  margin-top: 22px;
+  opacity: 0.7;
+}
+.rf-tier-lower::before {
+  content: "less common";
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.6;
+  margin-bottom: 14px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed currentColor;
+}
+
 .rf-subgroup-label {
   display: inline-block;
   font-family: var(--mono);
