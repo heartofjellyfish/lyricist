@@ -784,10 +784,23 @@ export function classifyRhyme(wordA, wordB) {
   }
 
   if (vowelMatch && codaCmp.relation === "unrelated") {
-    const strong = !a.masculine; // feminine assonance is much stronger than masculine
+    // Three tiers per Pattison Ch6 p86. Feminine assonance is "stronger
+    // than masculine ... because of the extended resolution of the
+    // unstressed syllables" — but the resolution-extension effect comes
+    // from the trailing acting as IDENTITY (Ch1 p20: "These identities
+    // only continue the resolution"). So:
+    //   feminine + trailing matches → identity tail → "good perfect
+    //     rhyme substitute" tier (stability 3, level with additive)
+    //     Examples: lonely/anchovy, lonely/coldly (matching -y/-ly tail)
+    //   feminine + trailing differs → no identity boost (stability 2)
+    //     Examples: lonely/voting, lonely/hoping (different -ing tail)
+    //   masculine → no trailing at all (stability 2)
+    //     Examples: love/hunt, tide/afterlife
+    const isFeminine = !a.masculine;
+    const femIdentity = isFeminine && trailingSame;
     return {
       type: "assonance",
-      stability: 2,
+      stability: femIdentity ? 3 : 2,
       isRhyme: true,
       wordA,
       wordB,
@@ -801,8 +814,10 @@ export function classifyRhyme(wordA, wordB) {
       trailingSame,
       explanation:
         `Assonance — same vowel, unrelated coda consonants. Rings but hangs, doesn't close. ${
-          strong
-            ? "Feminine assonance carries weight — can pass for perfect rhyme."
+          femIdentity
+            ? "Feminine + matching trailing acts as identity, extending resolution — Pattison: 'good perfect rhyme substitute.'"
+            : isFeminine
+            ? "Feminine but trailings differ — no identity tail; just the vowel ring carries."
             : "Masculine assonance is weak; use feminine for real strength."
         }`,
     };

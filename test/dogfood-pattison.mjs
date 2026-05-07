@@ -423,6 +423,45 @@ await runPairs("Ch6 p88: feminine consonance examples", [
 ]);
 
 // =====================================================================
+// Stability tiers within assonance (Pattison Ch6 p86):
+//   masc assonance (s=2)
+//   fem assonance, trailing differs (s=2 — no identity boost)
+//   fem assonance, trailing matches (s=3 — "good perfect rhyme substitute")
+// The trailing-as-identity is what extends resolution per Ch1 p20.
+// =====================================================================
+async function checkAssonanceStability(a, b, expectedStability, note) {
+  const { classifyRhyme } = await import("../rhyme-finder/src/rhymeClassifier.js");
+  const cls = classifyRhyme(a, b);
+  const ok = cls.type === "assonance" && cls.stability === expectedStability;
+  console.log(
+    `${ok ? "✓" : "✗"} ${a} / ${b}: ${cls.type} s=${cls.stability}` +
+    (ok ? "" : ` (expected: assonance s=${expectedStability})`) +
+    (note ? ` — ${note}` : "")
+  );
+}
+
+console.log("\n=== Ch6 p86: assonance stability — masculine vs feminine vs feminine+identity ===");
+// Masculine assonance (Pattison's own examples) — s=2
+await checkAssonanceStability("love", "hunt", 2, "masculine — no trailing extension");
+await checkAssonanceStability("tide", "afterlife", 2, "masculine");
+await checkAssonanceStability("tide", "rise", 2, "masculine");
+
+// Feminine assonance with matching trailing — s=3, "perfect rhyme substitute"
+await checkAssonanceStability("lonely", "anchovy", 3, "fem + same -y trailing");
+await checkAssonanceStability("lonely", "coldly", 3, "fem + same -ly trailing");
+await checkAssonanceStability("lonely", "boldly", 3, "fem + same -ly");
+await checkAssonanceStability("lonely", "ghostly", 3, "fem + same -ly");
+await checkAssonanceStability("lonely", "smokey", 3, "fem + same -y");
+await checkAssonanceStability("lonely", "trophy", 3, "fem + same -y");
+
+// Feminine assonance with different trailing — s=2, no identity boost
+await checkAssonanceStability("lonely", "voting", 2, "fem but -ly vs -ing");
+await checkAssonanceStability("lonely", "hoping", 2, "fem but -ly vs -ing");
+await checkAssonanceStability("lonely", "approaching", 2, "fem but -ly vs -ing");
+await checkAssonanceStability("flying", "quiet", 2, "fem but -ing vs -et (perfect coda demoted)");
+await checkAssonanceStability("passion", "ashes", 2, "fem but -ion vs -es (perfect coda demoted)");
+
+// =====================================================================
 // Identity — masculine word fully echoed inside a feminine word:
 // command/commanding, land/landing. Per Pattison's coda-tight analysis,
 // command and commanding share the same stressed syllable (M-AE-N-D);
