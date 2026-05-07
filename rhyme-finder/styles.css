@@ -1083,41 +1083,31 @@ input[type="text"]::placeholder {
 .rf-subgroup { margin-top: 20px; }
 .rf-subgroup:first-of-type { margin-top: 0; }
 
-/* "Show less common" affordance + revealed lower-tier subgroups.
-   The button sits at the bottom of the default-tier render; clicking
-   replaces it with the lower-tier subgroups, slightly dimmed. */
-.rf-tier-show-lower {
-  margin-top: 22px;
-  padding: 6px 12px;
+/* Per-subgroup "show N more" affordance. The button appears beneath the
+   default words within each syllable group when the lower-tier overflow
+   is large enough to warrant hiding (more than LOWER_INLINE_THRESHOLD).
+   Click reveals the lower-tier words inline within the same subgroup,
+   with subtle dimming to mark them as less common. */
+.rf-subgroup-show-more {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 8px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  font-size: 10px;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--ink);
   background: transparent;
   border: 1px solid currentColor;
   cursor: pointer;
-  opacity: 0.55;
+  opacity: 0.4;
   transition: opacity 0.15s ease;
 }
-.rf-tier-show-lower:hover { opacity: 1; }
+.rf-subgroup-show-more:hover { opacity: 0.85; }
 
-.rf-tier-lower {
-  margin-top: 22px;
-  opacity: 0.7;
-}
-.rf-tier-lower::before {
-  content: "less common";
-  display: block;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--ink);
+.rf-words-lower {
+  margin-top: 6px;
   opacity: 0.6;
-  margin-bottom: 14px;
-  padding-bottom: 6px;
-  border-bottom: 1px dashed currentColor;
 }
 
 .rf-subgroup-label {

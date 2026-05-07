@@ -428,58 +428,64 @@ function renderTier(type, candidates, source) {
   const body = document.createElement("div");
   body.className = "rf-tier-body";
 
-  // Split into default-visible vs lower-quality. Default candidates render
-  // immediately; lower candidates are hidden behind a "show less common"
-  // button and revealed all at once on click.
-  const defaultCands = candidates.filter((c) => c.tier !== "lower");
-  const lowerCands = candidates.filter((c) => c.tier === "lower");
-
-  appendSyllableSubgroups(body, defaultCands, source);
-
-  if (lowerCands.length > 0) {
-    const btn = document.createElement("button");
-    btn.className = "rf-tier-show-lower";
-    btn.type = "button";
-    btn.textContent = `Show ${lowerCands.length} less common`;
-    btn.addEventListener("click", () => {
-      const lowerWrap = document.createElement("div");
-      lowerWrap.className = "rf-tier-lower";
-      appendSyllableSubgroups(lowerWrap, lowerCands, source);
-      body.insertBefore(lowerWrap, btn);
-      btn.remove();
-    });
-    body.appendChild(btn);
+  // Group all candidates by syllable count, splitting each group into
+  // default-tier vs lower-tier entries. Each subgroup decides locally
+  // whether to inline-show its lower entries (if few) or hide them
+  // behind a "show N more" button (if many).
+  const bySyll = new Map();
+  for (const c of candidates) {
+    const s = Math.max(1, c.syllables ?? 1);
+    if (!bySyll.has(s)) bySyll.set(s, { def: [], low: [] });
+    const target = c.tier === "lower" ? "low" : "def";
+    bySyll.get(s)[target].push(c);
+  }
+  const sylls = [...bySyll.keys()].sort((a, b) => a - b);
+  for (const s of sylls) {
+    const { def, low } = bySyll.get(s);
+    const label = s === 1 ? "1 syllable" : `${s} syllables`;
+    body.appendChild(renderSubgroup(label, def, low, source));
   }
 
   tier.appendChild(body);
   return tier;
 }
 
-// Group `cands` by syllable count and append subgroups to `parent`.
-// Shared by default-tier and lower-tier rendering so both keep the same
-// 1-syll → multi-syll scan order.
-function appendSyllableSubgroups(parent, cands, source) {
-  const bySyll = new Map();
-  for (const c of cands) {
-    const s = Math.max(1, c.syllables ?? 1);
-    if (!bySyll.has(s)) bySyll.set(s, []);
-    bySyll.get(s).push(c);
-  }
-  const sylls = [...bySyll.keys()].sort((a, b) => a - b);
-  for (const s of sylls) {
-    const label = s === 1 ? "1 syllable" : `${s} syllables`;
-    parent.appendChild(renderSubgroup(label, bySyll.get(s), source));
-  }
-}
+// If a subgroup has few lower-tier entries, just show them inline alongside
+// the default ones — no button needed when 5 extra words won't overwhelm.
+// Above this threshold, hide them behind a "show N more" button so the
+// user explicitly opts in.
+const LOWER_INLINE_THRESHOLD = 8;
 
-function renderSubgroup(label, words, source) {
+function renderSubgroup(label, defaultWords, lowerWords, source) {
   const wrap = document.createElement("div");
   wrap.className = "rf-subgroup";
   const title = document.createElement("div");
   title.className = "rf-subgroup-label";
   title.textContent = label;
   wrap.appendChild(title);
-  wrap.appendChild(renderWordRow(words, source));
+
+  if (!lowerWords || lowerWords.length <= LOWER_INLINE_THRESHOLD) {
+    // Few or no lower entries — show all words inline, no button.
+    const all = lowerWords && lowerWords.length > 0
+      ? [...defaultWords, ...lowerWords]
+      : defaultWords;
+    wrap.appendChild(renderWordRow(all, source));
+    return wrap;
+  }
+
+  // Many lower entries — show default inline, hide lower behind button.
+  wrap.appendChild(renderWordRow(defaultWords, source));
+  const btn = document.createElement("button");
+  btn.className = "rf-subgroup-show-more";
+  btn.type = "button";
+  btn.textContent = `Show ${lowerWords.length} more`;
+  btn.addEventListener("click", () => {
+    const lowerRow = renderWordRow(lowerWords, source);
+    lowerRow.classList.add("rf-words-lower");
+    wrap.insertBefore(lowerRow, btn);
+    btn.remove();
+  });
+  wrap.appendChild(btn);
   return wrap;
 }
 
