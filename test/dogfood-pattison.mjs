@@ -431,6 +431,34 @@ await runPairs("Ch6 p88: feminine consonance examples", [
 ]);
 
 // =====================================================================
+// Feminine consonance extension: vowels differ + trailing identity +
+// stressed coda has additive-with-family-base relation. Pattison's tight
+// examples (cramming/teeming, rubber/fibber) have IDENTICAL stressed
+// codas. We extend to cases where the stressed coda differs by one
+// consonant + the bases are partners/companions — the trailing identity
+// (-le, -er, etc.) carries the rhyme.
+// =====================================================================
+await runPairs("Feminine consonance extension — vowels differ, codas additive-with-family, trailing matches", [
+  ["table", "simple", "consonance", "EY vs IH, B vs MP (B-P partners + extra M), same -le trailing"],
+  ["table", "temple", "consonance", "EY vs EH, B vs MP, same -le"],
+  ["table", "ample", "consonance", "EY vs AE, same pattern"],
+  ["table", "dimple", "consonance"],
+  ["table", "sample", "consonance"],
+  ["table", "apple", "consonance", "EY vs AE, B vs P partners (no extra), same -le"],
+]);
+
+await runPairs("Counter-examples: feminine consonance still rejects incompatible terminals", [
+  // These have vowel mismatch but trailings have INCOMPATIBLE terminals
+  // (different broad classes). Even with the relaxed feminine rule, the
+  // trailing identity check rejects them.
+  ["table", "agent", "none", "schwa+L (liquid) vs schwa+T (plosive)"],
+  ["table", "ancient", "none", "schwa+L vs schwa+T"],
+  ["table", "broken", "none", "schwa+L vs schwa+N (different terminals)"],
+  ["lonely", "tunnel", "none", "high-front IY-final vs schwa+L"],
+  ["lonely", "final", "none", "high-front IY-final vs schwa+L"],
+]);
+
+// =====================================================================
 // Stability tiers within assonance (Pattison Ch6 p86):
 //   masc assonance (s=2)
 //   fem assonance, trailing differs (s=2 — no identity boost)

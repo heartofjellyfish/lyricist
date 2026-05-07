@@ -990,26 +990,41 @@ export function classifyRhyme(wordA, wordB) {
     };
   }
 
-  // Consonance with R/L color (word/card, snarl/curl): vowels differ,
-  // codas differ by exactly one liquid (R or L), and the BASE codas after
-  // removing the liquid match identically. Pattison treats these as
-  // consonance — the L/R colors the cluster but the terminating consonant
-  // still matches at the end of the line.
+  // Consonance with extra consonant in the stressed coda. Two flavors:
   //
-  // Pattison's examples are all MASCULINE (scare/fear, pull/fall, snarl/curl,
-  // word/card). For feminine pairs we additionally require trailing identity
-  // — without it, the L/R isn't actually at the end of the word (it's inside,
-  // followed by the trailing), so the "shared ending consonant" claim fails.
-  // Example this filter blocks: lonely/tunnel — both feminine, lonely's L is
-  // mid-word (onset of -ly), tunnel's L is word-final. Different positions,
-  // not really a rhyme.
+  // (a) MASCULINE (Pattison Ch5 p78 + Ch6 p88): scar/heart, snarl/curl,
+  //     word/card. Vowels differ, codas differ by exactly one LIQUID
+  //     (R or L), base codas match. The liquid colors the cluster but
+  //     the terminating consonant still matches. Pattison: "the sound
+  //     of both consonants is so strong that, when they are combined
+  //     with a vowel, whatever comes after them will hardly be noticeable."
+  //
+  // (b) FEMININE + matching trailing (extension): table/simple, table/temple.
+  //     The trailing identity (-le, -er etc.) carries the rhyme; the extra
+  //     consonant in the stressed coda is buffered by the syllabic tail.
+  //     Allows ANY extra consonant (not just liquid), because feminine
+  //     trailing identity is the binding force.
+  //
+  // For feminine pairs without trailing identity (lonely/tunnel — L is
+  // mid-word vs word-final, completely different positions), both flavors
+  // are rejected by trailingSame.
   if (
     !vowelMatch &&
     codaCmp.relation === "additive" &&
-    codaCmp.extra.length === 1 &&
-    LIQUIDS.has(codaCmp.extra[0]) &&
-    codaCmp.baseHasFamilyDiff === false &&
-    trailingSame
+    trailingSame &&
+    (
+      // Masculine R/L color (Pattison Ch5 p78 strict): single liquid extra
+      // AND base codas identical (no family difference).
+      (!bothFeminine &&
+        codaCmp.extra.length === 1 &&
+        LIQUIDS.has(codaCmp.extra[0]) &&
+        codaCmp.baseHasFamilyDiff === false) ||
+      // Feminine + trailing identity (extension): any single-consonant
+      // extra AND base codas can be family-related (not just identical).
+      // The trailing -le/-er/-ing carries the rhyme, so the stressed coda
+      // is allowed more slack. Catches table/simple (B-P partners + extra M).
+      (bothFeminine && codaCmp.extra.length === 1)
+    )
   ) {
     return {
       type: "consonance",
@@ -1026,7 +1041,9 @@ export function classifyRhyme(wordA, wordB) {
       codaRelation: codaCmp,
       trailingSame,
       explanation:
-        "Consonance with R/L color — different vowels, the codas terminate on the same consonant but one side carries an extra liquid (R/L) before it. The shared ending consonant lands the rhyme.",
+        bothFeminine && !LIQUIDS.has(codaCmp.extra[0])
+          ? "Feminine consonance — different stressed vowels, codas differ by one consonant, but the trailing identity (-le, -er, -ing) closes the rhyme. The shared trailing buffers the extra coda consonant."
+          : "Consonance with R/L color — different vowels, codas terminate on the same consonant but one side carries an extra liquid (R/L). The shared ending consonant lands the rhyme.",
     };
   }
 
