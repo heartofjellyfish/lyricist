@@ -31,17 +31,22 @@ for (const w in overrides) {
   PRONUNCIATION_MAP.set(w.toLowerCase(), normalizePhonemes(overrides[w]).split(" "));
 }
 
-const wordnetArr = JSON.parse(readFileSync(join(wlRf, "wordnet-words.json"), "utf8"));
+const wnCats = JSON.parse(readFileSync(join(wlRf, "wordnet-categories.json"), "utf8"));
 const commonText = readFileSync(join(wlRf, "common-10k.txt"), "utf8");
 const lyricFreq = JSON.parse(readFileSync(join(wlRoot, "lyric-frequency.json"), "utf8"));
 
-const REAL_WORDS = new Set(wordnetArr);
+const REAL_WORDS = new Set();
+const WORD_LEX = new Map();
+for (const lex of ["common", "person", "place", "science"]) {
+  for (const w of wnCats[lex] ?? []) {
+    REAL_WORDS.add(w);
+    WORD_LEX.set(w, lex);
+  }
+}
 const COMMON_RANK = new Map();
 commonText.split(/\r?\n/u).filter(Boolean).forEach((w, i) => {
   COMMON_RANK.set(w.toLowerCase(), i);
-  REAL_WORDS.add(w.toLowerCase());
 });
-for (const w of Object.keys(lyricFreq)) REAL_WORDS.add(w);
 
 const TOKEN_OK = /^[a-z][a-z\-]*$/u;
 const SHORT_ALLOWED = new Set([

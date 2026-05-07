@@ -16,7 +16,7 @@ import {
 } from "./pronunciation.js";
 
 let CORPUS_ENTRIES = null;
-let REAL_WORDS = null;
+let WORD_LEX = null;          // Map<word, "common"|"person"|"place"|"science">
 let COMMON_RANK = null;
 let LYRIC_FREQ = null;
 let WORDLISTS_PROMISE = null;
@@ -28,31 +28,33 @@ const WORDLISTS_BASE = new URL("../wordlists/", import.meta.url);
 const ROOT_WORDLISTS_BASE = new URL("../../wordlists/", import.meta.url);
 
 async function loadWordlists() {
-  if (REAL_WORDS && COMMON_RANK && LYRIC_FREQ) return;
+  if (WORD_LEX && COMMON_RANK && LYRIC_FREQ) return;
   if (!WORDLISTS_PROMISE) {
     WORDLISTS_PROMISE = (async () => {
-      const [wordnetResp, commonResp, freqResp] = await Promise.all([
-        fetch(new URL("wordnet-words.json", WORDLISTS_BASE)),
+      const [catResp, commonResp, freqResp] = await Promise.all([
+        fetch(new URL("wordnet-categories.json", WORDLISTS_BASE)),
         fetch(new URL("common-10k.txt", WORDLISTS_BASE)),
         fetch(new URL("lyric-frequency.json", ROOT_WORDLISTS_BASE)),
       ]);
-      if (!wordnetResp.ok) throw new Error(`wordnet-words.json ${wordnetResp.status}`);
+      if (!catResp.ok) throw new Error(`wordnet-categories.json ${catResp.status}`);
       if (!commonResp.ok) throw new Error(`common-10k.txt ${commonResp.status}`);
       if (!freqResp.ok) throw new Error(`lyric-frequency.json ${freqResp.status}`);
-      const wordnetArr = await wordnetResp.json();
+      // wordnet-categories.json is the source of truth for "real word"
+      // membership AND lex category. Built by scripts/buildWordnetCategories.mjs;
+      // already includes top-10k and lyric-corpus words classified as "common"
+      // via the corpus-override rule.
+      const cats = await catResp.json();
+      WORD_LEX = new Map();
+      for (const lex of ["common", "person", "place", "science"]) {
+        for (const w of cats[lex] ?? []) WORD_LEX.set(w, lex);
+      }
       const commonText = await commonResp.text();
       LYRIC_FREQ = await freqResp.json();
-      REAL_WORDS = new Set(wordnetArr);
       COMMON_RANK = new Map();
       const commonLines = commonText.split(/\r?\n/u).filter(Boolean);
       commonLines.forEach((w, i) => {
         COMMON_RANK.set(w.toLowerCase(), i);
-        REAL_WORDS.add(w.toLowerCase()); // top-10k is also valid English
       });
-      // Lyric library entries are themselves a real-word signal: any token
-      // attested in a curated song lyric is a real lyric word, even if
-      // wordnet doesn't know it (slang, contractions like "ain't").
-      for (const w of Object.keys(LYRIC_FREQ)) REAL_WORDS.add(w);
     })();
   }
   await WORDLISTS_PROMISE;
@@ -150,7 +152,7 @@ function isAcceptableWord(word, syllables) {
   if (isLikelyAcronym(word, syllables)) return false;
   if (ROMAN_NUMERAL_RE.test(word)) return false;
   if (JUNK_TOKENS.has(word)) return false;
-  if (!REAL_WORDS.has(word)) return false;
+  if (!WORD_LEX.has(word)) return false;
   return true;
 }
 
@@ -219,6 +221,7 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
       codaRelation: cls.codaRelation,
       familyCloseness: cls.familyCloseness, // tight | medium | loose (family only)
       trailingSame: cls.trailingSame ?? true, // foot-level rhyme integrity for feminine pairs
+      lex: WORD_LEX.get(entry.text) ?? "common",  // common | person | place | science
       commonRank,
       score: lyricScore(entry.text, commonRank),
     });
