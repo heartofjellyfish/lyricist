@@ -409,6 +409,43 @@ function trailingsMatch(a, b) {
   return true;
 }
 
+// Unstressed-vowel families for feminine assonance compatibility check.
+// Pattison Ch6 p86 (lonely worksheet): "look for the unstressed syllables
+// ending in i (the feminine section's notation for unaccented long ē), Ii,
+// and even ing" — i.e., the search is bounded to high-front-vowel trailings
+// (IY, IH, IH+NG). Words with -en (schwa AH), -er (rhotic ER), -ome (AH)
+// are NOT included in his worksheet — sonically too far from lonely's -y
+// for the foot to bind.
+//
+// We bucket by perceptual similarity, not exact phoneme:
+//   * high-front: IY, IH (Pattison's "i / Ii / ing")
+//   * schwa: AH (the most common reduced vowel: -en, -on, -ome, -us)
+//   * rhotic: ER (-er)
+// Other unstressed vowels (rare) are kept in their own bucket — must
+// match exactly.
+const UNSTRESSED_VOWEL_FAMILY = {
+  IY: "high-front",
+  IH: "high-front",
+  AH: "schwa",
+  ER: "rhotic",
+};
+
+function trailingNucleusFamily(trailing) {
+  for (const ph of trailing) {
+    const m = ph.match(VOWEL_RE);
+    if (m) return UNSTRESSED_VOWEL_FAMILY[m[1]] ?? m[1];
+  }
+  return null;
+}
+
+// Are the two trailings' first-vowel families compatible?
+// Masculine pairs (both empty trailings) are vacuously compatible.
+function trailingNucleiCompatible(aTrailing, bTrailing) {
+  if (aTrailing.length === 0 && bTrailing.length === 0) return true;
+  if (aTrailing.length === 0 || bTrailing.length === 0) return false;
+  return trailingNucleusFamily(aTrailing) === trailingNucleusFamily(bTrailing);
+}
+
 // Identity per Pattison (Ch 1): the ear hears repetition, not tension.
 // Two routes converge here, both fired by checkIdentity():
 //
@@ -632,6 +669,29 @@ export function classifyRhyme(wordA, wordB) {
   const trailingSame = trailingsMatch(a.trailing, b.trailing);
   const bothFeminine = !a.masculine && !b.masculine;
   const femTrailingMismatch = bothFeminine && !trailingSame;
+
+  // Pattison Ch6 p86 limits feminine assonance worksheet to trailings whose
+  // unstressed vowel is in the same family ("-i / -Ii / -ing" — all high-front).
+  // Without this, the foot doesn't bind sonically: lonely/broken (IY vs AH
+  // schwa) or lonely/over (IY vs ER rhotic) aren't really rhymes. We block
+  // these from any assonance tier when the pair is feminine.
+  const femNucleiBad = bothFeminine && !trailingNucleiCompatible(a.trailing, b.trailing);
+  const noneForBadFemNucleus = () => ({
+    type: "none",
+    stability: 0,
+    isRhyme: false,
+    wordA,
+    wordB,
+    masculineA: a.masculine,
+    masculineB: b.masculine,
+    stressedVowelA: a.stressedVowel,
+    stressedVowelB: b.stressedVowel,
+    codaA: a.coda,
+    codaB: b.coda,
+    codaRelation: codaCmp,
+    explanation:
+      "Not a rhyme — same stressed vowel, but the feminine trailings have incompatible unstressed vowels (Pattison Ch6 p86: feminine assonance requires similar-family unstressed vowels — -y/-ly/-ing all share high-front vowel; -en/-er/-ome don't qualify).",
+  });
   const femNote =
     a.masculine
       ? ""
@@ -646,6 +706,7 @@ export function classifyRhyme(wordA, wordB) {
     // strict rule for feminine rhyme requires trailing identity. Without it,
     // the foot doesn't close as a rhyme; we demote to assonance.
     if (femTrailingMismatch) {
+      if (femNucleiBad) return noneForBadFemNucleus();
       return {
         type: "assonance",
         stability: 2,
@@ -694,6 +755,7 @@ export function classifyRhyme(wordA, wordB) {
     femTrailingMismatch &&
     (codaCmp.relation === "family" || codaCmp.relation === "additive")
   ) {
+    if (femNucleiBad) return noneForBadFemNucleus();
     return {
       type: "assonance",
       stability: 2,
@@ -784,6 +846,9 @@ export function classifyRhyme(wordA, wordB) {
   }
 
   if (vowelMatch && codaCmp.relation === "unrelated") {
+    // Pattison Ch6 p86 limits feminine assonance to compatible-nucleus
+    // trailings — see femNucleiBad above. Reject incompatible pairs.
+    if (femNucleiBad) return noneForBadFemNucleus();
     // Three tiers per Pattison Ch6 p86. Feminine assonance is "stronger
     // than masculine ... because of the extended resolution of the
     // unstressed syllables" — but the resolution-extension effect comes
@@ -792,8 +857,8 @@ export function classifyRhyme(wordA, wordB) {
     //   feminine + trailing matches → identity tail → "good perfect
     //     rhyme substitute" tier (stability 3, level with additive)
     //     Examples: lonely/anchovy, lonely/coldly (matching -y/-ly tail)
-    //   feminine + trailing differs → no identity boost (stability 2)
-    //     Examples: lonely/voting, lonely/hoping (different -ing tail)
+    //   feminine + trailing differs but nuclei in same family → s=2
+    //     Examples: lonely/voting (IY vs IH NG, both high-front)
     //   masculine → no trailing at all (stability 2)
     //     Examples: love/hunt, tide/afterlife
     const isFeminine = !a.masculine;

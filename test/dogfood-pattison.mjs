@@ -364,8 +364,12 @@ await runPairs("Feminine assonance — strict Pattison: trailing differs → ass
   // Even when the stressed coda is a perfect match, mismatched trailing
   // breaks the foot rhyme — Pattison requires trailing identity for
   // family/perfect tier. Demote to assonance (vowel ring only).
-  ["flying", "quiet", "assonance", "[] coda match, but IH-NG vs AH-T trailing"],
-  ["passion", "ashes", "assonance", "[SH] coda match, AH-N vs IH-Z trailing — Pattison p31 'sonic connection but not rhyme'"],
+  // flying/quiet now demoted further — both feminine but trailings have
+  // incompatible unstressed vowels (IH high-front vs AH schwa). Pattison
+  // Ch6 p86 limits feminine assonance to compatible-nucleus pairs.
+  ["flying", "quiet", "none", "[] coda match, but IH-NG (high-front) vs AH-T (schwa) — incompatible nuclei"],
+  // passion/ashes: both trailings have schwa (AH-N vs AH-Z) → nuclei match → assonance.
+  ["passion", "ashes", "assonance", "[SH] coda match + both AH schwa trailings — Pattison p31 'sonic connection'"],
 ]);
 
 // =====================================================================
@@ -454,12 +458,33 @@ await checkAssonanceStability("lonely", "ghostly", 3, "fem + same -ly");
 await checkAssonanceStability("lonely", "smokey", 3, "fem + same -y");
 await checkAssonanceStability("lonely", "trophy", 3, "fem + same -y");
 
-// Feminine assonance with different trailing — s=2, no identity boost
-await checkAssonanceStability("lonely", "voting", 2, "fem but -ly vs -ing");
-await checkAssonanceStability("lonely", "hoping", 2, "fem but -ly vs -ing");
-await checkAssonanceStability("lonely", "approaching", 2, "fem but -ly vs -ing");
-await checkAssonanceStability("flying", "quiet", 2, "fem but -ing vs -et (perfect coda demoted)");
-await checkAssonanceStability("passion", "ashes", 2, "fem but -ion vs -es (perfect coda demoted)");
+// Feminine assonance with different trailing but COMPATIBLE nuclei → s=2
+// (Pattison Ch6 p86 explicitly includes -ing endings in the lonely worksheet:
+// IY/IH are both high-front, so the foot still binds.)
+await checkAssonanceStability("lonely", "voting", 2, "fem -ly (IY) vs -ing (IH) — both high-front");
+await checkAssonanceStability("lonely", "hoping", 2, "fem -ly vs -ing");
+await checkAssonanceStability("lonely", "approaching", 2, "fem -ly vs -ing");
+await checkAssonanceStability("passion", "ashes", 2, "perfect coda + both AH schwa trailings");
+
+// Counter-examples: feminine with INCOMPATIBLE trailing nuclei → none
+async function checkNone(a, b, note) {
+  const { classifyRhyme } = await import("../rhyme-finder/src/rhymeClassifier.js");
+  const cls = classifyRhyme(a, b);
+  const ok = cls.type === "none";
+  console.log(
+    `${ok ? "✓" : "✗"} ${a} / ${b}: ${cls.type} s=${cls.stability}` +
+    (ok ? "" : ` (expected none)`) +
+    (note ? ` — ${note}` : "")
+  );
+}
+console.log("\n=== Ch6 p86: feminine assonance requires compatible trailing nuclei ===");
+await checkNone("flying", "quiet", "IH-NG (high-front) vs AH-T (schwa)");
+await checkNone("lonely", "broken", "IY (high-front) vs AH-N (schwa)");
+await checkNone("lonely", "lonesome", "IY vs AH-M (schwa)");
+await checkNone("lonely", "over", "IY vs ER (rhotic)");
+await checkNone("lonely", "golden", "IY vs AH-N (schwa)");
+await checkNone("lonely", "frozen", "IY vs AH-N (schwa)");
+await checkNone("lonely", "ocean", "IY vs AH-N (schwa)");
 
 // =====================================================================
 // Identity — masculine word fully echoed inside a feminine word:
