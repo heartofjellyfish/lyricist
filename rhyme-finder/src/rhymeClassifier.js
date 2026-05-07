@@ -266,12 +266,20 @@ export function analyzeWord(word) {
   const onsetStart = maxOnsetStart(phonemes, stressIdx);
   const onset = phonemes.slice(onsetStart, stressIdx);
 
-  // Coda: consonants immediately after the stressed vowel, up to the next vowel (if any).
+  // Coda: ALL consonants immediately after the stressed vowel, up to the
+  // next vowel (if any). Pattison's feminine-rhyme analysis treats this
+  // entire run as the stressed syllable's coda — even a single intervocalic
+  // consonant (`table`'s B, `happy`'s P, `hiding`'s D) belongs here, NOT to
+  // the next syllable's onset. That's why his rhyming dictionary indexes
+  // `table` under "ĀP'l" / "ĀB'l" with B as the closing consonant of the
+  // stressed syll, and finds family rhymes by substituting B's partner P →
+  // `maple`. Max-onset syllabification (single intervocalic → next onset)
+  // would break Pattison's table/maple, happy/shabby, etc.
   let afterIdx = stressIdx + 1;
   while (afterIdx < phonemes.length && !isVowel(phonemes[afterIdx])) afterIdx += 1;
   const coda = phonemes.slice(stressIdx + 1, afterIdx);
 
-  // Trailing = everything after the stressed coda (another vowel + its coda, etc.)
+  // Trailing = everything after the stressed coda (next vowel + its coda, etc.)
   const trailing = phonemes.slice(afterIdx);
   const masculine = trailing.length === 0;
 
@@ -422,6 +430,13 @@ function trailingsMatch(a, b) {
 // spice/ice from false-firing as identity — those have matching tails but
 // the same syllable count, so they're real rhymes (different cluster
 // onsets in the stressed syllable).
+//
+// Note: command/commanding, land/landing, sing/singing, etc. (masculine
+// word fully echoed inside a feminine word + appended -ing/-s tail) are
+// caught by Route A (sameStressedSyllable) — the stressed syll of `command`
+// is M-AE-N-D and the stressed syll of `commanding` is also M-AE-N-D
+// (Pattison's analysis: all post-vowel consonants belong to the stressed
+// coda; the -ING is purely the trailing).
 
 function syllableCount(phonemes) {
   let n = 0;
@@ -597,18 +612,23 @@ export function classifyRhyme(wordA, wordB) {
   const codaCmp = compareCodas(a.coda, b.coda);
 
   // Feminine rhyme covers the whole foot — stressed syllable + unstressed
-  // trailing — so when the trailing diverges, the foot-level rhyme breaks.
-  // Strength of the surviving link depends on what the stressed syllable
-  // alone is doing:
-  //   * perfect-coda + mismatched trailing → demote to family-tight
-  //     (passion/ashes — the stressed match is strong enough to carry).
-  //   * family-coda or additive-coda + mismatched trailing → demote to
-  //     assonance (dreaming/nina, river/listen — only the vowel ring
-  //     survives; lonely/voting in Pattison's book lands here).
-  // Weaker tiers (assonance, consonance, partial) don't enforce trailing
-  // identity — Pattison's worksheets explicitly use mismatched-trailing
-  // feminine pairs (lonely/solely, lonely/smokey) as valid feminine
-  // assonance.
+  // trailing — and Pattison treats the trailing as REQUIRED IDENTITY for
+  // any feminine rhyme tier above assonance (Ch 4, lonely/homely example):
+  // "Since there is so much identity after the rhyme at the stressed vowel
+  // (another whole syllable in fact), feminine family rhymes are strong
+  // substitutes for perfect rhymes." His rhyming dictionary's feminine
+  // section is indexed by stressed-syll + trailing as a unit — there's no
+  // way to look up a feminine rhyme without the trailing matching.
+  //
+  // So the rule is uniform: if a feminine pair's trailing diverges, the
+  // foot-level rhyme breaks and we demote to assonance, regardless of how
+  // tightly the stressed syllable matches:
+  //   * perfect-coda + mismatched trailing → assonance (passion/ashes,
+  //     flying/quiet — stressed match alone doesn't earn a family label)
+  //   * family-coda + mismatched trailing → assonance (lonely/voting)
+  //   * additive-coda + mismatched trailing → assonance (lonely/solely)
+  // Weaker tiers (assonance, consonance, partial) inherently allow
+  // mismatched trailings — they're already at "vowel ring only."
   const trailingSame = trailingsMatch(a.trailing, b.trailing);
   const bothFeminine = !a.masculine && !b.masculine;
   const femTrailingMismatch = bothFeminine && !trailingSame;
@@ -621,16 +641,14 @@ export function classifyRhyme(wordA, wordB) {
 
   // Now the main decision tree:
   if (vowelMatch && codaCmp.relation === "same") {
-    // Feminine pair with mismatched trailings (passion/ashes type) —
-    // the stressed syllable is a full perfect match but the unstressed
-    // tail diverges, so the rhyme doesn't slam the door shut. Pattison
-    // calls these "not perfect rhymes, but their sonic connection is
-    // undeniable" — that's family-strength territory.
+    // Feminine pair with mismatched trailings (passion/ashes, flying/quiet) —
+    // even though the stressed syllable is a full perfect match, Pattison's
+    // strict rule for feminine rhyme requires trailing identity. Without it,
+    // the foot doesn't close as a rhyme; we demote to assonance.
     if (femTrailingMismatch) {
       return {
-        type: "family",
-        stability: 4,
-        familyCloseness: "tight",
+        type: "assonance",
+        stability: 2,
         isRhyme: true,
         wordA,
         wordB,
@@ -643,8 +661,7 @@ export function classifyRhyme(wordA, wordB) {
         codaRelation: codaCmp,
         trailingSame,
         explanation:
-          "Feminine pair — perfect on the stressed syllable but the unstressed tails differ. Strong sonic link without the full slam-the-door close." +
-          femNote,
+          "Feminine assonance — stressed syllable is a perfect match (same vowel + same coda) but the unstressed trailings diverge. Pattison requires trailing identity for feminine family/perfect rhymes; without it, only the stressed vowel ring carries the link. Pattison calls these 'sonic connections' rather than rhymes proper.",
       };
     }
     return {

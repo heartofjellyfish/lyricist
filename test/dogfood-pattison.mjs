@@ -186,7 +186,10 @@ await runPairs("Ch2-3: worksheet for 'attention' (Pattison flags some as Identit
 ]);
 
 await runPairs("Ch2-3: passion/ashes — 'sonic connection but not perfect'", [
-  ["passion", "ashes", "family", "feminine, vowel match, fricatives related (SH same, N vs Z+trailing)"],
+  // Pattison: trailing identity is required for feminine family/perfect.
+  // passion/ashes have perfect stressed coda [SH] match, but trailings
+  // diverge (-AH-N vs -IH-Z). Demote to assonance.
+  ["passion", "ashes", "assonance", "perfect [SH] coda but -AH-N vs -IH-Z trailing breaks foot"],
 ]);
 
 await runPairs("Ch2-3: net/duet, choke/baroque, lice/price, dark/mark, trees/knees", [
@@ -292,13 +295,155 @@ await runPairs("Ch4: 'help' family (l+p coda)", [
   ["help", "melt", "family"],
 ]);
 
-await runPairs("Ch4: feminine family — 'lonely' / 'homely'", [
-  ["lonely", "homely", "family", "Stressed N-M companion, trailing -ly identity"],
+// Pattison Ch4 p63-64 feminine family worksheets (verbatim examples):
+await runPairs("Ch4 p63: 'lonely' feminine family — N nasal → M companion", [
+  ["lonely", "homely", "family", "Pattison's headline example: N-M companion, -ly trailing"],
 ]);
 
-await runPairs("Ch4: feminine family — 'table' / 'maple', 'ladle'", [
-  ["table", "maple", "family", "B-P partner, trailing -le"],
-  ["table", "ladle", "family", "B-D companion"],
+await runPairs("Ch4 p64: 'table' feminine family — B plosive → partners + companions", [
+  ["table", "maple", "family", "B-P partners (Pattison's first example)"],
+  ["table", "ladle", "family", "B-D companions (Pattison's second example)"],
+  ["table", "cradle", "family", "B-D companions"],
+  ["table", "staple", "family", "B-P partners"],
+]);
+
+// =====================================================================
+// Feminine rhyme — Pattison's coda-tight analysis:
+// ALL consonants between the stressed vowel and the next vowel belong
+// to the stressed syllable's coda (no max-onset). His rhyming dictionary
+// indexes `table` under "ĀP'l" / "ĀB'l" with B as the closing consonant
+// of "tab", and finds family rhymes by substituting partner P → maple.
+// Single intervocalic consonants are part of the stressed coda.
+// =====================================================================
+
+await runPairs("Feminine perfect — same stressed coda (incl. single intervocalic) + same trailing", [
+  ["flying", "crying", "perfect", "[] coda + IH-NG trailing"],
+  ["flying", "lying", "perfect"],
+  ["flying", "trying", "perfect"],
+  ["hiding", "riding", "perfect", "[D] coda + IH-NG trailing"],
+  ["hiding", "siding", "perfect"],
+  ["happy", "snappy", "perfect", "[P] coda + IY trailing"],
+  ["happy", "scrappy", "perfect"],
+]);
+
+await runPairs("Feminine family — Pattison textbook examples (stressed coda in family + same trailing)", [
+  ["table", "maple", "family", "B-P partners, same -le trailing — Pattison Ch4"],
+  ["table", "ladle", "family", "B-D companions"],
+  ["lonely", "homely", "family", "N-M companions, same -ly trailing — Pattison Ch4"],
+  ["happy", "shabby", "family", "P-B partners, same -y trailing"],
+  ["happy", "gabby", "family"],
+  ["happy", "catty", "family", "P-T companions"],
+  ["hiding", "writing", "family", "D-T partners, same -ing trailing"],
+  ["hiding", "fighting", "family"],
+  ["hiding", "hiking", "family", "D-K 2-hop plosive family"],
+]);
+
+await runPairs("Feminine additive — extra coda consonant + same trailing", [
+  // Pattison Ch5: feminine additives still need the trailing as identity.
+  // flying (empty coda) + hiding ([D] coda) — the extra D is the additive
+  // bit; -ING is the identity. Strong rhyme (s=3), the canonical "fly /
+  // hide" feel.
+  ["flying", "hiding", "additive", "[] vs [D] + same -ing"],
+  ["flying", "riding", "additive"],
+  ["flying", "siding", "additive"],
+  ["crying", "hiding", "additive"],
+]);
+
+// =====================================================================
+// Pattison Ch5 p60: feminine additive worksheet for "travel"
+// travel = T R AE V AH L (coda=[V], trailing=[AH, L])
+// All examples in his worksheet have matching trailings -le/-ful → identity.
+// =====================================================================
+await runPairs("Ch5 p60: 'travel' feminine family/additive worksheet", [
+  ["travel", "dazzle", "family", "V-Z companions (voiced fricatives)"],
+  ["travel", "fragile", "family", "V-JH companions"],
+  ["travel", "bashful", "additive", "V-F partners + extra SH at front"],
+]);
+
+await runPairs("Feminine assonance — strict Pattison: trailing differs → assonance regardless of stressed coda", [
+  // Even when the stressed coda is a perfect match, mismatched trailing
+  // breaks the foot rhyme — Pattison requires trailing identity for
+  // family/perfect tier. Demote to assonance (vowel ring only).
+  ["flying", "quiet", "assonance", "[] coda match, but IH-NG vs AH-T trailing"],
+  ["passion", "ashes", "assonance", "[SH] coda match, AH-N vs IH-Z trailing — Pattison p31 'sonic connection but not rhyme'"],
+]);
+
+// =====================================================================
+// Pattison Ch6 p86-87: feminine assonance worksheet for "lonely"
+// lonely = L OW N L IY (coda=[N, L], trail=[IY])
+// "Feminine assonance rhymes are usually stronger than masculine assonance
+// rhymes ... usually a good perfect rhyme substitute." (p86)
+// His worksheet annotates some entries "(subtractive)" — those are
+// stronger than pure assonance because codas differ by 1 consonant only.
+// =====================================================================
+await runPairs("Ch6 p86-87: 'lonely' feminine assonance worksheet — unrelated codas", [
+  // True assonance: codas can't be aligned in any family relation
+  ["lonely", "voting", "assonance", "coda [T] vs [N L] — unrelated"],
+  ["lonely", "smokey", "assonance", "coda [K] vs [N L] — unrelated"],
+  ["lonely", "coldly", "assonance", "coda [L D L] vs [N L] — unrelated"],
+  ["lonely", "boldly", "assonance"],
+  ["lonely", "ghostly", "assonance"],
+  ["lonely", "anchovy", "assonance", "coda [V] vs [N L] — unrelated"],
+  ["lonely", "trophy", "assonance", "coda [F] vs [N L]"],
+  ["lonely", "yogi", "assonance", "coda [G] vs [N L]"],
+  ["lonely", "dopey", "assonance", "coda [P] vs [N L]"],
+  ["lonely", "pokey", "assonance", "coda [K] vs [N L]"],
+  ["lonely", "nosy", "assonance", "coda [Z] vs [N L]"],
+  ["lonely", "approaching", "assonance"],
+  ["lonely", "probing", "assonance"],
+  ["lonely", "foreboding", "assonance"],
+  ["lonely", "imposing", "assonance"],
+  ["lonely", "consoling", "assonance"],
+  ["lonely", "hoping", "assonance"],
+]);
+
+await runPairs("Ch6 p87: 'lonely' worksheet — items Pattison annotates '(subtractive)'", [
+  // Per Pattison's annotation: codas differ by 1+ consonant + matching
+  // trailing. Classifier returns 'subtractive' when wordA (lonely) has
+  // the extra consonants — i.e., subtracting from lonely yields the partner.
+  // These appear in the Ch6 assonance chapter only because they share the
+  // long-O vowel, but the structure is tighter than pure assonance.
+  ["lonely", "holy", "subtractive", "coda [N L] vs [L]: drop N → matching [IY] trailing"],
+  ["lonely", "lowly", "subtractive", "same as holy"],
+  ["lonely", "slowly", "subtractive"],
+  ["lonely", "snowy", "subtractive", "coda [N L] vs [] = drop 2 cons; matching [IY] trailing"],
+  ["lonely", "solely", "subtractive", "with override: solely = S OW1 L IY0; drop N to match"],
+  // alimony rhyme anchors on its SECONDARY stress (OW2), not primary (AE1) —
+  // Pattison treats this as long-O. Codas [N L] vs [N], drop L, trailing matches.
+  ["lonely", "alimony", "subtractive", "OW2 secondary stress; codas [N L] vs [N] drop L"],
+]);
+
+// =====================================================================
+// Pattison Ch6 p88: feminine consonance examples — different stressed
+// vowels but the trailing extends resolution.
+// =====================================================================
+await runPairs("Ch6 p88: feminine consonance examples", [
+  ["cramming", "teeming", "consonance", "AE vs IY, both [M] coda + same -ing trailing"],
+  ["rubber", "fibber", "consonance", "AH vs IH, both [B] coda + same -er trailing"],
+]);
+
+// =====================================================================
+// Identity — masculine word fully echoed inside a feminine word:
+// command/commanding, land/landing. Per Pattison's coda-tight analysis,
+// command and commanding share the same stressed syllable (M-AE-N-D);
+// commanding only adds an unstressed -ING trailing. The ear hears
+// repetition, not tension. sameStressedSyllable (Route A) catches this.
+// =====================================================================
+
+await runPairs("Identity: masculine + appended unstressed syllable", [
+  ["command", "commanding", "identity", "command echoed + -ing"],
+  ["land", "landing", "identity"],
+  ["scare", "scaring", "identity"],
+  ["sing", "singing", "identity"],
+  ["love", "loving", "identity"],
+]);
+
+// Negative cases — matching phoneme tails BUT same syllable count, so
+// these are real rhymes (different stressed onsets), not identity.
+await runPairs("Identity: NOT identity when syllable counts match (these are real rhymes)", [
+  ["scare", "care", "perfect", "same 1 syllable, different onset"],
+  ["place", "ace", "perfect"],
+  ["spice", "ice", "perfect"],
 ]);
 
 console.log("\n--- findRhymes coverage for Ch 4 ---");
@@ -395,17 +540,9 @@ await runPairs("Ch6: assonance — vowel match, unrelated codas", [
   ["tide", "survive", "assonance"],
 ]);
 
-await runPairs("Ch6: feminine assonance for 'lonely' (long-O + identity tail)", [
-  ["lonely", "solely", "assonance", "long O, unrelated coda after stressed syll"],
-  ["lonely", "smokey", "assonance"],
-  ["lonely", "coldly", "assonance"],
-  ["lonely", "boldly", "assonance"],
-  ["lonely", "ghostly", "assonance"],
-  ["lonely", "anchovy", "assonance"],
-  ["lonely", "voting", "assonance"],
-  ["lonely", "trophy", "assonance"],
-  ["lonely", "yogi", "assonance"],
-]);
+// Note: this older lonely-assonance section is superseded by the more detailed
+// Ch6 worksheets above. Keeping just non-duplicate entries here as redundant
+// regression coverage; solely moved to the subtractive list (see above).
 
 await runPairs("Ch6: consonance — different vowels, same coda", [
   ["save", "leave", "consonance"],
@@ -448,10 +585,18 @@ await runPairs("Ch6: voiced-fricative consonance", [
   ["cause", "whiz", "consonance"],
 ]);
 
-await runPairs("Ch6: friend/wind from Zevon (Pattison's introducing example)", [
-  ["friend", "wind", "family", "M ~ N companion + additive D? Actually: friend=N D, wind=N D — wait same coda"],
-  ["been", "wind", "consonance", "different vowels, both N+D coda"],
-  ["him", "wind", "family", "stressed coda M vs N D — M companion N + extra D = additive"],
+await runPairs("Ch4 p47-48: friend/wind / been/wind / him/wind — Zevon's 'Hasten Down the Wind'", [
+  // friend = F-R-EH-N-D; wind = W-IH-N-D. Different vowels, same [N D] coda.
+  // Pattison p47: "The consonance rhyme 'friend/wind' leaves us hanging."
+  ["friend", "wind", "consonance", "Pattison's canonical consonance example"],
+  // been = B-IH-N; wind = W-IH-N-D. Same IH vowel, codas [N] vs [N D] = additive.
+  // Pattison p48: been/wind feels resolved "like the perfect rhyme" (because the
+  // additive D is barely noticeable after the held N). Strict 5-step scale: additive.
+  ["been", "wind", "additive", "p48: feels like perfect rhyme; strictly: same vowel + extra D"],
+  // him = HH-IH-M; wind = W-IH-N-D. Same IH vowel, codas [M] vs [N D].
+  // Pattison p48: "family rhyme, which is muddied slightly by the addition of 'd'".
+  // M-N companions (nasals) + extra D = family-with-additive. 5-step: additive.
+  ["him", "wind", "additive", "p48: family-with-extra-D; M-N companions + D"],
 ]);
 
 console.log("\n--- findRhymes coverage for Ch 5–6 ---");

@@ -1,5 +1,5 @@
 {
-  "_comment": "Hand-curated overrides for CMU 0.7b. Format matches CMU: space-separated ARPAbet phonemes with stress digits 0/1/2. Three classes of fixes:\n  (1) Outright transcription errors (typology, intention).\n  (2) Missing words that appear in Pattison's worksheets (pretention, jezebel, fibber, twerp).\n  (3) Stress-digit fixes for compound or affixed endings — CMU often marks the second component as unstressed when songwriters/Pattison treat it as secondary-stressed (suburb, iceberg, egomaniac, kleptomaniac).\n  (4) Syllabification quirks where CMU inserts a schwa that shouldn't be there (solely).",
+  "_comment": "Hand-curated overrides for CMU 0.7b. Format matches CMU: space-separated ARPAbet phonemes with stress digits 0/1/2. Five classes of fixes:\n  (1) Outright transcription errors (typology, intention).\n  (2) Missing words that appear in Pattison's worksheets (pretention, jezebel, fibber, twerp).\n  (3) Stress-digit fixes for compound or affixed endings — CMU often marks the second component as unstressed when songwriters/Pattison treat it as secondary-stressed (suburb, iceberg, egomaniac, kleptomaniac).\n  (4) Syllabification quirks where CMU inserts a schwa that shouldn't be there (solely).\n  (5) Pronunciation disambiguation — CMU keeps only one entry per word, so for homographs we override to the pronunciation Pattison uses in his examples (wind = noun /wɪnd/, not verb /waɪnd/).",
 
   "typology": "T AY2 P AA1 L AH0 JH IY0",
 
@@ -15,5 +15,7 @@
   "egomaniac": "IY2 G OW0 M EY1 N IY0 AE2 K",
   "kleptomaniac": "K L EH2 P T AH0 M EY1 N IY0 AE2 K",
 
-  "solely": "S OW1 L L IY0"
+  "solely": "S OW1 L IY0",
+
+  "wind": "W IH1 N D"
 }
