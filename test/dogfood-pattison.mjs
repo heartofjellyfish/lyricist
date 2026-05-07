@@ -186,10 +186,13 @@ await runPairs("Ch2-3: worksheet for 'attention' (Pattison flags some as Identit
 ]);
 
 await runPairs("Ch2-3: passion/ashes — 'sonic connection but not perfect'", [
-  // Pattison: trailing identity is required for feminine family/perfect.
-  // passion/ashes have perfect stressed coda [SH] match, but trailings
-  // diverge (-AH-N vs -IH-Z). Demote to assonance.
-  ["passion", "ashes", "assonance", "perfect [SH] coda but -AH-N vs -IH-Z trailing breaks foot"],
+  // Pattison Ch2 p31 calls passion/ashes "sonic connection but not perfect
+  // rhyme" — he doesn't put it in any tier of his 5-step scale. With the
+  // strict trailing-compatibility rule (Ch6 p86), passion's -on (nasal N)
+  // and ashes's -es (fricative Z) have incompatible terminal classes →
+  // none. Preserves the principle that feminine pairs need both nucleus
+  // family AND terminal class match for any rhyme tier.
+  ["passion", "ashes", "none", "[SH] coda match but trailing terminals differ (N nasal vs Z fricative)"],
 ]);
 
 await runPairs("Ch2-3: net/duet, choke/baroque, lice/price, dark/mark, trees/knees", [
@@ -368,8 +371,9 @@ await runPairs("Feminine assonance — strict Pattison: trailing differs → ass
   // incompatible unstressed vowels (IH high-front vs AH schwa). Pattison
   // Ch6 p86 limits feminine assonance to compatible-nucleus pairs.
   ["flying", "quiet", "none", "[] coda match, but IH-NG (high-front) vs AH-T (schwa) — incompatible nuclei"],
-  // passion/ashes: both trailings have schwa (AH-N vs AH-Z) → nuclei match → assonance.
-  ["passion", "ashes", "assonance", "[SH] coda match + both AH schwa trailings — Pattison p31 'sonic connection'"],
+  // passion/ashes: both AH schwa nuclei BUT different terminal classes
+  // (N nasal vs Z fricative) → falls to none under refined rule.
+  ["passion", "ashes", "none", "[SH] coda + AH schwa trailings, but N vs Z terminals incompatible"],
 ]);
 
 // =====================================================================
@@ -464,7 +468,6 @@ await checkAssonanceStability("lonely", "trophy", 3, "fem + same -y");
 await checkAssonanceStability("lonely", "voting", 2, "fem -ly (IY) vs -ing (IH) — both high-front");
 await checkAssonanceStability("lonely", "hoping", 2, "fem -ly vs -ing");
 await checkAssonanceStability("lonely", "approaching", 2, "fem -ly vs -ing");
-await checkAssonanceStability("passion", "ashes", 2, "perfect coda + both AH schwa trailings");
 
 // Counter-examples: feminine with INCOMPATIBLE trailing nuclei → none
 async function checkNone(a, b, note) {
@@ -477,10 +480,15 @@ async function checkNone(a, b, note) {
     (note ? ` — ${note}` : "")
   );
 }
-console.log("\n=== Ch6 p86: feminine assonance requires compatible trailing nuclei ===");
+console.log("\n=== Ch6 p86: feminine assonance requires compatible trailing nuclei + terminals ===");
+// Cross-nucleus rejections (different vowel families)
 await checkNone("flying", "quiet", "IH-NG (high-front) vs AH-T (schwa)");
 await checkNone("lonely", "broken", "IY (high-front) vs AH-N (schwa)");
 await checkNone("lonely", "lonesome", "IY vs AH-M (schwa)");
+// Same-nucleus, different-terminal-class rejections (Ch6 p86 refinement)
+await checkNone("table", "agent", "both schwa, but L (liquid) vs T (plosive)");
+await checkNone("table", "ancient", "schwa+L (liquid) vs schwa+T (plosive)");
+await checkNone("passion", "ashes", "schwa+N (nasal) vs schwa+Z (fricative)");
 await checkNone("lonely", "over", "IY vs ER (rhotic)");
 await checkNone("lonely", "golden", "IY vs AH-N (schwa)");
 await checkNone("lonely", "frozen", "IY vs AH-N (schwa)");

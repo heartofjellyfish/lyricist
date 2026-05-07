@@ -409,25 +409,51 @@ function trailingsMatch(a, b) {
   return true;
 }
 
-// Unstressed-vowel families for feminine assonance compatibility check.
-// Pattison Ch6 p86 (lonely worksheet): "look for the unstressed syllables
-// ending in i (the feminine section's notation for unaccented long ē), Ii,
-// and even ing" — i.e., the search is bounded to high-front-vowel trailings
-// (IY, IH, IH+NG). Words with -en (schwa AH), -er (rhotic ER), -ome (AH)
-// are NOT included in his worksheet — sonically too far from lonely's -y
-// for the foot to bind.
+// Trailing compatibility for feminine assonance. Two checks combined:
 //
-// We bucket by perceptual similarity, not exact phoneme:
-//   * high-front: IY, IH (Pattison's "i / Ii / ing")
-//   * schwa: AH (the most common reduced vowel: -en, -on, -ome, -us)
-//   * rhotic: ER (-er)
-// Other unstressed vowels (rare) are kept in their own bucket — must
-// match exactly.
+// 1. NUCLEUS VOWEL FAMILY: the unstressed vowel of each trailing must
+//    be in the same perceptual family. Three families cover ~all
+//    English unstressed vowels (per Lindsey, Wikipedia stress/reduction):
+//      * high-front: IY, IH (the "happy vowel" + short i — near-allophones
+//        in unstressed position; modern dialects merge them word-finally)
+//      * schwa: AH (the most common reduced vowel; default for any vowel
+//        letter in -en, -on, -ome, -us, -al, -ent ...)
+//      * rhotic: ER (R-colored schwa, -er, -or)
+//    Other vowels (AY, EY, UH, UW etc.) are rare in unstressed positions
+//    and kept in their own bucket — match exactly.
+//
+// 2. TRAILING TERMINAL: the LAST phoneme of the trailing determines the
+//    sonic envelope. CMU notates "table" as AH0+L, but the AH is a
+//    placeholder for the syllabic L — perceptually the trailing closes
+//    on L. So -le (L-final) and -en (N-final) feel different despite
+//    both having schwa nuclei. We bucket terminals by broad family:
+//      * vowel-final: -y, -ee
+//      * liquid: L, R
+//      * nasal: M, N, NG
+//      * plosive: P, T, K, B, D, G
+//      * fricative: F, V, TH, DH, S, Z, SH, ZH, CH, JH
+//
+// 3. PATTISON EXCEPTION: Ch6 p86 explicitly groups -y / -Ii / -ing in
+//    his lonely worksheet. The -y/-ie are vowel-final, -ing is NG-final.
+//    For high-front nuclei only, vowel-final and NG-final terminals
+//    count as equivalent (NG is the softest nasal, near-allophone of
+//    word-final vowel for high-front color).
 const UNSTRESSED_VOWEL_FAMILY = {
   IY: "high-front",
   IH: "high-front",
   AH: "schwa",
   ER: "rhotic",
+};
+
+const TERMINAL_CONSONANT_CLASS = {
+  L: "liquid", R: "liquid",
+  M: "nasal", N: "nasal", NG: "nasal",
+  P: "plosive", T: "plosive", K: "plosive",
+  B: "plosive", D: "plosive", G: "plosive",
+  F: "fricative", V: "fricative", TH: "fricative", DH: "fricative",
+  S: "fricative", Z: "fricative", SH: "fricative", ZH: "fricative",
+  CH: "fricative", JH: "fricative",
+  HH: "fricative", Y: "liquid", W: "liquid", // rare in trailings
 };
 
 function trailingNucleusFamily(trailing) {
@@ -438,12 +464,33 @@ function trailingNucleusFamily(trailing) {
   return null;
 }
 
-// Are the two trailings' first-vowel families compatible?
+function trailingTerminal(trailing) {
+  if (trailing.length === 0) return { class: "vowel", phoneme: null };
+  const last = trailing[trailing.length - 1];
+  if (VOWEL_RE.test(last)) return { class: "vowel", phoneme: last };
+  return { class: TERMINAL_CONSONANT_CLASS[last] ?? "other", phoneme: last };
+}
+
+// Are the two feminine trailings perceptually compatible for assonance?
+// Requires same nucleus family AND (same terminal class OR Pattison's
+// high-front-vowel-or-NG exception).
 // Masculine pairs (both empty trailings) are vacuously compatible.
 function trailingNucleiCompatible(aTrailing, bTrailing) {
   if (aTrailing.length === 0 && bTrailing.length === 0) return true;
   if (aTrailing.length === 0 || bTrailing.length === 0) return false;
-  return trailingNucleusFamily(aTrailing) === trailingNucleusFamily(bTrailing);
+  const aFam = trailingNucleusFamily(aTrailing);
+  const bFam = trailingNucleusFamily(bTrailing);
+  if (aFam !== bFam) return false;
+  const aTerm = trailingTerminal(aTrailing);
+  const bTerm = trailingTerminal(bTrailing);
+  if (aTerm.class === bTerm.class) return true;
+  // Pattison Ch6 p86: high-front vowel + (vowel-final OR NG-final) cluster
+  if (aFam === "high-front") {
+    const isVowelOrNG = (t) =>
+      t.class === "vowel" || (t.class === "nasal" && t.phoneme === "NG");
+    if (isVowelOrNG(aTerm) && isVowelOrNG(bTerm)) return true;
+  }
+  return false;
 }
 
 // Identity per Pattison (Ch 1): the ear hears repetition, not tension.
