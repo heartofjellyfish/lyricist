@@ -823,8 +823,13 @@ export function classifyRhyme(wordA, wordB) {
     };
   }
 
-  // Consonance: different vowel, same coda
-  if (!vowelMatch && codaCmp.relation === "same" && (a.coda.length > 0 || b.coda.length > 0)) {
+  // Consonance: different vowel, same coda. For feminine pairs, also
+  // require trailing identity — Pattison Ch6 p88 examples (cramming/teeming,
+  // rubber/fibber) all match trailings. Without trailing match the foot
+  // doesn't bind: cramming/crummy (-IH-NG vs -IY) doesn't sound like a
+  // consonance pair, just two feminine words sharing one consonant.
+  // (Masculine pairs have empty trailings → trailingSame is vacuously true.)
+  if (!vowelMatch && codaCmp.relation === "same" && (a.coda.length > 0 || b.coda.length > 0) && trailingSame) {
     const heldCoda =
       a.coda.some((c) => LIQUIDS.has(c) || NASALS.has(c)) ||
       a.coda.length >= 2;
@@ -851,8 +856,9 @@ export function classifyRhyme(wordA, wordB) {
     };
   }
 
-  // Consonance with coda in family (loose consonance)
-  if (!vowelMatch && codaCmp.relation === "family") {
+  // Consonance with coda in family (loose consonance) — same trailing-identity
+  // requirement for feminine pairs.
+  if (!vowelMatch && codaCmp.relation === "family" && trailingSame) {
     return {
       type: "consonance",
       stability: 1,
@@ -877,12 +883,21 @@ export function classifyRhyme(wordA, wordB) {
   // removing the liquid match identically. Pattison treats these as
   // consonance — the L/R colors the cluster but the terminating consonant
   // still matches at the end of the line.
+  //
+  // Pattison's examples are all MASCULINE (scare/fear, pull/fall, snarl/curl,
+  // word/card). For feminine pairs we additionally require trailing identity
+  // — without it, the L/R isn't actually at the end of the word (it's inside,
+  // followed by the trailing), so the "shared ending consonant" claim fails.
+  // Example this filter blocks: lonely/tunnel — both feminine, lonely's L is
+  // mid-word (onset of -ly), tunnel's L is word-final. Different positions,
+  // not really a rhyme.
   if (
     !vowelMatch &&
     codaCmp.relation === "additive" &&
     codaCmp.extra.length === 1 &&
     LIQUIDS.has(codaCmp.extra[0]) &&
-    codaCmp.baseHasFamilyDiff === false
+    codaCmp.baseHasFamilyDiff === false &&
+    trailingSame
   ) {
     return {
       type: "consonance",
