@@ -1403,15 +1403,24 @@ input[type="text"]::placeholder {
   transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 200ms;
   text-align: left;
 }
-.rf-word.rf-has-lyrics:hover .rf-lyric-pop,
-.rf-word.rf-has-lyrics:focus-within .rf-lyric-pop,
+/* Hover / focus-within reveal the pop on devices with a real pointer.
+   Touch devices skip this — there's no useful intermediate state on a
+   phone (every "hover" is a tap), and showing the pop on focus-within
+   after a tap fights the explicit pin/unpin toggle. */
+@media (hover: hover) {
+  .rf-word.rf-has-lyrics:hover .rf-lyric-pop,
+  .rf-word.rf-has-lyrics:focus-within .rf-lyric-pop {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0s;
+  }
+}
 .rf-word.rf-pinned .rf-lyric-pop {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   transition-delay: 0s;
-}
-.rf-word.rf-pinned .rf-lyric-pop {
   z-index: 60;
   box-shadow: 5px 5px 0 var(--ink);
 }
@@ -1673,6 +1682,11 @@ input[type="text"]::placeholder {
 /* Mobile bottom sheet — preserved from 1.5/1.6. Pinned popover docks
    to the viewport bottom; html.rf-sheet-open scroll-locks the page
    and dims the backdrop. */
+/* Drag handle is mobile-only — hide elsewhere so it doesn't bleed into
+   desktop layout. */
+.rf-lyric-pop-handle { display: none; }
+.rf-sheet-backdrop { display: none; }
+
 @media (hover: none) and (max-width: 720px) {
   .rf-lyric-pop {
     position: fixed;
@@ -1689,21 +1703,43 @@ input[type="text"]::placeholder {
     overscroll-behavior-y: contain;
     touch-action: pan-y;
   }
-  .rf-lyric-pop::before {
-    content: "";
+  /* Real drag-handle element. The visible pill is centered inside a
+     taller hit area (24px) so the gesture target is finger-sized. The
+     swipe-to-dismiss handler binds here and only here — gestures in
+     the content area below scroll the pop natively. */
+  .rf-lyric-pop-handle {
     display: block;
-    width: 36px; height: 4px;
+    position: relative;
+    width: 100%;
+    height: 24px;
+    cursor: grab;
+    touch-action: none;
+    flex: 0 0 auto;
+  }
+  .rf-lyric-pop-handle::after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
     border-radius: 2px;
     background: var(--ink-ghost);
-    margin: 8px auto 0;
   }
   html.rf-sheet-open { overflow: hidden; }
-  html.rf-sheet-open body::after {
-    content: "";
+  /* Real backdrop element (replaces the prior body::after pseudo) — a
+     pseudo can't capture touches, so taps on the dim area used to fall
+     through to whichever candidate word was underneath and re-pin a
+     different word. This div sits between the page and the pop, owns
+     the taps, and dismisses cleanly. */
+  .rf-sheet-backdrop {
+    display: block;
     position: fixed;
     inset: 0;
     z-index: 40;
     background: rgba(26, 20, 14, 0.35);
+    touch-action: none;
   }
 }
 

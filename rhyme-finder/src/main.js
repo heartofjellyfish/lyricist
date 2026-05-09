@@ -637,6 +637,13 @@ function decorateWithLyrics(el, word) {
 
   const pop = document.createElement("div");
   pop.className = "rf-lyric-pop";
+  // Mobile bottom-sheet drag handle. Hidden on desktop via CSS. Only this
+  // element grabs the dismiss gesture — touches in the content area below
+  // pass through to the pop's native overflow-scroll.
+  const handle = document.createElement("div");
+  handle.className = "rf-lyric-pop-handle";
+  handle.setAttribute("aria-hidden", "true");
+  pop.appendChild(handle);
   pop.appendChild(renderPopHeader(word, tier1));
 
   for (const q of tier1.slice(0, POP_CAP)) pop.appendChild(renderEndQuote(q, word));
@@ -721,7 +728,37 @@ function setPin(wordEl, pinned) {
   });
   wordEl.classList.toggle("rf-pinned", pinned);
   document.documentElement.classList.toggle("rf-sheet-open", pinned);
-  if (pinned) attachSheetSwipeDismiss(wordEl);
+  if (pinned) {
+    attachSheetSwipeDismiss(wordEl);
+    ensureSheetBackdrop();
+  } else {
+    removeSheetBackdrop();
+  }
+}
+
+// Real-element backdrop for the mobile bottom sheet. The previous
+// body::after pseudo only painted the dim — it didn't capture touches,
+// so taps on the dim area fell through to whichever candidate word was
+// underneath and re-pinned a different word. A real div between the
+// content and the pop owns those taps and dismisses cleanly.
+function ensureSheetBackdrop() {
+  if (!matchMedia("(hover: none) and (max-width: 720px)").matches) return;
+  if (document.querySelector(".rf-sheet-backdrop")) return;
+  const bd = document.createElement("div");
+  bd.className = "rf-sheet-backdrop";
+  const dismiss = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
+    document.documentElement.classList.remove("rf-sheet-open");
+    bd.remove();
+  };
+  bd.addEventListener("click", dismiss);
+  bd.addEventListener("touchend", dismiss);
+  document.body.appendChild(bd);
+}
+function removeSheetBackdrop() {
+  document.querySelector(".rf-sheet-backdrop")?.remove();
 }
 
 // Mobile bottom-sheet dismiss-on-swipe-down. The pop is `position: fixed`
@@ -732,11 +769,12 @@ function setPin(wordEl, pinned) {
 // close past a threshold.
 function attachSheetSwipeDismiss(wordEl) {
   const pop = wordEl.querySelector(".rf-lyric-pop");
-  if (!pop || pop.dataset.swipeBound === "1") return;
+  const handle = pop?.querySelector(".rf-lyric-pop-handle");
+  if (!pop || !handle || handle.dataset.swipeBound === "1") return;
   // Only bind on touch-capable narrow viewports — desktop pop is anchored
   // to the word and doesn't behave like a sheet.
   if (!matchMedia("(hover: none) and (max-width: 720px)").matches) return;
-  pop.dataset.swipeBound = "1";
+  handle.dataset.swipeBound = "1";
 
   let startY = 0;
   let dy = 0;
@@ -747,16 +785,13 @@ function attachSheetSwipeDismiss(wordEl) {
     if (e.touches.length !== 1) return;
     startY = e.touches[0].clientY;
     dy = 0;
-    // Only treat as a drag-to-dismiss when the pop is scrolled to the top.
-    // Otherwise the user is scrolling the quote list inside the sheet.
-    dragging = pop.scrollTop <= 0;
+    dragging = true;
     pop.style.transition = "none";
   };
   const onMove = (e) => {
     if (!dragging || e.touches.length !== 1) return;
     dy = e.touches[0].clientY - startY;
     if (dy <= 0) {
-      // Upward — let the pop scroll normally.
       pop.style.transform = "";
       return;
     }
@@ -771,6 +806,7 @@ function attachSheetSwipeDismiss(wordEl) {
         pop.style.transform = "";
         wordEl.classList.remove("rf-pinned");
         document.documentElement.classList.remove("rf-sheet-open");
+        removeSheetBackdrop();
       }, 180);
     } else {
       pop.style.transform = "";
@@ -779,10 +815,12 @@ function attachSheetSwipeDismiss(wordEl) {
     dy = 0;
   };
 
-  pop.addEventListener("touchstart", onStart, { passive: true });
-  pop.addEventListener("touchmove", onMove, { passive: false });
-  pop.addEventListener("touchend", onEnd, { passive: true });
-  pop.addEventListener("touchcancel", onEnd, { passive: true });
+  // Bind on the handle only — touches inside the content scroll natively
+  // and never reach this listener.
+  handle.addEventListener("touchstart", onStart, { passive: true });
+  handle.addEventListener("touchmove", onMove, { passive: false });
+  handle.addEventListener("touchend", onEnd, { passive: true });
+  handle.addEventListener("touchcancel", onEnd, { passive: true });
 }
 
 // Header strip: word · "N line-end · M artists" · pin glyph. No close ×,
