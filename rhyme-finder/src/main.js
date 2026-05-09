@@ -693,6 +693,20 @@ function installGlobalDismissHandlers() {
     unpinAll();
   });
 
+  // iOS Safari often skips a synthetic `click` for taps on non-interactive
+  // elements like body / backdrop pseudo, so tapping the dim area while a
+  // bottom-sheet popover is open did nothing. Mirror the click dismiss on
+  // touchend, but skip it when the tap is inside the popover (so quote
+  // interactions still work) or on a candidate word (which has its own
+  // toggle handler — letting touchend dismiss here would unpin and the
+  // following click would immediately re-pin the same word).
+  document.addEventListener("touchend", (e) => {
+    if (!document.documentElement.classList.contains("rf-sheet-open")) return;
+    if (e.target.closest(".rf-lyric-pop")) return;
+    if (e.target.closest(".rf-word")) return;
+    unpinAll();
+  });
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       unpinAll();

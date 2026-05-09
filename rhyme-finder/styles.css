@@ -1683,6 +1683,11 @@ input[type="text"]::placeholder {
     border: none;
     border-top: 1px solid var(--ink);
     box-shadow: 0 -4px 24px rgba(26, 20, 14, 0.2);
+    /* Keep the pop's own scroll from chaining into iOS Safari's
+       viewport rubber-band — that hand-off used to swallow the
+       drag-to-dismiss gesture before our touchmove handler saw it. */
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
   }
   .rf-lyric-pop::before {
     content: "";
