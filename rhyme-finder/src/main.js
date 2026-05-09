@@ -164,8 +164,11 @@ async function runSearch(word, { updateUrl = true } = {}) {
     for (const t of TYPE_ORDER) for (const c of buckets[t] ?? []) allWords.push(c.word);
     await Promise.all([prefetchForWords(allWords), loadCliches()]);
     renderSource(source);
+    renderLexFilter(buckets);
     renderSourcePanel(source.word);
     renderResults(source, buckets);
+    renderStickybar(source.word);
+    updateBucketCounts();
     setStatus("");
 
     // Reflect the searched word in the URL so the page is link-shareable.
@@ -209,10 +212,10 @@ form.addEventListener("submit", (e) => {
 // ── Rendering ───────────────────────────────────────────────────────
 function renderSource(source) {
   const codaText = source.coda.length > 0 ? source.coda.join("·") : "—";
-  // The vowel and coda values are wrapped in .rf-tag-val so the design
-  // can highlight the phonetic kernel in vermilion against the muted
-  // tag label. The masculine/feminine tag carries an info popover that
-  // appears on hover (cursor: help) — no extra glyph, no click needed.
+  // Single-row layout. The sticky tier bar is a separate fixed
+  // element (#stickybar) that slides in when this summary leaves
+  // the viewport — see renderStickybar() and the IntersectionObserver
+  // at the bottom of this file.
   const stressLabel = source.masculine ? "masculine" : "feminine";
   sourceSummary.innerHTML = `
     <span class="rf-source-word">${escapeHtml(source.word)}</span>
@@ -398,20 +401,28 @@ function renderTier(type, candidates, source) {
   const meta = TIER_META[type];
   const tier = document.createElement("article");
   tier.className = "rf-tier";
+  tier.dataset.tier = type;
   tier.dataset.stability = String(meta.stability);
 
   const head = document.createElement("header");
   head.className = "rf-tier-head";
   head.dataset.stability = String(meta.stability);
+  // Count is split into a visible/total pair so updateBucketCounts()
+  // can re-flow it as `12 / 30` when the lex filter trims the tier
+  // without rebuilding the DOM.
+  const totalCount = candidates.length;
+  // Title row on top (label + question-mark glyph) with the subtitle
+  // dropped to its own mono-caps line beneath. Default ink; the
+  // titlebox hover rule shifts the whole stack to vermilion.
   head.innerHTML = `
     <button class="rf-tier-titlebox" type="button" aria-label="What is ${escapeHtml(meta.label)}?">
-      <span class="rf-tier-title">
-        ${escapeHtml(meta.label)}
-        <span class="rf-tier-subtitle">— ${escapeHtml(meta.subtitle)}</span>
+      <span class="rf-tier-title-row">
+        <span class="rf-tier-title">${escapeHtml(meta.label)}</span>
         <span class="rf-tier-info" aria-hidden="true">?</span>
       </span>
+      <span class="rf-tier-subtitle">${escapeHtml(meta.subtitle)}</span>
     </button>
-    <span class="rf-tier-count">${candidates.length}</span>
+    <span class="rf-tier-count" data-total="${totalCount}"><span class="rf-tier-count-visible">${totalCount}</span><span class="rf-tier-count-total" hidden> / ${totalCount}</span></span>
   `;
   // Click anywhere on the title strip → toggle this tier's info popover.
   const titleBtn = head.querySelector(".rf-tier-titlebox");
@@ -447,6 +458,17 @@ function renderTier(type, candidates, source) {
   }
 
   tier.appendChild(body);
+
+  // Empty-tier hint — shown by updateBucketCounts() when the active
+  // lex filter zeros the visible count. Stays hidden by default.
+  const empty = document.createElement("div");
+  empty.className = "rf-tier-empty";
+  empty.hidden = true;
+  empty.innerHTML =
+    `No words in this tier match the active filter.` +
+    `<span class="rf-tier-empty-hint">adjust filters to see ${totalCount} hidden</span>`;
+  tier.appendChild(empty);
+
   return tier;
 }
 
@@ -524,6 +546,10 @@ function recommendationTier(candidate) {
 function renderWord(candidate, source) {
   const el = document.createElement("span");
   el.className = "rf-word";
+  // Drives both the per-word lex marker (PERSON / PLACE / SCIENCE caps
+  // tag below the word) and the global filter chips up top — see the
+  // .rf-app[data-filter-{lex}="false"] selectors in styles.css.
+  el.dataset.lex = candidate.lex || "common";
 
   const cliche = isCliche(source.word, candidate.word);
   const mismatch = candidate.masculine !== source.masculine;
@@ -936,11 +962,14 @@ function renderInlineInflectedList(tier2, popEl) {
   return wrap;
 }
 
-// ── Source-word panel ──────────────────────────────────────────────
-// Always-visible strip directly under the source summary header. Two
-// end-position quotes for the searched word, with the same expand-in-
-// place pattern as the candidate popover. Hidden when the searched
-// word has no end-position quotes in the corpus.
+// ── Source-word panel · Index layout (featured "in the corpus") ────
+// Treated as a peer to the tier list below: confident chapter-style
+// header, generous vertical rhythm, hero typography on the source
+// line. Every row is a rhyme pair with a vermilion drop-quote glyph
+// in the gutter; default-collapse to first 2 rows; rest revealed via
+// a plain "+ Show N more / − Collapse" button driven by aria-expanded.
+const SRCPANEL_INITIAL_ROWS = 2;
+
 function renderSourcePanel(word) {
   const panel = document.getElementById("source-panel");
   if (!panel) return;
@@ -949,21 +978,28 @@ function renderSourcePanel(word) {
   const quotes = getQuotes(word);
   const isEnd = (q) => (q.position ?? q.wordPos) === "end";
   const ends = quotes.filter(isEnd);
+
   if (!ends.length) {
-    // Empty state — keep the panel visible with a quiet message so the
-    // user knows the corpus simply doesn't have an end-position use yet,
-    // not that the search is broken.
-    panel.style.display = "";
     panel.innerHTML =
-      `<div class="rf-source-panel-head">` +
-      `<h2 class="rf-source-panel-title">How songwriters use <em>${escapeHtml(word)}</em></h2>` +
-      `<div class="rf-source-panel-meta">no line-end uses in the corpus yet — try a rhyme below</div>` +
-      `</div>`;
+      `<section class="rf-srcpanel-index">` +
+      `<header class="rf-srcpanel-index-head">` +
+      `<div class="rf-srcpanel-index-headline">` +
+      `<span class="rf-srcpanel-index-eyebrow">In the corpus</span>` +
+      `<h2 class="rf-srcpanel-index-title">How songwriters rhyme <em>${escapeHtml(word)}</em></h2>` +
+      `</div>` +
+      `<div class="rf-srcpanel-index-meta">` +
+      `<span class="rf-srcpanel-index-meta-num">0</span>` +
+      `<span class="rf-srcpanel-index-meta-lbl">pairs · 0 writers</span>` +
+      `</div>` +
+      `</header>` +
+      `<p class="rf-srcpanel-index-empty">No line-end uses in the corpus yet — try a rhyme below.</p>` +
+      `</section>`;
     return;
   }
+
   // Sort: exact-surface first, then quotes-with-partner first within
-  // each surface group. Stable sort preserves the build-time ranking
-  // (song popularity / line length) within each bucket.
+  // each surface group. The rhyme pair is the section's reason for
+  // existing, so we lift quotes that have one to the top.
   const wordLower = word.toLowerCase();
   ends.sort((a, b) => {
     const aExact = (a.surface || "").toLowerCase() === wordLower ? 0 : 1;
@@ -971,54 +1007,117 @@ function renderSourcePanel(word) {
     if (aExact !== bExact) return aExact - bExact;
     return (a.partner ? 0 : 1) - (b.partner ? 0 : 1);
   });
-  panel.style.display = "";
-  const artists = new Set(ends.map((q) => q.credit || q.artist)).size;
 
-  // Section heading reads as editorial content rather than metadata —
-  // sets the tone that this panel is curated reading, not a stat strip.
-  const head = document.createElement("div");
-  head.className = "rf-source-panel-head";
-  head.innerHTML =
-    `<h2 class="rf-source-panel-title">How songwriters use <em>${escapeHtml(word)}</em></h2>` +
-    `<div class="rf-source-panel-meta">${ends.length} at line end · ${artists} artist${artists === 1 ? "" : "s"}</div>`;
-  panel.appendChild(head);
+  const writerCount = new Set(ends.map((q) => q.credit || q.artist)).size;
 
-  const col = document.createElement("div");
-  col.className = "rf-source-panel-quotes";
-  const cap = 2;
-
-  // Each row is wrapped in an item so the click-to-expand stanza
-  // pattern from the candidate popover works here too. Click the
-  // row → toggle `.is-open` on the wrapping item → stanza shows.
-  const buildItem = (q) => {
-    const item = document.createElement("article");
-    item.className = "rf-source-panel-item";
-
-    const row = document.createElement("div");
-    row.className = "rf-source-panel-quote";
-    row.innerHTML =
-      `<div class="rf-source-panel-line">${highlightSurface(q.line, q.surface)}</div>` +
-      `<div class="rf-source-panel-attr">${escapeHtml(q.credit || q.artist)} · ` +
-      `<span class="rf-lyric-attr-song">${escapeHtml(q.songTitle || q.song)}</span></div>`;
-    item.appendChild(row);
-
-    if (Array.isArray(q.stanza) && q.stanza.length) {
-      row.addEventListener("click", (e) => {
-        e.stopPropagation();
-        item.classList.toggle("is-open");
-      });
-      item.appendChild(renderStanza(q));
-    } else {
-      row.style.cursor = "default";
-    }
-    return item;
+  // Build the stanza paragraph block for a quote (when stanza data
+  // exists). Lines around the matched line render in ink-soft; the
+  // matched line(s) get .is-match for the source / partner highlights.
+  const buildStanza = (q) => {
+    if (!Array.isArray(q.stanza) || !q.stanza.length) return "";
+    const matchIdx = Number.isInteger(q.stanzaLineIdx) ? q.stanzaLineIdx : -1;
+    const partnerIdx = q.partner && Number.isInteger(q.partner.stanzaLineIdx)
+      ? q.partner.stanzaLineIdx
+      : -1;
+    const lines = q.stanza.map((s, i) => {
+      if (i === matchIdx) {
+        return `<p class="rf-srcpanel-index-stanza-line is-match">${highlightSurface(s, q.surface)}</p>`;
+      }
+      if (i === partnerIdx && q.partner) {
+        return `<p class="rf-srcpanel-index-stanza-line is-match">${highlightPair(s, q.partner.word)}</p>`;
+      }
+      return `<p class="rf-srcpanel-index-stanza-line">${escapeHtml(s)}</p>`;
+    });
+    return `<div class="rf-srcpanel-index-stanza">${lines.join("")}</div>`;
   };
 
-  for (const q of ends.slice(0, cap)) col.appendChild(buildItem(q));
-  if (ends.length > cap) {
-    col.appendChild(renderToggleMore(ends.slice(cap), buildItem, col));
+  const buildRow = (q) => {
+    const partnerLine = q.partner && q.partner.line
+      ? `<p class="rf-srcpanel-index-a">${highlightPair(q.partner.line, q.partner.word)}</p>`
+      : "";
+    return (
+      `<li class="rf-srcpanel-index-row" tabindex="0" role="button">` +
+      `<span class="rf-srcpanel-index-quote" aria-hidden="true">&ldquo;</span>` +
+      `<div class="rf-srcpanel-index-pair">` +
+      partnerLine +
+      `<p class="rf-srcpanel-index-b">${highlightSurface(q.line, q.surface)}</p>` +
+      `</div>` +
+      `<div class="rf-srcpanel-index-attr">` +
+      `<span class="rf-srcpanel-index-attr-credit">${escapeHtml(q.credit || q.artist)}</span>` +
+      `<em class="rf-srcpanel-index-attr-song">${escapeHtml(q.songTitle || q.song)}</em>` +
+      `</div>` +
+      buildStanza(q) +
+      `</li>`
+    );
+  };
+
+  const initial = ends.slice(0, SRCPANEL_INITIAL_ROWS);
+  const rest = ends.slice(SRCPANEL_INITIAL_ROWS);
+
+  panel.innerHTML =
+    `<section class="rf-srcpanel-index">` +
+    `<header class="rf-srcpanel-index-head">` +
+    `<div class="rf-srcpanel-index-headline">` +
+    `<span class="rf-srcpanel-index-eyebrow">In the corpus</span>` +
+    `<h2 class="rf-srcpanel-index-title">How songwriters rhyme <em>${escapeHtml(word)}</em></h2>` +
+    `</div>` +
+    `<div class="rf-srcpanel-index-meta">` +
+    `<span class="rf-srcpanel-index-meta-num">${ends.length}</span>` +
+    `<span class="rf-srcpanel-index-meta-lbl">pair${ends.length === 1 ? "" : "s"} · ${writerCount} writer${writerCount === 1 ? "" : "s"}</span>` +
+    `</div>` +
+    `</header>` +
+    `<ol class="rf-srcpanel-index-list">` +
+    initial.map(buildRow).join("") +
+    (rest.length
+      ? `<div class="rf-srcpanel-index-rest rf-lyric-hidden">${rest.map(buildRow).join("")}</div>` +
+        `<button type="button" class="rf-srcpanel-index-more" aria-expanded="false">Show ${rest.length} more</button>`
+      : "") +
+    `</ol>` +
+    `</section>`;
+
+  // Wire show-more — toggles a class on the .rf-srcpanel-index-rest
+  // container and flips aria-expanded so the CSS ::before glyph
+  // swaps `+ ` ↔ `− ` automatically.
+  const moreBtn = panel.querySelector(".rf-srcpanel-index-more");
+  if (moreBtn && rest.length) {
+    const restWrap = panel.querySelector(".rf-srcpanel-index-rest");
+    moreBtn.addEventListener("click", () => {
+      const opened = !restWrap.classList.toggle("rf-lyric-hidden");
+      moreBtn.setAttribute("aria-expanded", String(opened));
+      moreBtn.textContent = opened ? "Collapse" : `Show ${rest.length} more`;
+    });
   }
-  panel.appendChild(col);
+
+  // Click any row → reveal the surrounding stanza below the pair.
+  // Only rows whose quote came with stanza data have the stanza node
+  // baked in (buildStanza skips when empty), so we just toggle .is-open
+  // and let the CSS show/hide the .rf-srcpanel-index-stanza.
+  panel.querySelectorAll(".rf-srcpanel-index-row").forEach((row) => {
+    if (!row.querySelector(".rf-srcpanel-index-stanza")) {
+      // No stanza data — keep the row non-interactive (still focusable
+      // for a11y; the role="button" is more semantic than functional).
+      row.style.cursor = "default";
+      return;
+    }
+    row.addEventListener("click", () => {
+      row.classList.toggle("is-open");
+    });
+    row.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        row.classList.toggle("is-open");
+      }
+    });
+  });
+}
+
+// Vermilion underline band on the partner rhyme word — distinct
+// from the solid-block highlight used on the source word itself.
+function highlightPair(line, surface) {
+  if (!surface) return escapeHtml(line);
+  const safe = surface.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`\\b${safe}(?:['’]\\w{0,3})?\\b`, "gi");
+  return escapeHtml(line).replace(re, '<mark class="rf-lyric-mark rf-lyric-mark-pair">$&</mark>');
 }
 
 function highlightSurface(line, surface) {
@@ -1056,6 +1155,192 @@ function isPartnersRelation(codaRelation) {
 function isCompanionsRelation(codaRelation) {
   return familyKind(codaRelation) === "companions";
 }
+
+// ── Lex filter strip ───────────────────────────────────────────────
+// One source of truth for filtering candidates by lexical category.
+// Counts are computed across ALL tiers; toggling a chip flips a
+// data-attribute on .rf-app and the CSS hides matching .rf-word
+// elements. The chip strip lives in two places — the inline copy
+// (#lex-filter, top of results) and a softer mirror inside the
+// #stickybar — and renderStickybar() keeps both in sync.
+const LEX_LABELS = { common: "Common", person: "Names", place: "Places", science: "Sciences" };
+const LEX_ORDER = ["common", "person", "place", "science"];
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Flip both the inline chip and the mirror chip to the same state,
+// update the global filter attr on .rf-app, then re-flow tier counts.
+// Called from chip click handlers in BOTH copies of the filter so
+// they stay perfectly in sync.
+function setLexFilter(lex, value) {
+  const app = document.getElementById("app");
+  if (!app) return;
+  app.dataset[`filter${cap(lex)}`] = String(value);
+  document.querySelectorAll(`.rf-lex-chip[data-lex="${lex}"]`).forEach((b) => {
+    b.setAttribute("aria-pressed", String(value));
+  });
+  updateBucketCounts();
+}
+
+function bindChipClick(btn) {
+  btn.addEventListener("click", () => {
+    const lex = btn.dataset.lex;
+    const cur = btn.getAttribute("aria-pressed") === "true";
+    setLexFilter(lex, !cur);
+  });
+}
+
+function renderLexFilter(buckets) {
+  const filter = document.getElementById("lex-filter");
+  const app = document.getElementById("app");
+  if (!filter || !app) return;
+
+  const counts = { common: 0, person: 0, place: 0, science: 0 };
+  for (const t of TIER_TYPES) {
+    for (const c of buckets[t] ?? []) {
+      const lex = c.lex || "common";
+      counts[lex] = (counts[lex] ?? 0) + 1;
+    }
+  }
+
+  filter.innerHTML =
+    `<span class="rf-lex-filter-label">show</span>` +
+    LEX_ORDER.map((lex) => {
+      const pressed = app.dataset[`filter${cap(lex)}`] !== "false";
+      return (
+        `<button type="button" class="rf-lex-chip" data-lex="${lex}" aria-pressed="${pressed}">` +
+        `<span class="rf-lex-chip-dot"></span>` +
+        `<span class="rf-lex-chip-label">${LEX_LABELS[lex]}</span>` +
+        `<span class="rf-lex-chip-count">${counts[lex] || 0}</span>` +
+        `</button>`
+      );
+    }).join("");
+
+  filter.querySelectorAll(".rf-lex-chip").forEach(bindChipClick);
+}
+
+// ── Per-tier visible-count reflow ──────────────────────────────────
+// Walks each .rf-tier and counts how many .rf-word elements survive
+// the active CSS filter. Updates the count badge to either `N` or
+// `N / total` form, dims zero-visible tiers, and toggles the empty
+// hint.
+function updateBucketCounts() {
+  document.querySelectorAll(".rf-tier").forEach((tier) => {
+    const countEl = tier.querySelector(".rf-tier-count");
+    if (!countEl) return;
+    const total = Number(countEl.dataset.total || 0);
+    let visible = 0;
+    tier.querySelectorAll(".rf-word").forEach((w) => {
+      if (getComputedStyle(w).display !== "none") visible++;
+    });
+
+    const visEl = countEl.querySelector(".rf-tier-count-visible");
+    const totEl = countEl.querySelector(".rf-tier-count-total");
+    if (visEl) visEl.textContent = String(visible);
+    if (totEl) {
+      if (visible < total) {
+        totEl.hidden = false;
+        totEl.textContent = ` / ${total}`;
+      } else {
+        totEl.hidden = true;
+      }
+    }
+
+    tier.classList.toggle("rf-tier-zero", visible === 0);
+    countEl.dataset.zero = String(visible === 0);
+    const empty = tier.querySelector(".rf-tier-empty");
+    if (empty) {
+      empty.hidden = visible !== 0;
+      const hint = empty.querySelector(".rf-tier-empty-hint");
+      if (hint && visible === 0) {
+        hint.textContent = `adjust filters to see ${total} hidden`;
+      }
+    }
+  });
+}
+
+// ── Sticky tier bar ────────────────────────────────────────────────
+// Populates the fixed-position #stickybar with: an eyebrow + the
+// searched word, a vertical hairline divider, a row of tier-shortcut
+// buttons (each with a stability-encoded resolve rule beneath), and
+// a softer mirror of the lex filter. The bar stays display:none-ish
+// (transform off-screen + opacity 0) until the IntersectionObserver
+// adds .is-stuck.
+function renderStickybar(srcWord) {
+  const host = document.getElementById("stickybar");
+  if (!host) return;
+  host.removeAttribute("aria-hidden");
+
+  const tiers = [...document.querySelectorAll(".rf-tier")];
+  const tierBtns = tiers.map((t) => {
+    const type = t.dataset.tier;
+    const meta = TIER_META[type];
+    if (!meta) return "";
+    const total = t.querySelector(".rf-tier-count")?.dataset.total || "0";
+    const stab = t.dataset.stability;
+    const label = meta.label.replace(/ rhyme$/i, "");
+    return (
+      `<button type="button" class="rf-stickybar-tier" data-target="${type}" data-stability="${stab}">` +
+      `<span class="rf-stickybar-tier-label">${escapeHtml(label)}</span>` +
+      `<span class="rf-stickybar-tier-count">${total}</span>` +
+      `</button>`
+    );
+  }).join("");
+
+  host.innerHTML =
+    `<div class="rf-stickybar-meta">` +
+    `<span class="rf-stickybar-eyebrow">rhymes for</span>` +
+    `<span class="rf-stickybar-word">${escapeHtml(srcWord)}</span>` +
+    `</div>` +
+    `<span class="rf-stickybar-rule" aria-hidden="true"></span>` +
+    `<div class="rf-stickybar-tiers">${tierBtns}</div>`;
+
+  host.querySelectorAll(".rf-stickybar-tier").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = document.querySelector(`.rf-tier[data-tier="${btn.dataset.target}"]`);
+      if (!target) return;
+      // Offset by the bar's height so the tier head doesn't land
+      // underneath the sticky band after the jump.
+      const offset = host.getBoundingClientRect().height + 12;
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: "smooth" });
+    });
+  });
+
+  // Mirror the lex filter into the bar's right-side slot. Cloning
+  // the inline filter's HTML keeps the chip ordering / counts in
+  // sync; bindChipClick + setLexFilter take care of the rest by
+  // querying every `.rf-lex-chip[data-lex=…]` whenever the user
+  // toggles a category.
+  const inline = document.getElementById("lex-filter");
+  if (inline) {
+    const mirror = document.createElement("div");
+    mirror.className = "rf-lex-filter rf-lex-filter-mirror";
+    mirror.innerHTML = inline.innerHTML;
+    host.appendChild(mirror);
+    mirror.querySelectorAll(".rf-lex-chip").forEach(bindChipClick);
+  }
+}
+
+// ── Sticky bar slide-in observer ───────────────────────────────────
+// Source-summary scrolls naturally. A 1px sentinel placed AFTER the
+// summary tells us when the summary has left the viewport. When the
+// sentinel is no longer intersecting, add .is-stuck to #stickybar so
+// the CSS transform reveals it. Set up once at module load — the
+// sentinel + observer outlive any number of searches.
+(function setupStickyObserver() {
+  const summary = document.getElementById("source-summary");
+  const bar = document.getElementById("stickybar");
+  if (!summary || !bar) return;
+  const sentinel = document.createElement("div");
+  sentinel.className = "rf-source-summary-sentinel";
+  sentinel.setAttribute("aria-hidden", "true");
+  summary.parentNode.insertBefore(sentinel, summary.nextSibling);
+  const io = new IntersectionObserver(
+    ([entry]) => bar.classList.toggle("is-stuck", !entry.isIntersecting),
+    { threshold: [0] }
+  );
+  io.observe(sentinel);
+})();
 
 function escapeHtml(s) {
   return String(s ?? "")

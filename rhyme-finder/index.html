@@ -16,7 +16,19 @@
   <body>
     <div class="rf-marginalia" aria-hidden="true"></div>
 
-    <main class="rf-app">
+    <!-- Sticky tier bar — fixed at the top of the viewport, slides in
+         when the source-summary scrolls out of view. Populated by
+         renderStickybar() in main.js after each search. -->
+    <div id="stickybar" class="rf-stickybar" aria-hidden="true"></div>
+
+    <main
+      class="rf-app"
+      id="app"
+      data-filter-common="true"
+      data-filter-person="true"
+      data-filter-place="true"
+      data-filter-science="true"
+    >
       <header class="rf-hero">
         <div class="rf-title-row">
           <!-- Shanshui painting paired with the wordmark — the red sail and the
@@ -81,6 +93,7 @@
       <section class="rf-results-shell">
         <div id="source-summary" class="rf-source-summary"></div>
         <div id="source-panel" class="rf-source-panel"></div>
+        <div id="lex-filter" class="rf-lex-filter"></div>
         <div id="results" class="rf-results"></div>
       </section>
 

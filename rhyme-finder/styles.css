@@ -792,21 +792,27 @@ input[type="text"]::placeholder {
   font: inherit;
   color: inherit;
   display: inline-flex;
-  align-items: baseline;
-  gap: 14px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   min-width: 0;
-  flex-wrap: wrap;
   border-radius: 2px;
   transition: background 100ms ease;
 }
 .rf-tier-titlebox:hover { background: rgba(177, 59, 44, 0.06); }
 .rf-tier-titlebox:hover .rf-tier-info { color: var(--vermilion); border-color: var(--vermilion); }
+.rf-tier-titlebox:hover .rf-tier-title { color: var(--vermilion); }
+.rf-tier-titlebox:hover .rf-tier-subtitle { color: var(--vermilion); opacity: 0.85; }
 
-.rf-tier-title {
+/* Title row sits on top — italic display, default ink, vermilion on
+   hover/open. The "?" info glyph rides next to the label, not below. */
+.rf-tier-title-row {
   display: inline-flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
+}
+.rf-tier-title {
   font-family: var(--display);
   font-style: italic;
   font-weight: 600;
@@ -814,14 +820,23 @@ input[type="text"]::placeholder {
   line-height: 1.1;
   color: var(--ink);
   letter-spacing: -0.005em;
+  transition: color 120ms ease;
 }
+.rf-tier-head-open .rf-tier-title { color: var(--vermilion); }
+
+/* Subtitle drops to its own line beneath the title in mono caps —
+   reads as an editorial dateline rather than an inline aside. */
 .rf-tier-subtitle {
-  font-family: var(--display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 17px;
+  display: block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  font-style: normal;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   color: var(--ink-faded);
-  letter-spacing: 0;
+  line-height: 1;
+  transition: color 120ms ease, opacity 120ms ease;
 }
 .rf-tier-info {
   display: inline-flex;
@@ -1107,7 +1122,16 @@ input[type="text"]::placeholder {
 
 .rf-words-lower {
   margin-top: 6px;
-  opacity: 0.6;
+  /* Dim lower-tier candidates without using the `opacity` property —
+     opacity here would cascade to nested popovers and let surrounding
+     words show through. Children get rgba colors instead (see below). */
+}
+.rf-words-lower > .rf-word.rf-c-very-common,
+.rf-words-lower > .rf-word.rf-c-common {
+  color: rgba(26, 20, 14, 0.6);
+}
+.rf-words-lower > .rf-word.rf-c-uncommon {
+  color: rgba(58, 46, 31, 0.6);
 }
 
 .rf-subgroup-label {
@@ -1665,4 +1689,701 @@ input[type="text"]::placeholder {
     z-index: 40;
     background: rgba(26, 20, 14, 0.35);
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ── Lex categories · sticky bar · Index source-panel ──────────────
+   Locked-in defaults from the v2 design handoff. Source-summary
+   stays static; a separate fixed-position #stickybar slides in when
+   the summary leaves the viewport. Lex marker is an inline mono-caps
+   superscript on tagged words. The Index source-panel is treated as
+   a featured "in the corpus" pull-quote section.
+   ══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --lex-person:  #6b4a2b;
+  --lex-place:   #2a4a5e;
+  --lex-science: #3a5a3a;
+}
+
+/* ── Type-legibility floors ───────────────────────────────────────
+   Bumped sizes for body words, mono caps, and the cliché flag so
+   results stay readable when the page gets dense. */
+.rf-word {
+  font-size: 22px;
+  line-height: 1.55;
+}
+.rf-word.rf-c-uncommon {
+  /* Use rgba color, not the `opacity` property — opacity creates a
+     stacking context that propagates to ALL descendants, which made
+     the lyric popover render at 0.92 alpha and let neighboring words
+     show through. */
+  color: rgba(58, 46, 31, 0.92);
+  font-weight: 500;
+  font-style: italic;
+}
+.rf-source-tag,
+.rf-source-panel-meta,
+.rf-lyric-attr,
+.rf-source-panel-attr,
+.rf-lyric-head-meta {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+.rf-lyric-inflected-label,
+.rf-lyric-inflected-toggle,
+.rf-lyric-more {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+}
+.rf-tier-pop-eyebrow { font-size: 10px; }
+.rf-word-flag {
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+}
+
+/* ── Per-word lex marker · inline caps superscript ────────────────
+   Em-scaled mono-caps suffix that travels with each tagged word.
+   The marker stays inside the parent's line-box, so candidates that
+   wrap to a new row keep tag+word together and row-gap stays clean.
+   `common` is the unmarked default — no marker rendered. */
+.rf-word[data-lex="person"]::after,
+.rf-word[data-lex="place"]::after,
+.rf-word[data-lex="science"]::after {
+  content: attr(data-lex);
+  font-family: var(--mono);
+  font-size: 0.42em;
+  font-weight: 500;
+  font-style: normal;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  vertical-align: 0.7em;
+  margin-left: 0.22em;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+.rf-word[data-lex="person"]::after  { color: var(--lex-person); }
+.rf-word[data-lex="place"]::after   { color: var(--lex-place); }
+.rf-word[data-lex="science"]::after { color: var(--lex-science); }
+
+/* Filter behaviour — chip toggle hides matching words globally. */
+.rf-app[data-filter-common="false"]  .rf-word:not([data-lex])     { display: none; }
+.rf-app[data-filter-common="false"]  .rf-word[data-lex="common"]  { display: none; }
+.rf-app[data-filter-person="false"]  .rf-word[data-lex="person"]  { display: none; }
+.rf-app[data-filter-place="false"]   .rf-word[data-lex="place"]   { display: none; }
+.rf-app[data-filter-science="false"] .rf-word[data-lex="science"] { display: none; }
+
+/* ── Inline lex filter strip (top of results, always visible) ─────
+   Kept above the source-panel so the user always has a one-click
+   way to toggle categories. The sticky bar carries a softer mirror
+   of this filter — see the .rf-lex-filter-mirror block below. */
+#lex-filter.rf-lex-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 14px 0 22px;
+  padding: 0;
+}
+#lex-filter.rf-lex-filter:empty { display: none; }
+#lex-filter.rf-lex-filter .rf-lex-filter-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  align-self: center;
+  margin-right: 6px;
+}
+
+/* Inline-chip default — solid ink active, dashed-hairline inactive. */
+.rf-lex-chip {
+  appearance: none;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 9px 4px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  user-select: none;
+}
+.rf-lex-chip[aria-pressed="false"] {
+  background: transparent;
+  color: var(--ink-faded);
+  border-color: var(--hair);
+  border-style: dashed;
+}
+.rf-lex-chip[aria-pressed="false"]:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.rf-lex-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+  display: inline-block;
+}
+.rf-lex-chip[data-lex="common"]  .rf-lex-chip-dot { background: var(--ink); }
+.rf-lex-chip[data-lex="person"]  .rf-lex-chip-dot { background: var(--lex-person); }
+.rf-lex-chip[data-lex="place"]   .rf-lex-chip-dot { background: var(--lex-place); }
+.rf-lex-chip[data-lex="science"] .rf-lex-chip-dot { background: var(--lex-science); }
+.rf-lex-chip[aria-pressed="false"] .rf-lex-chip-dot {
+  background: var(--hair) !important;
+}
+.rf-lex-chip-count {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+  margin-left: 2px;
+}
+
+/* ── Sticky tier bar (#stickybar) ─────────────────────────────────
+   A separate fixed-position bar at the very top of the viewport.
+   The source-summary scrolls naturally; when it leaves the
+   viewport, the bar slides in via transform+opacity. Single line,
+   fixed height — no layout reflow. */
+#stickybar.rf-stickybar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 11px clamp(20px, 4vw, 56px);
+  background-color: var(--paper);
+  background-image: url("/rhyme-finder/xuan-bg.png");
+  background-size: 600px 600px;
+  background-blend-mode: multiply;
+  border-bottom: 1px solid var(--ink);
+  box-shadow:
+    0 1px 0 rgba(177, 59, 44, 0.22),
+    0 6px 16px -10px rgba(26, 20, 14, 0.22);
+  transform: translate3d(0, -100%, 0);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition:
+    transform 260ms cubic-bezier(.2, .8, .2, 1),
+    opacity 200ms ease;
+}
+#stickybar.rf-stickybar.is-stuck {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rf-stickybar-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: none;
+  min-width: 0;
+}
+.rf-stickybar-eyebrow {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  line-height: 1;
+}
+.rf-stickybar-word {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.05;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Vertical hairline divider with a vermilion centre dot — mirrors
+   the eyebrow-rule language in the source-summary so the bar reads
+   as a continuation of the page typography. */
+.rf-stickybar-rule {
+  width: 1px;
+  height: 28px;
+  background: var(--ink-ghost);
+  flex: none;
+  position: relative;
+}
+.rf-stickybar-rule::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--vermilion);
+  transform: translate(-50%, -50%);
+  opacity: 0.85;
+}
+
+/* Tier shortcut strip on the right. Single-line, ellipsis on
+   overflow. Each button has a horizontal resolve-rule beneath that
+   encodes the tier's stability — solid full-width for Perfect,
+   diminishing length and weight down to a faint dashed stub for
+   Identity. The rule is the only stability cue. */
+.rf-stickybar-tiers {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+  padding-right: 4px;
+}
+.rf-stickybar-tiers::-webkit-scrollbar { display: none; }
+
+#stickybar .rf-stickybar-tier {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px 14px 11px;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+  flex: none;
+  position: relative;
+  transition: color 120ms ease, background 120ms ease;
+}
+#stickybar .rf-stickybar-tier::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 14px; right: 14px;
+  height: 1.5px;
+  background: var(--vermilion);
+  opacity: 0.85;
+  transition: opacity 120ms ease;
+}
+#stickybar .rf-stickybar-tier[data-stability="5"]::after { height: 2px; opacity: 0.95; }
+#stickybar .rf-stickybar-tier[data-stability="4"]::after { height: 1.5px; opacity: 0.75; left: 16px; right: 16px; }
+#stickybar .rf-stickybar-tier[data-stability="3"]::after { height: 1px; opacity: 0.55; left: 22%; right: 22%; }
+#stickybar .rf-stickybar-tier[data-stability="2"]::after { height: 1px; opacity: 0.4; left: 30%; right: 30%; }
+#stickybar .rf-stickybar-tier[data-stability="1"]::after { height: 0; opacity: 0.4; left: 36%; right: 36%; border-top: 1px dashed var(--vermilion); background: transparent; }
+#stickybar .rf-stickybar-tier[data-stability="0"]::after { height: 0; opacity: 0.3; left: 42%; right: 42%; border-top: 1px dashed var(--vermilion); background: transparent; }
+#stickybar .rf-stickybar-tier:hover::after { opacity: 1; }
+#stickybar .rf-stickybar-tier-label {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--ink-soft);
+}
+#stickybar .rf-stickybar-tier-count {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink-faded);
+  opacity: 0.85;
+  vertical-align: 0.18em;
+}
+#stickybar .rf-stickybar-tier:hover { background: rgba(177, 59, 44, 0.06); }
+#stickybar .rf-stickybar-tier:hover .rf-stickybar-tier-label { color: var(--vermilion); }
+#stickybar .rf-stickybar-tier:hover .rf-stickybar-tier-count { color: var(--vermilion); opacity: 1; }
+
+/* ── Lex filter mirror inside the sticky bar ──────────────────────
+   Inkblock chip style — solid-ink active (paper text + vermilion
+   count) and light-gray ghost inactive. High-contrast, decisive,
+   reads as a hard UI block on the sticky band. */
+#stickybar .rf-lex-filter-mirror {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 0 auto;
+  padding: 5px 7px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink-ghost);
+  flex: none;
+}
+#stickybar .rf-lex-filter-mirror .rf-lex-filter-label { display: none; }
+#stickybar .rf-lex-filter-mirror .rf-lex-chip {
+  border-radius: 0;
+  border: 1px solid var(--ink);
+  padding: 3px 9px;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+#stickybar .rf-lex-filter-mirror .rf-lex-chip[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+#stickybar .rf-lex-filter-mirror .rf-lex-chip[aria-pressed="true"] .rf-lex-chip-count {
+  color: var(--vermilion);
+  opacity: 1;
+}
+#stickybar .rf-lex-filter-mirror .rf-lex-chip[aria-pressed="false"] {
+  background: transparent;
+  /* Use rgba to dim, not the `opacity` property — opacity creates a
+     stacking context that cascades to descendants. */
+  color: rgba(110, 90, 60, 0.85);
+  border-color: var(--hair);
+  border-style: solid;
+}
+#stickybar .rf-lex-filter-mirror .rf-lex-chip[aria-pressed="false"]:hover {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+#stickybar .rf-lex-filter-mirror .rf-lex-chip-dot { display: none; }
+
+.rf-source-summary-sentinel {
+  height: 1px;
+  margin-bottom: -1px;
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  #stickybar.rf-stickybar {
+    padding-left: 14px;
+    padding-right: 14px;
+    gap: 12px;
+  }
+  .rf-stickybar-rule { display: none; }
+  .rf-stickybar-word { font-size: 19px; }
+  #stickybar .rf-stickybar-tier { padding: 4px 8px 5px; }
+  #stickybar .rf-stickybar-tier-label { font-size: 14px; }
+}
+
+/* ── Empty-tier state when the lex filter zeros it ────────────────
+   Don't collapse — dim the tier and explain why nothing is showing
+   so the page rhythm stays intact. */
+.rf-tier-empty {
+  margin: 0;
+  padding: 14px 0 6px;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-faded);
+  opacity: 0.75;
+  text-wrap: pretty;
+}
+.rf-tier-empty[hidden] { display: none; }
+.rf-tier-empty-hint {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-style: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  opacity: 0.7;
+}
+.rf-tier.rf-tier-zero { opacity: 0.55; }
+.rf-tier-count[data-zero="true"] { color: var(--ink-faded) !important; }
+.rf-tier-count-total {
+  font-family: var(--mono);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--ink-faded);
+  margin-left: 2px;
+  vertical-align: 0.18em;
+}
+.rf-tier-count-total[hidden] { display: none; }
+
+/* Pair-rhyme highlight — vermilion underline band so the eye sees
+   the partner word the source line resolves to. Distinct from the
+   solid-block source-word mark. */
+.rf-lyric-mark.rf-lyric-mark-pair {
+  color: var(--ink);
+  font-weight: 500;
+  background: linear-gradient(transparent 65%, rgba(177, 59, 44, 0.28) 65%);
+  padding: 0 1px;
+}
+
+/* ── Source-panel · Index layout (featured "in the corpus") ───────
+   Treated as a peer to the tier list below: confident chapter-style
+   header, generous vertical rhythm, hero typography on the source
+   line. Default-collapse to first 2 rows; rest revealed via plain
+   "Show N more" link with a vermilion `+`/`−` glyph. */
+.rf-srcpanel-index {
+  padding: 4px 0 28px;
+  margin-top: 4px;
+}
+
+.rf-srcpanel-index-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  padding-bottom: 14px;
+  margin-bottom: 22px;
+  position: relative;
+  border-bottom: 1px solid var(--ink);
+}
+.rf-srcpanel-index-head::after {
+  /* offset vermilion hairline below the ink rule — chapter-opener feel */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -4px;
+  height: 1px;
+  background: var(--vermilion);
+  opacity: 0.55;
+}
+.rf-srcpanel-index-headline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.rf-srcpanel-index-eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+  line-height: 1;
+}
+.rf-srcpanel-index-title {
+  margin: 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(24px, 2.6vw, 30px);
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.rf-srcpanel-index-title em {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--ink);
+  background: linear-gradient(transparent 70%, rgba(177, 59, 44, 0.32) 70%);
+  padding: 0 2px;
+}
+.rf-srcpanel-index-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex: none;
+  text-align: right;
+}
+.rf-srcpanel-index-meta-num {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--vermilion);
+}
+.rf-srcpanel-index-meta-lbl {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+}
+
+.rf-srcpanel-index-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rf-srcpanel-index-rest { display: contents; }
+.rf-srcpanel-index-rest.rf-lyric-hidden { display: none; }
+
+/* Pull-quote rows. Big vermilion `"` glyph anchors col 1; pair lines
+   render at equal weight (this section celebrates the couplet);
+   attribution lives in col 3; full row is clickable, and the hover
+   state reveals a "read in context →" affordance. */
+.rf-srcpanel-index-row {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) minmax(140px, 190px);
+  column-gap: 18px;
+  align-items: start;
+  padding: 14px 8px 14px 4px;
+  border-bottom: 1px dashed var(--ink-ghost);
+  position: relative;
+  cursor: pointer;
+  transition: background 180ms ease, padding-left 220ms ease;
+  outline: none;
+}
+.rf-srcpanel-index-list > .rf-srcpanel-index-row:last-of-type:not(:has(~ .rf-srcpanel-index-rest:not(.rf-lyric-hidden))) {
+  border-bottom: none;
+}
+.rf-srcpanel-index-rest .rf-srcpanel-index-row:last-child { border-bottom: none; }
+
+.rf-srcpanel-index-row::before {
+  content: "";
+  position: absolute;
+  left: -2px; top: 16px; bottom: 16px;
+  width: 2px;
+  background: var(--vermilion);
+  opacity: 0;
+  transition: opacity 200ms ease, width 200ms ease;
+}
+.rf-srcpanel-index-row:hover,
+.rf-srcpanel-index-row:focus-visible {
+  background: rgba(177, 59, 44, 0.045);
+  padding-left: 10px;
+}
+.rf-srcpanel-index-row:hover::before,
+.rf-srcpanel-index-row:focus-visible::before { opacity: 1; width: 3px; }
+
+.rf-srcpanel-index-quote {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 46px;
+  line-height: 0.6;
+  color: var(--vermilion);
+  opacity: 0.8;
+  user-select: none;
+  margin-top: 10px;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+
+.rf-srcpanel-index-pair {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rf-srcpanel-index-a,
+.rf-srcpanel-index-b {
+  margin: 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 550;
+  font-size: 17px;
+  line-height: 1.34;
+  text-wrap: pretty;
+}
+.rf-srcpanel-index-a { color: var(--ink-soft); }
+.rf-srcpanel-index-b { color: var(--ink); font-weight: 600; }
+
+.rf-srcpanel-index-attr {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  line-height: 1.5;
+  text-align: right;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.rf-srcpanel-index-attr em {
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.rf-srcpanel-index-empty {
+  padding: 12px 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-faded);
+}
+
+/* Click-to-expand stanza — each Index row optionally carries the
+   surrounding lyric context, hidden by default and revealed when the
+   row is toggled .is-open. The stanza spans all 3 grid columns so it
+   reads as a continuation of the row, not a sidebar. */
+.rf-srcpanel-index-stanza {
+  display: none;
+  grid-column: 1 / -1;
+  margin: 10px 0 4px;
+  padding: 12px 16px 12px 18px;
+  border-left: 2px solid var(--vermilion);
+  background: rgba(177, 59, 44, 0.045);
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+.rf-srcpanel-index-row.is-open .rf-srcpanel-index-stanza { display: block; }
+.rf-srcpanel-index-stanza-line {
+  margin: 0;
+  padding: 1px 0;
+}
+.rf-srcpanel-index-stanza-line.is-match {
+  color: var(--ink);
+  font-weight: 550;
+}
+
+/* Plain-text show-more — vermilion `+ ` collapsed, `− ` expanded.
+   Drives via aria-expanded so the same rule serves the source-panel
+   toggle and any future popover toggles. */
+.rf-lyric-more,
+.rf-srcpanel-index-more {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 6px 4px;
+  transition: color 120ms ease;
+}
+.rf-lyric-more:hover,
+.rf-srcpanel-index-more:hover { color: var(--vermilion); }
+.rf-srcpanel-index-more {
+  display: block;
+  margin: 18px auto 0;
+}
+.rf-srcpanel-index-more::before {
+  content: "+ ";
+  color: var(--vermilion);
+  font-weight: 600;
+}
+.rf-srcpanel-index-more[aria-expanded="true"]::before { content: "− "; }
+
+@media (max-width: 720px) {
+  .rf-srcpanel-index-row {
+    grid-template-columns: 32px 1fr;
+    column-gap: 12px;
+    row-gap: 4px;
+    padding: 16px 8px 16px 4px;
+  }
+  .rf-srcpanel-index-quote { font-size: 40px; margin-top: 8px; }
+  .rf-srcpanel-index-attr {
+    grid-column: 2;
+    text-align: left;
+  }
+  .rf-srcpanel-index-a, .rf-srcpanel-index-b { font-size: 16px; }
+  .rf-srcpanel-index-meta-num { font-size: 24px; }
 }
