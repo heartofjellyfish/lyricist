@@ -1852,6 +1852,13 @@ input[type="text"]::placeholder {
    The source-summary scrolls naturally; when it leaves the
    viewport, the bar slides in via transform+opacity. Single line,
    fixed height — no layout reflow. */
+/* Empty bar (no search yet) — keep it off the page entirely so the
+   IntersectionObserver, which sees the hidden sentinel as
+   "not intersecting" before any search runs, can't slide a blank
+   strip into view on the empty home state. Higher specificity than
+   the `#stickybar.rf-stickybar` rule below so it wins. */
+#stickybar.rf-stickybar:empty { display: none; }
+
 #stickybar.rf-stickybar {
   position: fixed;
   top: 0; left: 0; right: 0;
