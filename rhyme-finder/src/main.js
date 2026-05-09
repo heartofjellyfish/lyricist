@@ -707,6 +707,68 @@ function setPin(wordEl, pinned) {
   });
   wordEl.classList.toggle("rf-pinned", pinned);
   document.documentElement.classList.toggle("rf-sheet-open", pinned);
+  if (pinned) attachSheetSwipeDismiss(wordEl);
+}
+
+// Mobile bottom-sheet dismiss-on-swipe-down. The pop is `position: fixed`
+// at the screen bottom on touch viewports (see styles.css media block);
+// users expect to drag it away, but until now scrolling was locked and
+// nothing handled the gesture. Track touchstart on the pop, follow the
+// finger when the user pulls down past the pop's own scrollTop=0, and
+// close past a threshold.
+function attachSheetSwipeDismiss(wordEl) {
+  const pop = wordEl.querySelector(".rf-lyric-pop");
+  if (!pop || pop.dataset.swipeBound === "1") return;
+  // Only bind on touch-capable narrow viewports — desktop pop is anchored
+  // to the word and doesn't behave like a sheet.
+  if (!matchMedia("(hover: none) and (max-width: 720px)").matches) return;
+  pop.dataset.swipeBound = "1";
+
+  let startY = 0;
+  let dy = 0;
+  let dragging = false;
+  const DISMISS_AT = 80;
+
+  const onStart = (e) => {
+    if (e.touches.length !== 1) return;
+    startY = e.touches[0].clientY;
+    dy = 0;
+    // Only treat as a drag-to-dismiss when the pop is scrolled to the top.
+    // Otherwise the user is scrolling the quote list inside the sheet.
+    dragging = pop.scrollTop <= 0;
+    pop.style.transition = "none";
+  };
+  const onMove = (e) => {
+    if (!dragging || e.touches.length !== 1) return;
+    dy = e.touches[0].clientY - startY;
+    if (dy <= 0) {
+      // Upward — let the pop scroll normally.
+      pop.style.transform = "";
+      return;
+    }
+    e.preventDefault();
+    pop.style.transform = `translateY(${dy}px)`;
+  };
+  const onEnd = () => {
+    pop.style.transition = "";
+    if (dragging && dy > DISMISS_AT) {
+      pop.style.transform = `translateY(100%)`;
+      setTimeout(() => {
+        pop.style.transform = "";
+        wordEl.classList.remove("rf-pinned");
+        document.documentElement.classList.remove("rf-sheet-open");
+      }, 180);
+    } else {
+      pop.style.transform = "";
+    }
+    dragging = false;
+    dy = 0;
+  };
+
+  pop.addEventListener("touchstart", onStart, { passive: true });
+  pop.addEventListener("touchmove", onMove, { passive: false });
+  pop.addEventListener("touchend", onEnd, { passive: true });
+  pop.addEventListener("touchcancel", onEnd, { passive: true });
 }
 
 // Header strip: word · "N line-end · M artists" · pin glyph. No close ×,

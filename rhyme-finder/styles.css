@@ -1324,6 +1324,17 @@ input[type="text"]::placeholder {
   /* Source-panel is already a single column; on narrow viewports the
      quote rows stack the line above the attribution. */
   .rf-source-panel-quote { grid-template-columns: 1fr; gap: 4px; }
+  /* Tier-info popovers are 460px wide / max-width: 92vw — at 375vw that
+     resolves to 345px and overflows the column it's anchored in (parent
+     ≈ 307px). Even hidden, the absolute box widens the layout viewport
+     and gives the page horizontal scroll. Let the pop span the screen
+     with a fixed gutter on phones so it always fits. */
+  .rf-tier-pop {
+    width: auto;
+    max-width: calc(100vw - 28px);
+    left: 14px;
+    right: 14px;
+  }
 }
 
 /* ── Lyric badge + popover (Phase 1.7 — editorial cut) ────────────
@@ -2068,11 +2079,23 @@ input[type="text"]::placeholder {
     padding-left: 14px;
     padding-right: 14px;
     gap: 12px;
+    /* Cap to the visual viewport so an over-eager child can't push the
+       initial containing block wider than the screen and bleed the
+       fixed bar past the right edge. */
+    max-width: 100vw;
+    overflow: hidden;
   }
   .rf-stickybar-rule { display: none; }
   .rf-stickybar-word { font-size: 19px; }
   #stickybar .rf-stickybar-tier { padding: 4px 8px 5px; }
   #stickybar .rf-stickybar-tier-label { font-size: 14px; }
+  /* The mirrored lex filter doesn't fit alongside the tier strip on a
+     phone; the inline copy further down the page is still reachable,
+     so drop it from the sticky band. */
+  #stickybar .rf-lex-filter-mirror { display: none; }
+  /* Let the tier strip take the remaining row width and scroll
+     horizontally inside it. */
+  .rf-stickybar-tiers { flex: 1 1 0; min-width: 0; }
 }
 
 /* ── Empty-tier state when the lex filter zeros it ────────────────
