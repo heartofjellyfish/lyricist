@@ -701,12 +701,12 @@ function installGlobalDismissHandlers() {
   });
 
   // iOS Safari often skips a synthetic `click` for taps on non-interactive
-  // elements like body / backdrop pseudo, so tapping the dim area while a
-  // bottom-sheet popover is open did nothing. Mirror the click dismiss on
-  // touchend, but skip it when the tap is inside the popover (so quote
-  // interactions still work) or on a candidate word (which has its own
-  // toggle handler — letting touchend dismiss here would unpin and the
-  // following click would immediately re-pin the same word).
+  // elements (the bare main-page padding / empty grid space). Mirror the
+  // dismiss on touchend so a tap on empty main-page area closes the
+  // popover even when no click follows. Skip when the tap is inside the
+  // popover (so quote interactions stay) or on a word (its own click
+  // handler does the replace; letting touchend dismiss first would unpin
+  // and the click would then re-pin the same word).
   document.addEventListener("touchend", (e) => {
     if (!document.documentElement.classList.contains("rf-sheet-open")) return;
     if (e.target.closest(".rf-lyric-pop")) return;
@@ -728,37 +728,7 @@ function setPin(wordEl, pinned) {
   });
   wordEl.classList.toggle("rf-pinned", pinned);
   document.documentElement.classList.toggle("rf-sheet-open", pinned);
-  if (pinned) {
-    attachSheetSwipeDismiss(wordEl);
-    ensureSheetBackdrop();
-  } else {
-    removeSheetBackdrop();
-  }
-}
-
-// Real-element backdrop for the mobile bottom sheet. The previous
-// body::after pseudo only painted the dim — it didn't capture touches,
-// so taps on the dim area fell through to whichever candidate word was
-// underneath and re-pinned a different word. A real div between the
-// content and the pop owns those taps and dismisses cleanly.
-function ensureSheetBackdrop() {
-  if (!matchMedia("(hover: none) and (max-width: 720px)").matches) return;
-  if (document.querySelector(".rf-sheet-backdrop")) return;
-  const bd = document.createElement("div");
-  bd.className = "rf-sheet-backdrop";
-  const dismiss = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    document.querySelectorAll(".rf-word.rf-pinned").forEach((p) => p.classList.remove("rf-pinned"));
-    document.documentElement.classList.remove("rf-sheet-open");
-    bd.remove();
-  };
-  bd.addEventListener("click", dismiss);
-  bd.addEventListener("touchend", dismiss);
-  document.body.appendChild(bd);
-}
-function removeSheetBackdrop() {
-  document.querySelector(".rf-sheet-backdrop")?.remove();
+  if (pinned) attachSheetSwipeDismiss(wordEl);
 }
 
 // Mobile bottom-sheet dismiss-on-swipe-down. The pop is `position: fixed`
@@ -806,7 +776,6 @@ function attachSheetSwipeDismiss(wordEl) {
         pop.style.transform = "";
         wordEl.classList.remove("rf-pinned");
         document.documentElement.classList.remove("rf-sheet-open");
-        removeSheetBackdrop();
       }, 180);
     } else {
       pop.style.transform = "";
