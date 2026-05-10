@@ -1493,9 +1493,11 @@ input[type="text"]::placeholder {
   border-left: 2px solid transparent;
   transition: background 100ms ease, border-color 100ms ease;
 }
-.rf-lyric-quote:hover {
-  background: rgba(177, 59, 44, 0.10);
-  border-left-color: var(--vermilion);
+@media (hover: hover) {
+  .rf-lyric-quote:hover {
+    background: rgba(177, 59, 44, 0.10);
+    border-left-color: var(--vermilion);
+  }
 }
 
 .rf-lyric-line,
@@ -1704,6 +1706,14 @@ input[type="text"]::placeholder {
        drag-to-dismiss gesture before our touchmove handler saw it. */
     overscroll-behavior-y: contain;
     touch-action: pan-y;
+    /* Suppress the iOS gray tap-highlight flash and text selection
+       inside the sheet — when the user starts a touch on a quote and
+       then scrolls, neither should leave a visible artifact. Quotes
+       still respond to actual taps via the click handler. */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
   /* Real drag-handle element. The visible pill is centered inside a
      taller hit area (24px) so the gesture target is finger-sized. The
