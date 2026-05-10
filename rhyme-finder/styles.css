@@ -1499,6 +1499,21 @@ input[type="text"]::placeholder {
     border-left-color: var(--vermilion);
   }
 }
+/* Press feedback. iOS auto-cancels :active when a touch turns into a
+   scroll — combine that with a small transition-delay and the
+   highlight only ever paints for an actual press. A scroll gesture
+   cancels :active before the 80ms delay elapses, so it leaves no
+   flash. A real press holds long enough for the highlight to land.
+   Long-hand because browsers normalize `0ms ease 80ms` to a single
+   80ms duration, which would fade the highlight in (bad — partial
+   flashes during scroll). */
+.rf-lyric-quote:active {
+  background: rgba(177, 59, 44, 0.10);
+  border-left-color: var(--vermilion);
+  transition-property: background, border-color;
+  transition-duration: 0ms;
+  transition-delay: 80ms;
+}
 
 .rf-lyric-line,
 .rf-lyric-partner {
@@ -2117,27 +2132,46 @@ input[type="text"]::placeholder {
 }
 
 @media (max-width: 720px) {
+  /* Two-row grid: meta + tier-strip on row 1, lex filter on row 2.
+     Single-row flex doesn't fit all four sections at 375px; stacking
+     lex below the tiers keeps everything reachable without crowding. */
   #stickybar.rf-stickybar {
-    padding-left: 14px;
-    padding-right: 14px;
-    gap: 12px;
-    /* Cap to the visual viewport so an over-eager child can't push the
-       initial containing block wider than the screen and bleed the
-       fixed bar past the right edge. */
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "meta tiers"
+      "filter filter";
+    column-gap: 12px;
+    row-gap: 6px;
+    align-items: center;
+    padding: 8px 14px;
     max-width: 100vw;
     overflow: hidden;
   }
+  .rf-stickybar-meta { grid-area: meta; }
+  .rf-stickybar-tiers { grid-area: tiers; flex: 1 1 0; min-width: 0; }
   .rf-stickybar-rule { display: none; }
   .rf-stickybar-word { font-size: 19px; }
   #stickybar .rf-stickybar-tier { padding: 4px 8px 5px; }
   #stickybar .rf-stickybar-tier-label { font-size: 14px; }
-  /* The mirrored lex filter doesn't fit alongside the tier strip on a
-     phone; the inline copy further down the page is still reachable,
-     so drop it from the sticky band. */
-  #stickybar .rf-lex-filter-mirror { display: none; }
-  /* Let the tier strip take the remaining row width and scroll
-     horizontally inside it. */
-  .rf-stickybar-tiers { flex: 1 1 0; min-width: 0; }
+  #stickybar .rf-lex-filter-mirror {
+    grid-area: filter;
+    /* Span the full second row, scroll horizontally if chips overflow.
+     Drop the auto-left margin (which right-aligned it on desktop). */
+    margin: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  #stickybar .rf-lex-filter-mirror::-webkit-scrollbar { display: none; }
+  #stickybar .rf-lex-filter-mirror .rf-lex-chip {
+    /* Tighten chip padding on phones so 4 chips fit without scroll
+       at 375px. */
+    padding: 3px 7px;
+    font-size: 8.5px;
+    flex: none;
+  }
 }
 
 /* ── Empty-tier state when the lex filter zeros it ────────────────
