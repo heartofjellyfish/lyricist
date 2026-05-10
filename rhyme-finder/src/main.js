@@ -961,11 +961,23 @@ function bindMobileTapFeedback(quote) {
     if (cancelled || e.touches.length !== 1) return;
     const dx = Math.abs(e.touches[0].clientX - startX);
     const dy = Math.abs(e.touches[0].clientY - startY);
-    if (dx > 10 || dy > 10) cancel();
+    if (dx > 6 || dy > 6) cancel();
   }, { passive: true });
 
   quote.addEventListener("touchend", (e) => {
     if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    // Belt-and-braces: even if touchmove didn't fire enough (iOS can
+    // suppress it during native scroll), compare the final touch
+    // position to the start position. If the finger moved at all,
+    // treat it as a scroll.
+    if (!cancelled) {
+      const t = e.changedTouches[0];
+      if (t) {
+        const dx = Math.abs(t.clientX - startX);
+        const dy = Math.abs(t.clientY - startY);
+        if (dx > 6 || dy > 6) cancelled = true;
+      }
+    }
     if (cancelled) {
       // Suppress the synthetic click — the gesture wasn't a tap.
       e.preventDefault();
@@ -1074,6 +1086,7 @@ function buildInflectedItem(q) {
       const opened = li.classList.toggle("is-open");
       if (opened) ensureBottomVisible(li);
     });
+    bindMobileTapFeedback(row);
     li.appendChild(renderStanza(q));
   }
   return li;
