@@ -1477,7 +1477,10 @@ input[type="text"]::placeholder {
   cursor: pointer;
   padding: 0 2px;
 }
-.rf-lyric-head-pin:hover { color: var(--vermilion); }
+@media (hover: hover) {
+  .rf-lyric-head-pin:hover { color: var(--vermilion); }
+}
+.rf-lyric-head-pin.rf-tapped { color: var(--vermilion); }
 .rf-word.rf-pinned .rf-lyric-head-pin { color: var(--vermilion); }
 
 .rf-lyric-item { margin: 0; padding: 0; }
@@ -1583,12 +1586,21 @@ input[type="text"]::placeholder {
   border-left: 2px solid transparent;
   transition: background 100ms ease, border-color 100ms ease;
 }
-.rf-lyric-inflected-head:hover {
+@media (hover: hover) {
+  .rf-lyric-inflected-head:hover {
+    background: rgba(177, 59, 44, 0.10);
+    border-left-color: var(--vermilion);
+  }
+  .rf-lyric-inflected-head:hover .rf-lyric-inflected-label,
+  .rf-lyric-inflected-head:hover .rf-lyric-inflected-toggle { color: var(--vermilion); }
+}
+.rf-lyric-inflected-head.rf-tapped {
   background: rgba(177, 59, 44, 0.10);
   border-left-color: var(--vermilion);
+  transition: none;
 }
-.rf-lyric-inflected-head:hover .rf-lyric-inflected-label,
-.rf-lyric-inflected-head:hover .rf-lyric-inflected-toggle { color: var(--vermilion); }
+.rf-lyric-inflected-head.rf-tapped .rf-lyric-inflected-label,
+.rf-lyric-inflected-head.rf-tapped .rf-lyric-inflected-toggle { color: var(--vermilion); }
 /* The list inside reverts cursor so users can read / select. */
 .rf-lyric-inflected-list { cursor: auto; }
 .rf-lyric-inflected-label {
@@ -1693,10 +1705,18 @@ input[type="text"]::placeholder {
    used by the reversible Show-more / Collapse toggle so the second click
    restores the previous state without re-rendering. */
 .rf-lyric-hidden { display: none !important; }
-.rf-lyric-more:hover {
+@media (hover: hover) {
+  .rf-lyric-more:hover {
+    background: rgba(177, 59, 44, 0.10);
+    border-left-color: var(--vermilion);
+    color: var(--vermilion-deep);
+  }
+}
+.rf-lyric-more.rf-tapped {
   background: rgba(177, 59, 44, 0.10);
   border-left-color: var(--vermilion);
   color: var(--vermilion-deep);
+  transition: none;
 }
 
 /* Mobile bottom sheet — preserved from 1.5/1.6. Pinned popover docks
@@ -2468,8 +2488,10 @@ input[type="text"]::placeholder {
   padding: 6px 4px;
   transition: color 120ms ease;
 }
-.rf-lyric-more:hover,
-.rf-srcpanel-index-more:hover { color: var(--vermilion); }
+@media (hover: hover) {
+  .rf-lyric-more:hover,
+  .rf-srcpanel-index-more:hover { color: var(--vermilion); }
+}
 .rf-srcpanel-index-more {
   display: block;
   margin: 18px auto 0;

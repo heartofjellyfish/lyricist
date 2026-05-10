@@ -871,6 +871,7 @@ function renderPopHeader(word, tier1) {
     if (!wordEl) return;
     setPin(wordEl, !wordEl.classList.contains("rf-pinned"));
   });
+  bindMobileTapFeedback(pin);
   head.appendChild(pin);
 
   return head;
@@ -939,6 +940,11 @@ function renderEndQuote(q, word) {
 // which suppresses the synthesized click — so the existing click
 // handler doesn't need its own guard.
 function bindMobileTapFeedback(quote) {
+  // Mobile-only — desktop relies on :hover for feedback and the
+  // synthetic-click suppression isn't useful with a mouse. Bail out
+  // early on hover-capable / non-narrow viewports so the listeners
+  // never attach.
+  if (!matchMedia("(hover: none) and (max-width: 720px)").matches) return;
   let startX = 0;
   let startY = 0;
   let cancelled = false;
@@ -1062,6 +1068,10 @@ function renderInflectedFooter(tier2) {
     const open = wrap.classList.toggle("is-expanded");
     toggle.textContent = open ? "Hide ↑" : "Show ↓";
   });
+  // Same gesture-aware tap handling as the quote rows: scroll across
+  // the head shouldn't paint or toggle. Bound on the head (the visible
+  // tappable strip) — list items have their own bindings.
+  bindMobileTapFeedback(head);
   return wrap;
 }
 
@@ -1132,6 +1142,7 @@ function renderToggleMore(rest, build, container) {
   const collapsedLabel = `Show ${rest.length} more`;
   const expandedLabel = "Collapse";
   btn.textContent = collapsedLabel;
+  bindMobileTapFeedback(btn);
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
     const wasHidden = hiddenItems[0]?.classList.contains("rf-lyric-hidden");
