@@ -1499,20 +1499,16 @@ input[type="text"]::placeholder {
     border-left-color: var(--vermilion);
   }
 }
-/* Press feedback. iOS auto-cancels :active when a touch turns into a
-   scroll — combine that with a small transition-delay and the
-   highlight only ever paints for an actual press. A scroll gesture
-   cancels :active before the 80ms delay elapses, so it leaves no
-   flash. A real press holds long enough for the highlight to land.
-   Long-hand because browsers normalize `0ms ease 80ms` to a single
-   80ms duration, which would fade the highlight in (bad — partial
-   flashes during scroll). */
-.rf-lyric-quote:active {
+/* Tap feedback on mobile is JS-driven (see bindMobileTapFeedback in
+   main.js) — touchstart paints nothing; only a real, fast tap (lifted
+   within 300ms with no scroll) gets the highlight, applied as
+   .rf-tapped for 120ms. Scroll and long-press both leave the row
+   alone. Instant on/off, no transition, so the feedback follows the
+   finger 1:1 without lag. */
+.rf-lyric-quote.rf-tapped {
   background: rgba(177, 59, 44, 0.10);
   border-left-color: var(--vermilion);
-  transition-property: background, border-color;
-  transition-duration: 0ms;
-  transition-delay: 80ms;
+  transition: none;
 }
 
 .rf-lyric-line,

@@ -915,6 +915,7 @@ function renderEndQuote(q, word) {
       const opened = item.classList.toggle("is-open");
       if (opened) ensureBottomVisible(item);
     });
+    bindMobileTapFeedback(quote);
     item.appendChild(quote);
     item.appendChild(renderStanza(q));
   } else {
@@ -922,6 +923,59 @@ function renderEndQuote(q, word) {
     item.appendChild(quote);
   }
   return item;
+}
+
+// Mobile press handling for `.rf-lyric-quote`. Goal: gesture-aware
+// feedback that follows the finger 1:1.
+//   • touchstart: nothing visible. Start a 300ms long-press timer.
+//   • touchmove (>10px): scroll detected — cancel; on lift, no
+//     highlight, no click.
+//   • timer fires (≥300ms with no lift): treated as press-and-hold —
+//     cancel; on lift, no highlight, no click.
+//   • clean lift before timer: real tap. Briefly paint a 120ms
+//     highlight as completion feedback, then let the native click fire
+//     to toggle the stanza.
+// Long-press / scroll cancellation calls preventDefault on touchend,
+// which suppresses the synthesized click — so the existing click
+// handler doesn't need its own guard.
+function bindMobileTapFeedback(quote) {
+  let startX = 0;
+  let startY = 0;
+  let cancelled = false;
+  let pressTimer = null;
+
+  const cancel = () => {
+    cancelled = true;
+    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+  };
+
+  quote.addEventListener("touchstart", (e) => {
+    if (e.touches.length !== 1) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    cancelled = false;
+    pressTimer = setTimeout(() => { cancelled = true; pressTimer = null; }, 300);
+  }, { passive: true });
+
+  quote.addEventListener("touchmove", (e) => {
+    if (cancelled || e.touches.length !== 1) return;
+    const dx = Math.abs(e.touches[0].clientX - startX);
+    const dy = Math.abs(e.touches[0].clientY - startY);
+    if (dx > 10 || dy > 10) cancel();
+  }, { passive: true });
+
+  quote.addEventListener("touchend", (e) => {
+    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    if (cancelled) {
+      // Suppress the synthetic click — the gesture wasn't a tap.
+      e.preventDefault();
+      return;
+    }
+    quote.classList.add("rf-tapped");
+    setTimeout(() => quote.classList.remove("rf-tapped"), 120);
+  }, { passive: false });
+
+  quote.addEventListener("touchcancel", cancel, { passive: true });
 }
 
 function renderStanza(q) {
