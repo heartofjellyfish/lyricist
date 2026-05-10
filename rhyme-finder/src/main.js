@@ -697,20 +697,47 @@ function installGlobalDismissHandlers() {
       closeTierPopovers();
     }
     if (e.target.closest(".rf-lyric-pop")) return;
+    // Click that came from a finger gesture that moved (= scroll, not
+    // tap) shouldn't dismiss. iOS sometimes still synthesizes a click
+    // after a scroll if movement was modest.
+    if (touchMoved) return;
     unpinAll();
   });
+
+  // Tap-vs-scroll detection. iOS doesn't expose a "this was a tap" event,
+  // so we track movement during the touch sequence and only treat
+  // touchend as a tap-dismiss if the finger barely moved. Without this,
+  // any swipe / scroll on the main page would dismiss the popover when
+  // the finger happens to lift over an empty area.
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchMoved = false;
+  document.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1) {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      touchMoved = false;
+    }
+  }, { passive: true });
+  document.addEventListener("touchmove", (e) => {
+    if (touchMoved || e.touches.length !== 1) return;
+    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    if (dx > 10 || dy > 10) touchMoved = true;
+  }, { passive: true });
 
   // iOS Safari often skips a synthetic `click` for taps on non-interactive
   // elements (the bare main-page padding / empty grid space). Mirror the
   // dismiss on touchend so a tap on empty main-page area closes the
   // popover even when no click follows. Skip when the tap is inside the
-  // popover (so quote interactions stay) or on a word (its own click
-  // handler does the replace; letting touchend dismiss first would unpin
-  // and the click would then re-pin the same word).
+  // popover (so quote interactions stay), on a word (its own click
+  // handler does the replace), or when the finger actually moved (the
+  // user was scrolling, not tapping).
   document.addEventListener("touchend", (e) => {
     if (!document.documentElement.classList.contains("rf-sheet-open")) return;
     if (e.target.closest(".rf-lyric-pop")) return;
     if (e.target.closest(".rf-word")) return;
+    if (touchMoved) return;
     unpinAll();
   });
 
@@ -772,10 +799,23 @@ function attachSheetSwipeDismiss(wordEl) {
     pop.style.transition = "";
     if (dragging && dy > DISMISS_AT) {
       pop.style.transform = `translateY(100%)`;
+      // Two-step dismantle to prevent the flicker we used to get from
+      // clearing the inline transform while .rf-pinned was still set —
+      // the pop animated back to translateY(0) for one frame before
+      // the fade-out kicked in. Now: slide off (160ms transform), then
+      // remove the class (which fades opacity 1→0 over 160ms while
+      // pop sits at translateY(100%)), then once visibility:hidden has
+      // landed, clear the inline transform so the next open is clean.
       setTimeout(() => {
-        pop.style.transform = "";
+        if (!wordEl.classList.contains("rf-pinned")) {
+          pop.style.transform = "";
+          return;
+        }
         wordEl.classList.remove("rf-pinned");
         document.documentElement.classList.remove("rf-sheet-open");
+        setTimeout(() => {
+          if (!wordEl.classList.contains("rf-pinned")) pop.style.transform = "";
+        }, 240);
       }, 180);
     } else {
       pop.style.transform = "";
@@ -790,6 +830,14 @@ function attachSheetSwipeDismiss(wordEl) {
   handle.addEventListener("touchmove", onMove, { passive: false });
   handle.addEventListener("touchend", onEnd, { passive: true });
   handle.addEventListener("touchcancel", onEnd, { passive: true });
+
+  // overscroll-behavior:contain handles scroll-chaining when the pop has
+  // scrollable content, but when the content is shorter than 50vh there
+  // is no scroll container to "contain" — iOS then pans the body
+  // underneath. Block touchmove on the pop in that case.
+  pop.addEventListener("touchmove", (e) => {
+    if (pop.scrollHeight <= pop.clientHeight) e.preventDefault();
+  }, { passive: false });
 }
 
 // Header strip: word · "N line-end · M artists" · pin glyph. No close ×,
