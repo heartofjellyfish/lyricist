@@ -2441,15 +2441,15 @@ input[type="text"]::placeholder {
 .rf-srcpanel-index-a,
 .rf-srcpanel-index-b {
   margin: 0;
-  font-family: var(--display);
+  font-family: "Spectral", "Songti SC", "STSong", serif;
   font-style: italic;
-  font-weight: 550;
+  font-weight: 500;
   font-size: 17px;
   line-height: 1.34;
   text-wrap: pretty;
 }
 .rf-srcpanel-index-a { color: var(--ink-soft); }
-.rf-srcpanel-index-b { color: var(--ink); font-weight: 600; }
+.rf-srcpanel-index-b { color: var(--ink); }
 
 .rf-srcpanel-index-attr {
   margin-top: 4px;
