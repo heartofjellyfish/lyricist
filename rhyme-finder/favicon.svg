@@ -1,24 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- D: TWIN SEALS — the same 朱印 stamped twice, slightly offset, the
-       second one fainter. Visual pun: the rhyme is the second impression
-       of the first. Uses the page's own seal vocabulary. -->
-  <rect width="64" height="64" rx="6" fill="#dcc28e"/>
-
-  <!-- back seal (the echo) — fainter, rotated more, peeking out -->
-  <g transform="translate(34 30) rotate(8)">
-    <rect x="-13" y="-13" width="26" height="26" rx="1.5" fill="#b13b2c" opacity="0.55"/>
-    <rect x="-13" y="-13" width="26" height="26" rx="1.5"
-          fill="none" stroke="#8a2a1e" stroke-width="0.8" opacity="0.35"/>
-  </g>
-
-  <!-- front seal (the source) — full chroma, rotated the opposite way -->
-  <g transform="translate(26 32) rotate(-6)">
-    <rect x="-14" y="-14" width="28" height="28" rx="1.5" fill="#b13b2c"/>
-    <rect x="-14" y="-14" width="28" height="28" rx="1.5"
-          fill="none" stroke="#8a2a1e" stroke-width="1.2" opacity="0.55"/>
-    <!-- inner highlight — gives the stamped feel -->
-    <rect x="-14" y="-14" width="28" height="28" rx="1.5"
-          fill="none" stroke="#ffe2c8" stroke-width="0.6" opacity="0.22"
-          transform="translate(0.5 0.5)"/>
-  </g>
+  <!-- The 韵 seal — same vermilion 朱印 that floats after "Finder" in the
+       wordmark. Western users can't read the character; that's fine — the
+       distinctive vermilion square + ink-stamped glyph is the brand mark,
+       legible as Rhyme Finder long before anyone parses the meaning. -->
+  <rect x="8" y="8" width="48" height="48" rx="2" fill="#b13b2c"/>
+  <rect x="8" y="8" width="48" height="48" rx="2"
+        fill="none" stroke="#8a2a1e" stroke-width="1.5" opacity="0.5"/>
+  <text x="32" y="49"
+        text-anchor="middle"
+        font-family="'Songti SC', 'STSong', 'SimSun', 'Noto Serif CJK SC', serif"
+        font-style="italic"
+        font-weight="600"
+        font-size="44"
+        fill="#dcc28e">韵</text>
 </svg>
