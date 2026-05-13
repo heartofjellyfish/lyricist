@@ -17,7 +17,7 @@
     <path d="M310 445 L 420 445"/>
     <path d="M150 490 L 250 490"/>
   </g>
-  <g transform="translate(640 295)">
+  <g transform="translate(640 195)">
     <text font-family="'Cormorant Garamond', 'STSong', serif" font-style="normal" font-weight="500" font-size="96" fill="#1a140e" letter-spacing="-1">
       <tspan x="0" y="0">Rhyme</tspan>
       <tspan x="0" y="100">Finder</tspan>
@@ -29,7 +29,7 @@
       <text x="30" y="44" text-anchor="middle" font-family="'Songti SC', 'STSong', 'SimSun', serif" font-weight="700" font-size="40" fill="#dcc28e">韵</text>
     </g>
   </g>
-  <text x="640" y="500" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f">A rhyming dictionary</text>
-  <text x="640" y="540" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f">for songwriters.</text>
-  <text x="640" y="595" font-family="'DM Mono', ui-monospace, monospace" font-size="16" font-weight="500" fill="#6e5a3c" letter-spacing="0.18em">RHYME.QI.LAND</text>
+  <text x="640" y="400" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f">A rhyming dictionary</text>
+  <text x="640" y="440" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f">for songwriters.</text>
+  <text x="640" y="495" font-family="'DM Mono', ui-monospace, monospace" font-size="16" font-weight="500" fill="#6e5a3c" letter-spacing="0.18em">RHYME.QI.LAND</text>
 </svg>
