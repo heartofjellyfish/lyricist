@@ -685,6 +685,12 @@ function decorateWithLyrics(el, word) {
   badge.appendChild(count);
   el.appendChild(badge);
 
+  // Lightweight popover scaffold — empty until first interaction.
+  // Most candidates are never opened, so building the full quote /
+  // stanza / footer markup upfront for every word costs DOM size and
+  // layout time we don't need to spend. The CSS reveal rules still
+  // work on this empty shell (it's a no-op visually); we materialise
+  // its contents lazily on the first hover/focus/click.
   const pop = document.createElement("div");
   pop.className = "rf-lyric-pop";
   // Mobile bottom-sheet drag handle. Hidden on desktop via CSS. Only this
@@ -694,25 +700,33 @@ function decorateWithLyrics(el, word) {
   handle.className = "rf-lyric-pop-handle";
   handle.setAttribute("aria-hidden", "true");
   pop.appendChild(handle);
-  pop.appendChild(renderPopHeader(word, tier1));
-
-  for (const q of tier1.slice(0, POP_CAP)) pop.appendChild(renderEndQuote(q, word));
-  if (tier1.length > POP_CAP) {
-    pop.appendChild(renderToggleMore(tier1.slice(POP_CAP), (q) => renderEndQuote(q, word), pop));
-  }
-  if (tier2.length) {
-    if (!tier1.length) {
-      // No exact matches → tier-2 is all the user has. Render the first
-      // POP_CAP items inline (no toggle), with "Show N more" for the
-      // rest. Same default density as tier-1.
-      pop.appendChild(renderInlineInflectedList(tier2, pop));
-    } else {
-      // Exact matches lead; tier-2 lives in the collapsible footer.
-      pop.appendChild(renderInflectedFooter(tier2));
-    }
-  }
-
   el.appendChild(pop);
+
+  let materialised = false;
+  const materialise = () => {
+    if (materialised) return;
+    materialised = true;
+    pop.appendChild(renderPopHeader(word, tier1));
+    for (const q of tier1.slice(0, POP_CAP)) pop.appendChild(renderEndQuote(q, word));
+    if (tier1.length > POP_CAP) {
+      pop.appendChild(renderToggleMore(tier1.slice(POP_CAP), (q) => renderEndQuote(q, word), pop));
+    }
+    if (tier2.length) {
+      if (!tier1.length) {
+        // No exact matches → tier-2 is all the user has.
+        pop.appendChild(renderInlineInflectedList(tier2, pop));
+      } else {
+        // Exact matches lead; tier-2 lives in the collapsible footer.
+        pop.appendChild(renderInflectedFooter(tier2));
+      }
+    }
+  };
+  // pointerenter covers desktop hover; focusin covers keyboard tabbing
+  // into the pop (the pin button inside is focusable); click covers
+  // the touch path before setPin fires.
+  el.addEventListener("pointerenter", materialise, { once: true });
+  el.addEventListener("focusin", materialise, { once: true });
+  el.addEventListener("click", materialise);
 
   // Click on the word still pins (the header pin glyph is additive —
   // both paths set `.rf-pinned`). Clicks landing inside the popover are
