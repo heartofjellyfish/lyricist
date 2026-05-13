@@ -1451,12 +1451,6 @@ function setLexFilter(lex, value) {
   document.querySelectorAll(`.rf-lex-chip[data-lex="${lex}"]`).forEach((b) => {
     b.setAttribute("aria-pressed", String(value));
   });
-  // iOS Safari sometimes skips a style recalc when only an
-  // ancestor's data attribute changes — leaving descendants painted
-  // with the previous attribute-selector state until the next
-  // unrelated repaint. Reading offsetHeight forces an immediate
-  // layout / style sync.
-  void app.offsetHeight;
   updateBucketCounts();
 }
 
