@@ -1,17 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <!-- OG share card · reflection edition. The visual carries the metaphor:
-       a mountain finding itself in water = a word finding itself in another.
-       Two vermilion suns, mirror-aligned, are the "rhyme moment."
-
-       Composition:
-         · left ~half: large reflection illustration
-         · right ~half: wordmark, 韵 seal, tagline, URL footer
-         · warm xuan paper underneath all of it, with faint fiber lines -->
-
-  <!-- Warm xuan-paper background. -->
   <rect width="1200" height="630" fill="#dcc28e"/>
-
-  <!-- Subtle horizontal fiber lines suggesting xuan-paper texture. -->
   <g stroke="#1a140e" stroke-width="0.4" opacity="0.05">
     <line x1="0" y1="120" x2="1200" y2="118"/>
     <line x1="0" y1="220" x2="1200" y2="223"/>
@@ -19,75 +7,29 @@
     <line x1="0" y1="450" x2="1200" y2="452"/>
     <line x1="0" y1="540" x2="1200" y2="538"/>
   </g>
-
-  <!-- ── REFLECTION ILLUSTRATION (left half) ──────────────────────────
-       Centered around x=305, vertical span ~80–580. Built from the same
-       primitives as the favicon, scaled up so the two vermilion suns and
-       their alignment is the dominant visual gesture. -->
-
-  <!-- Real mountain — full-chroma ink. -->
-  <path d="M75 305
-           C 130 270, 170 230, 220 165
-           C 260 115, 290 88, 305 88
-           C 320 88, 350 115, 390 165
-           C 440 230, 480 270, 535 305 Z"
-        fill="#1a140e" opacity="0.88"/>
-
-  <!-- Vermilion sun — sits just off the peak, above the water line. -->
-  <circle cx="385" cy="135" r="22" fill="#b13b2c"/>
-
-  <!-- Horizon — a hairline of ink across the water's surface. -->
-  <line x1="55" y1="320" x2="555" y2="320"
-        stroke="#1a140e" stroke-width="1.2"
-        stroke-linecap="round" opacity="0.5"/>
-
-  <!-- Reflection — same mountain shape, mirrored, faded so it reads as
-       water-image rather than a second peak. -->
-  <path d="M75 335
-           C 130 370, 170 410, 220 475
-           C 260 525, 290 552, 305 552
-           C 320 552, 350 525, 390 475
-           C 440 410, 480 370, 535 335 Z"
-        fill="#1a140e" opacity="0.32"/>
-
-  <!-- Reflected sun — vermilion drop in mirrored position, fainter. -->
-  <circle cx="385" cy="505" r="22" fill="#b13b2c" opacity="0.6"/>
-
-  <!-- Water ripples — a few faint horizontal strokes so the lower half
-       reads unmistakably as water. -->
+  <path d="M75 308 C 130 275, 170 235, 220 170 C 260 120, 290 93, 305 93 C 320 93, 350 120, 390 170 C 440 235, 480 275, 535 308 Z" fill="#1a140e" opacity="0.88"/>
+  <circle cx="385" cy="140" r="22" fill="#b13b2c"/>
+  <line x1="55" y1="310" x2="555" y2="310" stroke="#1a140e" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
+  <path d="M75 312 C 130 345, 170 385, 220 450 C 260 500, 290 527, 305 527 C 320 527, 350 500, 390 450 C 440 385, 480 345, 535 312 Z" fill="#1a140e" opacity="0.32"/>
+  <circle cx="385" cy="480" r="22" fill="#b13b2c" opacity="0.6"/>
   <g stroke="#1a140e" stroke-width="1.2" stroke-linecap="round" opacity="0.22" fill="none">
-    <path d="M120 410 L 220 410"/>
-    <path d="M310 470 L 420 470"/>
-    <path d="M150 510 L 250 510"/>
+    <path d="M120 390 L 220 390"/>
+    <path d="M310 445 L 420 445"/>
+    <path d="M150 490 L 250 490"/>
   </g>
-
-  <!-- ── WORDMARK + COPY (right half) ────────────────────────────── -->
-
-  <!-- "Rhyme Finder" wordmark — stacked, large display serif. -->
   <g transform="translate(640 295)">
     <text font-family="'Cormorant Garamond', 'STSong', serif" font-style="normal" font-weight="500" font-size="96" fill="#1a140e" letter-spacing="-1">
       <tspan x="0" y="0">Rhyme</tspan>
       <tspan x="0" y="100">Finder</tspan>
     </text>
-
-    <!-- Vermilion 韵 seal floating after "Finder" -->
     <g transform="translate(290 50) rotate(-3)">
       <rect x="0" y="0" width="60" height="60" rx="2" fill="#b13b2c"/>
-      <rect x="0" y="0" width="60" height="60" rx="2"
-            fill="none" stroke="#8a2a1e" stroke-width="2" opacity="0.55"/>
-      <rect x="0" y="0" width="60" height="60" rx="2"
-            fill="none" stroke="#ffe6c8" stroke-width="1" opacity="0.28"
-            transform="translate(-0.5 -0.5)"/>
-      <text x="30" y="44" text-anchor="middle"
-            font-family="'Songti SC', 'STSong', 'SimSun', serif"
-            font-weight="700" font-size="40" fill="#dcc28e">韵</text>
+      <rect x="0" y="0" width="60" height="60" rx="2" fill="none" stroke="#8a2a1e" stroke-width="2" opacity="0.55"/>
+      <rect x="0" y="0" width="60" height="60" rx="2" fill="none" stroke="#ffe6c8" stroke-width="1" opacity="0.28" transform="translate(-0.5 -0.5)"/>
+      <text x="30" y="44" text-anchor="middle" font-family="'Songti SC', 'STSong', 'SimSun', serif" font-weight="700" font-size="40" fill="#dcc28e">韵</text>
     </g>
   </g>
-
-  <!-- Tagline — two italic Cormorant lines. -->
-  <text x="640" y="500" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f" letter-spacing="0.005em">A rhyming dictionary</text>
-  <text x="640" y="540" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f" letter-spacing="0.005em">for songwriters.</text>
-
-  <!-- URL footer line, low contrast mono. -->
+  <text x="640" y="500" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f">A rhyming dictionary</text>
+  <text x="640" y="540" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f">for songwriters.</text>
   <text x="640" y="595" font-family="'DM Mono', ui-monospace, monospace" font-size="16" font-weight="500" fill="#6e5a3c" letter-spacing="0.18em">RHYME.QI.LAND</text>
 </svg>
