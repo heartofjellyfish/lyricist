@@ -1488,29 +1488,39 @@ function updateBucketCounts() {
     if (!countEl) return;
     const total = Number(countEl.dataset.total || 0);
 
-    // Pass 1 — auto-reveal lower words when the active filter has
-    // killed every default word in a still-collapsed subgroup. This
-    // catches the case where the only remaining matches sit behind
-    // "Show N more" (e.g. user toggles off COMMON, only NAMES survive
-    // — and they're all in the lower bucket).
+    // Cheap filter check via the .rf-app data attributes (avoids a
+    // forced layout per word). Treats words without data-lex as common.
+    const app = document.querySelector(".rf-app");
+    const passesFilter = (w) => {
+      const lex = w.getAttribute("data-lex") || "common";
+      return app?.getAttribute(`data-filter-${lex}`) !== "false";
+    };
+
+    // Pass 1 — for each collapsed subgroup, recount the lower words
+    // that would actually survive the current lex filter.
+    //   * If 0 would survive: hide the show-more button entirely (no
+    //     point telling the user to reveal nothing).
+    //   * Else: update the button label to reflect the survivor count.
+    //   * If every default word is also filtered out, auto-reveal the
+    //     lower words so the user sees the surviving NAMES/PLACES/etc.
+    //     candidates instead of an empty tier.
     tier.querySelectorAll(".rf-subgroup").forEach((sg) => {
       if (sg.classList.contains("rf-subgroup--lower-shown")) return;
-      if (!sg.querySelector(".rf-word--lower")) return;
-      let visibleDefaults = 0;
-      sg.querySelectorAll(".rf-word:not(.rf-word--lower)").forEach((w) => {
-        if (getComputedStyle(w).display !== "none") visibleDefaults++;
-      });
-      if (visibleDefaults > 0) return;
-      sg.classList.add("rf-subgroup--lower-shown");
-      let visibleLower = 0;
-      sg.querySelectorAll(".rf-word--lower").forEach((w) => {
-        if (getComputedStyle(w).display !== "none") visibleLower++;
-      });
-      if (visibleLower === 0) {
-        sg.classList.remove("rf-subgroup--lower-shown");
-      } else {
-        sg.querySelector(".rf-subgroup-show-more")?.remove();
+      const lowerEls = [...sg.querySelectorAll(".rf-word--lower")];
+      if (lowerEls.length === 0) return;
+      const visibleLower = lowerEls.filter(passesFilter).length;
+      const btn = sg.querySelector(".rf-subgroup-show-more");
+      if (btn) {
+        btn.hidden = visibleLower === 0;
+        if (visibleLower > 0) btn.textContent = `Show ${visibleLower} more`;
       }
+      if (visibleLower === 0) return;
+      const visibleDefaults = [...sg.querySelectorAll(".rf-word:not(.rf-word--lower)")]
+        .filter(passesFilter).length;
+      if (visibleDefaults > 0) return;
+      // Defaults all filtered, lower has survivors → reveal them.
+      sg.classList.add("rf-subgroup--lower-shown");
+      btn?.remove();
     });
 
     // Pass 2 — hide subgroups whose every word is filtered out so
