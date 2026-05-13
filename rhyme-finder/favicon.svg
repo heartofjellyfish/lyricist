@@ -1,16 +1,43 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- The 韵 seal — same vermilion 朱印 that floats after "Finder" in the
-       wordmark. Western users can't read the character; that's fine — the
-       distinctive vermilion square + ink-stamped glyph is the brand mark,
-       legible as Rhyme Finder long before anyone parses the meaning. -->
-  <rect x="8" y="8" width="48" height="48" rx="2" fill="#b13b2c"/>
-  <rect x="8" y="8" width="48" height="48" rx="2"
-        fill="none" stroke="#8a2a1e" stroke-width="1.5" opacity="0.5"/>
-  <text x="32" y="49"
-        text-anchor="middle"
-        font-family="'Songti SC', 'STSong', 'SimSun', 'Noto Serif CJK SC', serif"
-        font-style="italic"
-        font-weight="600"
-        font-size="44"
-        fill="#dcc28e">韵</text>
+  <!-- 韵 seal · classical 阳文 朱印 vocabulary:
+       · upright character (not italic) — italic reads as casual/modern;
+         seals are always set square, dignified
+       · slight hand-stamped rotation
+       · 外框 + 內框 double border (the most common seal convention)
+       · inset highlight on top-left, inset darkening on bottom-right —
+         simulating uneven 朱泥 deposit when the stamp lifts
+       · character positioned by explicit y, not dominant-baseline (which
+         shifts CJK glyphs visibly upward due to em-box descender padding) -->
+  <g transform="translate(32 32)">
+    <!-- Outer frame — full vermilion 朱泥 base. -->
+    <rect x="-26" y="-26" width="52" height="52" rx="1.5" fill="#b13b2c"/>
+
+    <!-- Bottom-right inset darkening — denser ink along the trailing edge. -->
+    <rect x="-26" y="-26" width="52" height="52" rx="1.5"
+          fill="none" stroke="#5e1408" stroke-width="1.2" opacity="0.45"
+          transform="translate(0.8 0.8)"/>
+
+    <!-- Top-left highlight — thinner ink where the stamp lifted. -->
+    <rect x="-25.5" y="-25.5" width="51" height="51" rx="1.5"
+          fill="none" stroke="#ffe6c8" stroke-width="0.7" opacity="0.3"
+          transform="translate(-0.4 -0.4)"/>
+
+    <!-- 內框 — the classical inner double-border. -->
+    <rect x="-21" y="-21" width="42" height="42" rx="0.5"
+          fill="none" stroke="#dcc28e" stroke-width="1" opacity="0.62"/>
+
+    <!-- 韵. Upright, weight 700, size 38. y=16 lands the visual center
+         on the inner frame's center (empirically — Songti SC's metrics
+         put the optical center at ~0.42em above baseline at this weight,
+         not the typical 0.5em, so the conventional formulas under-shoot
+         and need a y nudge). Size 38 fills the inner frame the way a
+         carved 朱印 character should. -->
+    <text x="0" y="12"
+          text-anchor="middle"
+          font-family="'Songti SC', 'STSong', 'STZhongsong', 'SimSun', 'Noto Serif CJK SC', serif"
+          font-weight="700"
+          font-size="38"
+          fill="#dcc28e"
+          letter-spacing="-0.01em">韵</text>
+  </g>
 </svg>
