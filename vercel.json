@@ -21,6 +21,11 @@
       "destination": "/rhyme-finder/robots.txt"
     },
     {
+      "source": "/google46169d289ad3d09a.html",
+      "has": [{ "type": "host", "value": "rhyme.qi.land" }],
+      "destination": "/rhyme-finder/google46169d289ad3d09a.html"
+    },
+    {
       "source": "/",
       "destination": "/landing.html"
     }
