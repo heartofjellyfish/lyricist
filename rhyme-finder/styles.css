@@ -2285,7 +2285,7 @@ input[type="text"]::placeholder {
    the partner word the source line resolves to. Distinct from the
    solid-block source-word mark. */
 .rf-lyric-mark.rf-lyric-mark-pair {
-  color: var(--ink);
+  color: var(--vermilion);
   font-weight: 500;
   background: linear-gradient(transparent 65%, rgba(177, 59, 44, 0.28) 65%);
   padding: 0 1px;
