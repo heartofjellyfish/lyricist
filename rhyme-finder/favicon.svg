@@ -1,12 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Vermilion 韵 seal — matches the wordmark accent. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Vermilion 朱印-style seal with an italic Cormorant "R" — echoes the
+       wordmark's first letter so the tab icon reads as Rhyme Finder at a
+       glance, without leaning on a CJK glyph westerners can't parse. -->
   <rect x="8" y="8" width="48" height="48" rx="2" fill="#b13b2c"/>
   <rect x="8" y="8" width="48" height="48" rx="2" fill="none" stroke="#8a2a1e" stroke-width="1.5" opacity="0.5"/>
-  <text x="32" y="48"
+  <text x="32" y="49"
         text-anchor="middle"
-        font-family="'Songti SC', 'STSong', 'SimSun', serif"
+        font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif"
         font-style="italic"
         font-weight="600"
-        font-size="42"
-        fill="#dcc28e">韵</text>
+        font-size="46"
+        fill="#dcc28e">R</text>
 </svg>
