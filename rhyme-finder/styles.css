@@ -2462,7 +2462,7 @@ input[type="text"]::placeholder {
 .rf-srcpanel-index-attr {
   margin-top: 4px;
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-faded);
