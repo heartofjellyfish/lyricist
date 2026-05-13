@@ -1447,16 +1447,28 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 function setLexFilter(lex, value) {
   const app = document.getElementById("app");
   if (!app) return;
+  // Keep the data attribute in sync for any other code that reads it
+  // (passesFilter check in updateBucketCounts, chip styling).
   app.dataset[`filter${cap(lex)}`] = String(value);
   document.querySelectorAll(`.rf-lex-chip[data-lex="${lex}"]`).forEach((b) => {
     b.setAttribute("aria-pressed", String(value));
   });
-  // iOS Safari sometimes skips a style recalc when only an
-  // ancestor's data attribute changes — leaving descendants painted
-  // with the previous attribute-selector state until the next
-  // unrelated repaint. Reading offsetHeight forces an immediate
-  // layout / style sync.
-  void app.offsetHeight;
+  // iOS Safari has a long-standing issue re-evaluating descendant
+  // attribute-selector cascades (.rf-app[data-filter-X="false"]
+  // .rf-word[data-lex="X"] { display:none }) when only an ancestor's
+  // attribute changes — descendants can keep their previous painted
+  // state. Bypass the cascade entirely by toggling a class directly
+  // on each affected word.
+  document.querySelectorAll(`.rf-word[data-lex="${lex}"]`).forEach((w) => {
+    w.classList.toggle("rf-word--filter-hidden", !value);
+  });
+  // Words rendered without a data-lex attribute share the COMMON
+  // bucket (kept consistent with the legacy CSS fallback).
+  if (lex === "common") {
+    document.querySelectorAll(".rf-word:not([data-lex])").forEach((w) => {
+      w.classList.toggle("rf-word--filter-hidden", !value);
+    });
+  }
   updateBucketCounts();
 }
 
