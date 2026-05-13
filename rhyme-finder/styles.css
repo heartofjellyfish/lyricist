@@ -1890,13 +1890,7 @@ input[type="text"]::placeholder {
 .rf-word[data-lex="place"]::after   { color: var(--lex-place); }
 .rf-word[data-lex="science"]::after { color: var(--lex-science); }
 
-/* Filter behaviour — chip toggle hides matching words globally.
-   The descendant attribute-selector rules below are belt-and-braces
-   for initial render. Toggles go through setLexFilter() which adds
-   .rf-word--filter-hidden directly on each affected word — iOS
-   Safari is unreliable about re-evaluating ancestor-attribute
-   cascades. */
-.rf-word--filter-hidden { display: none !important; }
+/* Filter behaviour — chip toggle hides matching words globally. */
 .rf-app[data-filter-common="false"]  .rf-word:not([data-lex])     { display: none; }
 .rf-app[data-filter-common="false"]  .rf-word[data-lex="common"]  { display: none; }
 .rf-app[data-filter-person="false"]  .rf-word[data-lex="person"]  { display: none; }
