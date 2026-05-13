@@ -442,9 +442,11 @@ function renderTier(type, candidates, source) {
   const head = document.createElement("header");
   head.className = "rf-tier-head";
   head.dataset.stability = String(meta.stability);
-  // Count is split into a visible/total pair so updateBucketCounts()
-  // can re-flow it as `12 / 30` when the lex filter trims the tier
-  // without rebuilding the DOM.
+  // Count is the tier's full candidate total. Filters and the
+  // show-more toggle don't change the headline number — they only
+  // affect what's currently rendered/visible. Zero-visible state is
+  // still surfaced via the .rf-tier-zero class + empty hint, set in
+  // updateBucketCounts().
   const totalCount = candidates.length;
   // Title row on top (label + question-mark glyph) with the subtitle
   // dropped to its own mono-caps line beneath. Default ink; the
@@ -457,7 +459,7 @@ function renderTier(type, candidates, source) {
       </span>
       <span class="rf-tier-subtitle">${escapeHtml(meta.subtitle)}</span>
     </button>
-    <span class="rf-tier-count" data-total="${totalCount}"><span class="rf-tier-count-visible">${totalCount}</span><span class="rf-tier-count-total" hidden> / ${totalCount}</span></span>
+    <span class="rf-tier-count" data-total="${totalCount}">${totalCount}</span>
   `;
   // Click anywhere on the title strip → toggle this tier's info popover.
   const titleBtn = head.querySelector(".rf-tier-titlebox");
@@ -1482,18 +1484,6 @@ function updateBucketCounts() {
     tier.querySelectorAll(".rf-word").forEach((w) => {
       if (getComputedStyle(w).display !== "none") visible++;
     });
-
-    const visEl = countEl.querySelector(".rf-tier-count-visible");
-    const totEl = countEl.querySelector(".rf-tier-count-total");
-    if (visEl) visEl.textContent = String(visible);
-    if (totEl) {
-      if (visible < total) {
-        totEl.hidden = false;
-        totEl.textContent = ` / ${total}`;
-      } else {
-        totEl.hidden = true;
-      }
-    }
 
     tier.classList.toggle("rf-tier-zero", visible === 0);
     countEl.dataset.zero = String(visible === 0);

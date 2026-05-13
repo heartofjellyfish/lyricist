@@ -2249,17 +2249,6 @@ input[type="text"]::placeholder {
 }
 .rf-tier.rf-tier-zero { opacity: 0.55; }
 .rf-tier-count[data-zero="true"] { color: var(--ink-faded) !important; }
-.rf-tier-count-total {
-  font-family: var(--mono);
-  font-style: normal;
-  font-weight: 400;
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  color: var(--ink-faded);
-  margin-left: 2px;
-  vertical-align: 0.18em;
-}
-.rf-tier-count-total[hidden] { display: none; }
 
 /* Pair-rhyme highlight — vermilion underline band so the eye sees
    the partner word the source line resolves to. Distinct from the
