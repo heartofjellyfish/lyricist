@@ -473,6 +473,18 @@ function renderTier(type, candidates, source) {
   });
   tier.appendChild(head);
 
+  // Empty-tier hint — shown by updateBucketCounts() when the active
+  // lex filter zeros the visible count. Sits right after the header
+  // so the user sees it adjacent to the tier title, not buried below
+  // an empty body.
+  const empty = document.createElement("div");
+  empty.className = "rf-tier-empty";
+  empty.hidden = true;
+  empty.innerHTML =
+    `No words in this tier match the active filter.` +
+    `<span class="rf-tier-empty-hint">adjust filters to see ${totalCount} hidden</span>`;
+  tier.appendChild(empty);
+
   const body = document.createElement("div");
   body.className = "rf-tier-body";
 
@@ -495,16 +507,6 @@ function renderTier(type, candidates, source) {
   }
 
   tier.appendChild(body);
-
-  // Empty-tier hint — shown by updateBucketCounts() when the active
-  // lex filter zeros the visible count. Stays hidden by default.
-  const empty = document.createElement("div");
-  empty.className = "rf-tier-empty";
-  empty.hidden = true;
-  empty.innerHTML =
-    `No words in this tier match the active filter.` +
-    `<span class="rf-tier-empty-hint">adjust filters to see ${totalCount} hidden</span>`;
-  tier.appendChild(empty);
 
   return tier;
 }
