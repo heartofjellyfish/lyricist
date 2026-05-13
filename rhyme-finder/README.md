@@ -1,44 +1,29 @@
-# Handoff: Rhyme Finder
+# Rhyme Finder — design reference
 
 A songwriter's rhyme dictionary, designed in the visual language of a Wang Shimin landscape painting (Qing-dynasty 山水画) — warm xuan-paper background, sumi-ink typography in Cormorant Garamond, a single vermilion 朱印-style accent, and a brushed shanshui motif paired with the wordmark.
 
----
-
-## About the Design Files
-
-The files in this bundle (`index-v2.html`, `styles-v2.css`, `xuan-bg.png`) are **design references created in HTML** — a working prototype showing intended look and behavior. They are not production code to copy directly.
-
-Your task is to **recreate this design in your existing codebase** using whatever framework, component library, and patterns are already established (React, Vue, Svelte, native, etc.). If no environment exists yet, choose what fits the project best.
-
-The HTML file is fully working — you can open it in a browser to see exact spacing, hover states, animations, and the results-page layout in action.
+This doc is the **visual + interaction reference** for the tool. When adding new UI (footer, support area, additional surfaces, etc.), match the tokens and principles below so the feel stays coherent. The tool itself lives in [`index.html`](index.html), [`styles.css`](styles.css), and [`src/`](src/); architecture and deploy rules are in [`/CLAUDE.md`](../CLAUDE.md).
 
 ---
 
-## Fidelity
-
-**High-fidelity.** Pixel-perfect mockups with final colors, typography, spacing, and interactions. Recreate the UI as closely as possible to what the prototype shows.
-
----
-
-## Two Screen States
+## Two screen states
 
 The app is a single page with two states, switched by `:has()` selectors based on whether `#results` and `#source-summary` have content.
 
-### State 1 — **Hero / search input** (empty state)
+### State 1 — hero / search input (empty state)
 
 What the user sees on first load. The painting-and-title composition sits centered vertically; the input field sits below.
 
-- **Eyebrow:** *(removed — was "— A Songwriter's Companion —"; user requested removal)*
 - **Painting:** inline SVG of a 写意 (xieyi) shanshui — three layered mountain ridges (faint to bold), three tiny pine silhouettes on the foremost ridge, a small boat with a vermilion sail in the lower-left, and two short water-strokes lower-right. Sized 360×220px, opacity 0.92. Sits directly above the wordmark with `gap: 8px`.
 - **Wordmark:** "Rhyme Finder" in Cormorant Garamond, weight 500, font-size `clamp(54px, 8vw, 88px)`, with a vermilion 韵 seal floating after the "r" of "Finder". The seal is a 38×38px square, `transform: rotate(-3deg)`, with an inset highlight to look stamped.
-- **Input row:** italic Cormorant placeholder ("give me an english word"), thin 1px ink-colored bottom border, vermilion `→` button to the right. On focus the border turns vermilion. On hover the arrow translates 4px right and turns vermilion.
+- **Input row:** italic Cormorant placeholder, thin 1px ink-colored bottom border, vermilion `→` button to the right. On focus the border turns vermilion. On hover the arrow translates 4px right and turns vermilion.
 
-### State 2 — **Results** (after Find)
+### State 2 — results (after Find)
 
 When a word is submitted, the hero shrinks (smaller padding-top) and a results section appears below.
 
-- **Source summary:** the typed word in big italic display ("loud" 32–42px), followed by uppercase letter-spaced tags: `masculine` / `feminine`, `vowel · aʊ`, `coda · d`. Separated by middot with reduced opacity.
-- **Tiers (5 of them):** each tier is a card with:
+- **Source summary:** the typed word in big italic display (32–42px), followed by uppercase letter-spaced tags: `masculine` / `feminine`, `vowel · aʊ`, `coda · d`. Separated by middot with reduced opacity.
+- **Tiers:** each tier card has:
   - **Tier title** (italic display, 24px) + **rule** in tiny uppercase tracking
   - **Pattison stability spectrum:** a 5-cell horizontal indicator (`unstable` ← five small bars, one filled at the tier's stability rank → `stable`)
   - **Count badge** — small uppercase number on the right
@@ -47,9 +32,9 @@ When a word is submitted, the hero shrinks (smaller padding-top) and a results s
 
 ---
 
-## Design Tokens
+## Design tokens
 
-All defined in `:root` of `styles-v2.css`. Copy these exactly.
+All defined in `:root` of `styles.css`. Treat as canonical — pull from these vars, don't hardcode hex.
 
 ### Colors
 
@@ -87,11 +72,11 @@ The vermilion is the **only** chromatic accent. Use it for: the 韵 seal, the bo
 --mono:    "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
 ```
 
-Cormorant Garamond is doing nearly all the visible work. Sans-serif is body fallback only. Mono is unused in the current design.
+Cormorant Garamond does nearly all the visible work. Sans-serif is body fallback only. Mono is unused in the current design.
 
-Load Cormorant Garamond from Google Fonts (weights 400, 500, 600; italic + roman). The `Songti SC` fallback is what makes the 韵 seal render correctly on systems without a CJK font.
+Cormorant Garamond loads from Google Fonts (weights 400, 500, 600; italic + roman). The `Songti SC` fallback is what makes the 韵 seal render correctly on systems without a CJK font.
 
-### Type sizes used
+### Type sizes
 
 | Element | Size | Weight | Style |
 |---|---|---|---|
@@ -113,13 +98,12 @@ Load Cormorant Garamond from Google Fonts (weights 400, 500, 600; italic + roman
 ### Background
 
 - `--paper` solid + `xuan-bg.png` tiled at `background-size: 600px 600px`. The PNG provides the woven xuan-paper fiber texture. Don't substitute a solid color or a noise filter — the texture matters.
-- Included in this bundle as `xuan-bg.png` (800×800).
 
 ---
 
-## The Shanshui Painting
+## The shanshui painting
 
-Inline SVG, viewBox `0 0 320 200`. All strokes are `#1a140e` with varying opacity. Reproduce verbatim from the HTML — copy the entire `<svg class="rf-mg rf-mg-shanshui">` block. Three layered ridges (opacities 0.32, 0.55, 0.78), three pine triangles, the boat (hull is a curved path; mast is a line; sail is a curved triangle filled `#b13b2c` with a darker stroke on top), and two faint horizontal water strokes.
+Inline SVG, viewBox `0 0 320 200`. All strokes are `#1a140e` with varying opacity. The full markup lives in the `<svg class="rf-mg rf-mg-shanshui">` block in `index.html` — copy verbatim if reusing elsewhere. Three layered ridges (opacities 0.32, 0.55, 0.78), three pine triangles, the boat (hull is a curved path; mast is a line; sail is a curved triangle filled `#b13b2c` with a darker stroke on top), and two faint horizontal water strokes.
 
 It must sit in normal flow inside the title row — `position: static` is critical because there's a `.rf-mg { position: absolute }` base class that needs to be overridden when the painting is part of the hero.
 
@@ -127,7 +111,7 @@ It must sit in normal flow inside the title row — `position: static` is critic
 
 ## Interactions
 
-### Input → Results transition
+### Input → results transition
 
 Driven by CSS `:has()` selectors on `.rf-app`. When `#results` or `#source-summary` is non-empty:
 - Hero `padding-top` shrinks from `9vh` → `56px`
@@ -146,42 +130,28 @@ Driven by CSS `:has()` selectors on `.rf-app`. When `#results` or `#source-summa
 
 ---
 
-## Behavior / State
-
-The prototype uses a phonetic dictionary loaded from `wordlists/` to compute rhyme tiers using the Pattison stability framework. For the production app, you'll need:
-
-- **Endpoint to look up rhymes for a word.** Returns: stressed vowel, coda, masculine/feminine flag, and tiered rhyme buckets (5 tiers). The tier order/labels/rules are defined in the prototype's `src/main.js` as `TIER_META` and `TYPE_ORDER` — copy that taxonomy.
-- **Per-word metadata:** commonness rank (very-common / common / uncommon), syllable count, mismatch flag, cliché pairs (e.g., `love/above`).
-- **State machine:** `ready` → `searching` → `results` (or `error` / `not-found`).
-- **No persistence required** for v1, though the search box could remember the last query.
-
-If your codebase hits a real rhymes API instead of a local corpus, the response shape should still feed into the same tier-card UI.
-
----
-
 ## Responsive
 
-The current design is desktop-first with a breakpoint at 980px and 640px. On small screens:
+Desktop-first with breakpoints at 980px and 640px. On small screens:
 
-- Painting scales from 360×220 → it stays inline above the title; consider shrinking to ~260×160 if needed.
+- Painting scales from 360×220 → it stays inline above the title; shrinks to ~260×160 if needed.
 - Wordmark uses `clamp()` so it auto-scales.
 - Hero `padding-top` reduces to `12vh` at ≤640px.
 - Tier head row becomes vertical (gap 8px), count badge `margin-left: 0`.
 
 ---
 
-## Files in This Bundle
+## Behavior / data
 
-- `index-v2.html` — full HTML with the inline shanshui SVG, hero, search form, and results scaffold
-- `styles-v2.css` — all design tokens + every component class used above
-- `xuan-bg.png` — the paper texture (tile this as `background-image`)
-- `README.md` — this file
+The tool is fully client-side. `src/main.js` orchestrates input → lookup → render; `src/rhymeFinder.js` and `src/rhymeClassifier.js` produce the tiered rhyme buckets using the Pattison stability framework; `src/pronunciation.js` loads the shared CMU dictionary from `/wordlists/cmu-dict.json`.
 
-The prototype's JS lives in the source project under `src/main.js` — it implements the rhyming logic but is not part of the visual handoff. Reimplement in your stack using the API/data approach above.
+The tier taxonomy (5 tiers, their order, labels, rules) is defined in `src/main.js` as `TIER_META` and `TYPE_ORDER`. Per-word metadata includes commonness rank (very-common / common / uncommon), syllable count, mismatch flag, and cliché pairs (e.g. `love`/`above`). State flow: `ready` → `searching` → `results` (or `error` / `not-found`). No persistence in v1.
+
+Shared wordlists and the CMU override system are documented in `/CLAUDE.md` under "Shared resources".
 
 ---
 
-## Things to Get Right
+## Things to get right
 
 1. **The painting must be inline SVG, not an `<img>`.** It uses the same ink color as the text and needs to scale crisply.
 2. **The seal is a real visual element with the inset shadow.** Don't substitute a flat color block.

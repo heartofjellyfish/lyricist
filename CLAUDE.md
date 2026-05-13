@@ -55,8 +55,7 @@ this single repo.
 │   ├── xuan-bg.png
 │   ├── src/{main.js, rhymeFinder.js, rhymeClassifier.js, pronunciation.js}
 │   ├── wordlists/             ← rhyme-finder-only wordlists (wordnet, common-10k)
-│   ├── README.md              ← Claude Design handoff doc, kept for reference
-│   └── design_handoff…/       ← (currently empty; was the handoff drop folder)
+│   └── README.md              ← design reference (tokens, type, painting, interactions)
 ├── api/                       ← Vercel serverless functions
 │   └── openai.js              ← proxies OpenAI for line-craft / stress-workshop
 ├── scripts/                   ← build-time scripts (run manually, not on deploy)
