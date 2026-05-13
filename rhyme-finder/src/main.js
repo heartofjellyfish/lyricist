@@ -1497,6 +1497,17 @@ function updateBucketCounts() {
         hint.textContent = `adjust filters to see ${total} hidden`;
       }
     }
+
+    // Per-subgroup pruning: if every word in a syllable subgroup is
+    // filtered out, hide the subgroup so its label ("2 syllables", etc.)
+    // doesn't float above an empty row.
+    tier.querySelectorAll(".rf-subgroup").forEach((sg) => {
+      let sgVisible = 0;
+      sg.querySelectorAll(".rf-word").forEach((w) => {
+        if (getComputedStyle(w).display !== "none") sgVisible++;
+      });
+      sg.hidden = sgVisible === 0;
+    });
   });
 }
 
