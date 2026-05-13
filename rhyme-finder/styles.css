@@ -2285,6 +2285,11 @@ input[type="text"]::placeholder {
   padding: 0 1px;
 }
 
+/* Source-panel index: the rhyme pair (source + partner words) reads
+   thinner than the global rhyme-mark weight so the highlighted words
+   sit at the same weight as the surrounding pair-line text. */
+.rf-srcpanel-index-row .rf-lyric-mark { font-weight: 500; }
+
 /* ── Source-panel · Index layout (featured "in the corpus") ───────
    Treated as a peer to the tier list below: confident chapter-style
    header, generous vertical rhythm, hero typography on the source
