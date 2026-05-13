@@ -73,10 +73,11 @@ const TIER_META = {
     subtitle: "loose resolution",
     stability: 2,
     bullets: [
-      "The syllables' vowel sounds are identical.",
-      "The sounds after the vowels are unrelated.",
+      "The syllables' vowel sounds are the same.",
+      "The consonants after the vowel are not phonetically related.",
       "The syllables begin differently.",
     ],
+    note: "Assonance rhymes always have consonants after the vowels, but the consonants cannot be phonetically related.",
     example: "love / dot — both AH, but V and T have nothing in common",
   },
   consonance: {
@@ -375,6 +376,16 @@ function renderTierPopover(type) {
     `<div class="rf-tier-pop-eyebrow">Example</div>` +
     `<p class="rf-tier-pop-body rf-tier-pop-example">${escapeHtml(meta.example)}</p>`;
   pop.appendChild(ex);
+
+  // Optional Pattison clarification note (e.g. assonance's "always have
+  // consonants after the vowels" caveat that distinguishes the tier from
+  // mere vowel repetition).
+  if (meta.note) {
+    const note = document.createElement("div");
+    note.className = "rf-tier-pop-section";
+    note.innerHTML = `<p class="rf-tier-pop-note">${escapeHtml(meta.note)}</p>`;
+    pop.appendChild(note);
+  }
 
   // Family chart — only for the family tier. Shows voicing pairs in
   // each manner-of-articulation column.
