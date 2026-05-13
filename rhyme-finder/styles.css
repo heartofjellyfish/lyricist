@@ -1937,6 +1937,11 @@ input[type="text"]::placeholder {
   gap: 5px;
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease, opacity 120ms ease;
   user-select: none;
+  /* Suppress iOS double-tap zoom + 300ms click delay so the second tap
+     (turn-back-on) registers reliably. Without this, iOS can swallow
+     the second tap as part of a double-tap-to-zoom gesture. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .rf-lex-chip[aria-pressed="false"] {
   background: transparent;
@@ -1944,9 +1949,14 @@ input[type="text"]::placeholder {
   border-color: var(--hair);
   border-style: dashed;
 }
-.rf-lex-chip[aria-pressed="false"]:hover {
-  color: var(--ink);
-  border-color: var(--ink);
+/* :hover only on real-pointer devices — without this gate iOS Safari
+   leaves the chip in a sticky :hover state after the first tap,
+   confusing the next-tap toggle. */
+@media (hover: hover) {
+  .rf-lex-chip[aria-pressed="false"]:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
 }
 .rf-lex-chip-dot {
   width: 6px;
@@ -2175,9 +2185,11 @@ input[type="text"]::placeholder {
   border-color: var(--hair);
   border-style: solid;
 }
-#stickybar .rf-lex-filter-mirror .rf-lex-chip[aria-pressed="false"]:hover {
-  color: var(--ink);
-  border-color: var(--ink-soft);
+@media (hover: hover) {
+  #stickybar .rf-lex-filter-mirror .rf-lex-chip[aria-pressed="false"]:hover {
+    color: var(--ink);
+    border-color: var(--ink-soft);
+  }
 }
 #stickybar .rf-lex-filter-mirror .rf-lex-chip-dot { display: none; }
 
