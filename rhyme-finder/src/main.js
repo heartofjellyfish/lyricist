@@ -1453,21 +1453,19 @@ function setLexFilter(lex, value) {
   document.querySelectorAll(`.rf-lex-chip[data-lex="${lex}"]`).forEach((b) => {
     b.setAttribute("aria-pressed", String(value));
   });
-  // iOS Safari has a long-standing issue re-evaluating descendant
-  // attribute-selector cascades (.rf-app[data-filter-X="false"]
-  // .rf-word[data-lex="X"] { display:none }) when only an ancestor's
-  // attribute changes — descendants can keep their previous painted
-  // state. Bypass the cascade entirely by toggling a class directly
-  // on each affected word.
-  document.querySelectorAll(`.rf-word[data-lex="${lex}"]`).forEach((w) => {
-    w.classList.toggle("rf-word--filter-hidden", !value);
-  });
-  // Words rendered without a data-lex attribute share the COMMON
-  // bucket (kept consistent with the legacy CSS fallback).
+  // iOS WebKit (Safari + Chrome on iOS) sometimes fails to
+  // re-evaluate descendant attribute-selector cascades AND class-only
+  // display toggles when only an ancestor's attribute or a transient
+  // class flips — descendants can keep their previous painted state.
+  // Belt-and-braces: set inline display directly. Inline !important
+  // wins every cascade and forces an immediate per-element recalc.
+  const apply = (w) => {
+    if (value) w.style.removeProperty("display");
+    else w.style.setProperty("display", "none", "important");
+  };
+  document.querySelectorAll(`.rf-word[data-lex="${lex}"]`).forEach(apply);
   if (lex === "common") {
-    document.querySelectorAll(".rf-word:not([data-lex])").forEach((w) => {
-      w.classList.toggle("rf-word--filter-hidden", !value);
-    });
+    document.querySelectorAll(".rf-word:not([data-lex])").forEach(apply);
   }
   updateBucketCounts();
 }
