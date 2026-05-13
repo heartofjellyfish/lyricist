@@ -34,6 +34,35 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/rhyme-finder/styles.css" />
+
+    <!-- JSON-LD structured data — tells Google this is a free web app
+         aimed at songwriters; unlocks Rich Results in search listings. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Rhyme Finder",
+      "url": "https://rhyme.qi.land/",
+      "description": "A rhyming dictionary for songwriters — organized by Pat Pattison's stability tiers, with cliché flags and line-end examples from real songs.",
+      "applicationCategory": "ReferenceApplication",
+      "operatingSystem": "Any (web browser)",
+      "browserRequirements": "Requires JavaScript and a modern browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@type": "Person",
+        "name": "Qi Liu"
+      },
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "songwriters, lyricists"
+      },
+      "keywords": "rhyming dictionary, songwriting, lyrics, Pattison stability framework, rhyme tiers, perfect rhyme, slant rhyme, assonance"
+    }
+    </script>
   </head>
   <body>
     <div class="rf-marginalia" aria-hidden="true"></div>
