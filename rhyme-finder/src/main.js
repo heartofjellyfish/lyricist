@@ -18,7 +18,8 @@ const results = document.getElementById("results");
 // Each tier carries:
 //   label    — the editorial name shown in the title
 //   subtitle — feel-based one-liner shown next to the label
-//   rule     — Pattison's technical definition (kept in popover)
+//   bullets  — Pattison's 3-condition definition (vowel / post-vowel /
+//              onset). Rendered as a numbered list in the popover.
 //   example  — a concrete example pair, shown in the popover
 //   stability — 1..5 (5 = most resolved). Drives the spectrum cells +
 //                left-bar colour fade.
@@ -27,50 +28,77 @@ const TIER_META = {
     label: "Perfect rhyme",
     subtitle: "full resolution",
     stability: 5,
-    rule: "Same vowel, same closing consonants. The rhyme lands clean and full.",
+    bullets: [
+      "The syllables' vowel sounds are identical.",
+      "The sounds after the vowels (if any) are identical.",
+      "The syllables begin differently.",
+    ],
     example: "cat / hat — same AE vowel, same T ending",
-    note: "Across all tiers, the two words still need to begin differently. love / love isn't a rhyme; love / dove is.",
   },
   family: {
     label: "Family rhyme",
     subtitle: "close resolution",
     stability: 4,
-    rule: "Same vowel; the closing consonants differ but come from the same phonetic family (e.g. T↔D, P↔B, K↔G).",
+    bullets: [
+      "The syllables' vowel sounds are identical.",
+      "The sounds after the vowels come from the same phonetic family (e.g. T↔D, P↔B, M↔N).",
+      "The syllables begin differently.",
+    ],
     example: "cat / pad — AE vowel; T and D are both stops",
   },
   additive: {
     label: "Additive",
     subtitle: "trailing resolution",
     stability: 3,
-    rule: "Same vowel and same closing consonants, with one extra consonant on one side.",
+    bullets: [
+      "The syllables' vowel sounds are identical.",
+      "The sounds after the vowels are identical, with one extra consonant on one side.",
+      "The syllables begin differently.",
+    ],
     example: "love / loved — extra D on one side",
   },
   subtractive: {
     label: "Subtractive",
     subtitle: "clipped resolution",
     stability: 3,
-    rule: "Same vowel and same closing consonants, but one side stops one consonant earlier.",
+    bullets: [
+      "The syllables' vowel sounds are identical.",
+      "The sounds after the vowels are identical, but one side stops one consonant earlier.",
+      "The syllables begin differently.",
+    ],
     example: "cried / cry — one side missing the final D",
   },
   assonance: {
     label: "Assonance",
     subtitle: "loose resolution",
     stability: 2,
-    rule: "Same vowel only; the closing consonants are unrelated.",
+    bullets: [
+      "The syllables' vowel sounds are identical.",
+      "The sounds after the vowels are unrelated.",
+      "The syllables begin differently.",
+    ],
     example: "love / dot — both AH, but V and T have nothing in common",
   },
   consonance: {
     label: "Consonance",
     subtitle: "faint resolution",
     stability: 1,
-    rule: "Different vowels, same closing consonants.",
+    bullets: [
+      "The syllables' vowel sounds are different.",
+      "The sounds after the vowels are identical.",
+      "The syllables begin differently.",
+    ],
     example: "love / live — both end in V; AH versus IH",
   },
   identity: {
     label: "Identity",
     subtitle: "echo, not rhyme",
     stability: 0,
-    rule: "The stressed syllable sounds the same in both words — same onset, same vowel, same coda. The ear hears repetition rather than tension/resolution, so it's not a rhyme. Useful to recognize and avoid.",
+    bullets: [
+      "The syllables' vowel sounds are identical.",
+      "The sounds after the vowels (if any) are identical.",
+      "The syllables begin the same — repetition, not a rhyme.",
+    ],
     example: "fuse / confuse — both stressed syllables are 'fuse'",
   },
 };
@@ -240,8 +268,8 @@ function renderStressPopover(currentIsMasculine) {
   const buildCol = (kind) => {
     const isMasculine = kind === "masculine";
     const def = isMasculine
-      ? "Ends on a stressed syllable. The rhyme lands on the final beat — common, clean, and song-friendly."
-      : "Ends with one unstressed syllable after the stressed one. The rhyme lands a beat earlier and trails off softly.";
+      ? "Ends on a stressed syllable — a one-syllable rhyme, or a multisyllable word whose primary stress lands last. The rhyme hits the final beat: common, clean, song-friendly."
+      : "Ends with an unstressed syllable trailing the stressed one — always at least two syllables. The rhyme lands a beat earlier and trails off softly.";
     const examples = isMasculine
       ? "love · dove · today · believe · forgot"
       : "river · mother · follow · breaking · mountain";
@@ -295,12 +323,17 @@ function renderTierPopover(type) {
   const pop = document.createElement("div");
   pop.className = "rf-tier-pop";
 
-  // Definition row
+  // Definition row — Pattison's 3-condition structure as a numbered list
+  // (vowel / sounds after the vowel / onset). The parallel structure
+  // across tiers is the point: the reader sees at a glance which
+  // condition shifts as you move down the scale.
   const def = document.createElement("div");
   def.className = "rf-tier-pop-section";
   def.innerHTML =
     `<div class="rf-tier-pop-eyebrow">What it is</div>` +
-    `<p class="rf-tier-pop-body">${escapeHtml(meta.rule)}</p>`;
+    `<ol class="rf-tier-pop-rule-list">` +
+    meta.bullets.map((b) => `<li>${escapeHtml(b)}</li>`).join("") +
+    `</ol>`;
   pop.appendChild(def);
 
   // 5-stop spectrum showing every rhyme tier with the current one
@@ -342,15 +375,6 @@ function renderTierPopover(type) {
     `<div class="rf-tier-pop-eyebrow">Example</div>` +
     `<p class="rf-tier-pop-body rf-tier-pop-example">${escapeHtml(meta.example)}</p>`;
   pop.appendChild(ex);
-
-  // Optional note (currently used by Perfect to surface the universal
-  // "different onset" rule that applies to every tier).
-  if (meta.note) {
-    const note = document.createElement("div");
-    note.className = "rf-tier-pop-section";
-    note.innerHTML = `<p class="rf-tier-pop-note">${escapeHtml(meta.note)}</p>`;
-    pop.appendChild(note);
-  }
 
   // Family chart — only for the family tier. Shows voicing pairs in
   // each manner-of-articulation column.

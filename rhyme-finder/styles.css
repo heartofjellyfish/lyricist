@@ -949,6 +949,34 @@ input[type="text"]::placeholder {
   font-style: italic;
   color: var(--ink-faded);
 }
+/* Pattison's 3-condition definition: numbered list rendered tight
+   inside the popover. Markers sit in their own column so the bullet
+   text aligns cleanly across all three rows. */
+.rf-tier-pop-rule-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: rf-rule;
+  font-family: var(--display);
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.rf-tier-pop-rule-list li {
+  counter-increment: rf-rule;
+  position: relative;
+  padding-left: 22px;
+}
+.rf-tier-pop-rule-list li::before {
+  content: counter(rf-rule) ".";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--vermilion);
+}
 
 /* 6-stop spectrum inside the popover. Dots laid out left→right at
    the same height; current tier dot is large + vermilion + with a
