@@ -11,6 +11,16 @@
       "destination": "/rhyme-finder/index.html"
     },
     {
+      "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "rhyme.qi.land" }],
+      "destination": "/rhyme-finder/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "has": [{ "type": "host", "value": "rhyme.qi.land" }],
+      "destination": "/rhyme-finder/robots.txt"
+    },
+    {
       "source": "/",
       "destination": "/landing.html"
     }
