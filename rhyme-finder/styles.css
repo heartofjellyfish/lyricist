@@ -1148,17 +1148,14 @@ input[type="text"]::placeholder {
 }
 .rf-subgroup-show-more:hover { opacity: 0.85; }
 
-.rf-words-lower {
-  margin-top: 6px;
-  /* Dim lower-tier candidates without using the `opacity` property —
-     opacity here would cascade to nested popovers and let surrounding
-     words show through. Children get rgba colors instead (see below). */
-}
-.rf-words-lower > .rf-word.rf-c-very-common,
-.rf-words-lower > .rf-word.rf-c-common {
+/* Lower-tier candidates revealed by "Show more" — flow inline with the
+   default row, dimmed in colour. Avoid `opacity` here because it would
+   cascade to nested popovers and let surrounding words show through. */
+.rf-word--lower.rf-c-very-common,
+.rf-word--lower.rf-c-common {
   color: rgba(26, 20, 14, 0.6);
 }
-.rf-words-lower > .rf-word.rf-c-uncommon {
+.rf-word--lower.rf-c-uncommon {
   color: rgba(58, 46, 31, 0.6);
 }
 

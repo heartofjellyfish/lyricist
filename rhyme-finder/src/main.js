@@ -531,15 +531,21 @@ function renderSubgroup(label, defaultWords, lowerWords, source) {
   }
 
   // Many lower entries — show default inline, hide lower behind button.
-  wrap.appendChild(renderWordRow(defaultWords, source));
+  // When the user expands, append the lower words to the SAME .rf-words
+  // row so they continue the flex flow instead of starting a new line.
+  // Each lower word carries .rf-word--lower for the dimmed colour.
+  const row = renderWordRow(defaultWords, source);
+  wrap.appendChild(row);
   const btn = document.createElement("button");
   btn.className = "rf-subgroup-show-more";
   btn.type = "button";
   btn.textContent = `Show ${lowerWords.length} more`;
   btn.addEventListener("click", () => {
-    const lowerRow = renderWordRow(lowerWords, source);
-    lowerRow.classList.add("rf-words-lower");
-    wrap.insertBefore(lowerRow, btn);
+    for (const w of lowerWords) {
+      const el = renderWord(w, source);
+      el.classList.add("rf-word--lower");
+      row.appendChild(el);
+    }
     btn.remove();
   });
   wrap.appendChild(btn);
