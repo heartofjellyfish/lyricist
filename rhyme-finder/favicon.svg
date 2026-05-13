@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Vermilion 韵 seal — matches the wordmark accent. -->
+  <rect x="8" y="8" width="48" height="48" rx="2" fill="#b13b2c"/>
+  <rect x="8" y="8" width="48" height="48" rx="2" fill="none" stroke="#8a2a1e" stroke-width="1.5" opacity="0.5"/>
+  <text x="32" y="48"
+        text-anchor="middle"
+        font-family="'Songti SC', 'STSong', 'SimSun', serif"
+        font-style="italic"
+        font-weight="600"
+        font-size="42"
+        fill="#dcc28e">韵</text>
+</svg>
