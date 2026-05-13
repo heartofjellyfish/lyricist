@@ -472,25 +472,25 @@ function trailingTerminal(trailing) {
 }
 
 // Are the two feminine trailings perceptually compatible for assonance?
-// Requires same nucleus family AND (same terminal class OR Pattison's
-// high-front-vowel-or-NG exception).
+// Strict identity: trailings must match phoneme-by-phoneme.
+//
+// Pattison Ch6 p86 nominally lets -y / -ie / -ing bind together via
+// shared high-front color (lonely/voting style), but in practice that
+// exception lets pairs like dreaming/even, dreaming/easy, dreaming/deeply
+// surface — pairs the writer skips on sight because the trailing
+// terminal diverges. The terminal consonant is what closes the foot
+// sonically; if it shifts (NG → N, NG → vowel), the rhyme stops binding.
+// We require the trailing to be identical instead.
+//
 // Masculine pairs (both empty trailings) are vacuously compatible.
 function trailingNucleiCompatible(aTrailing, bTrailing) {
   if (aTrailing.length === 0 && bTrailing.length === 0) return true;
   if (aTrailing.length === 0 || bTrailing.length === 0) return false;
-  const aFam = trailingNucleusFamily(aTrailing);
-  const bFam = trailingNucleusFamily(bTrailing);
-  if (aFam !== bFam) return false;
-  const aTerm = trailingTerminal(aTrailing);
-  const bTerm = trailingTerminal(bTrailing);
-  if (aTerm.class === bTerm.class) return true;
-  // Pattison Ch6 p86: high-front vowel + (vowel-final OR NG-final) cluster
-  if (aFam === "high-front") {
-    const isVowelOrNG = (t) =>
-      t.class === "vowel" || (t.class === "nasal" && t.phoneme === "NG");
-    if (isVowelOrNG(aTerm) && isVowelOrNG(bTerm)) return true;
+  if (aTrailing.length !== bTrailing.length) return false;
+  for (let i = 0; i < aTrailing.length; i += 1) {
+    if (aTrailing[i] !== bTrailing[i]) return false;
   }
-  return false;
+  return true;
 }
 
 // Identity per Pattison (Ch 1): the ear hears repetition, not tension.
