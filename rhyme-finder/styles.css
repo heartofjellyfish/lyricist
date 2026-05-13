@@ -2249,6 +2249,11 @@ input[type="text"]::placeholder {
 }
 .rf-tier.rf-tier-zero { opacity: 0.55; }
 .rf-tier-count[data-zero="true"] { color: var(--ink-faded) !important; }
+/* When the tier has zero visible candidates, hide the body. The
+   subgroup labels ("2 SYLLABLES" etc.) would otherwise float
+   beneath an empty space — the empty-state hint already explains
+   the situation. */
+.rf-tier-zero .rf-tier-body { display: none; }
 
 /* Pair-rhyme highlight — vermilion underline band so the eye sees
    the partner word the source line resolves to. Distinct from the
