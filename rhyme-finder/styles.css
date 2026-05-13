@@ -2423,6 +2423,9 @@ input[type="text"]::placeholder {
 }
 .rf-srcpanel-index-row:hover::before,
 .rf-srcpanel-index-row:focus-visible::before { opacity: 1; width: 3px; }
+/* When the row is expanded, the stanza below carries its own vermilion
+   border-left — suppress the outer row strip to avoid a double red rule. */
+.rf-srcpanel-index-row.is-open::before { opacity: 0; }
 
 .rf-srcpanel-index-quote {
   font-family: var(--display);
@@ -2498,7 +2501,7 @@ input[type="text"]::placeholder {
   padding: 12px 16px 12px 18px;
   border-left: 2px solid var(--vermilion);
   background: rgba(177, 59, 44, 0.045);
-  font-family: var(--display);
+  font-family: "Spectral", "Songti SC", "STSong", serif;
   font-style: italic;
   font-size: 15px;
   line-height: 1.5;
