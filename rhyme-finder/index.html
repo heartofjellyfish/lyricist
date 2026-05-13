@@ -149,6 +149,199 @@
       </footer>
     </main>
 
+    <!-- ── Colophon · top-right corner ─────────────────────────────────
+         The indie-tone go-to-market touchpoint. Reads as a painter's
+         leisure seal in the corner of the page, not as a donation CTA.
+         One trigger; one card containing, in order:
+           1. A short note framing the work as a one-person thing.
+           2. The Feedback form — textarea + name + email, posts to
+              Formspree (no backend, no third-party modal).
+           3. A single quiet line offering "leave a coffee" → BMC.
+         Pick a trigger glyph by swapping data-trigger between
+         "notes" | "envelope" | "brush". Pick a form field style by
+         swapping data-variant between "soft-card" | "notebook" |
+         "tagged". See README for the launch todo (Formspree id, BMC url). -->
+    <aside class="rf-colophon"
+           data-trigger="envelope"
+           aria-label="Colophon — a note from the maker">
+      <details class="rf-colophon-details" id="colophon">
+        <summary class="rf-colophon-trigger"
+                 title="Send a note · leave a coffee"
+                 aria-label="Open colophon — leave a note or a tip">
+          <span class="rf-colophon-trigger-glyph" data-glyph="notes">
+            <span class="rf-colophon-trigger-word">notes</span>
+            <span class="rf-colophon-trigger-dot" aria-hidden="true"></span>
+          </span>
+          <span class="rf-colophon-trigger-glyph" data-glyph="envelope">
+            <svg class="rf-colophon-trigger-svg" viewBox="0 0 28 22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="2.5" y="3" width="23" height="16" rx="0.5"
+                    stroke="currentColor" fill="none" stroke-width="1.25" />
+              <path d="M3 3.5 L14 12.5 L25 3.5"
+                    stroke="currentColor" fill="none" stroke-width="1.25" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="rf-colophon-trigger-glyph" data-glyph="brush">
+            <span class="rf-colophon-seal">
+              <span class="rf-colophon-seal-glyph">笔</span>
+            </span>
+          </span>
+        </summary>
+        <div class="rf-colophon-card" role="region" aria-label="From the maker">
+          <header class="rf-colophon-head">
+            <p class="rf-colophon-eyebrow">Colophon</p>
+            <h3 class="rf-colophon-title">A one-person work</h3>
+          </header>
+
+          <div class="rf-colophon-prose">
+            <p>Rhyme Finder is built and tended by one person, on weekends and quiet evenings. If a word here found its way into a line of yours, that's already plenty.</p>
+          </div>
+
+          <form class="rf-colophon-form"
+                id="colophon-form"
+                data-variant="tagged"
+                action="https://formspree.io/f/REPLACE_FORMSPREE_ID"
+                method="POST"
+                novalidate>
+            <div class="rf-cf-field rf-cf-field--note">
+              <label class="rf-cf-label" for="colophon-note">
+                <span class="rf-cf-label-main">Send a note</span>
+              </label>
+              <textarea class="rf-cf-input rf-cf-input--area"
+                        id="colophon-note"
+                        name="message"
+                        rows="4"
+                        required
+                        placeholder="A wish, a correction, a word the tiers got wrong — anything."></textarea>
+            </div>
+
+            <div class="rf-cf-row">
+              <div class="rf-cf-field rf-cf-field--name">
+                <label class="rf-cf-label" for="colophon-name">
+                  <span class="rf-cf-label-main">Your name</span>
+                  <span class="rf-cf-label-aux">optional</span>
+                </label>
+                <input class="rf-cf-input"
+                       id="colophon-name"
+                       type="text"
+                       name="name"
+                       autocomplete="name"
+                       placeholder="—" />
+              </div>
+              <div class="rf-cf-field rf-cf-field--email">
+                <label class="rf-cf-label" for="colophon-email">
+                  <span class="rf-cf-label-main">Email</span>
+                  <span class="rf-cf-label-aux">so I can reply</span>
+                </label>
+                <input class="rf-cf-input"
+                       id="colophon-email"
+                       type="email"
+                       name="email"
+                       autocomplete="email"
+                       placeholder="—" />
+              </div>
+            </div>
+
+            <div class="rf-colophon-form-foot">
+              <span class="rf-colophon-form-note">anonymous is plenty</span>
+              <button type="submit" class="rf-colophon-form-send">
+                <span class="rf-colophon-form-send-label">Send</span>
+                <span class="rf-colophon-form-send-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+
+            <div class="rf-colophon-form-success" aria-live="polite">
+              <span class="rf-colophon-form-seal" aria-hidden="true">
+                <span class="rf-colophon-form-seal-glyph">谢</span>
+              </span>
+              <p class="rf-colophon-form-success-line">Sent. The note's on its way.</p>
+              <button type="button" class="rf-colophon-form-again">send another</button>
+            </div>
+
+            <p class="rf-colophon-form-error" role="alert">
+              Couldn't send. <a class="rf-colophon-form-error-fallback"
+                                href="mailto:liuqi627@gmail.com?subject=Rhyme%20Finder%20%C2%B7%20a%20note">Send by email</a>?
+            </p>
+          </form>
+
+          <footer class="rf-colophon-foot">
+            <p class="rf-colophon-foot-line">
+              <span class="rf-colophon-foot-prefix">Or, if you'd care to —</span>
+              <a class="rf-colophon-coffee"
+                 href="REPLACE_BMC_URL"
+                 target="_blank" rel="noopener">leave a coffee</a>.
+            </p>
+          </footer>
+        </div>
+      </details>
+    </aside>
+
+    <script>
+      // ── Colophon ──────────────────────────────────────────────
+      // Send → POST straight to Formspree so the user never sees an
+      // email client. On success, swap the form for a vermilion seal-
+      // stamp reward. On failure, surface an inline error with a
+      // mailto: fallback so the note is never stranded. Outside-click
+      // and Escape dismiss the card.
+      (function () {
+        const jar = document.getElementById("colophon");
+        if (!jar) return;
+
+        const form = document.getElementById("colophon-form");
+        if (form) {
+          const sendBtn = form.querySelector(".rf-colophon-form-send");
+          const sendLabel = form.querySelector(".rf-colophon-form-send-label");
+          const againBtn = form.querySelector(".rf-colophon-form-again");
+
+          const setState = (state) => { form.dataset.state = state; };
+          setState("ready");
+
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const message = (form.message.value || "").trim();
+            if (!message) {
+              form.message.focus();
+              form.message.classList.add("rf-colophon-flash");
+              setTimeout(() => form.message.classList.remove("rf-colophon-flash"), 600);
+              return;
+            }
+            setState("sending");
+            sendBtn.disabled = true;
+            sendLabel.textContent = "Sending";
+            try {
+              const res = await fetch(form.action, {
+                method: "POST",
+                headers: { Accept: "application/json" },
+                body: new FormData(form),
+              });
+              if (!res.ok) throw new Error("status " + res.status);
+              setState("sent");
+            } catch (err) {
+              setState("error");
+              sendBtn.disabled = false;
+              sendLabel.textContent = "Send";
+            }
+          });
+
+          if (againBtn) {
+            againBtn.addEventListener("click", () => {
+              form.reset();
+              sendBtn.disabled = false;
+              sendLabel.textContent = "Send";
+              setState("ready");
+              setTimeout(() => form.message.focus(), 50);
+            });
+          }
+        }
+
+        document.addEventListener("click", (e) => {
+          if (jar.open && !jar.contains(e.target)) jar.open = false;
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && jar.open) jar.open = false;
+        });
+      })();
+    </script>
+
     <script>
       // ── Epigraph rotator ──────────────────────────────────────
       // Cross-fades between the two epigraphs on a slow rotation

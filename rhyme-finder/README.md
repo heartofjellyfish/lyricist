@@ -6,6 +6,43 @@ This doc is the **visual + interaction reference** for the tool. When adding new
 
 ---
 
+## Colophon — feedback + support (added 2026-05-13)
+
+In place of a footer strip, the go-to-market touchpoints live in a single **colophon** in the top-right corner of the page. The trigger is a small anonymous pictogram. Clicking it opens a card with a feedback form + a quiet support line.
+
+**Shipped defaults** (swap via data-attributes in `index.html`):
+
+- Trigger pictogram — `data-trigger="envelope"` on `.rf-colophon`. Options: `notes` (italic Cormorant + vermilion dot), `envelope` (ink-line SVG with vermilion wax seal — **default**), `brush` (vermilion 笔 seal).
+- Form field style — `data-variant="soft-card"` on `.rf-colophon-form`. Options: `soft-card` (rounded paper-tinted cards — **default**), `notebook` (no card, bottom-rule lines only), `tagged` (asymmetric tag cards with corner mark).
+
+**Card contents**, in deliberate order:
+
+1. **Maker's note.** Two-line prose framing the tool as a one-person work.
+2. **Feedback form.** Textarea (required) + optional name + optional email. POSTs to **Formspree** so the user never sees an email client. On success the form fades and an over-sized vermilion 谢 seal stamps onto the card with a bounce-press animation; a single "Sent. The note's on its way." line and a `send another` reset link follow. On failure the form flips to an inline error with a `mailto:liuqi627@gmail.com` fallback so the note is never stranded.
+3. **Quiet support line.** *"Or, if you'd care to — leave a coffee."* with a single Buy Me a Coffee link. Tucked after the form so the page never reads as a donation prompt; offered, never demanded.
+
+Support is international-only (Buy Me a Coffee). WeChat / Alipay 赞赏码 were considered but dropped — kept the scope tighter and removed the QR-image asset pipeline. Revisit if Chinese audience signal asks for it.
+
+### Before launch — your todo
+
+- [ ] **Set up Formspree** (or any equivalent form-to-email service):
+      1. Sign up at [formspree.io](https://formspree.io) with `liuqi627@gmail.com`.
+      2. Create a new form. Free tier is enough for early traffic (50 submissions / month).
+      3. Copy the endpoint URL (looks like `https://formspree.io/f/xpzgnabc`).
+      4. In [`index.html`](index.html), replace `REPLACE_FORMSPREE_ID` in the `<form action="...">` attribute with your form id.
+      5. Activate the form by sending one test note — Formspree mails you a confirmation link the first time.
+      Alternatives: [Web3Forms](https://web3forms.com) (no signup, access-key flow), Netlify Forms.
+
+- [ ] **Sign up at [Buy Me a Coffee](https://www.buymeacoffee.com)** and replace `REPLACE_BMC_URL` in [`index.html`](index.html) with your page URL. If you prefer Ko-fi, PayPal.Me, Stripe Payment Link, or Liberapay, just swap the `href` — the colophon footer holds one link, one label, no code path assumes BMC.
+
+- [ ] **(Optional) Pick the trigger pictogram.** Open the page and try `data-trigger="notes" | "envelope" | "brush"` on `.rf-colophon`. Likewise try `data-variant="soft-card" | "notebook" | "tagged"` on `.rf-colophon-form`. Once a combination feels right, the other CSS variants can be stripped from `styles.css`.
+
+- [ ] **(Optional) Adjust the maker's note prose** in `index.html` if "weekends and quiet evenings" doesn't sit right.
+
+- [ ] **(Optional) Adjust the success-state seal glyph** (currently `谢`). Any single character renders inside the 58×58 vermilion stamp without further CSS work.
+
+---
+
 ## Two screen states
 
 The app is a single page with two states, switched by `:has()` selectors based on whether `#results` and `#source-summary` have content.

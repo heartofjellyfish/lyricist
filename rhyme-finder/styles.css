@@ -2562,3 +2562,592 @@ input[type="text"]::placeholder {
   .rf-srcpanel-index-a, .rf-srcpanel-index-b { font-size: 16px; }
   .rf-srcpanel-index-meta-num { font-size: 24px; }
 }
+
+/* ── Colophon · top-right corner ─────────────────────────────────
+   A small editorial trigger in the corner of the page. Anonymous on
+   the surface — no name, no byline. Opens a card with a feedback
+   form + a quiet support line.
+
+   Variant systems:
+     · trigger pictogram   .rf-colophon[data-trigger="notes" | "envelope" | "brush"]
+     · form field style    .rf-colophon-form[data-variant="soft-card" | "notebook" | "tagged"]
+   Defaults shipped: envelope + soft-card. Swap via the data-attributes
+   on the markup. */
+.rf-colophon {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  z-index: 6;
+}
+.rf-colophon-details { position: relative; }
+
+/* ── Trigger frame ─────────────────────────────────────────────── */
+.rf-colophon-trigger {
+  list-style: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+  border-radius: 2px;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 140ms ease;
+}
+.rf-colophon-trigger::-webkit-details-marker { display: none; }
+.rf-colophon-trigger::marker { content: ""; }
+.rf-colophon-trigger:hover { background: rgba(177, 59, 44, 0.06); }
+.rf-colophon-trigger:focus-visible {
+  outline: 1px solid var(--vermilion);
+  outline-offset: 2px;
+}
+
+/* Hide all trigger glyphs by default; [data-trigger] on .rf-colophon
+   reveals exactly one. */
+.rf-colophon-trigger-glyph { display: none; }
+.rf-colophon[data-trigger="notes"] [data-glyph="notes"],
+.rf-colophon[data-trigger="envelope"] [data-glyph="envelope"],
+.rf-colophon[data-trigger="brush"] [data-glyph="brush"] {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Trigger A · notes — italic word + tiny vermilion dot. */
+.rf-colophon-trigger-glyph[data-glyph="notes"] { gap: 7px; }
+.rf-colophon-trigger-word {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--ink-faded);
+  letter-spacing: 0.005em;
+  transition: color 140ms ease;
+}
+.rf-colophon-trigger-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--vermilion);
+  transform: translateY(-1px);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.rf-colophon-trigger:hover .rf-colophon-trigger-word,
+.rf-colophon-details[open] .rf-colophon-trigger-word {
+  color: var(--vermilion);
+}
+.rf-colophon-trigger:hover .rf-colophon-trigger-dot,
+.rf-colophon-details[open] .rf-colophon-trigger-dot {
+  transform: translateY(-1px) scale(1.25);
+  box-shadow: 0 1px 4px rgba(177, 59, 44, 0.4);
+}
+
+/* Trigger B · envelope — small ink-line SVG. */
+.rf-colophon-trigger-svg {
+  display: block;
+  width: 28px;
+  height: 22px;
+  color: var(--ink-faded);
+  transition: color 140ms ease, transform 200ms ease;
+}
+.rf-colophon-trigger:hover .rf-colophon-trigger-svg,
+.rf-colophon-details[open] .rf-colophon-trigger-svg {
+  color: var(--ink);
+  transform: translateY(-1px) rotate(-2deg);
+}
+
+/* Trigger C · brush seal — vermilion 笔 stamp. */
+.rf-colophon-trigger-glyph[data-glyph="brush"] .rf-colophon-seal {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.rf-colophon-trigger:hover .rf-colophon-seal,
+.rf-colophon-details[open] .rf-colophon-seal {
+  transform: rotate(0deg) scale(1.08);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 220, 0.18),
+    inset 0 0 6px rgba(80, 10, 0, 0.45),
+    0 1px 5px rgba(177, 59, 44, 0.28);
+}
+.rf-colophon-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--vermilion);
+  color: var(--paper);
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+  border-radius: 1.5px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 220, 0.18),
+    inset 0 0 6px rgba(80, 10, 0, 0.4);
+  transform: rotate(-4deg);
+  flex: none;
+}
+.rf-colophon-seal-glyph {
+  display: inline-block;
+  transform: translateY(-0.5px);
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* ── Card ──────────────────────────────────────────────────────── */
+.rf-colophon-card {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 440px;
+  max-width: calc(100vw - 28px);
+  padding: 24px 26px 22px;
+  background-color: var(--paper);
+  background-image: url("./xuan-bg.png");
+  background-size: 600px 600px;
+  border: 1px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink-ghost);
+  text-align: left;
+}
+.rf-colophon-card::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  right: 24px;
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  background-color: var(--paper);
+  background-image: url("./xuan-bg.png");
+  background-size: 600px 600px;
+  border-left: 1px solid var(--ink);
+  border-top: 1px solid var(--ink);
+}
+
+.rf-colophon-head {
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hair-soft);
+}
+.rf-colophon-eyebrow {
+  margin: 0 0 4px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+}
+.rf-colophon-title {
+  margin: 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.1;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+
+.rf-colophon-prose { margin: 0 0 18px; }
+.rf-colophon-prose p {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* ── Form chrome ───────────────────────────────────────────────── */
+.rf-colophon-form {
+  position: relative;
+  margin: 0 0 18px;
+}
+.rf-cf-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+.rf-cf-field { position: relative; }
+.rf-cf-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 6px;
+  cursor: text;
+}
+.rf-cf-label-main {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+}
+.rf-cf-label-aux {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--ink-faded);
+  opacity: 0.7;
+  text-transform: none;
+}
+.rf-cf-input {
+  width: 100%;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+  outline: none;
+  box-sizing: border-box;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+.rf-cf-input::placeholder {
+  color: rgba(107, 94, 74, 0.5);
+  font-style: italic;
+}
+.rf-cf-input--area {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+/* Variant A · soft-card (default) */
+.rf-colophon-form[data-variant="soft-card"] .rf-cf-input {
+  padding: 11px 13px;
+  font-size: 15px;
+  background: rgba(255, 248, 230, 0.55);
+  border: 1px solid var(--hair);
+  border-radius: 9px;
+  box-shadow: inset 0 1px 2px rgba(26, 20, 14, 0.04);
+}
+.rf-colophon-form[data-variant="soft-card"] .rf-cf-input--area {
+  padding: 12px 14px;
+  font-size: 15px;
+  border-radius: 11px;
+}
+.rf-colophon-form[data-variant="soft-card"] .rf-cf-input:hover {
+  border-color: rgba(26, 20, 14, 0.35);
+}
+.rf-colophon-form[data-variant="soft-card"] .rf-cf-input:focus {
+  border-color: var(--vermilion);
+  background: rgba(255, 248, 230, 0.85);
+  box-shadow:
+    inset 0 1px 2px rgba(26, 20, 14, 0.04),
+    0 0 0 3px rgba(177, 59, 44, 0.10);
+}
+
+/* Variant B · notebook */
+.rf-colophon-form[data-variant="notebook"] .rf-cf-input {
+  padding: 8px 2px 9px;
+  font-size: 15.5px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--hair);
+  border-radius: 0;
+}
+.rf-colophon-form[data-variant="notebook"] .rf-cf-input--area {
+  min-height: 84px;
+  padding: 6px 2px 10px;
+  border-bottom: 1px solid var(--ink-faded);
+}
+.rf-colophon-form[data-variant="notebook"] .rf-cf-input:focus {
+  border-bottom-color: var(--vermilion);
+  background: linear-gradient(to top, rgba(177, 59, 44, 0.06), transparent 28%);
+}
+.rf-colophon-form[data-variant="notebook"] .rf-cf-label { margin-bottom: 4px; }
+
+/* Variant C · tagged */
+.rf-colophon-form[data-variant="tagged"] .rf-cf-field {
+  position: relative;
+  padding: 12px 14px 12px;
+  background:
+    linear-gradient(135deg, rgba(177, 59, 44, 0.04) 0 14px, transparent 14px),
+    rgba(255, 248, 230, 0.4);
+  border: 1px solid var(--hair);
+  border-radius: 3px 12px 12px 12px;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+.rf-colophon-form[data-variant="tagged"] .rf-cf-field:focus-within {
+  border-color: var(--vermilion);
+  background:
+    linear-gradient(135deg, rgba(177, 59, 44, 0.10) 0 14px, transparent 14px),
+    rgba(255, 248, 230, 0.65);
+}
+.rf-colophon-form[data-variant="tagged"] .rf-cf-field::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--vermilion);
+  opacity: 0.85;
+}
+.rf-colophon-form[data-variant="tagged"] .rf-cf-label {
+  margin-bottom: 6px;
+  padding-left: 12px;
+}
+.rf-colophon-form[data-variant="tagged"] .rf-cf-input {
+  padding: 4px 0 0;
+  font-size: 15px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+.rf-colophon-form[data-variant="tagged"] .rf-cf-input--area {
+  padding-top: 2px;
+  min-height: 80px;
+}
+
+/* ── Form foot · note + Send button ────────────────────────────── */
+.rf-colophon-form-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+.rf-colophon-form-note {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+}
+.rf-colophon-form-send {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 16px 8px;
+  background: rgba(177, 59, 44, 0.06);
+  border: 1px solid rgba(177, 59, 44, 0.35);
+  border-radius: 999px;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: 0.005em;
+  color: var(--vermilion);
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 120ms ease,
+    box-shadow 140ms ease;
+}
+.rf-colophon-form-send:hover,
+.rf-colophon-form-send:focus-visible {
+  color: var(--vermilion-deep);
+  background: rgba(177, 59, 44, 0.14);
+  border-color: var(--vermilion);
+  box-shadow: 0 1px 6px rgba(177, 59, 44, 0.22);
+  outline: none;
+}
+.rf-colophon-form-send:hover .rf-colophon-form-send-arrow {
+  transform: translateX(5px);
+}
+.rf-colophon-form-send:active {
+  transform: translateY(1px);
+  background: rgba(177, 59, 44, 0.18);
+}
+.rf-colophon-form-send:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+.rf-colophon-form-send-arrow {
+  display: inline-block;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  color: inherit;
+  transition: transform 160ms ease;
+}
+.rf-colophon-form[data-state="sending"] .rf-colophon-form-send-arrow {
+  animation: rf-colophon-arrow-pulse 700ms ease-in-out infinite;
+}
+@keyframes rf-colophon-arrow-pulse {
+  0%, 100% { transform: translateX(0); opacity: 1; }
+  50% { transform: translateX(4px); opacity: 0.4; }
+}
+
+/* Empty-textarea flash on Send. */
+.rf-cf-input--area.rf-colophon-flash {
+  animation: rf-colophon-flash 600ms ease-out;
+}
+@keyframes rf-colophon-flash {
+  0% { border-color: var(--vermilion); box-shadow: 0 0 0 3px rgba(177, 59, 44, 0.15); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* ── Success state ─────────────────────────────────────────────── */
+.rf-colophon-form-success {
+  display: none;
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px 0;
+  text-align: center;
+  background-color: var(--paper);
+  background-image: url("./xuan-bg.png");
+  background-size: 600px 600px;
+}
+.rf-colophon-form[data-state="sent"] .rf-colophon-form-success {
+  display: flex;
+  animation: rf-colophon-success-fade 320ms ease-out;
+}
+.rf-colophon-form[data-state="sent"] > *:not(.rf-colophon-form-success):not(.rf-colophon-form-error) {
+  opacity: 0;
+  pointer-events: none;
+}
+@keyframes rf-colophon-success-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.rf-colophon-form-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  background: var(--vermilion);
+  color: var(--paper);
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 38px;
+  line-height: 1;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 2.5px rgba(255, 240, 220, 0.18),
+    inset 0 0 14px rgba(80, 10, 0, 0.45);
+  transform: rotate(-6deg);
+  flex: none;
+}
+.rf-colophon-form[data-state="sent"] .rf-colophon-form-seal {
+  animation: rf-colophon-stamp 520ms cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes rf-colophon-stamp {
+  0%   { opacity: 0; transform: scale(2.2) rotate(-18deg); }
+  55%  { opacity: 1; transform: scale(0.88) rotate(-2deg); }
+  78%  { transform: scale(1.04) rotate(-7deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-6deg); }
+}
+.rf-colophon-form-success-line {
+  margin: 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.rf-colophon-form-again {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px 6px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  transition: color 140ms ease;
+}
+.rf-colophon-form-again:hover { color: var(--vermilion); }
+
+/* ── Error state ───────────────────────────────────────────────── */
+.rf-colophon-form-error {
+  display: none;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--vermilion-deep);
+  background: rgba(177, 59, 44, 0.08);
+  border-left: 2px solid var(--vermilion);
+  border-radius: 0 1.5px 1.5px 0;
+}
+.rf-colophon-form[data-state="error"] .rf-colophon-form-error { display: block; }
+.rf-colophon-form-error-fallback {
+  color: var(--vermilion-deep);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* ── Coffee footer ─────────────────────────────────────────────── */
+.rf-colophon-foot {
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px dashed var(--ink-ghost);
+}
+.rf-colophon-foot-line {
+  margin: 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-faded);
+  text-wrap: pretty;
+}
+.rf-colophon-foot-prefix { margin-right: 2px; }
+.rf-colophon-coffee {
+  color: var(--vermilion);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(177, 59, 44, 0.4);
+  font-style: italic;
+  transition: text-decoration-color 140ms ease;
+}
+.rf-colophon-coffee:hover { text-decoration-color: var(--vermilion); }
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .rf-colophon { top: 12px; right: 12px; }
+  .rf-colophon-trigger-word { font-size: 14px; }
+  .rf-colophon-trigger-svg { width: 26px; height: 20px; }
+  .rf-colophon-card {
+    width: calc(100vw - 24px);
+    padding: 20px 18px 16px;
+    right: -10px;
+  }
+  .rf-colophon-card::before { right: 22px; }
+  .rf-colophon-title { font-size: 20px; }
+  .rf-colophon-prose p { font-size: 14px; }
+  .rf-cf-row { grid-template-columns: 1fr; gap: 12px; }
+  .rf-colophon-form[data-variant="soft-card"] .rf-cf-input { font-size: 14px; }
+  .rf-colophon-form[data-variant="notebook"] .rf-cf-input { font-size: 15px; }
+  .rf-colophon-form-foot { flex-direction: column; align-items: stretch; gap: 10px; }
+  .rf-colophon-form-note { text-align: left; }
+  .rf-colophon-form-send { align-self: flex-end; }
+  .rf-colophon-form-seal { width: 50px; height: 50px; font-size: 32px; }
+  .rf-colophon-form-success-line { font-size: 15px; }
+}
+
+@media (max-height: 640px) {
+  .rf-colophon-card {
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+}
