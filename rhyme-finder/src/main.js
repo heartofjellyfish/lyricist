@@ -525,31 +525,36 @@ function renderSubgroup(label, defaultWords, lowerWords, source) {
   title.textContent = label;
   wrap.appendChild(title);
 
-  if (!lowerWords || lowerWords.length <= LOWER_INLINE_THRESHOLD) {
-    // Few or no lower entries — show all words inline, no button.
-    const all = lowerWords && lowerWords.length > 0
-      ? [...defaultWords, ...lowerWords]
-      : defaultWords;
-    wrap.appendChild(renderWordRow(all, source));
+  // Always render every word into the same flex row, including lower
+  // ones. Visibility of lower words is controlled by the
+  // .rf-subgroup--lower-shown class (CSS hides .rf-word--lower
+  // otherwise). Rendering them upfront lets the lex filter "see"
+  // them — so when a filter zeroes out every default word, we can
+  // reveal the lower ones automatically (see updateBucketCounts).
+  const row = renderWordRow(defaultWords, source);
+  wrap.appendChild(row);
+  for (const w of lowerWords || []) {
+    const el = renderWord(w, source);
+    el.classList.add("rf-word--lower");
+    row.appendChild(el);
+  }
+
+  if (!lowerWords || lowerWords.length === 0) return wrap;
+
+  if (lowerWords.length <= LOWER_INLINE_THRESHOLD) {
+    // Few lower entries — always shown, no button.
+    wrap.classList.add("rf-subgroup--lower-shown");
     return wrap;
   }
 
-  // Many lower entries — show default inline, hide lower behind button.
-  // When the user expands, append the lower words to the SAME .rf-words
-  // row so they continue the flex flow instead of starting a new line.
-  // Each lower word carries .rf-word--lower for the dimmed colour.
-  const row = renderWordRow(defaultWords, source);
-  wrap.appendChild(row);
+  // Many lower entries — hidden until user clicks the button (or
+  // updateBucketCounts auto-reveals them when filters force it).
   const btn = document.createElement("button");
   btn.className = "rf-subgroup-show-more";
   btn.type = "button";
   btn.textContent = `Show ${lowerWords.length} more`;
   btn.addEventListener("click", () => {
-    for (const w of lowerWords) {
-      const el = renderWord(w, source);
-      el.classList.add("rf-word--lower");
-      row.appendChild(el);
-    }
+    wrap.classList.add("rf-subgroup--lower-shown");
     btn.remove();
   });
   wrap.appendChild(btn);
@@ -1482,11 +1487,47 @@ function updateBucketCounts() {
     const countEl = tier.querySelector(".rf-tier-count");
     if (!countEl) return;
     const total = Number(countEl.dataset.total || 0);
+
+    // Pass 1 — auto-reveal lower words when the active filter has
+    // killed every default word in a still-collapsed subgroup. This
+    // catches the case where the only remaining matches sit behind
+    // "Show N more" (e.g. user toggles off COMMON, only NAMES survive
+    // — and they're all in the lower bucket).
+    tier.querySelectorAll(".rf-subgroup").forEach((sg) => {
+      if (sg.classList.contains("rf-subgroup--lower-shown")) return;
+      if (!sg.querySelector(".rf-word--lower")) return;
+      let visibleDefaults = 0;
+      sg.querySelectorAll(".rf-word:not(.rf-word--lower)").forEach((w) => {
+        if (getComputedStyle(w).display !== "none") visibleDefaults++;
+      });
+      if (visibleDefaults > 0) return;
+      sg.classList.add("rf-subgroup--lower-shown");
+      let visibleLower = 0;
+      sg.querySelectorAll(".rf-word--lower").forEach((w) => {
+        if (getComputedStyle(w).display !== "none") visibleLower++;
+      });
+      if (visibleLower === 0) {
+        sg.classList.remove("rf-subgroup--lower-shown");
+      } else {
+        sg.querySelector(".rf-subgroup-show-more")?.remove();
+      }
+    });
+
+    // Pass 2 — hide subgroups whose every word is filtered out so
+    // the syllable label doesn't float above empty space.
+    tier.querySelectorAll(".rf-subgroup").forEach((sg) => {
+      let sgVisible = 0;
+      sg.querySelectorAll(".rf-word").forEach((w) => {
+        if (getComputedStyle(w).display !== "none") sgVisible++;
+      });
+      sg.hidden = sgVisible === 0;
+    });
+
+    // Pass 3 — tier-level zero check, after subgroup adjustments.
     let visible = 0;
     tier.querySelectorAll(".rf-word").forEach((w) => {
       if (getComputedStyle(w).display !== "none") visible++;
     });
-
     tier.classList.toggle("rf-tier-zero", visible === 0);
     countEl.dataset.zero = String(visible === 0);
     const empty = tier.querySelector(".rf-tier-empty");
@@ -1497,17 +1538,6 @@ function updateBucketCounts() {
         hint.textContent = `adjust filters to see ${total} hidden`;
       }
     }
-
-    // Per-subgroup pruning: if every word in a syllable subgroup is
-    // filtered out, hide the subgroup so its label ("2 syllables", etc.)
-    // doesn't float above an empty row.
-    tier.querySelectorAll(".rf-subgroup").forEach((sg) => {
-      let sgVisible = 0;
-      sg.querySelectorAll(".rf-word").forEach((w) => {
-        if (getComputedStyle(w).display !== "none") sgVisible++;
-      });
-      sg.hidden = sgVisible === 0;
-    });
   });
 }
 

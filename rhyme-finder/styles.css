@@ -1148,15 +1148,23 @@ input[type="text"]::placeholder {
 }
 .rf-subgroup-show-more:hover { opacity: 0.85; }
 
-/* Lower-tier candidates revealed by "Show more" — flow inline with the
-   default row, dimmed in colour. Avoid `opacity` here because it would
-   cascade to nested popovers and let surrounding words show through. */
+/* Lower-tier candidates flow inline with the default row, dimmed in
+   colour. Avoid `opacity` here because it would cascade to nested
+   popovers and let surrounding words show through. */
 .rf-word--lower.rf-c-very-common,
 .rf-word--lower.rf-c-common {
   color: rgba(26, 20, 14, 0.6);
 }
 .rf-word--lower.rf-c-uncommon {
   color: rgba(58, 46, 31, 0.6);
+}
+/* Lower words live in the DOM so the lex filter can see them. Hide
+   them visually until the subgroup is opened (button click or
+   filter-driven auto-reveal). The lex-filter rules carry higher
+   specificity, so common-lower words still vanish when the COMMON
+   chip is off. */
+.rf-subgroup:not(.rf-subgroup--lower-shown) .rf-word--lower {
+  display: none;
 }
 
 .rf-subgroup-label {
