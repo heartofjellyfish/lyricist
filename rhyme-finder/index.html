@@ -159,9 +159,34 @@
 
       <section class="rf-results-shell">
         <div id="source-summary" class="rf-source-summary"></div>
-        <div id="source-panel" class="rf-source-panel"></div>
-        <div id="lex-filter" class="rf-lex-filter"></div>
-        <div id="results" class="rf-results"></div>
+
+        <!-- Tab chrome — two italic display titles, active tab gets a 2px
+             vermilion underline + warm-paper tint. Inactive tab shows a
+             one-line italic Spectral "peek" so the reader knows what's
+             behind the click. Hidden until the first search lands; the
+             empty-state selector keys off #results/#source-summary. -->
+        <div id="cd-tabs" class="cd-tabs" role="tablist" hidden>
+          <button type="button" class="cd-tab" role="tab" aria-selected="true" data-tab="dict" id="cd-tab-dict">
+            <span class="cd-tab-title">Rhyme dictionary</span>
+            <span class="cd-tab-counts" data-counts="dict"></span>
+            <span class="cd-tab-peek" data-peek="dict"></span>
+          </button>
+          <button type="button" class="cd-tab" role="tab" aria-selected="false" data-tab="corpus" id="cd-tab-corpus">
+            <span class="cd-tab-title">In the corpus</span>
+            <span class="cd-tab-counts" data-counts="corpus"></span>
+            <span class="cd-tab-peek" data-peek="corpus"></span>
+          </button>
+        </div>
+
+        <div class="rf-tab-bodies">
+          <div class="rf-tab-body" data-tab-body="dict" role="tabpanel" aria-labelledby="cd-tab-dict">
+            <div id="lex-filter" class="rf-lex-filter"></div>
+            <div id="results" class="rf-results"></div>
+          </div>
+          <div class="rf-tab-body" data-tab-body="corpus" role="tabpanel" aria-labelledby="cd-tab-corpus" hidden>
+            <div id="corpus-gallery"></div>
+          </div>
+        </div>
       </section>
 
       <!-- Two epigraphs at the foot of the page — one about the craft of

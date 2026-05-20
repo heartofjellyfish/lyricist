@@ -213,8 +213,9 @@ async function runSearch(word, { updateUrl = true } = {}) {
     ]);
     renderSource(source);
     renderLexFilter(buckets);
-    await renderSourcePanel(source.word);
+    await renderCorpusGallery(source.word);
     renderResults(source, buckets);
+    renderTabs(source.word, buckets);
     renderStickybar(source.word);
     updateBucketCounts();
     setStatus("");
@@ -1268,151 +1269,410 @@ function renderInlineInflectedList(tier2, popEl) {
   return wrap;
 }
 
-// ── Source-word panel · Index layout (featured "in the corpus") ────
-// Treated as a peer to the tier list below: confident chapter-style
-// header, generous vertical rhythm, hero typography on the source
-// line. Every row is a rhyme pair with a vermilion drop-quote glyph
-// in the gutter; default-collapse to first 2 rows; rest revealed via
-// a plain "+ Show N more / − Collapse" button driven by aria-expanded.
-const SRCPANEL_INITIAL_ROWS = 2;
+// ── Corpus gallery (In the corpus tab) ────────────────────────────
+// Three-card strip: left/right side cards are adjacent partner words,
+// center card is the active rhyme pair (couplet + meta + collapsed
+// stanza). Horizontal click/arrow/swipe switches partner; vertical
+// wheel/arrow/swipe switches song within the partner. Click center
+// to unfurl the surrounding stanza in place. See
+// design_handoff_corpus_gallery/README.md for the full design spec.
 
-async function renderSourcePanel(word) {
-  const panel = document.getElementById("source-panel");
-  if (!panel) return;
-  panel.innerHTML = "";
+function groupPairQuotes(quotes) {
+  // Keep only line-end quotes that have a partner — the gallery's whole
+  // shape (couplet, partner mark) presumes both lines exist.
+  const ends = quotes.filter(
+    (q) => (q.position ?? q.wordPos) === "end" && q.partner && q.partner.word
+  );
+  const map = new Map();
+  for (const q of ends) {
+    const key = q.partner.word.toLowerCase();
+    if (!map.has(key)) map.set(key, { partner: key, instances: [] });
+    map.get(key).instances.push(q);
+  }
+  const groups = [...map.values()];
+  // Within each group: sort by author alpha (per the spec — the user
+  // said author > year for the within-pair browse order).
+  for (const g of groups) {
+    g.instances.sort((a, b) => {
+      const ac = (a.credit || a.artist || "").toLowerCase();
+      const bc = (b.credit || b.artist || "").toLowerCase();
+      return ac.localeCompare(bc);
+    });
+  }
+  // Across groups: most-cited first; ties broken alpha.
+  groups.sort(
+    (a, b) =>
+      b.instances.length - a.instances.length ||
+      a.partner.localeCompare(b.partner)
+  );
+  return groups;
+}
+
+// Vermilion gradient "marker" highlight — the signature treatment for
+// the partner word in the couplet. Renders as a 0.32em vermilion band
+// sitting below the lowercase x-height of the partner word.
+function markCoupletPartner(line, word) {
+  if (!word) return escapeHtml(line);
+  const safe = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`\\b${safe}(?:['’]\\w{0,3})?\\b`, "gi");
+  return escapeHtml(line).replace(re, "<mark>$&</mark>");
+}
+
+// Bare <mark> for the source word in line B of the couplet — styled
+// vermilion bold via .cd-hero-couplet .b mark, no background band so
+// it doesn't compete with the partner marker.
+function markCoupletSource(line, word) {
+  return markCoupletPartner(line, word); // same wrap, different style scope
+}
+
+async function renderCorpusGallery(word) {
+  const mount = document.getElementById("corpus-gallery");
+  if (!mount) return;
+  mount.innerHTML = "";
 
   const quotes = await getQuotes(word);
-  const isEnd = (q) => (q.position ?? q.wordPos) === "end";
-  const ends = quotes.filter(isEnd);
+  const groups = groupPairQuotes(quotes);
 
-  if (!ends.length) {
-    panel.innerHTML =
-      `<section class="rf-srcpanel-index">` +
-      `<header class="rf-srcpanel-index-head">` +
-      `<div class="rf-srcpanel-index-headline">` +
-      `<span class="rf-srcpanel-index-eyebrow">In the corpus</span>` +
-      `<h2 class="rf-srcpanel-index-title">How songwriters rhyme <em>${escapeHtml(word)}</em></h2>` +
-      `</div>` +
-      `<div class="rf-srcpanel-index-meta">` +
-      `<span class="rf-srcpanel-index-meta-num">0</span>` +
-      `<span class="rf-srcpanel-index-meta-lbl">pairs · 0 writers</span>` +
-      `</div>` +
-      `</header>` +
-      `<p class="rf-srcpanel-index-empty">No line-end uses in the corpus yet — try a rhyme below.</p>` +
-      `</section>`;
+  if (!groups.length) {
+    mount.innerHTML =
+      `<p class="cd-prim-empty">No paired line-end uses for <em>${escapeHtml(word)}</em> in the corpus yet — try the dictionary tab.</p>`;
     return;
   }
 
-  // Sort: exact-surface first, then quotes-with-partner first within
-  // each surface group. The rhyme pair is the section's reason for
-  // existing, so we lift quotes that have one to the top.
-  const wordLower = word.toLowerCase();
-  ends.sort((a, b) => {
-    const aExact = (a.surface || "").toLowerCase() === wordLower ? 0 : 1;
-    const bExact = (b.surface || "").toLowerCase() === wordLower ? 0 : 1;
-    if (aExact !== bExact) return aExact - bExact;
-    return (a.partner ? 0 : 1) - (b.partner ? 0 : 1);
-  });
+  // Pair-cue separator is the em-dash variant by default (per the spec).
+  document.documentElement.setAttribute("data-tweak-sep", "dash");
 
-  const writerCount = new Set(ends.map((q) => q.credit || q.artist)).size;
+  // ── State ────────────────────────────────────────────────────
+  let pIdx = 0; // start at the most-cited partner
+  let iIdx = 0;
+  let stanzaOpen = false;
+  let wheelLock = false;
 
-  // Build the stanza paragraph block for a quote (when stanza data
-  // exists). Lines around the matched line render in ink-soft; the
-  // matched line(s) get .is-match for the source / partner highlights.
-  const buildStanza = (q) => {
-    if (!Array.isArray(q.stanza) || !q.stanza.length) return "";
-    const matchIdx = Number.isInteger(q.stanzaLineIdx) ? q.stanzaLineIdx : -1;
-    const partnerIdx = q.partner && Number.isInteger(q.partner.stanzaLineIdx)
-      ? q.partner.stanzaLineIdx
-      : -1;
-    const lines = q.stanza.map((s, i) => {
-      if (i === matchIdx) {
-        return `<p class="rf-srcpanel-index-stanza-line is-match">${highlightSurface(s, q.surface)}</p>`;
-      }
-      if (i === partnerIdx && q.partner) {
-        return `<p class="rf-srcpanel-index-stanza-line is-match">${highlightPair(s, q.partner.word)}</p>`;
-      }
-      return `<p class="rf-srcpanel-index-stanza-line">${escapeHtml(s)}</p>`;
-    });
-    return `<div class="rf-srcpanel-index-stanza">${lines.join("")}</div>`;
-  };
-
-  const buildRow = (q) => {
-    const partnerLine = q.partner && q.partner.line
-      ? `<p class="rf-srcpanel-index-a">${highlightPair(q.partner.line, q.partner.word)}</p>`
-      : "";
+  // ── Render fragments ─────────────────────────────────────────
+  const sideCardHTML = (g, dir) => {
+    if (!g) {
+      return `<div class="cd-strip-card cd-strip-card--side cd-strip-card--empty cd-strip-card--${dir}" aria-hidden="true"></div>`;
+    }
+    const arrow = dir === "prev" ? "‹" : "›";
     return (
-      `<li class="rf-srcpanel-index-row" tabindex="0" role="button">` +
-      `<span class="rf-srcpanel-index-quote" aria-hidden="true">&ldquo;</span>` +
-      `<div class="rf-srcpanel-index-pair">` +
-      partnerLine +
-      `<p class="rf-srcpanel-index-b">${highlightSurface(q.line, q.surface)}</p>` +
-      `</div>` +
-      `<div class="rf-srcpanel-index-attr">` +
-      `<span class="rf-srcpanel-index-attr-credit">${escapeHtml(q.credit || q.artist)}</span>` +
-      `<em class="rf-srcpanel-index-attr-song">${escapeHtml(q.songTitle || q.song)}</em>` +
-      `</div>` +
-      buildStanza(q) +
-      `</li>`
+      `<button type="button" class="cd-strip-card cd-strip-card--side cd-strip-card--${dir}" ` +
+      `data-step="${dir === "prev" ? -1 : 1}" ` +
+      `aria-label="${dir === "prev" ? "previous" : "next"} pair · ${escapeHtml(g.partner)}">` +
+      (dir === "prev" ? `<span class="cd-strip-card-arrow">${arrow}</span>` : "") +
+      `<span class="cd-strip-card-word"><em>${escapeHtml(g.partner)}</em></span>` +
+      (dir === "next" ? `<span class="cd-strip-card-arrow">${arrow}</span>` : "") +
+      `</button>`
     );
   };
 
-  const initial = ends.slice(0, SRCPANEL_INITIAL_ROWS);
-  const rest = ends.slice(SRCPANEL_INITIAL_ROWS);
+  const paircueHTML = () => {
+    const g = groups[pIdx];
+    return (
+      `<div class="cd-paircue">` +
+      `<span class="cd-paircue-item cd-paircue-item--current" ` +
+      `title="${escapeHtml(word)} · ${escapeHtml(g.partner)} — ${g.instances.length} song${g.instances.length === 1 ? "" : "s"}">` +
+      `<span class="cd-paircue-pair">` +
+      `<em class="src">${escapeHtml(word)}</em>` +
+      `<span class="cd-pair-sep" aria-hidden="true"></span>` +
+      `<em class="prt">${escapeHtml(g.partner)}</em>` +
+      `<span class="cd-pair-dot" aria-hidden="true">·</span>` +
+      `<span class="cd-pair-count">${g.instances.length}</span>` +
+      `</span>` +
+      `</span>` +
+      `<span class="cd-paircue-pos">PAIR <b>${pIdx + 1}</b><span class="sl">/</span><b>${groups.length}</b></span>` +
+      `</div>`
+    );
+  };
 
-  panel.innerHTML =
-    `<section class="rf-srcpanel-index">` +
-    `<header class="rf-srcpanel-index-head">` +
-    `<div class="rf-srcpanel-index-headline">` +
-    `<span class="rf-srcpanel-index-eyebrow">In the corpus</span>` +
-    `<h2 class="rf-srcpanel-index-title">How songwriters rhyme <em>${escapeHtml(word)}</em></h2>` +
-    `</div>` +
-    `<div class="rf-srcpanel-index-meta">` +
-    `<span class="rf-srcpanel-index-meta-num">${ends.length}</span>` +
-    `<span class="rf-srcpanel-index-meta-lbl">pair${ends.length === 1 ? "" : "s"} · ${writerCount} writer${writerCount === 1 ? "" : "s"}</span>` +
-    `</div>` +
-    `</header>` +
-    `<ol class="rf-srcpanel-index-list">` +
-    initial.map(buildRow).join("") +
-    (rest.length
-      ? `<div class="rf-srcpanel-index-rest rf-lyric-hidden">${rest.map(buildRow).join("")}</div>` +
-        `<button type="button" class="rf-srcpanel-index-more" aria-expanded="false">Show ${rest.length} more</button>`
-      : "") +
-    `</ol>` +
-    `</section>`;
+  const centerCardHTML = () => {
+    const g = groups[pIdx];
+    const q = g.instances[iIdx];
+    const matchIdx = Number.isInteger(q.stanzaLineIdx) ? q.stanzaLineIdx : -1;
+    const partnerIdx =
+      q.partner && Number.isInteger(q.partner.stanzaLineIdx)
+        ? q.partner.stanzaLineIdx
+        : -1;
+    const stanzaLines = Array.isArray(q.stanza) ? q.stanza : [];
+    const stanza = stanzaLines
+      .map((ln, j) => {
+        if (j === matchIdx)
+          return `<p class="match b">${markCoupletSource(ln, q.surface)}</p>`;
+        if (j === partnerIdx && q.partner)
+          return `<p class="match a">${markCoupletPartner(ln, q.partner.word)}</p>`;
+        return `<p>${escapeHtml(ln)}</p>`;
+      })
+      .join("");
+    const songCue =
+      g.instances.length > 1
+        ? `<span class="cd-strip-songcue">` +
+          `<button type="button" class="cd-song-btn cd-song-btn--prev" aria-label="previous song">↑</button>` +
+          `<span class="cd-song-pos">song <b>${iIdx + 1}</b> of <b>${g.instances.length}</b></span>` +
+          `<button type="button" class="cd-song-btn cd-song-btn--next" aria-label="next song">↓</button>` +
+          `</span>`
+        : "";
+    const year = q.year ? `<span class="cd-hero-meta-year">${escapeHtml(String(q.year))}</span>` : "";
+    const yearSep = q.year ? `<span class="cd-hero-meta-sep">·</span>` : "";
+    return (
+      `<article class="cd-strip-card cd-strip-card--center" data-open="${stanzaOpen}" tabindex="0">` +
+      `<div class="cd-strip-center-inner">` +
+      `<div class="cd-hero-couplet">` +
+      `<p class="a">${markCoupletPartner(q.partner.line, q.partner.word)}</p>` +
+      `<p class="b">${markCoupletSource(q.line, q.surface)}</p>` +
+      `</div>` +
+      `<div class="cd-hero-stanza">${stanza}</div>` +
+      `<div class="cd-hero-meta">` +
+      `<span class="cd-hero-meta-credit">${escapeHtml(q.credit || q.artist || "")}</span>` +
+      `<span class="cd-hero-meta-sep">·</span>` +
+      `<span class="cd-hero-meta-song">${escapeHtml(q.songTitle || q.song || "")}</span>` +
+      yearSep +
+      year +
+      `</div>` +
+      songCue +
+      `</div>` +
+      `</article>`
+    );
+  };
 
-  // Wire show-more — toggles a class on the .rf-srcpanel-index-rest
-  // container and flips aria-expanded so the CSS ::before glyph
-  // swaps `+ ` ↔ `− ` automatically.
-  const moreBtn = panel.querySelector(".rf-srcpanel-index-more");
-  if (moreBtn && rest.length) {
-    const restWrap = panel.querySelector(".rf-srcpanel-index-rest");
-    moreBtn.addEventListener("click", () => {
-      const opened = !restWrap.classList.toggle("rf-lyric-hidden");
-      moreBtn.setAttribute("aria-expanded", String(opened));
-      moreBtn.textContent = opened ? "Collapse" : `Show ${rest.length} more`;
+  const fullHTML = () => {
+    const prev = pIdx > 0 ? groups[pIdx - 1] : null;
+    const next = pIdx < groups.length - 1 ? groups[pIdx + 1] : null;
+    return (
+      `<section class="cd-prim">` +
+      paircueHTML() +
+      `<div class="cd-strip">` +
+      sideCardHTML(prev, "prev") +
+      centerCardHTML() +
+      sideCardHTML(next, "next") +
+      `</div>` +
+      `<div class="cd-prim-footer">` +
+      `<a class="cd-prim-explore" href="#" aria-disabled="true">explore all <b>${groups.length}</b> partners ↗</a>` +
+      `</div>` +
+      `</section>`
+    );
+  };
+
+  // ── Mutators ──────────────────────────────────────────────────
+  function rerender() {
+    mount.innerHTML = fullHTML();
+    bind();
+  }
+  function rerenderCenterOnly() {
+    const old = mount.querySelector(".cd-strip-card--center");
+    if (!old) return rerender();
+    const tmp = document.createElement("template");
+    tmp.innerHTML = centerCardHTML();
+    old.replaceWith(tmp.content.firstElementChild);
+    bindCenter();
+  }
+
+  function setPair(newP) {
+    newP = Math.max(0, Math.min(groups.length - 1, newP));
+    if (newP === pIdx) return;
+    const dir = newP > pIdx ? "next" : "prev";
+    pIdx = newP;
+    iIdx = 0;
+    stanzaOpen = false;
+    rerender();
+    const strip = mount.querySelector(".cd-strip");
+    const paircue = mount.querySelector(".cd-paircue");
+    [strip, paircue].forEach((el) => {
+      if (!el) return;
+      el.classList.add(`is-shifting-${dir}`);
+      setTimeout(() => el.classList.remove(`is-shifting-${dir}`), 480);
+    });
+  }
+  function setInstance(newI) {
+    const g = groups[pIdx];
+    const mod = ((newI % g.instances.length) + g.instances.length) % g.instances.length;
+    if (mod === iIdx) return;
+    iIdx = mod;
+    stanzaOpen = false;
+    rerenderCenterOnly();
+    const center = mount.querySelector(".cd-strip-card--center");
+    if (center) {
+      center.classList.add("is-instance-changed");
+      setTimeout(() => center.classList.remove("is-instance-changed"), 260);
+    }
+  }
+
+  // ── Bindings ──────────────────────────────────────────────────
+  function bindCenter() {
+    const center = mount.querySelector(".cd-strip-card--center");
+    if (!center) return;
+    center.addEventListener("click", (e) => {
+      if (e.target.closest("button, a")) return;
+      stanzaOpen = !stanzaOpen;
+      center.setAttribute("data-open", String(stanzaOpen));
+    });
+    center.addEventListener(
+      "wheel",
+      (e) => {
+        const g = groups[pIdx];
+        if (g.instances.length < 2) return;
+        if (Math.abs(e.deltaY) < 5) return;
+        e.preventDefault();
+        if (wheelLock) return;
+        wheelLock = true;
+        setTimeout(() => {
+          wheelLock = false;
+        }, 220);
+        setInstance(iIdx + (e.deltaY > 0 ? 1 : -1));
+      },
+      { passive: false }
+    );
+    center.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setInstance(iIdx + 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setInstance(iIdx - 1);
+      } else if (e.key === "ArrowLeft" && pIdx > 0) {
+        e.preventDefault();
+        setPair(pIdx - 1);
+      } else if (e.key === "ArrowRight" && pIdx < groups.length - 1) {
+        e.preventDefault();
+        setPair(pIdx + 1);
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        stanzaOpen = !stanzaOpen;
+        center.setAttribute("data-open", String(stanzaOpen));
+      }
+    });
+    // Touch swipe — horizontal = pair, vertical = song. 36px threshold.
+    let touchStart = null;
+    center.addEventListener(
+      "touchstart",
+      (e) => {
+        const t = e.touches[0];
+        touchStart = { x: t.clientX, y: t.clientY, t: Date.now() };
+      },
+      { passive: true }
+    );
+    center.addEventListener(
+      "touchend",
+      (e) => {
+        if (!touchStart) return;
+        const t = e.changedTouches[0];
+        const dx = t.clientX - touchStart.x;
+        const dy = t.clientY - touchStart.y;
+        const dt = Date.now() - touchStart.t;
+        touchStart = null;
+        if (dt > 600) return;
+        const ax = Math.abs(dx);
+        const ay = Math.abs(dy);
+        if (Math.max(ax, ay) < 36) return;
+        if (ax > ay) {
+          if (dx < 0 && pIdx < groups.length - 1) setPair(pIdx + 1);
+          else if (dx > 0 && pIdx > 0) setPair(pIdx - 1);
+        } else {
+          const g = groups[pIdx];
+          if (g.instances.length < 2) return;
+          if (dy < 0) setInstance(iIdx + 1);
+          else setInstance(iIdx - 1);
+        }
+      },
+      { passive: true }
+    );
+    center.querySelectorAll(".cd-song-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const step = btn.classList.contains("cd-song-btn--next") ? 1 : -1;
+        setInstance(iIdx + step);
+      });
     });
   }
 
-  // Click any row → reveal the surrounding stanza below the pair.
-  // Only rows whose quote came with stanza data have the stanza node
-  // baked in (buildStanza skips when empty), so we just toggle .is-open
-  // and let the CSS show/hide the .rf-srcpanel-index-stanza.
-  panel.querySelectorAll(".rf-srcpanel-index-row").forEach((row) => {
-    if (!row.querySelector(".rf-srcpanel-index-stanza")) {
-      // No stanza data — keep the row non-interactive (still focusable
-      // for a11y; the role="button" is more semantic than functional).
-      row.style.cursor = "default";
-      return;
-    }
-    row.addEventListener("click", () => {
-      row.classList.toggle("is-open");
+  function bind() {
+    mount.querySelectorAll(".cd-strip-card--side").forEach((card) => {
+      if (card.classList.contains("cd-strip-card--empty")) return;
+      card.addEventListener("click", () => {
+        setPair(pIdx + (Number(card.dataset.step) || 0));
+      });
     });
-    row.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        row.classList.toggle("is-open");
-      }
+    // Footer "explore all N" — destination view is out of scope; preserve
+    // the link affordance but no-op the click for now.
+    const explore = mount.querySelector(".cd-prim-explore");
+    if (explore) explore.addEventListener("click", (e) => e.preventDefault());
+    bindCenter();
+  }
+
+  rerender();
+}
+
+// ── Tabs (Rhyme dictionary / In the corpus) ───────────────────────
+// Populates the tab counts + inactive-tab peek lines, makes the tab
+// chrome visible, and wires click/keyboard switching between bodies.
+async function renderTabs(word, buckets) {
+  const tabs = document.getElementById("cd-tabs");
+  if (!tabs) return;
+  tabs.hidden = false;
+
+  // ── Dictionary counts + peek ──
+  let tierCount = 0;
+  let wordCount = 0;
+  for (const t of TYPE_ORDER) {
+    const n = buckets[t]?.length ?? 0;
+    if (n > 0) {
+      tierCount += 1;
+      wordCount += n;
+    }
+  }
+  const dictCounts = tabs.querySelector('[data-counts="dict"]');
+  if (dictCounts) {
+    dictCounts.innerHTML = `<b>${tierCount}</b> tier${tierCount === 1 ? "" : "s"} · <b>${wordCount}</b> word${wordCount === 1 ? "" : "s"}`;
+  }
+  const dictPeek = tabs.querySelector('[data-peek="dict"]');
+  if (dictPeek) {
+    const sample = [];
+    for (const t of TYPE_ORDER) {
+      const n = buckets[t]?.length ?? 0;
+      if (n > 0) sample.push(`${TIER_META[t]?.label.toLowerCase() ?? t} <b>${n}</b>`);
+      if (sample.length === 3) break;
+    }
+    dictPeek.innerHTML = sample.length
+      ? sample.join(" · ")
+      : "<em>—</em>";
+  }
+
+  // ── Corpus counts + peek ──
+  // Reuse the same getQuotes call the gallery used; the bucket is
+  // already cached so this is sync-fast.
+  const quotes = await getQuotes(word);
+  const groups = groupPairQuotes(quotes);
+  const partnerCount = groups.length;
+  const songCount = groups.reduce((s, g) => s + g.instances.length, 0);
+  const corpusCounts = tabs.querySelector('[data-counts="corpus"]');
+  if (corpusCounts) {
+    corpusCounts.innerHTML = partnerCount
+      ? `<b>${partnerCount}</b> partner${partnerCount === 1 ? "" : "s"} · <b>${songCount}</b> song${songCount === 1 ? "" : "s"}`
+      : `no paired uses yet`;
+  }
+  const corpusPeek = tabs.querySelector('[data-peek="corpus"]');
+  if (corpusPeek) {
+    if (groups.length) {
+      const top = groups[0];
+      corpusPeek.innerHTML = `<em>${escapeHtml(word)}</em> — <em>${escapeHtml(top.partner)}</em> <b>·${top.instances.length}</b>`;
+    } else {
+      corpusPeek.innerHTML = `<em>nothing yet</em>`;
+    }
+  }
+
+  // ── Wire tab switching (idempotent — clones each button so a re-run
+  // doesn't pile up listeners). ──
+  tabs.querySelectorAll(".cd-tab").forEach((btn) => {
+    const fresh = btn.cloneNode(true);
+    btn.replaceWith(fresh);
+  });
+  tabs.querySelectorAll(".cd-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.tab;
+      tabs.querySelectorAll(".cd-tab").forEach((b) => {
+        b.setAttribute("aria-selected", String(b.dataset.tab === target));
+      });
+      document.querySelectorAll(".rf-tab-body").forEach((body) => {
+        body.hidden = body.dataset.tabBody !== target;
+      });
     });
   });
 }
