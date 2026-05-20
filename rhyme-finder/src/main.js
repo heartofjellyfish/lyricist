@@ -3,13 +3,22 @@
 // labels, mas/fem warnings, partners/companions split for family rhyme,
 // and cliché flags.
 
-import { findRhymes, TYPE_ORDER } from "./rhymeFinder.js";
+import { findRhymes, TYPE_ORDER, prewarm } from "./rhymeFinder.js";
 import {
   hasQuotes,
   getQuotes,
   ensureExistence,
   prefetchBucketsFor,
 } from "./lyricLibrary.js";
+
+// Eager warmup — fire all heavy fetches in the background the moment main.js
+// runs, in parallel with the user reading the page. CMU dict (~500 KB br),
+// wordnet/lyric-frequency lists (~2 MB), and the lyric-library existence
+// index all become "warm" while the visitor is still deciding what to search.
+// By the time they hit submit the first-search dict-load tax is gone.
+// All calls are idempotent and silently no-op on subsequent invocations.
+prewarm().catch(() => {});
+ensureExistence().catch(() => {});
 
 // ── DOM ─────────────────────────────────────────────────────────────
 const form = document.getElementById("finder-form");

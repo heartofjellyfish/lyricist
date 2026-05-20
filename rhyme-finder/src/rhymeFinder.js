@@ -354,3 +354,11 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
 }
 
 export { TYPE_ORDER };
+
+// Fire-and-forget warmup — load CMU dict + wordnet/frequency lists in the
+// background so the first search doesn't have to wait for ~5 MB of network
+// + parse. Idempotent; safe to call repeatedly. Call from main.js at module
+// load so the user's reading time covers the dict load.
+export function prewarm() {
+  return Promise.all([ensurePronunciation(), loadWordlists()]);
+}
