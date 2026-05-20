@@ -139,6 +139,10 @@
         <section class="rf-panel">
           <form id="finder-form" class="rf-form">
             <div class="rf-input-row">
+              <!-- ⌕ glyph + "clear ×" only surface when the hero collapses
+                   into its slim-banner pill (i.e. after the first search).
+                   In the empty hero they sit display:none. -->
+              <span class="rf-input-glyph" aria-hidden="true">⌕</span>
               <input
                 id="word-input"
                 name="word"
@@ -148,6 +152,7 @@
                 spellcheck="false"
                 autofocus
               />
+              <button type="button" class="rf-input-clear" id="input-clear" aria-label="Clear input">×</button>
               <button type="submit" class="rf-go-btn" aria-label="Find rhymes">
                 <span class="rf-go-btn-arrow" aria-hidden="true">→</span>
               </button>

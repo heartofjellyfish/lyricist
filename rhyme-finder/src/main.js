@@ -252,6 +252,54 @@ form.addEventListener("submit", (e) => {
   runSearch(word);
 });
 
+// ── Slim-banner home/clear handlers ─────────────────────────────────
+// After the first search the hero collapses to a slim banner (Option A,
+// search-collapse). The wordmark is a link back to the empty/home state;
+// the "clear ×" chip wipes the input so the user can type a new word.
+//
+// goHome() empties every results surface the renderers populate so the
+// :has(#results:not(:empty)) selector flips back to the empty hero.
+function goHome() {
+  wordInput.value = "";
+  sourceSummary.innerHTML = "";
+  results.innerHTML = "";
+  const corpus = document.getElementById("corpus-gallery");
+  if (corpus) corpus.innerHTML = "";
+  const lex = document.getElementById("lex-filter");
+  if (lex) lex.innerHTML = "";
+  const tabs = document.getElementById("cd-tabs");
+  if (tabs) {
+    tabs.innerHTML = "";
+    tabs.hidden = true;
+  }
+  const sticky = document.getElementById("stickybar");
+  if (sticky) sticky.innerHTML = "";
+  setStatus("");
+  const url = new URL(window.location.href);
+  url.searchParams.delete("q");
+  window.history.replaceState({}, "", url);
+  wordInput.focus();
+}
+
+document.querySelector(".rf-title")?.addEventListener("click", (e) => {
+  // Only act when collapsed — in the empty state the title is decorative.
+  if (!sourceSummary.innerHTML && !results.innerHTML) return;
+  e.preventDefault();
+  goHome();
+});
+
+document.getElementById("input-clear")?.addEventListener("click", () => {
+  // Per the design: clear × wipes the input so the user can start typing.
+  // Results stay until the next submit — full home reset lives on the
+  // wordmark. If the input is already empty, fall through to home reset.
+  if (!wordInput.value) {
+    goHome();
+    return;
+  }
+  wordInput.value = "";
+  wordInput.focus();
+});
+
 // ── Deep-link support ──────────────────────────────────────────────
 // On first load, if ?q=<word> is in the URL, pre-fill the input and
 // auto-run the search. This lets links like rhyme.qi.land/?q=love

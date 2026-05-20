@@ -113,10 +113,190 @@ body::before {
   align-items: center;
 }
 
+/* ── Slim banner (Option A · search-collapse) ──────────────────
+   After the first search, the hero stops being a centered painting +
+   big title + bordered input and becomes a 1-row banner: small
+   wordmark left, a 460px pill-input center, total height ~52px. The
+   shanshui painting hides; the seal shrinks beside the wordmark.
+   The pill IS the existing input — only its chrome changes, so the
+   form submit, value sync, and #status node carry over unchanged. */
 .rf-app:has(#results:not(:empty)) .rf-hero,
 .rf-app:has(#source-summary:not(:empty)) .rf-hero {
-  padding-top: 56px;
-  margin-bottom: 28px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 22px;
+  width: 100%;
+  padding: 10px 4px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--hair);
+  text-align: left;
+}
+
+/* Title row collapses to inline-flex; shanshui hides. */
+.rf-app:has(#results:not(:empty)) .rf-title-row,
+.rf-app:has(#source-summary:not(:empty)) .rf-title-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.rf-app:has(#results:not(:empty)) .rf-title-row .rf-mg-shanshui,
+.rf-app:has(#source-summary:not(:empty)) .rf-title-row .rf-mg-shanshui {
+  display: none;
+}
+
+/* The wordmark — clickable link back to the empty/home state. */
+.rf-app:has(#results:not(:empty)) .rf-title,
+.rf-app:has(#source-summary:not(:empty)) .rf-title {
+  font-size: 22px;
+  line-height: 1;
+  margin: 0;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+.rf-app:has(#results:not(:empty)) .rf-title:hover,
+.rf-app:has(#source-summary:not(:empty)) .rf-title:hover {
+  color: var(--vermilion);
+}
+.rf-app:has(#results:not(:empty)) .rf-title:hover .rf-title-finder,
+.rf-app:has(#source-summary:not(:empty)) .rf-title:hover .rf-title-finder {
+  color: var(--vermilion);
+}
+.rf-app:has(#results:not(:empty)) .rf-title-amp,
+.rf-app:has(#source-summary:not(:empty)) .rf-title-amp {
+  font-size: 11px;
+  margin: 0 4px;
+  transform: translateY(-3px);
+}
+.rf-app:has(#results:not(:empty)) .rf-title-finder,
+.rf-app:has(#source-summary:not(:empty)) .rf-title-finder {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  padding-top: 0;
+}
+
+/* Seal shrinks to ~22px and sits inline beside "Finder". */
+.rf-app:has(#results:not(:empty)) .rf-seal,
+.rf-app:has(#source-summary:not(:empty)) .rf-seal {
+  position: static;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  margin-left: 6px;
+  transform: rotate(-6deg) translateY(-2px);
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255, 240, 220, 0.18),
+    inset 0 0 8px rgba(80, 10, 0, 0.4);
+}
+
+/* Panel becomes the pill container: centered in the remaining
+   horizontal space, no top margin. The pill itself is the existing
+   .rf-input-row, only its border/padding/internal layout changes. */
+.rf-app:has(#results:not(:empty)) .rf-panel,
+.rf-app:has(#source-summary:not(:empty)) .rf-panel {
+  margin: 0 auto;
+  max-width: 460px;
+  flex: 1 1 auto;
+  width: auto;
+}
+.rf-app:has(#results:not(:empty)) .rf-input-row,
+.rf-app:has(#source-summary:not(:empty)) .rf-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 6px 5px 12px;
+  border: 1px solid var(--ink);
+  background: rgba(255, 250, 235, 0.45);
+}
+/* Vermilion brush-stroke under the pill — overrides the empty-state
+   ink-ghost shadow to keep the brand accent visible after collapse. */
+.rf-app:has(#results:not(:empty)) .rf-input-row::after,
+.rf-app:has(#source-summary:not(:empty)) .rf-input-row::after {
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: var(--vermilion);
+  opacity: 0.5;
+}
+.rf-app:has(#results:not(:empty)) .rf-input-row:focus-within,
+.rf-app:has(#source-summary:not(:empty)) .rf-input-row:focus-within {
+  border-color: var(--vermilion);
+}
+
+.rf-app:has(#results:not(:empty)) input[type="text"],
+.rf-app:has(#source-summary:not(:empty)) input[type="text"] {
+  font-size: 18px;
+  text-align: left;
+  padding: 2px 0;
+  letter-spacing: -0.005em;
+}
+
+/* Surface the glyph + clear button only in the collapsed state. */
+.rf-app:has(#results:not(:empty)) .rf-input-glyph,
+.rf-app:has(#source-summary:not(:empty)) .rf-input-glyph {
+  display: inline-block;
+}
+.rf-app:has(#results:not(:empty)) .rf-input-clear,
+.rf-app:has(#source-summary:not(:empty)) .rf-input-clear {
+  display: inline-flex;
+}
+/* In collapsed mode the go-btn cedes its slot to "clear ×"; Enter
+   still submits via the form, so submission stays available. */
+.rf-app:has(#results:not(:empty)) .rf-go-btn,
+.rf-app:has(#source-summary:not(:empty)) .rf-go-btn {
+  display: none;
+}
+
+/* The status node (loading text / errors) drops below the pill at
+   small scale so it stays visible without busting the banner row. */
+.rf-app:has(#results:not(:empty)) .rf-status,
+.rf-app:has(#source-summary:not(:empty)) .rf-status {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  font-size: 9px;
+}
+
+/* Empty-state defaults for the new pill chrome — both hidden until
+   the slim-banner selector flips them on. */
+.rf-input-glyph {
+  display: none;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-faded);
+  line-height: 1;
+  align-items: center;
+}
+/* Glyph-only × — no box, no label. The pill stops competing with the
+   wordmark; the action is implied. Italic Cormorant matches the pill
+   word's voice; hover grows it slightly + turns vermilion. */
+.rf-input-clear {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink-faded);
+  cursor: pointer;
+  transition: color 160ms ease, transform 160ms ease;
+}
+.rf-input-clear:hover {
+  color: var(--vermilion);
+  transform: scale(1.08);
 }
 
 .rf-eyebrow {
@@ -1271,6 +1451,34 @@ input[type="text"]::placeholder {
   .rf-tier-head { gap: 8px; }
   .rf-tier-count { margin-left: 0; }
   .rf-seal { right: -42px; width: 36px; height: 36px; font-size: 18px; }
+
+  /* Slim banner stacks: wordmark on top, pill below — both full-width.
+     Per the design's mobile spec for Option A. */
+  .rf-app:has(#results:not(:empty)) .rf-hero,
+  .rf-app:has(#source-summary:not(:empty)) .rf-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 4px;
+  }
+  .rf-app:has(#results:not(:empty)) .rf-title-row,
+  .rf-app:has(#source-summary:not(:empty)) .rf-title-row {
+    justify-content: flex-start;
+  }
+  .rf-app:has(#results:not(:empty)) .rf-panel,
+  .rf-app:has(#source-summary:not(:empty)) .rf-panel {
+    max-width: 100%;
+    width: 100%;
+  }
+  /* The mobile rule above changes .rf-seal sizing for the empty-state
+     hero; in the collapsed banner we want the 22px shrunk seal back. */
+  .rf-app:has(#results:not(:empty)) .rf-seal,
+  .rf-app:has(#source-summary:not(:empty)) .rf-seal {
+    right: auto;
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
 }
 
 /* ── Source-word panel (Phase 1.7) ─────────────────────────────────
