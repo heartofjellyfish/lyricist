@@ -3460,7 +3460,8 @@ input[type="text"]::placeholder {
 /* Side cards — "hollow" design: thin vermilion outlined circle with the
    chevron glyph inside, partner word as a small mono caps label below.
    The whole stack is vertically padded so it sits between the couplet
-   lines visually. */
+   lines visually. Hidden at rest; fades in on hover/focus of the strip
+   alongside the paircue + songcue. */
 .cd-strip-card--side {
   cursor: pointer;
   line-height: 1;
@@ -3471,6 +3472,14 @@ input[type="text"]::placeholder {
   justify-content: flex-start;
   gap: 10px;
   background: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease, color 200ms ease;
+}
+.cd-prim:hover .cd-strip-card--side,
+.cd-prim:focus-within .cd-strip-card--side {
+  opacity: 1;
+  pointer-events: auto;
 }
 .cd-strip-card--side:hover,
 .cd-strip-card--side:focus-visible {
@@ -3706,6 +3715,8 @@ input[type="text"]::placeholder {
 .cd-hero-meta-sep { color: var(--ink-ghost); }
 
 /* ── Song nav (within-pair) ────────────────────────────────── */
+/* Hidden at rest like the paircue + side cards — fades in on hover/
+   focus of the strip so the resting state is just the couplet. */
 .cd-strip-songcue {
   display: inline-flex;
   align-items: center;
@@ -3716,6 +3727,14 @@ input[type="text"]::placeholder {
   text-transform: uppercase;
   color: var(--ink-faded);
   margin-top: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+.cd-prim:hover .cd-strip-songcue,
+.cd-prim:focus-within .cd-strip-songcue {
+  opacity: 1;
+  pointer-events: auto;
 }
 .cd-strip-songcue b {
   color: var(--ink);
@@ -3834,4 +3853,12 @@ input[type="text"]::placeholder {
     padding-top: 8px;
     border-top: 1px dotted var(--hair);
   }
+}
+
+/* Touch / non-hover devices — there's no hover to trigger the reveal,
+   so always show the paircue + songcue (side cards are already
+   display:none on mobile via the rule above). */
+@media (hover: none) {
+  .cd-paircue { opacity: 1; }
+  .cd-strip-songcue { opacity: 1; pointer-events: auto; }
 }
