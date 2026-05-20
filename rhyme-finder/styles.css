@@ -3457,19 +3457,20 @@ input[type="text"]::placeholder {
   transition: opacity 200ms ease, color 200ms ease;
 }
 
-/* Side cards — minimal: arrow + partner word, faded vermilion */
+/* Side cards — "hollow" design: thin vermilion outlined circle with the
+   chevron glyph inside, partner word as a small mono caps label below.
+   The whole stack is vertically padded so it sits between the couplet
+   lines visually. */
 .cd-strip-card--side {
   cursor: pointer;
-  font-family: var(--display);
-  font-style: italic;
-  font-size: 17px;
   line-height: 1;
   color: rgba(177, 59, 44, 0.55);
-  padding: 46px 4px 8px;
-  flex-direction: row;
+  padding: 44px 4px 8px;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
+  background: transparent;
 }
 .cd-strip-card--side:hover,
 .cd-strip-card--side:focus-visible {
@@ -3480,26 +3481,49 @@ input[type="text"]::placeholder {
   visibility: hidden;
   cursor: default;
 }
-.cd-strip-card--prev { justify-content: flex-start; padding-left: 0; }
-.cd-strip-card--next { justify-content: flex-end; padding-right: 0; }
+.cd-strip-card--prev,
+.cd-strip-card--next { justify-content: flex-start; padding-left: 0; padding-right: 0; }
 .cd-strip-card-word {
   display: inline-flex;
   align-items: center;
   line-height: 1;
 }
 .cd-strip-card-word em {
-  font-style: italic;
-  color: inherit;
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
   font-weight: 500;
+  transition: color 140ms ease;
+}
+.cd-strip-card--side:hover .cd-strip-card-word em,
+.cd-strip-card--side:focus-visible .cd-strip-card-word em {
+  color: var(--vermilion);
 }
 .cd-strip-card-arrow {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--vermilion);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vermilion);
   font-family: var(--display);
   font-style: italic;
   font-weight: 400;
-  font-size: 17px;
+  font-size: 19px;
   line-height: 1;
-  color: inherit;
+  opacity: 0.7;
   pointer-events: none;
+  transition: opacity 140ms ease, background 140ms ease;
+}
+.cd-strip-card--side:hover .cd-strip-card-arrow,
+.cd-strip-card--side:focus-visible .cd-strip-card-arrow {
+  opacity: 1;
+  background: rgba(177, 59, 44, 0.08);
 }
 
 /* ── Center card ────────────────────────────────────────────── */
