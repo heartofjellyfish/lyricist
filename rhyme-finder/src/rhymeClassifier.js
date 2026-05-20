@@ -251,6 +251,18 @@ function maxOnsetStart(phonemes, stressIdx) {
   return stressIdx - 1;
 }
 
+// Stable bucket key for a word — everything from the last stressed vowel
+// onward, joined with underscores so it's filename-safe. Two words share
+// this key iff they're perfect rhymes by Pattison's definition (identical
+// stressed vowel + coda + trailing). Used by lyric-library bucket storage.
+// Returns null for words with no usable stressed vowel.
+export function rhymeKeyOf(phonemes) {
+  if (!phonemes || phonemes.length === 0) return null;
+  const stressIdx = lastStressedVowelIndex(phonemes);
+  if (stressIdx === -1) return null;
+  return phonemes.slice(stressIdx).join("_");
+}
+
 export function analyzeWord(word) {
   const phonemes = phonemesFor(word);
   if (!phonemes || phonemes.length === 0) {

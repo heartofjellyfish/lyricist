@@ -4,7 +4,12 @@
 // and cliché flags.
 
 import { findRhymes, TYPE_ORDER } from "./rhymeFinder.js";
-import { prefetchForWords, getQuotes } from "./lyricLibrary.js";
+import {
+  hasQuotes,
+  getQuotes,
+  ensureExistence,
+  prefetchBucketsFor,
+} from "./lyricLibrary.js";
 
 // ── DOM ─────────────────────────────────────────────────────────────
 const form = document.getElementById("finder-form");
@@ -185,20 +190,33 @@ async function runSearch(word, { updateUrl = true } = {}) {
     // Yield to the event loop so the loading UI paints before the scan.
     await new Promise((r) => setTimeout(r, 0));
     const { source, buckets } = await findRhymes({ word, perBucket: 200 });
-    // Prefetch lyric-library letter buckets for the source word + every
-    // candidate word so renderWord() can synchronously decorate badges.
-    // Also pull in the corpus-derived cliché pair list — both are needed
-    // before render can flag candidates correctly.
-    const allWords = [source.word];
-    for (const t of TYPE_ORDER) for (const c of buckets[t] ?? []) allWords.push(c.word);
-    await Promise.all([prefetchForWords(allWords), loadCliches()]);
+
+    // Block on only what initial paint truly needs:
+    //   · existence.json  → drives hasQuotes() sync gate for candidate badges
+    //   · source bucket   → renderSourcePanel reads it synchronously after
+    //   · cliché pairs    → renderResults flags overworked pairs
+    // Candidate buckets are NOT awaited — they stream in parallel after
+    // results paint and decorate the DOM as each one resolves (see below).
+    await Promise.all([
+      ensureExistence(),
+      prefetchBucketsFor([source.word]),
+      loadCliches(),
+    ]);
     renderSource(source);
     renderLexFilter(buckets);
-    renderSourcePanel(source.word);
+    await renderSourcePanel(source.word);
     renderResults(source, buckets);
     renderStickybar(source.word);
     updateBucketCounts();
     setStatus("");
+
+    // Kick off candidate-bucket prefetch in the background — renderWord
+    // has already attached an awaiting `decorateWithLyrics()` per candidate
+    // that resolves as its bucket arrives. Fire-and-forget here; failures
+    // are non-fatal (the popover just stays empty for that candidate).
+    const candidateWords = [];
+    for (const t of TYPE_ORDER) for (const c of buckets[t] ?? []) candidateWords.push(c.word);
+    prefetchBucketsFor(candidateWords).catch(() => {});
 
     // Reflect the searched word in the URL so the page is link-shareable.
     // Use replaceState rather than pushState so multiple consecutive
@@ -613,7 +631,9 @@ function renderWord(candidate, source) {
   // lyric quotes — otherwise the OS tooltip and our popover both appear,
   // which reads as cluttered. The phonetic info is non-essential and
   // surfaced elsewhere already (mismatch underline, cliché strikethrough).
-  const willHaveLyrics = getQuotes(candidate.word).length > 0;
+  // hasQuotes() reads the existence index (sync, loaded once at init), so
+  // we can gate the tooltip without waiting on the per-bucket fetch.
+  const willHaveLyrics = hasQuotes(candidate.word);
   if (!willHaveLyrics) {
     el.title = [
       candidate.masculine ? "masculine" : "feminine",
@@ -652,8 +672,12 @@ function renderWord(candidate, source) {
 // stanza; no `+ context` button.
 const POP_CAP = 2; // tier-1 quotes shown by default
 
-function decorateWithLyrics(el, word) {
-  const quotes = getQuotes(word);
+async function decorateWithLyrics(el, word) {
+  // Fast-path the badge gate: if the existence index says we have no quotes
+  // for this word, skip the bucket fetch entirely. (Avoids a network call
+  // on every candidate without quotes — most candidates don't have them.)
+  if (!hasQuotes(word)) return;
+  const quotes = await getQuotes(word);
   if (!quotes.length) return;
 
   const isEnd = (q) => (q.position ?? q.wordPos) === "end";
@@ -1243,12 +1267,12 @@ function renderInlineInflectedList(tier2, popEl) {
 // a plain "+ Show N more / − Collapse" button driven by aria-expanded.
 const SRCPANEL_INITIAL_ROWS = 2;
 
-function renderSourcePanel(word) {
+async function renderSourcePanel(word) {
   const panel = document.getElementById("source-panel");
   if (!panel) return;
   panel.innerHTML = "";
 
-  const quotes = getQuotes(word);
+  const quotes = await getQuotes(word);
   const isEnd = (q) => (q.position ?? q.wordPos) === "end";
   const ends = quotes.filter(isEnd);
 

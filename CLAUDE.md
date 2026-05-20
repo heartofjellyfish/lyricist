@@ -255,14 +255,15 @@ To add an override:
 
 ### Lyric corpus & derived wordlists
 
-Rhyme Finder uses three wordlists derived from the lyric library
-(`wordlists/lyric-library/*.json`). All three are committed as static
+Rhyme Finder uses four artifacts derived from the lyric library
+(`wordlists/lyric-library/*.json`). All four are committed as static
 assets and **must be rebuilt whenever the lyric library expands**.
 
 | derived file | builder | purpose |
 |---|---|---|
 | `wordlists/lyric-frequency.json` | `scripts/buildLyricFrequency.mjs` | word → song-appearance count, drives the lyric-familiarity score |
 | `wordlists/cliche-pairs.json` | `scripts/buildClicheList.mjs` | top-50 most-co-occurring rhyme pairs at line-end, drives the cliché flag |
+| `wordlists/lyric-library/buckets/{rhymeKey}.json` + `existence.json` | `scripts/buildLyricBuckets.mjs` | per-rhyme-key bucket files (~4,900) + lookup index — what rhyme-finder fetches at runtime. See "Lyric library on-the-wire" below. |
 | `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
 
 **Re-run protocol after corpus expansion:**
@@ -274,11 +275,41 @@ node lyric-library/scripts/build-index.mjs
 # 2. Rebuild the derived wordlists from the new index
 node scripts/buildLyricFrequency.mjs
 node scripts/buildClicheList.mjs
+node scripts/buildLyricBuckets.mjs
 
 # 3. Commit the regenerated JSONs (and the underlying lyric-library/*.json)
-git add wordlists/lyric-frequency.json wordlists/cliche-pairs.json wordlists/lyric-library/
+git add wordlists/lyric-frequency.json wordlists/cliche-pairs.json \
+        wordlists/lyric-library/buckets wordlists/lyric-library/existence.json \
+        wordlists/lyric-library/
 git commit -m "Corpus expansion: <which artists/songs added>"
 ```
+
+#### Lyric library on-the-wire (May 2026 redesign)
+
+The per-letter index files (`wordlists/lyric-library/[a-z_].json`) are
+NO LONGER fetched by the runtime client. They're build inputs only,
+`.vercelignore`d from deploys (saves ~83 MB).
+
+At runtime the client fetches:
+
+1. `wordlists/lyric-library/existence.json` once on init (~120 KB raw,
+   ~30 KB compressed). Carries `{ words, buckets }` — `words` drives the
+   sync `hasQuotes()` badge gate; `buckets` is the set of rhyme keys
+   that actually exist as files, used to short-circuit fetches for
+   classifier candidates whose rhyme key has no corpus presence.
+
+2. `wordlists/lyric-library/buckets/{rhymeKey}.json` lazily, one per
+   Pattison rhyme key (e.g. `UW1_CH_ER0.json` holds quotes for
+   "future", "creature", etc.). Median 1 word per bucket, max ~157
+   (`EY1_SH_AH0_N` — the -ation family). Each fetch is sub-100 KB
+   compressed.
+
+A search of "future" no longer downloads the entire corpus — it
+fetches the existence index once + a handful of small bucket files on
+demand. The canonical bucket key for a word is `rhymeKeyOf(phonemes)`
+exported from `rhyme-finder/src/rhymeClassifier.js`; the build script
+and the client share that single helper so the layout is always
+consistent.
 
 The cliché list in particular is only as good as the corpus it's derived
 from — pairs that show up a lot in your curated artists become "cliché" in
