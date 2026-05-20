@@ -5,3 +5,4 @@ books/
 .claude/
 lyric-library/.env
 lyric-library/raw/
+lyric-library/raw

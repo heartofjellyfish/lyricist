@@ -806,10 +806,10 @@
       "songCount": 19
     }
   ],
-  "builtAt": "2026-05-04T04:36:55.543Z",
+  "builtAt": "2026-05-20T19:43:57.677Z",
   "totalSongs": 2149,
-  "totalLines": 83934,
-  "totalTokens": 546303,
-  "totalEndQuotesWithPartner": 41678,
-  "totalEndQuotes": 76235
+  "totalLines": 83914,
+  "totalTokens": 83914,
+  "totalEndQuotesWithPartner": 44003,
+  "totalEndQuotes": 83914
 }
