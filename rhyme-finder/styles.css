@@ -399,7 +399,12 @@ body::before {
 .rf-tab-toggle {
   position: relative;
   display: inline-flex;
-  width: 76px;
+  /* 78 (not 76) so the inner content is 76 px with border-box — two
+     38 px cells fit exactly, and the 34-wide vermilion marker keeps
+     a symmetric 2 px gap on every side (left, right, top, bottom)
+     in either state. Smaller widths made the corpus-state marker
+     touch the inner right border. */
+  width: 78px;
   height: 30px;
   border: 1px solid var(--ink);
   background: var(--paper-deep);
