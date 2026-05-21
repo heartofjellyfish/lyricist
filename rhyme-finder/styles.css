@@ -230,6 +230,14 @@ body::before {
   .rf-app:has(#source-summary:not(:empty)) .rf-title:hover .rf-title-finder {
     color: var(--vermilion);
   }
+  /* Mirror the bar's left padding as right margin on the wordmark
+     so the breathing room either side of "Rhyme · Finder 韵" is
+     visually symmetric on wide viewports. Subtract the 14 px flex
+     gap that already sits between the wordmark and the pill. */
+  .rf-app:has(#results:not(:empty)) .rf-title,
+  .rf-app:has(#source-summary:not(:empty)) .rf-title {
+    margin-right: calc(clamp(20px, 4vw, 56px) - 14px);
+  }
 }
 
 /* Seal shrinks to ~22px and sits standalone as the home link. */
