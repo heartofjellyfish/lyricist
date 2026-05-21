@@ -163,11 +163,10 @@ body::before {
 }
 
 /* The wordmark — clickable link back to the empty/home state.
-   In the merged sticky bar only the 韵 seal stays visible; the
-   "Rhyme · Finder" text drops out (it duplicates the seal's brand
-   role and crowds the bar). The seal itself remains the click
-   target — sized as before, just hoisted out of inline-flex so it
-   sits on its own as a standalone home link. */
+   In the merged sticky bar the seal is always visible; the
+   "Rhyme · Finder" text only appears at ≥1100 px viewport (see the
+   media-query block below) — under that, the bar is too tight to
+   carry it without crowding the pill. */
 .rf-app:has(#results:not(:empty)) .rf-title,
 .rf-app:has(#source-summary:not(:empty)) .rf-title {
   font-size: 0;
@@ -182,6 +181,54 @@ body::before {
 .rf-app:has(#results:not(:empty)) .rf-title-finder,
 .rf-app:has(#source-summary:not(:empty)) .rf-title-finder {
   display: none;
+}
+
+/* ≥1100 px — the bar has enough room to carry the full wordmark
+   inline beside the seal. Title text reads as the brand cue +
+   click target back home; the seal stays as a stamped accent. */
+@media (min-width: 1100px) {
+  .rf-app:has(#results:not(:empty)) .rf-title,
+  .rf-app:has(#source-summary:not(:empty)) .rf-title {
+    font-size: 22px;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0;
+  }
+  .rf-app:has(#results:not(:empty)) .rf-title-rhyme,
+  .rf-app:has(#source-summary:not(:empty)) .rf-title-rhyme {
+    display: inline;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink);
+    transition: color 160ms ease;
+  }
+  .rf-app:has(#results:not(:empty)) .rf-title-amp,
+  .rf-app:has(#source-summary:not(:empty)) .rf-title-amp {
+    display: inline-block;
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--ink-faded);
+    margin: 0 4px;
+    transform: translateY(-3px);
+  }
+  .rf-app:has(#results:not(:empty)) .rf-title-finder,
+  .rf-app:has(#source-summary:not(:empty)) .rf-title-finder {
+    display: inline;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    align-self: center;
+  }
+  .rf-app:has(#results:not(:empty)) .rf-title:hover .rf-title-rhyme,
+  .rf-app:has(#source-summary:not(:empty)) .rf-title:hover .rf-title-rhyme,
+  .rf-app:has(#results:not(:empty)) .rf-title:hover .rf-title-finder,
+  .rf-app:has(#source-summary:not(:empty)) .rf-title:hover .rf-title-finder {
+    color: var(--vermilion);
+  }
 }
 
 /* Seal shrinks to ~22px and sits standalone as the home link. */
