@@ -113,24 +113,37 @@ body::before {
   align-items: center;
 }
 
-/* ── Slim banner (Option A · search-collapse) ──────────────────
-   After the first search, the hero stops being a centered painting +
-   big title + bordered input and becomes a 1-row banner: small
-   wordmark left, a 460px pill-input center, total height ~52px. The
-   shanshui painting hides; the seal shrinks beside the wordmark.
-   The pill IS the existing input — only its chrome changes, so the
-   form submit, value sync, and #status node carry over unchanged. */
+/* ── Merged sticky bar (slim banner + old #stickybar) ──────────
+   Once results land, the hero collapses into a single sticky bar:
+   韵 seal (home link), pill input, tab toggle, jump + filter icons.
+   The bar absorbs the role of the old #stickybar (now removed) —
+   it's the only sticky chrome on the page. Paper-warm tint with
+   xuan-bg multiply blend mirrors the old stickybar's "stamped
+   paper" feel. */
 .rf-app:has(#results:not(:empty)) .rf-hero,
 .rf-app:has(#source-summary:not(:empty)) .rf-hero {
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  gap: 22px;
-  width: 100%;
-  padding: 10px 4px;
+  gap: 14px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 10px clamp(20px, 4vw, 56px);
   margin-bottom: 18px;
-  border-bottom: 1px solid var(--hair);
+  border-top: 0;
+  border-bottom: 1px solid var(--ink);
   text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background-color: var(--paper);
+  background-image: url("/rhyme-finder/xuan-bg.png");
+  background-size: 600px 600px;
+  background-blend-mode: multiply;
+  box-shadow:
+    0 1px 0 rgba(177, 59, 44, 0.22),
+    0 6px 16px -10px rgba(26, 20, 14, 0.22);
 }
 
 /* Title row collapses to inline-flex; shanshui hides. */
@@ -146,49 +159,45 @@ body::before {
   display: none;
 }
 
-/* The wordmark — clickable link back to the empty/home state. */
+/* The wordmark — clickable link back to the empty/home state.
+   In the merged sticky bar only the 韵 seal stays visible; the
+   "Rhyme · Finder" text drops out (it duplicates the seal's brand
+   role and crowds the bar). The seal itself remains the click
+   target — sized as before, just hoisted out of inline-flex so it
+   sits on its own as a standalone home link. */
 .rf-app:has(#results:not(:empty)) .rf-title,
 .rf-app:has(#source-summary:not(:empty)) .rf-title {
-  font-size: 22px;
+  font-size: 0;
   line-height: 1;
   margin: 0;
   cursor: pointer;
-  transition: color 160ms ease;
 }
-.rf-app:has(#results:not(:empty)) .rf-title:hover,
-.rf-app:has(#source-summary:not(:empty)) .rf-title:hover {
-  color: var(--vermilion);
-}
-.rf-app:has(#results:not(:empty)) .rf-title:hover .rf-title-finder,
-.rf-app:has(#source-summary:not(:empty)) .rf-title:hover .rf-title-finder {
-  color: var(--vermilion);
-}
+.rf-app:has(#results:not(:empty)) .rf-title-rhyme,
+.rf-app:has(#source-summary:not(:empty)) .rf-title-rhyme,
 .rf-app:has(#results:not(:empty)) .rf-title-amp,
-.rf-app:has(#source-summary:not(:empty)) .rf-title-amp {
-  font-size: 11px;
-  margin: 0 4px;
-  transform: translateY(-3px);
-}
+.rf-app:has(#source-summary:not(:empty)) .rf-title-amp,
 .rf-app:has(#results:not(:empty)) .rf-title-finder,
 .rf-app:has(#source-summary:not(:empty)) .rf-title-finder {
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--ink-soft);
-  padding-top: 0;
+  display: none;
 }
 
-/* Seal shrinks to ~22px and sits inline beside "Finder". */
+/* Seal shrinks to ~22px and sits standalone as the home link. */
 .rf-app:has(#results:not(:empty)) .rf-seal,
 .rf-app:has(#source-summary:not(:empty)) .rf-seal {
   position: static;
   width: 22px;
   height: 22px;
   font-size: 12px;
-  margin-left: 6px;
-  transform: rotate(-6deg) translateY(-2px);
+  margin-left: 0;
+  transform: rotate(-6deg);
   box-shadow:
     inset 0 0 0 1.5px rgba(255, 240, 220, 0.18),
     inset 0 0 8px rgba(80, 10, 0, 0.4);
+  transition: transform 160ms ease;
+}
+.rf-app:has(#results:not(:empty)) .rf-title:hover .rf-seal,
+.rf-app:has(#source-summary:not(:empty)) .rf-title:hover .rf-seal {
+  transform: rotate(-6deg) scale(1.08);
 }
 
 /* Panel becomes the pill container: centered in the remaining
@@ -297,6 +306,216 @@ body::before {
 .rf-input-clear:hover {
   color: var(--vermilion);
   transform: scale(1.08);
+}
+
+/* ── Bar tools · tab toggle + jump/filter iconbtns ────────────
+   Surface only when results are present. The toggle sits at 30px
+   tall; the iconbtns are 26×26 so they read as secondary controls
+   under the toggle's primary "what am I looking at" affordance. */
+.rf-bar-tools {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+.rf-app:has(#results:not(:empty)) .rf-bar-tools,
+.rf-app:has(#source-summary:not(:empty)) .rf-bar-tools {
+  display: inline-flex;
+}
+
+/* Tab toggle · knob-in-track. Track sits deeper (paper-deep tint
+   + inset shadow); the vermilion knob is raised (inset highlight
+   + drop shadow). Slide curve over-shoots slightly so the knob
+   movement reads as the primary event. */
+.rf-tab-toggle {
+  position: relative;
+  display: inline-flex;
+  width: 76px;
+  height: 30px;
+  border: 1px solid var(--ink);
+  background: var(--paper-deep);
+  padding: 0;
+  flex: 0 0 auto;
+  box-shadow:
+    inset 0 1px 2px rgba(26, 20, 14, 0.22),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+.rf-toggle-marker {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 34px;
+  left: 2px;
+  background: var(--vermilion);
+  transition: left 280ms cubic-bezier(0.5, 0, 0.25, 1.1);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 220, 0.22),
+    inset 0 0 6px rgba(80, 10, 0, 0.4),
+    0 1px 2px rgba(26, 20, 14, 0.3);
+  pointer-events: none;
+}
+.rf-tab-toggle[data-state="corpus"] .rf-toggle-marker {
+  left: 40px;
+}
+.rf-toggle-cell {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  width: 38px;
+  height: 100%;
+  color: var(--ink-soft);
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 200ms ease;
+  padding: 0;
+}
+.rf-toggle-cell[aria-selected="true"] {
+  color: var(--paper);
+}
+
+/* Jump + filter icon buttons · 26 × 26, smaller than the toggle so
+   the toggle reads as the dominant control. Hover fills with ink;
+   open state ("pressed") stays ink-filled. On the corpus tab both
+   are disabled (dashed border, dimmed); the tooltip explains why. */
+.rf-iconbtn {
+  appearance: none;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  flex: 0 0 auto;
+  padding: 0;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.rf-iconbtn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.rf-iconbtn[aria-expanded="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+.rf-iconbtn[aria-disabled="true"] {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-style: dashed;
+  border-color: var(--hair);
+  background: transparent;
+  color: var(--ink-faded);
+}
+.rf-svg { display: block; }
+
+/* Tab-aware dim — when the corpus tab is active, the jump + filter
+   tools don't apply, so the icons go dashed-dim. Mirrors the
+   aria-disabled rule above but driven by app-level state instead
+   of per-button attributes (so we don't have to flip them in JS). */
+.rf-app[data-active-tab="corpus"] #btn-jump,
+.rf-app[data-active-tab="corpus"] #btn-filter {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-style: dashed;
+  border-color: var(--hair);
+  background: transparent;
+  color: var(--ink-faded);
+}
+
+/* Drawer · slides open below the merged bar to host the jump
+   shortcuts or the lex filter chips. Click outside or press Esc
+   to close (see main.js). */
+.rf-drawer {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 12px clamp(20px, 4vw, 56px) 14px;
+  background-color: var(--paper);
+  background-image: url("/rhyme-finder/xuan-bg.png");
+  background-size: 600px 600px;
+  background-blend-mode: multiply;
+  border-bottom: 1px solid var(--hair);
+  position: sticky;
+  top: 51px;
+  z-index: 39;
+  box-shadow: 0 6px 12px -10px rgba(26, 20, 14, 0.25);
+}
+.rf-drawer[hidden] {
+  display: none;
+}
+.rf-drawer-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.rf-drawer-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+}
+.rf-drawer-eyebrow b {
+  color: var(--vermilion);
+  font-weight: 500;
+}
+.rf-drawer-close {
+  margin-left: auto;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  padding: 2px 4px;
+  transition: color 160ms ease;
+}
+.rf-drawer-close:hover { color: var(--vermilion); }
+
+/* Jump-drawer body — tier shortcuts as mono-caps buttons. */
+.rf-drawer-tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  align-items: baseline;
+}
+.rf-drawer-tier {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 3px 0;
+  border-bottom: 1px dotted var(--hair);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.rf-drawer-tier:hover {
+  color: var(--vermilion);
+  border-bottom-color: var(--vermilion);
+}
+.rf-drawer-tier .n {
+  color: var(--vermilion);
+  font-weight: 500;
 }
 
 .rf-eyebrow {
@@ -3422,10 +3641,26 @@ input[type="text"]::placeholder {
   color: var(--ink-faded);
   letter-spacing: -0.005em;
   transition: color 140ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 .cd-tab[aria-selected="true"] .cd-tab-title {
   color: var(--ink);
   font-weight: 600;
+}
+/* Tab-strip icon — same SVG shape as the sticky-bar toggle so the
+   reader sees the same glyph in both places (book = dictionary,
+   notes = corpus). Vermilion-tinted on the active tab to match the
+   tab's 2 px vermilion underline. */
+.cd-tab-icon {
+  display: block;
+  flex-shrink: 0;
+  color: var(--ink-faded);
+  transition: color 140ms ease;
+}
+.cd-tab[aria-selected="true"] .cd-tab-icon {
+  color: var(--vermilion);
 }
 .cd-tab-counts {
   font-family: var(--mono);

@@ -265,15 +265,15 @@ function goHome() {
   results.innerHTML = "";
   const corpus = document.getElementById("corpus-gallery");
   if (corpus) corpus.innerHTML = "";
-  const lex = document.getElementById("lex-filter");
-  if (lex) lex.innerHTML = "";
   const tabs = document.getElementById("cd-tabs");
-  if (tabs) {
-    tabs.innerHTML = "";
-    tabs.hidden = true;
-  }
-  const sticky = document.getElementById("stickybar");
-  if (sticky) sticky.innerHTML = "";
+  if (tabs) tabs.hidden = true;
+  const jumpContent = document.getElementById("jump-content");
+  if (jumpContent) jumpContent.innerHTML = "";
+  const filterContent = document.getElementById("filter-content");
+  if (filterContent) filterContent.innerHTML = "";
+  // Reset toggle to dictionary + close any open drawer.
+  setActiveTab("dict");
+  closeDrawers();
   setStatus("");
   const url = new URL(window.location.href);
   url.searchParams.delete("q");
@@ -1707,23 +1707,107 @@ async function renderTabs(word, buckets) {
   }
 
   // ── Wire tab switching (idempotent — clones each button so a re-run
-  // doesn't pile up listeners). ──
+  // doesn't pile up listeners). Both the tab strip below the
+  // source-summary AND the toggle in the sticky bar route through
+  // setActiveTab() so they stay in sync. ──
   tabs.querySelectorAll(".cd-tab").forEach((btn) => {
     const fresh = btn.cloneNode(true);
     btn.replaceWith(fresh);
   });
   tabs.querySelectorAll(".cd-tab").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const target = btn.dataset.tab;
-      tabs.querySelectorAll(".cd-tab").forEach((b) => {
-        b.setAttribute("aria-selected", String(b.dataset.tab === target));
-      });
-      document.querySelectorAll(".rf-tab-body").forEach((body) => {
-        body.hidden = body.dataset.tabBody !== target;
-      });
-    });
+    btn.addEventListener("click", () => setActiveTab(btn.dataset.tab));
+  });
+
+  // Re-apply the current state so the toggle, app data-attr, and tab
+  // bodies all line up immediately after a fresh render.
+  setActiveTab(currentActiveTab());
+}
+
+// ── Tab state — single source of truth ─────────────────────────────
+// The tab strip (.cd-tab[role=tab]) and the bar toggle
+// (.rf-toggle-cell) both call setActiveTab(); it flips
+// aria-selected on both surfaces, shows/hides the right tab body,
+// sets data-active-tab on .rf-app (drives the CSS that dims the
+// jump+filter icons on the corpus tab), and slides the toggle's
+// vermilion knob to the right cell.
+function currentActiveTab() {
+  const sel = document.querySelector('#cd-tabs .cd-tab[aria-selected="true"]');
+  return sel?.dataset.tab || "dict";
+}
+
+function setActiveTab(target) {
+  if (!target) return;
+  document.querySelectorAll("#cd-tabs .cd-tab").forEach((b) => {
+    b.setAttribute("aria-selected", String(b.dataset.tab === target));
+  });
+  document.querySelectorAll(".rf-toggle-cell").forEach((b) => {
+    b.setAttribute("aria-selected", String(b.dataset.tab === target));
+  });
+  document.querySelectorAll(".rf-tab-body").forEach((body) => {
+    body.hidden = body.dataset.tabBody !== target;
+  });
+  const toggle = document.getElementById("tab-toggle");
+  if (toggle) toggle.dataset.state = target;
+  const app = document.getElementById("app");
+  if (app) app.dataset.activeTab = target;
+  // Jump + filter only apply on dictionary; close any open drawer
+  // when the user switches to corpus.
+  if (target === "corpus") closeDrawers();
+}
+
+// Wire the toggle cells once on load — they reuse setActiveTab so
+// every entry point flows through the same code.
+document.querySelectorAll(".rf-toggle-cell").forEach((cell) => {
+  cell.addEventListener("click", () => setActiveTab(cell.dataset.tab));
+});
+
+// ── Drawers (jump + filter) ────────────────────────────────────────
+// Click the jump or filter icon to slide its drawer open below the
+// sticky bar. Only one drawer open at a time. Click outside or press
+// Esc to close. Close also fires when switching to the corpus tab
+// (the tools don't apply there).
+function closeDrawers() {
+  document.querySelectorAll(".rf-drawer").forEach((d) => (d.hidden = true));
+  document.querySelectorAll(".rf-iconbtn").forEach((b) => {
+    b.setAttribute("aria-expanded", "false");
   });
 }
+
+function toggleDrawer(btn) {
+  if (btn.getAttribute("aria-disabled") === "true") return;
+  const id = btn.getAttribute("aria-controls");
+  const drawer = id && document.getElementById(id);
+  if (!drawer) return;
+  const wasOpen = btn.getAttribute("aria-expanded") === "true";
+  closeDrawers();
+  if (!wasOpen) {
+    drawer.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+  }
+}
+
+document.querySelectorAll(".rf-iconbtn[aria-controls]").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleDrawer(btn);
+  });
+});
+
+document.querySelectorAll("[data-close-drawer]").forEach((btn) => {
+  btn.addEventListener("click", closeDrawers);
+});
+
+// Outside click closes any open drawer — but a click inside the
+// drawer or on the iconbtn that opened it shouldn't close.
+document.addEventListener("click", (e) => {
+  const onDrawer = e.target.closest(".rf-drawer");
+  const onIconBtn = e.target.closest(".rf-iconbtn");
+  if (!onDrawer && !onIconBtn) closeDrawers();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeDrawers();
+});
 
 // Vermilion underline band on the partner rhyme word — distinct
 // from the solid-block highlight used on the source word itself.
@@ -1793,6 +1877,7 @@ function setLexFilter(lex, value) {
     b.setAttribute("aria-pressed", String(value));
   });
   updateBucketCounts();
+  updateFilterEyebrow();
 }
 
 function bindChipClick(btn) {
@@ -1804,7 +1889,11 @@ function bindChipClick(btn) {
 }
 
 function renderLexFilter(buckets) {
-  const filter = document.getElementById("lex-filter");
+  // The filter chips now live inside the filter drawer (#filter-content)
+  // — see the new sticky bar's "filter" icon button + the drawer
+  // markup in index.html. The inline #lex-filter strip was removed
+  // when the drawer became the single source of truth.
+  const filter = document.getElementById("filter-content");
   const app = document.getElementById("app");
   if (!filter || !app) return;
 
@@ -1830,6 +1919,20 @@ function renderLexFilter(buckets) {
     }).join("");
 
   filter.querySelectorAll(".rf-lex-chip").forEach(bindChipClick);
+  updateFilterEyebrow();
+}
+
+// Updates the filter drawer's eyebrow to read "N of 4 active". Called
+// after any chip toggle so the readout stays in sync — and on every
+// new search via renderLexFilter().
+function updateFilterEyebrow() {
+  const eyebrow = document.getElementById("filter-eyebrow");
+  const app = document.getElementById("app");
+  if (!eyebrow || !app) return;
+  const active = LEX_ORDER.filter(
+    (lex) => app.dataset[`filter${cap(lex)}`] !== "false"
+  ).length;
+  eyebrow.innerHTML = `filter by lexicon · <b>${active}</b> of ${LEX_ORDER.length} active`;
 }
 
 // ── Per-tier visible-count reflow ──────────────────────────────────
@@ -1913,10 +2016,13 @@ function updateBucketCounts() {
 // a softer mirror of the lex filter. The bar stays display:none-ish
 // (transform off-screen + opacity 0) until the IntersectionObserver
 // adds .is-stuck.
-function renderStickybar(srcWord) {
-  const host = document.getElementById("stickybar");
+// Populates the jump drawer with one tier-shortcut button per tier
+// (was renderStickybar — the #stickybar element is gone; tier
+// shortcuts now live behind the "jump" iconbtn in the merged bar
+// and slide out as an inline drawer below it).
+function renderStickybar(_srcWord) {
+  const host = document.getElementById("jump-content");
   if (!host) return;
-  host.removeAttribute("aria-hidden");
 
   const tiers = [...document.querySelectorAll(".rf-tier")];
   const tierBtns = tiers.map((t) => {
@@ -1924,71 +2030,32 @@ function renderStickybar(srcWord) {
     const meta = TIER_META[type];
     if (!meta) return "";
     const total = t.querySelector(".rf-tier-count")?.dataset.total || "0";
-    const stab = t.dataset.stability;
     const label = meta.label.replace(/ rhyme$/i, "");
     return (
-      `<button type="button" class="rf-stickybar-tier" data-target="${type}" data-stability="${stab}">` +
-      `<span class="rf-stickybar-tier-label">${escapeHtml(label)}</span>` +
-      `<span class="rf-stickybar-tier-count">${total}</span>` +
+      `<button type="button" class="rf-drawer-tier" data-target="${type}">` +
+      `${escapeHtml(label)}<span class="n">${total}</span>` +
       `</button>`
     );
   }).join("");
 
-  host.innerHTML =
-    `<div class="rf-stickybar-meta">` +
-    `<span class="rf-stickybar-eyebrow">rhymes for</span>` +
-    `<span class="rf-stickybar-word">${escapeHtml(srcWord)}</span>` +
-    `</div>` +
-    `<span class="rf-stickybar-rule" aria-hidden="true"></span>` +
-    `<div class="rf-stickybar-tiers">${tierBtns}</div>`;
+  host.innerHTML = `<div class="rf-drawer-tiers">${tierBtns}</div>`;
 
-  host.querySelectorAll(".rf-stickybar-tier").forEach((btn) => {
+  host.querySelectorAll(".rf-drawer-tier").forEach((btn) => {
     btn.addEventListener("click", () => {
       const target = document.querySelector(`.rf-tier[data-tier="${btn.dataset.target}"]`);
       if (!target) return;
-      // Offset by the bar's height so the tier head doesn't land
-      // underneath the sticky band after the jump.
-      const offset = host.getBoundingClientRect().height + 12;
-      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      // Offset by the sticky bar's height so the tier head doesn't
+      // land underneath the bar after the jump. The drawer also
+      // closes — once you've picked a destination there's no need to
+      // keep the list onscreen.
+      const bar = document.querySelector(".rf-hero");
+      const barH = bar ? bar.getBoundingClientRect().height : 0;
+      const top = target.getBoundingClientRect().top + window.scrollY - barH - 12;
+      closeDrawers();
       window.scrollTo({ top, behavior: "smooth" });
     });
   });
-
-  // Mirror the lex filter into the bar's right-side slot. Cloning
-  // the inline filter's HTML keeps the chip ordering / counts in
-  // sync; bindChipClick + setLexFilter take care of the rest by
-  // querying every `.rf-lex-chip[data-lex=…]` whenever the user
-  // toggles a category.
-  const inline = document.getElementById("lex-filter");
-  if (inline) {
-    const mirror = document.createElement("div");
-    mirror.className = "rf-lex-filter rf-lex-filter-mirror";
-    mirror.innerHTML = inline.innerHTML;
-    host.appendChild(mirror);
-    mirror.querySelectorAll(".rf-lex-chip").forEach(bindChipClick);
-  }
 }
-
-// ── Sticky bar slide-in observer ───────────────────────────────────
-// Source-summary scrolls naturally. A 1px sentinel placed AFTER the
-// summary tells us when the summary has left the viewport. When the
-// sentinel is no longer intersecting, add .is-stuck to #stickybar so
-// the CSS transform reveals it. Set up once at module load — the
-// sentinel + observer outlive any number of searches.
-(function setupStickyObserver() {
-  const summary = document.getElementById("source-summary");
-  const bar = document.getElementById("stickybar");
-  if (!summary || !bar) return;
-  const sentinel = document.createElement("div");
-  sentinel.className = "rf-source-summary-sentinel";
-  sentinel.setAttribute("aria-hidden", "true");
-  summary.parentNode.insertBefore(sentinel, summary.nextSibling);
-  const io = new IntersectionObserver(
-    ([entry]) => bar.classList.toggle("is-stuck", !entry.isIntersecting),
-    { threshold: [0] }
-  );
-  io.observe(sentinel);
-})();
 
 function escapeHtml(s) {
   return String(s ?? "")
