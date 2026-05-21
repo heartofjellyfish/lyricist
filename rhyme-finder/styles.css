@@ -787,10 +787,13 @@ input[type="text"]::placeholder {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 18px;
-  padding: 26px 0 22px;
-  margin-bottom: 36px;
+  /* D₁ "compact" — trim the summary's internal padding and drop its
+     bottom hair-border. The tabs sit flush underneath; their own ink
+     top rule (see .cd-tabs) is the single divider between
+     "what you searched" and "how to view it." */
+  padding: 16px 0 10px;
+  margin-bottom: 0;
   border-top: 2px solid var(--ink);
-  border-bottom: 1px solid var(--hair);
   position: relative;
 }
 
@@ -3377,7 +3380,9 @@ input[type="text"]::placeholder {
   grid-template-columns: 1fr 1fr;
   border-top: 1px solid var(--ink);
   border-bottom: 1px solid var(--hair);
-  margin: 4px 0 24px;
+  /* D₁ "compact" — sit flush against the source-summary above; the
+     ink top border is the divider between metadata and tabs. */
+  margin: 0 0 24px;
 }
 .cd-tab {
   appearance: none;
