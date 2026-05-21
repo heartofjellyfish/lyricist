@@ -538,9 +538,17 @@ body::before {
     var(--paper);
   border-bottom: 1px solid var(--hair);
   position: sticky;
-  top: 51px;
+  /* Sticks just below the 58.5px-tall bar (was 51px — a stale
+     estimate that let the drawer slide ~8px under the bar when
+     scrolled). */
+  top: 58px;
   z-index: 39;
   box-shadow: 0 4px 10px -10px rgba(26, 20, 14, 0.2);
+  /* Pull up flush against the bar — cancels the bar's 18px
+     margin-bottom so there's no empty gap between bar and drawer.
+     The bar keeps its 18px when no drawer is open (this element is
+     display:none then, so the margin doesn't apply). */
+  margin-top: -18px;
 }
 .rf-drawer[hidden] {
   display: none;
