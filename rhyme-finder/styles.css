@@ -144,9 +144,10 @@ body::before {
   background-image: url("/rhyme-finder/xuan-bg.png");
   background-size: 600px 600px;
   background-blend-mode: multiply;
-  box-shadow:
-    0 1px 0 rgba(177, 59, 44, 0.22),
-    0 6px 16px -10px rgba(26, 20, 14, 0.22);
+  /* Soft drop only — the vermilion 1 px hard shadow that used to
+     sit right under the bar created a visible extra line in the
+     bar/drawer seam at scroll-top. The ink border-bottom is enough. */
+  box-shadow: 0 6px 16px -10px rgba(26, 20, 14, 0.22);
 }
 
 /* Title row collapses to inline-flex; shanshui hides. */
@@ -506,45 +507,40 @@ body::before {
 }
 
 /* Drawer · slides open below the merged bar to host the jump
-   shortcuts or the lex filter chips. Click outside or press Esc
-   to close (see main.js). */
+   shortcuts or the lex filter chips. The body holds the controls
+   and grows left-to-right; the close × sits at the right edge. The
+   drawer reads visibly lighter than the sticky bar — soft warm-
+   white wash so it feels like a peeled-back layer of paper, not a
+   continuation of the bar's stamped surface. */
 .rf-drawer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  padding: 12px clamp(20px, 4vw, 56px) 14px;
-  background-color: var(--paper);
-  background-image: url("/rhyme-finder/xuan-bg.png");
-  background-size: 600px 600px;
-  background-blend-mode: multiply;
+  padding: 10px clamp(20px, 4vw, 56px) 11px;
+  background:
+    linear-gradient(rgba(255, 248, 228, 0.55), rgba(255, 248, 228, 0.55)),
+    var(--paper);
   border-bottom: 1px solid var(--hair);
   position: sticky;
   top: 51px;
   z-index: 39;
-  box-shadow: 0 6px 12px -10px rgba(26, 20, 14, 0.25);
+  box-shadow: 0 4px 10px -10px rgba(26, 20, 14, 0.2);
 }
 .rf-drawer[hidden] {
   display: none;
 }
-.rf-drawer-head {
+.rf-drawer-body {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.rf-drawer-eyebrow {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-faded);
-}
-.rf-drawer-eyebrow b {
-  color: var(--vermilion);
-  font-weight: 500;
+  gap: 8px 14px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .rf-drawer-close {
-  margin-left: auto;
   appearance: none;
   border: 0;
   background: transparent;
@@ -555,6 +551,7 @@ body::before {
   text-transform: uppercase;
   color: var(--ink-faded);
   padding: 2px 4px;
+  flex: 0 0 auto;
   transition: color 160ms ease;
 }
 .rf-drawer-close:hover { color: var(--vermilion); }
@@ -563,7 +560,7 @@ body::before {
 .rf-drawer-tiers {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px 18px;
+  gap: 8px 18px;
   align-items: baseline;
 }
 .rf-drawer-tier {
@@ -3089,15 +3086,20 @@ input[type="text"]::placeholder {
    the sticky bar as group 3 of the 3-group composition (logo+pill ·
    tools · colophon). A hairline ::before draws the divider between
    the tools group and the colophon. The bar reserves right-padding
-   for it (see .rf-hero above). */
-.rf-app:has(#results:not(:empty)) .rf-colophon,
-.rf-app:has(#source-summary:not(:empty)) .rf-colophon {
+   for it (see .rf-hero above).
+   Selector lives on body because the colophon is a sibling of
+   .rf-app, not a descendant — a .rf-app:has() rule would never
+   match it. The trigger height (~34px) + bar height (~50px) gives a
+   ~8px top inset so the icon is visually centered with the bar's
+   toggle row. */
+body:has(#results:not(:empty)) .rf-colophon,
+body:has(#source-summary:not(:empty)) .rf-colophon {
   top: 12px;
   right: clamp(20px, 4vw, 56px);
   z-index: 41;
 }
-.rf-app:has(#results:not(:empty)) .rf-colophon::before,
-.rf-app:has(#source-summary:not(:empty)) .rf-colophon::before {
+body:has(#results:not(:empty)) .rf-colophon::before,
+body:has(#source-summary:not(:empty)) .rf-colophon::before {
   content: "";
   position: absolute;
   left: -16px;

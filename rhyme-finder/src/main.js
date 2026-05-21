@@ -1858,7 +1858,6 @@ function setLexFilter(lex, value) {
     b.setAttribute("aria-pressed", String(value));
   });
   updateBucketCounts();
-  updateFilterEyebrow();
 }
 
 function bindChipClick(btn) {
@@ -1886,34 +1885,21 @@ function renderLexFilter(buckets) {
     }
   }
 
-  filter.innerHTML =
-    `<span class="rf-lex-filter-label">show</span>` +
-    LEX_ORDER.map((lex) => {
-      const pressed = app.dataset[`filter${cap(lex)}`] !== "false";
-      return (
-        `<button type="button" class="rf-lex-chip" data-lex="${lex}" aria-pressed="${pressed}">` +
-        `<span class="rf-lex-chip-dot"></span>` +
-        `<span class="rf-lex-chip-label">${LEX_LABELS[lex]}</span>` +
-        `<span class="rf-lex-chip-count">${counts[lex] || 0}</span>` +
-        `</button>`
-      );
-    }).join("");
+  // The drawer is its own labelled region (aria-label="Filter by
+  // lexicon" on the panel), so the chips don't need a separate
+  // "show" prefix — it just crowded the layout.
+  filter.innerHTML = LEX_ORDER.map((lex) => {
+    const pressed = app.dataset[`filter${cap(lex)}`] !== "false";
+    return (
+      `<button type="button" class="rf-lex-chip" data-lex="${lex}" aria-pressed="${pressed}">` +
+      `<span class="rf-lex-chip-dot"></span>` +
+      `<span class="rf-lex-chip-label">${LEX_LABELS[lex]}</span>` +
+      `<span class="rf-lex-chip-count">${counts[lex] || 0}</span>` +
+      `</button>`
+    );
+  }).join("");
 
   filter.querySelectorAll(".rf-lex-chip").forEach(bindChipClick);
-  updateFilterEyebrow();
-}
-
-// Updates the filter drawer's eyebrow to read "N of 4 active". Called
-// after any chip toggle so the readout stays in sync — and on every
-// new search via renderLexFilter().
-function updateFilterEyebrow() {
-  const eyebrow = document.getElementById("filter-eyebrow");
-  const app = document.getElementById("app");
-  if (!eyebrow || !app) return;
-  const active = LEX_ORDER.filter(
-    (lex) => app.dataset[`filter${cap(lex)}`] !== "false"
-  ).length;
-  eyebrow.innerHTML = `filter by lexicon · <b>${active}</b> of ${LEX_ORDER.length} active`;
 }
 
 // ── Per-tier visible-count reflow ──────────────────────────────────
