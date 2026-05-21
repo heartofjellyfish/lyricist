@@ -256,7 +256,7 @@
              same SVG glyph used in the sticky-bar toggle (book / paired
              notes), so the user reads the same shape in both places.
              Active tab gets a 2 px vermilion underline + warm-paper tint.
-             Inactive tab shows a one-line italic Spectral "peek." -->
+             Two lines per tab: italic display title + mono counts. -->
         <div id="cd-tabs" class="cd-tabs" role="tablist" hidden>
           <button type="button" class="cd-tab" role="tab" aria-selected="true" data-tab="dict" id="cd-tab-dict">
             <span class="cd-tab-title">
@@ -264,7 +264,6 @@
               <span>Rhyme dictionary</span>
             </span>
             <span class="cd-tab-counts" data-counts="dict"></span>
-            <span class="cd-tab-peek" data-peek="dict"></span>
           </button>
           <button type="button" class="cd-tab" role="tab" aria-selected="false" data-tab="corpus" id="cd-tab-corpus">
             <span class="cd-tab-title">
@@ -272,7 +271,6 @@
               <span>In the corpus</span>
             </span>
             <span class="cd-tab-counts" data-counts="corpus"></span>
-            <span class="cd-tab-peek" data-peek="corpus"></span>
           </button>
         </div>
 

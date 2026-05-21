@@ -3674,27 +3674,6 @@ input[type="text"]::placeholder {
   font-weight: 500;
 }
 .cd-tab[aria-selected="true"] .cd-tab-counts b { color: var(--vermilion); }
-.cd-tab-peek {
-  font-family: "Spectral", "Cormorant Garamond", "Songti SC", "Times New Roman", serif;
-  font-style: italic;
-  font-size: 13px;
-  line-height: 1.4;
-  color: var(--ink-faded);
-  margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.cd-tab-peek em { color: var(--ink-soft); font-weight: 500; }
-.cd-tab-peek b {
-  font-family: var(--mono);
-  font-style: normal;
-  font-weight: 500;
-  font-size: 11px;
-  color: var(--vermilion);
-  letter-spacing: 0.04em;
-}
-.cd-tab[aria-selected="true"] .cd-tab-peek { display: none; }
 
 @media (max-width: 720px) {
   .cd-tabs {

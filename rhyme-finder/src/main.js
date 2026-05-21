@@ -1649,14 +1649,16 @@ async function renderCorpusGallery(word) {
 }
 
 // ── Tabs (Rhyme dictionary / In the corpus) ───────────────────────
-// Populates the tab counts + inactive-tab peek lines, makes the tab
-// chrome visible, and wires click/keyboard switching between bodies.
+// Populates the tab counts, makes the tab chrome visible, and wires
+// click/keyboard switching between bodies. Each tab is two lines:
+// italic display title + mono counts. No peek (the active tab carries
+// no chrome it doesn't need; the inactive one stays compact).
 async function renderTabs(word, buckets) {
   const tabs = document.getElementById("cd-tabs");
   if (!tabs) return;
   tabs.hidden = false;
 
-  // ── Dictionary counts + peek ──
+  // ── Dictionary counts ──
   let tierCount = 0;
   let wordCount = 0;
   for (const t of TYPE_ORDER) {
@@ -1670,20 +1672,8 @@ async function renderTabs(word, buckets) {
   if (dictCounts) {
     dictCounts.innerHTML = `<b>${tierCount}</b> tier${tierCount === 1 ? "" : "s"} · <b>${wordCount}</b> word${wordCount === 1 ? "" : "s"}`;
   }
-  const dictPeek = tabs.querySelector('[data-peek="dict"]');
-  if (dictPeek) {
-    const sample = [];
-    for (const t of TYPE_ORDER) {
-      const n = buckets[t]?.length ?? 0;
-      if (n > 0) sample.push(`${TIER_META[t]?.label.toLowerCase() ?? t} <b>${n}</b>`);
-      if (sample.length === 3) break;
-    }
-    dictPeek.innerHTML = sample.length
-      ? sample.join(" · ")
-      : "<em>—</em>";
-  }
 
-  // ── Corpus counts + peek ──
+  // ── Corpus counts ──
   // Reuse the same getQuotes call the gallery used; the bucket is
   // already cached so this is sync-fast.
   const quotes = await getQuotes(word);
@@ -1695,15 +1685,6 @@ async function renderTabs(word, buckets) {
     corpusCounts.innerHTML = partnerCount
       ? `<b>${partnerCount}</b> partner${partnerCount === 1 ? "" : "s"} · <b>${songCount}</b> song${songCount === 1 ? "" : "s"}`
       : `no paired uses yet`;
-  }
-  const corpusPeek = tabs.querySelector('[data-peek="corpus"]');
-  if (corpusPeek) {
-    if (groups.length) {
-      const top = groups[0];
-      corpusPeek.innerHTML = `<em>${escapeHtml(word)}</em> — <em>${escapeHtml(top.partner)}</em> <b>·${top.instances.length}</b>`;
-    } else {
-      corpusPeek.innerHTML = `<em>nothing yet</em>`;
-    }
   }
 
   // ── Wire tab switching (idempotent — clones each button so a re-run
