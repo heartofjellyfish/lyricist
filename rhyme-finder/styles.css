@@ -787,13 +787,16 @@ input[type="text"]::placeholder {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 18px;
-  /* D₁ "compact" — trim the summary's internal padding and drop its
-     bottom hair-border. The tabs sit flush underneath; their own ink
-     top rule (see .cd-tabs) is the single divider between
-     "what you searched" and "how to view it." */
-  padding: 16px 0 10px;
+  /* The source-summary block reads as the page's title section — it
+     needs visible breathing room below the metadata so the eye knows
+     it's a coherent header, not a one-line label. Bottom hair-border
+     gives it a soft floor; the tabs sit immediately under (no margin
+     gap) so we still don't waste paper. End result: source-summary
+     ~90px tall, clearly heavier than each tab cell. */
+  padding: 18px 0 24px;
   margin-bottom: 0;
   border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--hair);
   position: relative;
 }
 
