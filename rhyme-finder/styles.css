@@ -129,7 +129,10 @@ body::before {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  padding: 10px clamp(20px, 4vw, 56px);
+  /* Extra right padding reserves room for the colophon, which is
+     position: fixed at the bar's right edge (see .rf-colophon below).
+     ~56px = colophon icon (26) + hairline gap (16) + breathing (14). */
+  padding: 10px calc(clamp(20px, 4vw, 56px) + 56px) 10px clamp(20px, 4vw, 56px);
   margin-bottom: 18px;
   border-top: 0;
   border-bottom: 1px solid var(--ink);
@@ -205,7 +208,10 @@ body::before {
    .rf-input-row, only its border/padding/internal layout changes. */
 .rf-app:has(#results:not(:empty)) .rf-panel,
 .rf-app:has(#source-summary:not(:empty)) .rf-panel {
-  margin: 0 auto;
+  /* Left-anchored next to the seal — the bar is a 3-group composition
+     (logo+pill · tools · colophon) so the pill sits as part of the
+     left group, not centered. Grows to 460 px max. */
+  margin: 0;
   max-width: 460px;
   flex: 1 1 auto;
   width: auto;
@@ -317,11 +323,26 @@ body::before {
   align-items: center;
   gap: 8px;
   flex: 0 0 auto;
-  margin-left: auto;
+  position: relative;
 }
 .rf-app:has(#results:not(:empty)) .rf-bar-tools,
 .rf-app:has(#source-summary:not(:empty)) .rf-bar-tools {
   display: inline-flex;
+  /* Hairline separator between the logo+pill group on the left and
+     the tools group — group 1 / group 2 of the 3-group bar. */
+  padding-left: 14px;
+  margin-left: 4px;
+}
+.rf-app:has(#results:not(:empty)) .rf-bar-tools::before,
+.rf-app:has(#source-summary:not(:empty)) .rf-bar-tools::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 26px;
+  background: var(--hair);
 }
 
 /* Tab toggle · knob-in-track. Track sits deeper (paper-deep tint
@@ -3011,6 +3032,28 @@ input[type="text"]::placeholder {
   top: 18px;
   right: 22px;
   z-index: 6;
+}
+/* In the results state, the colophon docks into the right edge of
+   the sticky bar as group 3 of the 3-group composition (logo+pill ·
+   tools · colophon). A hairline ::before draws the divider between
+   the tools group and the colophon. The bar reserves right-padding
+   for it (see .rf-hero above). */
+.rf-app:has(#results:not(:empty)) .rf-colophon,
+.rf-app:has(#source-summary:not(:empty)) .rf-colophon {
+  top: 12px;
+  right: clamp(20px, 4vw, 56px);
+  z-index: 41;
+}
+.rf-app:has(#results:not(:empty)) .rf-colophon::before,
+.rf-app:has(#source-summary:not(:empty)) .rf-colophon::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 26px;
+  background: var(--hair);
 }
 .rf-colophon-details { position: relative; }
 
