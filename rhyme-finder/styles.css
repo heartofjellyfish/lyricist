@@ -2468,12 +2468,21 @@ input[type="text"]::placeholder {
   margin-right: 6px;
 }
 
-/* Inline-chip default — solid ink active, dashed-hairline inactive. */
+/* Lexicon-colour coded chips — each category carries its own ink
+   (Common ink · Names brown · Places blue · Sciences green), set as
+   the text + border colour via currentColor, with a faint tint of
+   that colour behind it when active. The colour code teaches itself:
+   the dot, the border, and the label all share one hue per category.
+   Inactive chips drop to a dashed hairline + faded ink. */
 .rf-lex-chip {
   appearance: none;
-  border: 1px solid var(--ink);
-  background: var(--ink);
-  color: var(--paper);
+  /* Default = the inactive look: dashed hairline + faded ink. The
+     per-category colour only paints in on the active ([aria-pressed
+     ="true"]) rules below, so an off chip never keeps its hue. */
+  border: 1px dashed var(--hair);
+  background: transparent;
+  color: var(--ink-faded);
+  opacity: 0.6;
   font-family: var(--mono);
   font-size: 9.5px;
   font-weight: 500;
@@ -2492,12 +2501,14 @@ input[type="text"]::placeholder {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-.rf-lex-chip[aria-pressed="false"] {
-  background: transparent;
-  color: var(--ink-faded);
-  border-color: var(--hair);
-  border-style: dashed;
-}
+/* Active — each category in its own ink (solid border + matching text)
+   over a faint wash of the same colour. Scoped to [aria-pressed="true"]
+   so it can't bleed into the off state. */
+.rf-lex-chip[aria-pressed="true"] { opacity: 1; border-style: solid; }
+.rf-lex-chip[aria-pressed="true"][data-lex="common"]  { color: var(--ink);         border-color: var(--ink);         background: rgba(26, 20, 14, 0.08); }
+.rf-lex-chip[aria-pressed="true"][data-lex="person"]  { color: var(--lex-person);  border-color: var(--lex-person);  background: rgba(107, 74, 43, 0.12); }
+.rf-lex-chip[aria-pressed="true"][data-lex="place"]   { color: var(--lex-place);   border-color: var(--lex-place);   background: rgba(42, 74, 94, 0.12); }
+.rf-lex-chip[aria-pressed="true"][data-lex="science"] { color: var(--lex-science); border-color: var(--lex-science); background: rgba(58, 90, 58, 0.12); }
 /* :hover only on real-pointer devices — without this gate iOS Safari
    leaves the chip in a sticky :hover state after the first tap,
    confusing the next-tap toggle. */
@@ -2505,6 +2516,7 @@ input[type="text"]::placeholder {
   .rf-lex-chip[aria-pressed="false"]:hover {
     color: var(--ink);
     border-color: var(--ink);
+    opacity: 0.9;
   }
 }
 .rf-lex-chip-dot {
