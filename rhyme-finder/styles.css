@@ -2468,79 +2468,97 @@ input[type="text"]::placeholder {
   margin-right: 6px;
 }
 
-/* Lexicon-colour coded chips — each category carries its own ink
-   (Common ink · Names brown · Places blue · Sciences green), set as
-   the text + border colour via currentColor, with a faint tint of
-   that colour behind it when active. The colour code teaches itself:
-   the dot, the border, and the label all share one hue per category.
-   Inactive chips drop to a dashed hairline + faded ink. */
-.rf-lex-chip {
-  appearance: none;
-  /* Default = the inactive look: dashed hairline + faded ink. The
-     per-category colour only paints in on the active ([aria-pressed
-     ="true"]) rules below, so an off chip never keeps its hue. */
-  border: 1px dashed var(--hair);
-  background: transparent;
-  color: var(--ink-faded);
-  opacity: 0.6;
-  font-family: var(--mono);
-  font-size: 9.5px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 4px 9px 4px 8px;
-  cursor: pointer;
+/* Lexicon filter · checkbox rows (colour-in-the-box).
+   Each category is a real checkbox the reader ticks to show / hide
+   that class of word. A native <input> drives the state (label-wrapped
+   so the whole row is the hit target) but is visually replaced by the
+   painted .rf-lex-box; when ticked, the box border + checkmark + label
+   all take that category's ink (Common ink · Names brown · Places blue
+   · Sciences green), so the colour code lives in the control itself.
+   Unticked rows drop to an empty hairline box + dimmed label. */
+#filter-content { align-items: center; gap: 5px 12px; }
+
+.rf-lex-check {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  transition: background 120ms ease, color 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  gap: 7px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  padding: 4px 6px;
   user-select: none;
-  /* Suppress iOS double-tap zoom + 300ms click delay so the second tap
-     (turn-back-on) registers reliably. Without this, iOS can swallow
-     the second tap as part of a double-tap-to-zoom gesture. */
+  /* Suppress iOS double-tap zoom + 300ms click delay so a second tap
+     (re-show) registers reliably. */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-/* Active — each category in its own ink (solid border + matching text)
-   over a faint wash of the same colour. Scoped to [aria-pressed="true"]
-   so it can't bleed into the off state. */
-.rf-lex-chip[aria-pressed="true"] { opacity: 1; border-style: solid; }
-.rf-lex-chip[aria-pressed="true"][data-lex="common"]  { color: var(--ink);         border-color: var(--ink);         background: rgba(26, 20, 14, 0.08); }
-.rf-lex-chip[aria-pressed="true"][data-lex="person"]  { color: var(--lex-person);  border-color: var(--lex-person);  background: rgba(107, 74, 43, 0.12); }
-.rf-lex-chip[aria-pressed="true"][data-lex="place"]   { color: var(--lex-place);   border-color: var(--lex-place);   background: rgba(42, 74, 94, 0.12); }
-.rf-lex-chip[aria-pressed="true"][data-lex="science"] { color: var(--lex-science); border-color: var(--lex-science); background: rgba(58, 90, 58, 0.12); }
-/* :hover only on real-pointer devices — without this gate iOS Safari
-   leaves the chip in a sticky :hover state after the first tap,
-   confusing the next-tap toggle. */
-@media (hover: hover) {
-  .rf-lex-chip[aria-pressed="false"]:hover {
-    color: var(--ink);
-    border-color: var(--ink);
-    opacity: 0.9;
-  }
+/* The native control stays in the tab order for keyboard + AT, but
+   is taken out of layout — the painted .rf-lex-box is what shows. */
+.rf-lex-check input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
-.rf-lex-chip-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+.rf-lex-box {
+  width: 15px;
+  height: 15px;
   flex: none;
-  display: inline-block;
+  border: 1.5px solid var(--hair);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 130ms ease, background 130ms ease;
 }
-.rf-lex-chip[data-lex="common"]  .rf-lex-chip-dot { background: var(--ink); }
-.rf-lex-chip[data-lex="person"]  .rf-lex-chip-dot { background: var(--lex-person); }
-.rf-lex-chip[data-lex="place"]   .rf-lex-chip-dot { background: var(--lex-place); }
-.rf-lex-chip[data-lex="science"] .rf-lex-chip-dot { background: var(--lex-science); }
-.rf-lex-chip[aria-pressed="false"] .rf-lex-chip-dot {
-  background: var(--hair) !important;
+.rf-lex-box svg {
+  width: 11px;
+  height: 11px;
+  opacity: 0;
+  transition: opacity 110ms ease;
 }
-.rf-lex-chip-count {
+.rf-lex-box svg path {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.rf-lex-check input:checked ~ .rf-lex-box svg { opacity: 1; }
+/* Keyboard focus ring lands on the painted box (the input is offscreen). */
+.rf-lex-check input:focus-visible ~ .rf-lex-box {
+  outline: 2px solid var(--vermilion);
+  outline-offset: 2px;
+}
+/* Off state — dim the label so the ticked rows read as the lit ones. */
+.rf-lex-check input:not(:checked) ~ .rf-lex-check-label { opacity: 0.5; }
+.rf-lex-check-count {
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 400;
-  letter-spacing: 0.08em;
-  opacity: 0.75;
-  margin-left: 2px;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+  margin-left: 1px;
 }
+
+/* On state — box wash + border, checkmark stroke, and label all take
+   the category ink. The checkmark colour is set unconditionally (it's
+   only visible once :checked reveals the svg above). */
+.rf-lex-check[data-lex="common"]  input:checked ~ .rf-lex-box { border-color: var(--ink);         background: rgba(26, 20, 14, 0.10); }
+.rf-lex-check[data-lex="person"]  input:checked ~ .rf-lex-box { border-color: var(--lex-person);  background: rgba(107, 74, 43, 0.14); }
+.rf-lex-check[data-lex="place"]   input:checked ~ .rf-lex-box { border-color: var(--lex-place);   background: rgba(42, 74, 94, 0.14); }
+.rf-lex-check[data-lex="science"] input:checked ~ .rf-lex-box { border-color: var(--lex-science); background: rgba(58, 90, 58, 0.14); }
+.rf-lex-check[data-lex="common"]  .rf-lex-box svg path { stroke: var(--ink); }
+.rf-lex-check[data-lex="person"]  .rf-lex-box svg path { stroke: var(--lex-person); }
+.rf-lex-check[data-lex="place"]   .rf-lex-box svg path { stroke: var(--lex-place); }
+.rf-lex-check[data-lex="science"] .rf-lex-box svg path { stroke: var(--lex-science); }
+.rf-lex-check[data-lex="common"]  input:checked ~ .rf-lex-check-label { color: var(--ink); }
+.rf-lex-check[data-lex="person"]  input:checked ~ .rf-lex-check-label { color: var(--lex-person); }
+.rf-lex-check[data-lex="place"]   input:checked ~ .rf-lex-check-label { color: var(--lex-place); }
+.rf-lex-check[data-lex="science"] input:checked ~ .rf-lex-check-label { color: var(--lex-science); }
 
 /* ── Sticky tier bar (#stickybar) ─────────────────────────────────
    A separate fixed-position bar at the very top of the viewport.

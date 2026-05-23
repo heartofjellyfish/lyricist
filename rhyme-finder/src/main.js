@@ -1843,6 +1843,15 @@ function isCompanionsRelation(codaRelation) {
 // (#lex-filter, top of results) and a softer mirror inside the
 // #stickybar — and renderStickybar() keeps both in sync.
 const LEX_LABELS = { common: "Common", person: "Names", place: "Places", science: "Sciences" };
+// Hover tooltips — spell out what each WordNet-derived category covers,
+// since the one-word labels alone don't say (e.g. "Sciences" = the
+// noun.substance/plant/animal/body lexnames). See buildWordnetCategories.mjs.
+const LEX_HINTS = {
+  common: "Everyday English words",
+  person: "People's first & last names",
+  place: "Cities, countries & regions",
+  science: "Plants, animals, substances & technical terms",
+};
 const LEX_ORDER = ["common", "person", "place", "science"];
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -1854,17 +1863,15 @@ function setLexFilter(lex, value) {
   const app = document.getElementById("app");
   if (!app) return;
   app.dataset[`filter${cap(lex)}`] = String(value);
-  document.querySelectorAll(`.rf-lex-chip[data-lex="${lex}"]`).forEach((b) => {
-    b.setAttribute("aria-pressed", String(value));
+  document.querySelectorAll(`.rf-lex-check input[data-lex="${lex}"]`).forEach((box) => {
+    box.checked = value;
   });
   updateBucketCounts();
 }
 
-function bindChipClick(btn) {
-  btn.addEventListener("click", () => {
-    const lex = btn.dataset.lex;
-    const cur = btn.getAttribute("aria-pressed") === "true";
-    setLexFilter(lex, !cur);
+function bindLexCheck(box) {
+  box.addEventListener("change", () => {
+    setLexFilter(box.dataset.lex, box.checked);
   });
 }
 
@@ -1885,21 +1892,28 @@ function renderLexFilter(buckets) {
     }
   }
 
-  // The drawer is its own labelled region (aria-label="Filter by
-  // lexicon" on the panel), so the chips don't need a separate
-  // "show" prefix — it just crowded the layout.
+  // Each category is a real checkbox the reader ticks to show / hide
+  // that class of word — clearer than the old toggle-chip, which only
+  // signalled state via border style + opacity. A native <input>
+  // (label-wrapped, so the whole row is the hit target) drives the
+  // state; the painted .rf-lex-box is the visible affordance and the
+  // checkmark inherits the category ink. The title= gives a hover
+  // tooltip explaining what the one-word label covers.
   filter.innerHTML = LEX_ORDER.map((lex) => {
-    const pressed = app.dataset[`filter${cap(lex)}`] !== "false";
+    const on = app.dataset[`filter${cap(lex)}`] !== "false";
     return (
-      `<button type="button" class="rf-lex-chip" data-lex="${lex}" aria-pressed="${pressed}">` +
-      `<span class="rf-lex-chip-dot"></span>` +
-      `<span class="rf-lex-chip-label">${LEX_LABELS[lex]}</span>` +
-      `<span class="rf-lex-chip-count">${counts[lex] || 0}</span>` +
-      `</button>`
+      `<label class="rf-lex-check" data-lex="${lex}" title="${escapeHtml(LEX_HINTS[lex])}">` +
+      `<input type="checkbox" data-lex="${lex}"${on ? " checked" : ""} />` +
+      `<span class="rf-lex-box" aria-hidden="true">` +
+      `<svg viewBox="0 0 12 12"><path d="M2.4 6.3 L4.9 8.8 L9.6 3.4" /></svg>` +
+      `</span>` +
+      `<span class="rf-lex-check-label">${LEX_LABELS[lex]}</span>` +
+      `<span class="rf-lex-check-count">${counts[lex] || 0}</span>` +
+      `</label>`
     );
   }).join("");
 
-  filter.querySelectorAll(".rf-lex-chip").forEach(bindChipClick);
+  filter.querySelectorAll(".rf-lex-check input").forEach(bindLexCheck);
 }
 
 // ── Per-tier visible-count reflow ──────────────────────────────────
