@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo C · Atlas — Rhyme Finder corpus redesign</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Mono:wght@400;500&display=swap"
+    />
+
+    <style>
+      :root {
+        --paper: #dcc28e;
+        --ink: #1a140e;
+        --ink-soft: #3a2e1f;
+        --ink-faded: #6e5a3c;
+        --ink-ghost: rgba(26, 20, 14, 0.14);
+        --hair: rgba(26, 20, 14, 0.22);
+        --vermilion: #b13b2c;
+        --display: "Cormorant Garamond", "Songti SC", "STSong", serif;
+        --serif: "Spectral", "Songti SC", "STSong", serif;
+        --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        min-height: 100vh; color: var(--ink);
+        background-color: var(--paper);
+        background-image: url("../xuan-bg.png");
+        background-size: 600px 600px;
+        -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+        font-family: var(--serif);
+      }
+      body::before {
+        content: ""; position: fixed; inset: 0; pointer-events: none;
+        background: radial-gradient(ellipse 95% 75% at 50% 35%, rgba(255, 230, 180, 0.18), transparent 70%);
+        box-shadow: inset 0 0 120px rgba(80, 50, 20, 0.18), inset 0 0 280px rgba(100, 70, 30, 0.10);
+        z-index: 0;
+      }
+      .label {
+        position: fixed; top: 12px; left: 12px;
+        font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+        text-transform: uppercase; color: var(--ink-faded);
+        padding: 4px 8px; background: rgba(220, 194, 142, 0.7); border: 1px solid var(--hair);
+      }
+      .label b { color: var(--vermilion); font-weight: 500; }
+
+      .wrap { position: relative; z-index: 2; max-width: 880px; margin: 0 auto; padding: 60px 28px 80px; }
+
+      /* Section header */
+      .rf-srcpanel-index { padding: 4px 0 28px; }
+      .rf-srcpanel-index-head {
+        display: flex; justify-content: space-between; align-items: flex-end;
+        gap: 24px; padding-bottom: 14px; margin-bottom: 22px;
+        position: relative; border-bottom: 1px solid var(--ink);
+      }
+      .rf-srcpanel-index-head::after {
+        content: ""; position: absolute;
+        left: 0; right: 0; bottom: -4px; height: 1px;
+        background: var(--vermilion); opacity: 0.55;
+      }
+      .rf-srcpanel-index-eyebrow {
+        font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+        letter-spacing: 0.22em; text-transform: uppercase;
+        color: var(--vermilion); line-height: 1;
+      }
+      .rf-srcpanel-index-title {
+        margin: 6px 0 0; font-family: var(--display); font-style: italic;
+        font-weight: 500; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.15;
+        color: var(--ink); letter-spacing: -0.005em;
+      }
+      .rf-srcpanel-index-title em {
+        font-style: italic; font-weight: 600; color: var(--ink);
+        background: linear-gradient(transparent 70%, rgba(177, 59, 44, 0.32) 70%);
+        padding: 0 2px;
+      }
+      .meta { display: flex; gap: 18px; align-items: flex-end; flex: none; }
+      .meta-cell { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+      .meta-num {
+        font-family: var(--display); font-style: italic; font-weight: 600;
+        font-size: 28px; line-height: 1; color: var(--vermilion);
+      }
+      .meta-lbl {
+        font-family: var(--mono); font-size: 9.5px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faded);
+      }
+
+      /* ── C · Atlas: overview strip + collapsible groups below ──── */
+
+      /* Atlas overview: partners listed inline, size scales by frequency */
+      .atlas {
+        display: block;
+        padding: 4px 0 20px;
+        margin-bottom: 28px;
+        border-bottom: 1px dashed var(--ink-ghost);
+      }
+      .atlas-label {
+        font-family: var(--mono); font-size: 9.5px; font-weight: 500;
+        letter-spacing: 0.18em; text-transform: uppercase;
+        color: var(--ink-faded); margin-bottom: 14px;
+      }
+      .atlas-row {
+        display: flex; flex-wrap: wrap; align-items: baseline;
+        gap: 4px 20px; row-gap: 12px;
+      }
+      .atlas-item {
+        display: inline-flex; align-items: baseline; gap: 4px;
+        font-family: var(--display); font-style: italic;
+        color: var(--ink); cursor: pointer;
+        background: transparent; border: none; padding: 2px 0;
+        transition: color 120ms ease;
+        line-height: 1.1;
+      }
+      .atlas-item:hover, .atlas-item:focus-visible { color: var(--vermilion); outline: none; }
+      .atlas-item-word {
+        font-weight: 600;
+      }
+      .atlas-item-count {
+        font-family: var(--mono); font-style: normal;
+        font-size: 10px; font-weight: 500; letter-spacing: 0.06em;
+        color: var(--ink-faded);
+        vertical-align: super;
+      }
+      .atlas-item:hover .atlas-item-count { color: var(--vermilion); }
+      /* Size scales by frequency */
+      .atlas-item.tier-1 .atlas-item-word { font-size: 30px; }
+      .atlas-item.tier-2 .atlas-item-word { font-size: 24px; }
+      .atlas-item.tier-3 .atlas-item-word { font-size: 20px; }
+      .atlas-item.tier-4 .atlas-item-word { font-size: 17px; color: var(--ink-soft); }
+      .atlas-item.tier-5 .atlas-item-word { font-size: 15px; color: var(--ink-faded); }
+
+      /* Active state when a group below is open */
+      .atlas-item.is-active .atlas-item-word {
+        color: var(--vermilion);
+        text-decoration: underline;
+        text-decoration-color: var(--vermilion);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 4px;
+      }
+
+      /* Groups list — similar to A but with stronger header rule */
+      .groups { list-style: none; margin: 0; padding: 0; }
+      .group {
+        border-bottom: 1px dashed var(--ink-ghost);
+        scroll-margin-top: 20px;
+      }
+      .group:last-child { border-bottom: none; }
+
+      .group-head {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: baseline; column-gap: 16px;
+        padding: 16px 4px;
+        cursor: pointer; transition: background 160ms ease;
+        outline: none;
+      }
+      .group-head:hover, .group-head:focus-visible { background: rgba(177, 59, 44, 0.04); }
+
+      .group-partner {
+        font-family: var(--display); font-style: italic; font-weight: 600;
+        font-size: 26px; line-height: 1; color: var(--ink);
+        letter-spacing: -0.005em;
+      }
+      .group-head:hover .group-partner { color: var(--vermilion); }
+      .group-count {
+        font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        color: var(--ink-faded);
+      }
+      .group-count b { color: var(--ink); font-weight: 500; }
+      .group-head.is-open .group-count b { color: var(--vermilion); }
+      .group-toggle {
+        font-family: var(--mono); font-size: 11px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        color: var(--vermilion);
+      }
+
+      .group-body { display: none; padding: 0 0 18px 6px; }
+      .group.is-open .group-body { display: block; }
+
+      .instance {
+        display: grid;
+        grid-template-columns: 26px minmax(0, 1fr) minmax(140px, 180px);
+        column-gap: 16px; align-items: start;
+        padding: 12px 6px;
+        border-bottom: 1px dotted var(--ink-ghost);
+        cursor: pointer; transition: background 160ms ease;
+      }
+      .instance:last-child { border-bottom: none; }
+      .instance:hover { background: rgba(177, 59, 44, 0.035); }
+
+      .instance-glyph {
+        font-family: var(--display); font-style: italic; font-weight: 500;
+        font-size: 36px; line-height: 0.6;
+        color: var(--vermilion); opacity: 0.78;
+        margin-top: 9px; text-align: center; letter-spacing: -0.02em;
+      }
+      .pair { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+      .pair-a, .pair-b {
+        margin: 0; font-family: var(--serif); font-style: italic;
+        font-weight: 500; font-size: 16px; line-height: 1.34;
+      }
+      .pair-a { color: var(--ink-soft); }
+      .pair-b { color: var(--ink); }
+      .mark-source { color: var(--vermilion); font-weight: 500; }
+      .mark-partner {
+        color: var(--vermilion); font-weight: 500;
+        background: linear-gradient(transparent 65%, rgba(177, 59, 44, 0.28) 65%);
+        padding: 0 1px;
+      }
+      .attr {
+        font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faded);
+        text-align: right; display: flex; flex-direction: column; gap: 1px;
+        line-height: 1.5;
+      }
+      .attr em {
+        font-style: italic; text-transform: none; letter-spacing: 0.04em;
+        color: var(--ink-soft); font-weight: 400;
+      }
+
+      .more {
+        display: block; margin: 14px auto 0; padding: 6px 4px;
+        font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+        letter-spacing: 0.18em; text-transform: uppercase;
+        color: var(--ink-soft); background: transparent; border: none;
+        cursor: pointer; transition: color 120ms ease;
+      }
+      .more:hover { color: var(--vermilion); }
+      .more::before { content: "+ "; color: var(--vermilion); }
+
+      .stanza {
+        grid-column: 1 / -1;
+        margin: 8px 0 4px;
+        padding: 10px 14px;
+        border-left: 2px solid var(--vermilion);
+        background: rgba(177, 59, 44, 0.045);
+        font-family: var(--serif); font-style: italic; font-size: 14px;
+        line-height: 1.5; color: var(--ink-soft);
+        display: none;
+      }
+      .instance.is-open .stanza { display: block; }
+      .stanza p { margin: 0; padding: 1px 0; }
+      .stanza .is-match { color: var(--ink); font-weight: 550; }
+
+      /* Mobile */
+      @media (max-width: 720px) {
+        .atlas-item.tier-1 .atlas-item-word { font-size: 24px; }
+        .atlas-item.tier-2 .atlas-item-word { font-size: 20px; }
+        .atlas-item.tier-3 .atlas-item-word { font-size: 17px; }
+        .atlas-item.tier-4 .atlas-item-word { font-size: 15px; }
+        .atlas-item.tier-5 .atlas-item-word { font-size: 14px; }
+        .group-partner { font-size: 22px; }
+        .instance {
+          grid-template-columns: 22px 1fr;
+          row-gap: 4px;
+        }
+        .attr { grid-column: 2; text-align: left; }
+        .pair-a, .pair-b { font-size: 15px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="label">DEMO <b>C · Atlas</b> — overview strip + detail</div>
+
+    <main class="wrap">
+      <section class="rf-srcpanel-index">
+        <header class="rf-srcpanel-index-head">
+          <div>
+            <div class="rf-srcpanel-index-eyebrow">In the corpus</div>
+            <h2 class="rf-srcpanel-index-title">How songwriters rhyme <em>dream</em></h2>
+          </div>
+          <div class="meta" id="meta"></div>
+        </header>
+
+        <nav class="atlas" aria-label="Partner-word atlas">
+          <div class="atlas-label">All partner words, sized by frequency · click to jump</div>
+          <div class="atlas-row" id="atlas"></div>
+        </nav>
+
+        <ul class="groups" id="groups"></ul>
+      </section>
+    </main>
+
+    <script src="./mock-data.js"></script>
+    <script>
+      const { groups: GROUPS, summary } = window.MOCK_GROUPS;
+      const { highlightSource, highlightPartner } = window.MOCK_HELPERS;
+      const INITIAL_BATCH = 5;
+      const NEXT_BATCH = 10;
+
+      document.getElementById("meta").innerHTML = `
+        <div class="meta-cell"><div class="meta-num">${summary.partners}</div><div class="meta-lbl">Partners</div></div>
+        <div class="meta-cell"><div class="meta-num">${summary.songs}</div><div class="meta-lbl">Songs</div></div>
+        <div class="meta-cell"><div class="meta-num">${summary.writers}</div><div class="meta-lbl">Writers</div></div>
+      `;
+
+      // Tier-1..5 by frequency: log-ish buckets so the visual hierarchy reads.
+      const maxCount = Math.max(...GROUPS.map(g => g.instances.length));
+      const tierOf = (n) => {
+        const r = n / maxCount;
+        if (r > 0.66) return 1;
+        if (r > 0.33) return 2;
+        if (r > 0.15) return 3;
+        if (r > 0.05) return 4;
+        return 5;
+      };
+
+      // Atlas overview
+      document.getElementById("atlas").innerHTML = GROUPS.map((g) => `
+        <button class="atlas-item tier-${tierOf(g.instances.length)}" data-jump="${g.partner}">
+          <span class="atlas-item-word">${g.partner}</span>
+          <span class="atlas-item-count">${g.instances.length}</span>
+        </button>
+      `).join("");
+
+      const renderInstance = (inst, openStanza = false) => {
+        const stanza = window.MOCK_STANZA(inst);
+        const stanzaHtml = stanza.map((s, i) => {
+          if (i === 1) return `<p class="is-match">${highlightPartner(s, inst.aWord)}</p>`;
+          if (i === 2) return `<p class="is-match">${highlightSource(s)}</p>`;
+          return `<p>${s}</p>`;
+        }).join("");
+        return `
+          <li class="instance${openStanza ? ' is-open' : ''}" tabindex="0">
+            <div class="instance-glyph" aria-hidden="true">&ldquo;</div>
+            <div class="pair">
+              <p class="pair-a">${highlightPartner(inst.a, inst.aWord)}</p>
+              <p class="pair-b">${highlightSource(inst.b)}</p>
+            </div>
+            <div class="attr">
+              <span>${inst.artist}</span>
+              <em>${inst.song}${inst.year ? ` · ${inst.year}` : ""}</em>
+            </div>
+            <div class="stanza">${stanzaHtml}</div>
+          </li>
+        `;
+      };
+
+      const renderGroup = (g, idx) => {
+        const defaultOpen = idx < 2;
+        const fullyExpanded = idx === 4;
+        const initialShown = defaultOpen ? (fullyExpanded ? g.instances.length : INITIAL_BATCH) : 0;
+        return `
+          <li class="group${defaultOpen ? ' is-open' : ''}" data-shown="${initialShown}" data-partner="${g.partner}" id="g-${g.partner}">
+            <div class="group-head${defaultOpen ? ' is-open' : ''}" role="button" tabindex="0" aria-expanded="${defaultOpen}">
+              <span class="group-partner">${g.partner}</span>
+              <span class="group-count"><b>${g.instances.length}</b> ${g.instances.length === 1 ? 'song' : 'songs'}</span>
+              <span class="group-toggle">${defaultOpen ? '−' : '+'}</span>
+            </div>
+            <div class="group-body">
+              <ul style="list-style:none;margin:0;padding:0;" data-list="${g.partner}">
+                ${g.instances.slice(0, initialShown).map((inst, i) => renderInstance(inst, fullyExpanded && i === 0)).join("")}
+              </ul>
+              <button class="more" data-more="${g.partner}" ${(initialShown >= g.instances.length) ? 'hidden' : ''}>
+                Show ${Math.min(NEXT_BATCH, g.instances.length - initialShown)} more
+              </button>
+            </div>
+          </li>
+        `;
+      };
+
+      document.getElementById("groups").innerHTML = GROUPS.map(renderGroup).join("");
+
+      // Reflect open groups into atlas active state
+      const refreshAtlas = () => {
+        document.querySelectorAll(".atlas-item").forEach((item) => {
+          const partner = item.dataset.jump;
+          const isOpen = document.querySelector(`#g-${partner}`).classList.contains("is-open");
+          item.classList.toggle("is-active", isOpen);
+        });
+      };
+      refreshAtlas();
+
+      // Group expand/collapse
+      document.querySelectorAll(".group-head").forEach((head) => {
+        head.addEventListener("click", () => {
+          const li = head.closest(".group");
+          const partner = li.dataset.partner;
+          const g = GROUPS.find(x => x.partner === partner);
+          const isOpen = li.classList.toggle("is-open");
+          head.classList.toggle("is-open", isOpen);
+          head.setAttribute("aria-expanded", isOpen);
+          head.querySelector(".group-toggle").textContent = isOpen ? "−" : "+";
+          if (isOpen) {
+            let shown = Number(li.dataset.shown) || 0;
+            if (shown === 0) shown = Math.min(INITIAL_BATCH, g.instances.length);
+            li.dataset.shown = shown;
+            const list = li.querySelector("[data-list]");
+            list.innerHTML = g.instances.slice(0, shown).map(inst => renderInstance(inst)).join("");
+            const btn = li.querySelector("[data-more]");
+            const remaining = g.instances.length - shown;
+            if (remaining <= 0) btn.hidden = true;
+            else { btn.hidden = false; btn.textContent = `Show ${Math.min(NEXT_BATCH, remaining)} more`; }
+          } else {
+            li.dataset.shown = 0;
+          }
+          refreshAtlas();
+        });
+      });
+
+      // Atlas jump → scroll + open
+      document.querySelectorAll(".atlas-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          const partner = item.dataset.jump;
+          const li = document.querySelector(`#g-${partner}`);
+          if (!li.classList.contains("is-open")) li.querySelector(".group-head").click();
+          li.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+
+      // Show more
+      document.querySelectorAll("[data-more]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const li = btn.closest(".group");
+          const g = GROUPS.find(x => x.partner === li.dataset.partner);
+          let shown = Number(li.dataset.shown) || 0;
+          shown = Math.min(shown + NEXT_BATCH, g.instances.length);
+          li.dataset.shown = shown;
+          const list = li.querySelector("[data-list]");
+          list.innerHTML = g.instances.slice(0, shown).map(inst => renderInstance(inst)).join("");
+          const remaining = g.instances.length - shown;
+          if (remaining <= 0) btn.hidden = true;
+          else btn.textContent = `Show ${Math.min(NEXT_BATCH, remaining)} more`;
+        });
+      });
+
+      // Stanza popout
+      document.addEventListener("click", (e) => {
+        const inst = e.target.closest(".instance");
+        if (!inst) return;
+        if (e.target.closest(".more")) return;
+        if (e.target.closest(".group-head")) return;
+        inst.classList.toggle("is-open");
+      });
+    </script>
+  </body>
+</html>

@@ -4465,3 +4465,336 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   .cd-paircue { opacity: 1; }
   .cd-strip-songcue { opacity: 1; pointer-events: auto; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   "Explore all partners" — full corpus view (Atlas)
+   Reached from the gallery footer link. Replaces the 3-card strip
+   in #corpus-gallery with an overview-then-detail layout: a
+   frequency strip naming every partner word (sized by how many
+   corpus songs use that pair) over a list of collapsible groups.
+   Ported from briefs/demo-c-atlas.html. Tokens only; no new colors.
+   ════════════════════════════════════════════════════════════════ */
+.cd-explore { padding: 2px 0 8px; }
+
+/* Back-to-browse link — returns to the 3-card strip. */
+.cd-explore-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  padding: 2px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  transition: color 140ms ease;
+}
+.cd-explore-back:hover { color: var(--vermilion); }
+.cd-explore-back::before { content: "\2039"; font-size: 14px; line-height: 1; }
+
+/* Section header — eyebrow + title on the left, number cells right. */
+.cd-explore-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  padding-bottom: 14px;
+  margin-bottom: 22px;
+  position: relative;
+  border-bottom: 1px solid var(--ink);
+}
+.cd-explore-head::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: var(--vermilion);
+  opacity: 0.55;
+}
+.cd-explore-eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+  line-height: 1;
+}
+.cd-explore-title {
+  margin: 6px 0 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(24px, 2.6vw, 30px);
+  line-height: 1.15;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.cd-explore-title em {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--ink);
+  background: linear-gradient(transparent 70%, rgba(177, 59, 44, 0.32) 70%);
+  padding: 0 2px;
+}
+.cd-explore-meta { display: flex; gap: 18px; align-items: flex-end; flex: none; }
+.cd-explore-meta-cell { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.cd-explore-meta-num {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--vermilion);
+}
+.cd-explore-meta-lbl {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+}
+
+/* Atlas overview — partners listed inline, size scales by frequency. */
+.cd-explore-atlas {
+  display: block;
+  padding: 4px 0 20px;
+  margin-bottom: 28px;
+  border-bottom: 1px dashed var(--ink-ghost);
+}
+.cd-explore-atlas-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  margin-bottom: 14px;
+}
+.cd-explore-atlas-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 20px;
+  row-gap: 12px;
+}
+.cd-explore-atlas-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--display);
+  font-style: italic;
+  color: var(--ink);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 2px 0;
+  transition: color 120ms ease;
+  line-height: 1.1;
+}
+.cd-explore-atlas-item:hover,
+.cd-explore-atlas-item:focus-visible { color: var(--vermilion); outline: none; }
+.cd-explore-atlas-word { font-weight: 600; }
+.cd-explore-atlas-count {
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink-faded);
+  vertical-align: super;
+}
+.cd-explore-atlas-item:hover .cd-explore-atlas-count { color: var(--vermilion); }
+.cd-explore-atlas-item.tier-1 .cd-explore-atlas-word { font-size: 30px; }
+.cd-explore-atlas-item.tier-2 .cd-explore-atlas-word { font-size: 24px; }
+.cd-explore-atlas-item.tier-3 .cd-explore-atlas-word { font-size: 20px; }
+.cd-explore-atlas-item.tier-4 .cd-explore-atlas-word { font-size: 17px; color: var(--ink-soft); }
+.cd-explore-atlas-item.tier-5 .cd-explore-atlas-word { font-size: 15px; color: var(--ink-faded); }
+.cd-explore-atlas-item.is-active .cd-explore-atlas-word {
+  color: var(--vermilion);
+  text-decoration: underline;
+  text-decoration-color: var(--vermilion);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* Groups list. */
+.cd-explore-groups { list-style: none; margin: 0; padding: 0; }
+.cd-explore-group {
+  border-bottom: 1px dashed var(--ink-ghost);
+  scroll-margin-top: 20px;
+}
+.cd-explore-group:last-child { border-bottom: none; }
+.cd-explore-group-head {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: baseline;
+  column-gap: 16px;
+  padding: 16px 4px;
+  cursor: pointer;
+  transition: background 160ms ease;
+  outline: none;
+}
+.cd-explore-group-head:hover,
+.cd-explore-group-head:focus-visible { background: rgba(177, 59, 44, 0.04); }
+.cd-explore-group-partner {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+.cd-explore-group-head:hover .cd-explore-group-partner { color: var(--vermilion); }
+.cd-explore-group-count {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+}
+.cd-explore-group-count b { color: var(--ink); font-weight: 500; }
+.cd-explore-group-head.is-open .cd-explore-group-count b { color: var(--vermilion); }
+.cd-explore-group-toggle {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+}
+.cd-explore-group-body { display: none; padding: 0 0 18px 6px; }
+.cd-explore-group.is-open .cd-explore-group-body { display: block; }
+
+/* Instance row — quote glyph · couplet · attribution. */
+.cd-explore-instance {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) minmax(140px, 180px);
+  column-gap: 16px;
+  align-items: start;
+  padding: 12px 6px;
+  border-bottom: 1px dotted var(--ink-ghost);
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.cd-explore-instance:last-child { border-bottom: none; }
+.cd-explore-instance:hover { background: rgba(177, 59, 44, 0.035); }
+.cd-explore-instance.no-stanza { cursor: default; }
+.cd-explore-instance.no-stanza:hover { background: transparent; }
+.cd-explore-glyph {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 0.6;
+  color: var(--vermilion);
+  opacity: 0.78;
+  margin-top: 9px;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+.cd-explore-pair { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.cd-explore-a,
+.cd-explore-b {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.34;
+}
+.cd-explore-a { color: var(--ink-soft); }
+.cd-explore-b { color: var(--ink); }
+.cd-explore-mark-source { color: var(--vermilion); font-weight: 500; }
+.cd-explore-mark-partner {
+  color: var(--vermilion);
+  font-weight: 500;
+  background: linear-gradient(transparent 65%, rgba(177, 59, 44, 0.28) 65%);
+  padding: 0 1px;
+}
+.cd-explore-attr {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.5;
+}
+.cd-explore-attr em {
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.cd-explore-more {
+  display: block;
+  margin: 14px auto 0;
+  padding: 6px 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+.cd-explore-more:hover { color: var(--vermilion); }
+.cd-explore-more::before { content: "+ "; color: var(--vermilion); }
+/* display:block above outranks the UA [hidden] rule on equal specificity,
+   so restore hide-on-hidden explicitly (else a full group shows "Show 0 more"). */
+.cd-explore-more[hidden] { display: none; }
+
+/* Stanza popout — surrounding lyric context, click an instance row. */
+.cd-explore-stanza {
+  grid-column: 1 / -1;
+  margin: 8px 0 4px;
+  padding: 10px 14px;
+  border-left: 2px solid var(--vermilion);
+  background: rgba(177, 59, 44, 0.045);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  display: none;
+}
+.cd-explore-instance.is-open .cd-explore-stanza { display: block; }
+.cd-explore-stanza p { margin: 0; padding: 1px 0; }
+.cd-explore-stanza .is-match { color: var(--ink); font-weight: 550; }
+
+@media (max-width: 720px) {
+  .cd-explore-head { gap: 14px; }
+  .cd-explore-meta { gap: 12px; }
+  .cd-explore-meta-num { font-size: 22px; }
+  .cd-explore-atlas-item.tier-1 .cd-explore-atlas-word { font-size: 24px; }
+  .cd-explore-atlas-item.tier-2 .cd-explore-atlas-word { font-size: 20px; }
+  .cd-explore-atlas-item.tier-3 .cd-explore-atlas-word { font-size: 17px; }
+  .cd-explore-atlas-item.tier-4 .cd-explore-atlas-word { font-size: 15px; }
+  .cd-explore-atlas-item.tier-5 .cd-explore-atlas-word { font-size: 14px; }
+  .cd-explore-group-partner { font-size: 22px; }
+  .cd-explore-instance {
+    grid-template-columns: 22px 1fr;
+    row-gap: 4px;
+  }
+  .cd-explore-attr { grid-column: 2; text-align: left; }
+  .cd-explore-a,
+  .cd-explore-b { font-size: 15px; }
+}

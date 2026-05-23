@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo A · Ledger — Rhyme Finder corpus redesign</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Mono:wght@400;500&display=swap"
+    />
+
+    <style>
+      :root {
+        --paper: #dcc28e;
+        --ink: #1a140e;
+        --ink-soft: #3a2e1f;
+        --ink-faded: #6e5a3c;
+        --ink-ghost: rgba(26, 20, 14, 0.14);
+        --hair: rgba(26, 20, 14, 0.22);
+        --vermilion: #b13b2c;
+        --display: "Cormorant Garamond", "Songti SC", "STSong", serif;
+        --serif: "Spectral", "Songti SC", "STSong", serif;
+        --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        min-height: 100vh;
+        color: var(--ink);
+        background-color: var(--paper);
+        background-image: url("../xuan-bg.png");
+        background-size: 600px 600px;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        font-family: var(--serif);
+      }
+      body::before {
+        content: ""; position: fixed; inset: 0; pointer-events: none;
+        background: radial-gradient(ellipse 95% 75% at 50% 35%, rgba(255, 230, 180, 0.18), transparent 70%);
+        box-shadow: inset 0 0 120px rgba(80, 50, 20, 0.18), inset 0 0 280px rgba(100, 70, 30, 0.10);
+        z-index: 0;
+      }
+
+      .label {
+        position: fixed; top: 12px; left: 12px;
+        font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+        text-transform: uppercase; color: var(--ink-faded);
+        padding: 4px 8px; background: rgba(220, 194, 142, 0.7); border: 1px solid var(--hair);
+      }
+      .label b { color: var(--vermilion); font-weight: 500; }
+
+      .wrap { position: relative; z-index: 2; max-width: 880px; margin: 0 auto; padding: 60px 28px 80px; }
+
+      /* ── Section header (kept consistent with existing source-panel) ── */
+      .rf-srcpanel-index { padding: 4px 0 28px; }
+      .rf-srcpanel-index-head {
+        display: flex; justify-content: space-between; align-items: flex-end;
+        gap: 24px; padding-bottom: 14px; margin-bottom: 22px;
+        position: relative; border-bottom: 1px solid var(--ink);
+      }
+      .rf-srcpanel-index-head::after {
+        content: ""; position: absolute;
+        left: 0; right: 0; bottom: -4px; height: 1px;
+        background: var(--vermilion); opacity: 0.55;
+      }
+      .rf-srcpanel-index-eyebrow {
+        font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+        letter-spacing: 0.22em; text-transform: uppercase;
+        color: var(--vermilion); line-height: 1;
+      }
+      .rf-srcpanel-index-title {
+        margin: 6px 0 0; font-family: var(--display); font-style: italic;
+        font-weight: 500; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.15;
+        color: var(--ink); letter-spacing: -0.005em;
+      }
+      .rf-srcpanel-index-title em {
+        font-style: italic; font-weight: 600; color: var(--ink);
+        background: linear-gradient(transparent 70%, rgba(177, 59, 44, 0.32) 70%);
+        padding: 0 2px;
+      }
+      .meta { display: flex; gap: 18px; align-items: flex-end; flex: none; }
+      .meta-cell { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+      .meta-num {
+        font-family: var(--display); font-style: italic; font-weight: 600;
+        font-size: 28px; line-height: 1; color: var(--vermilion);
+      }
+      .meta-lbl {
+        font-family: var(--mono); font-size: 9.5px; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-faded);
+      }
+
+      /* ── A · Ledger: group = single tight row with peek ─────────── */
+      .groups { list-style: none; margin: 0; padding: 0; }
+      .group {
+        border-bottom: 1px dashed var(--ink-ghost);
+        position: relative;
+      }
+      .group:last-child { border-bottom: none; }
+
+      /* The group header row — always visible. */
+      .group-head {
+        display: grid;
+        grid-template-columns: 28px minmax(120px, 180px) 1fr 90px;
+        align-items: baseline;
+        column-gap: 16px;
+        padding: 14px 4px;
+        cursor: pointer;
+        transition: background 160ms ease;
+        outline: none;
+      }
+      .group-head:hover, .group-head:focus-visible {
+        background: rgba(177, 59, 44, 0.045);
+      }
+      .group-marker {
+        font-family: var(--mono); font-size: 11px; font-weight: 500;
+        color: var(--ink-faded); letter-spacing: 0.04em;
+        text-align: center;
+      }
+      .group-head.is-open .group-marker { color: var(--vermilion); }
+      .group-partner {
+        font-family: var(--display); font-style: italic; font-weight: 600;
+        font-size: 24px; line-height: 1; color: var(--ink);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .group-peek {
+        font-family: var(--serif); font-style: italic; font-weight: 500;
+        font-size: 14px; color: var(--ink-faded);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        line-height: 1.4;
+      }
+      .group-head.is-open .group-peek { opacity: 0; }
+      .group-count {
+        font-family: var(--mono); font-size: 11px; font-weight: 500;
+        letter-spacing: 0.14em; text-transform: uppercase;
+        color: var(--ink-faded); text-align: right;
+        white-space: nowrap;
+      }
+      .group-count b { color: var(--ink); font-weight: 500; font-size: 14px; letter-spacing: 0; }
+      .group-head.is-open .group-count b { color: var(--vermilion); }
+
+      /* Expanded body — list of instance rows */
+      .group-body { display: none; padding: 4px 0 18px 44px; }
+      .group.is-open .group-body { display: block; }
+
+      .instance {
+        display: grid;
+        grid-template-columns: 24px minmax(0, 1fr) minmax(140px, 180px);
+        column-gap: 16px;
+        align-items: start;
+        padding: 10px 6px;
+        border-bottom: 1px dotted var(--ink-ghost);
+        cursor: pointer;
+        transition: background 160ms ease;
+      }
+      .instance:last-child { border-bottom: none; }
+      .instance:hover { background: rgba(177, 59, 44, 0.035); }
+
+      .instance-glyph {
+        font-family: var(--display); font-style: italic; font-weight: 500;
+        font-size: 34px; line-height: 0.6;
+        color: var(--vermilion); opacity: 0.75;
+        margin-top: 8px; text-align: center; letter-spacing: -0.02em;
+      }
+      .pair { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+      .pair-a, .pair-b {
+        margin: 0; font-family: var(--serif); font-style: italic;
+        font-weight: 500; font-size: 16px; line-height: 1.34;
+      }
+      .pair-a { color: var(--ink-soft); }
+      .pair-b { color: var(--ink); }
+      .mark-source { color: var(--vermilion); font-weight: 500; }
+      .mark-partner {
+        color: var(--vermilion); font-weight: 500;
+        background: linear-gradient(transparent 65%, rgba(177, 59, 44, 0.28) 65%);
+        padding: 0 1px;
+      }
+      .attr {
+        font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em;
+        text-transform: uppercase; color: var(--ink-faded);
+        text-align: right; display: flex; flex-direction: column; gap: 1px;
+        line-height: 1.5;
+      }
+      .attr em {
+        font-style: italic; text-transform: none; letter-spacing: 0.04em;
+        color: var(--ink-soft); font-weight: 400;
+      }
+
+      /* "Show K more" inline link */
+      .more {
+        display: block; margin: 14px auto 0; padding: 6px 4px;
+        font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+        letter-spacing: 0.18em; text-transform: uppercase;
+        color: var(--ink-soft); background: transparent; border: none;
+        cursor: pointer; transition: color 120ms ease;
+      }
+      .more:hover { color: var(--vermilion); }
+      .more::before { content: "+ "; color: var(--vermilion); }
+
+      /* Nested stanza popout (still in-flow) */
+      .stanza {
+        grid-column: 1 / -1;
+        margin: 8px 0 4px;
+        padding: 10px 14px;
+        border-left: 2px solid var(--vermilion);
+        background: rgba(177, 59, 44, 0.045);
+        font-family: var(--serif); font-style: italic; font-size: 14px;
+        line-height: 1.5; color: var(--ink-soft);
+        display: none;
+      }
+      .instance.is-open .stanza { display: block; }
+      .stanza p { margin: 0; padding: 1px 0; }
+      .stanza .is-match { color: var(--ink); font-weight: 550; }
+
+      /* Mobile */
+      @media (max-width: 720px) {
+        .group-head {
+          grid-template-columns: 22px 1fr 70px;
+          column-gap: 12px;
+        }
+        .group-peek { display: none; }
+        .group-body { padding-left: 22px; }
+        .instance {
+          grid-template-columns: 22px 1fr;
+          row-gap: 4px;
+        }
+        .attr { grid-column: 2; text-align: left; }
+        .pair-a, .pair-b { font-size: 15px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="label">DEMO <b>A · Ledger</b> — compact, scannable</div>
+
+    <main class="wrap">
+      <section class="rf-srcpanel-index">
+        <header class="rf-srcpanel-index-head">
+          <div>
+            <div class="rf-srcpanel-index-eyebrow">In the corpus</div>
+            <h2 class="rf-srcpanel-index-title">How songwriters rhyme <em>dream</em></h2>
+          </div>
+          <div class="meta">
+            <div class="meta-cell">
+              <div class="meta-num">12</div>
+              <div class="meta-lbl">Partners</div>
+            </div>
+            <div class="meta-cell">
+              <div class="meta-num">112</div>
+              <div class="meta-lbl">Songs</div>
+            </div>
+            <div class="meta-cell">
+              <div class="meta-num">87</div>
+              <div class="meta-lbl">Writers</div>
+            </div>
+          </div>
+        </header>
+
+        <ul class="groups" id="groups">
+          <!-- Groups injected by JS -->
+        </ul>
+      </section>
+    </main>
+
+    <script>
+      // ── Mock data ──────────────────────────────────────────────
+      // Top group `screen` inflated to 60 instances so the batch-reveal
+      // mechanic is visible. The first 5 carry rich attribution; the
+      // remaining 55 are synthetic placeholders to demo the long tail.
+      const real = (overrides = []) => {
+        const base = [
+          { a: "That could flash on the screen", aWord: "screen", b: "What a beautiful dream", artist: "Joni Mitchell", song: "The Last Time I Saw Richard", year: 1971 },
+          { a: "We danced behind the silver screen", aWord: "screen", b: "Held a kiss inside a dream", artist: "Sufjan Stevens", song: "Carrie & Lowell", year: 2015 },
+          { a: "Through the haze of cigarette screen", aWord: "screen", b: "I almost touched her in a dream", artist: "Lana Del Rey", song: "Mariners Apartment Complex", year: 2019 },
+          { a: "A flicker on the morning screen", aWord: "screen", b: "Was that you, or just a dream?", artist: "Adrianne Lenker", song: "Anything", year: 2020 },
+          { a: "Behind the chain-link, behind the screen", aWord: "screen", b: "She lived the only kind of dream", artist: "Bruce Springsteen", song: "The River", year: 1980 },
+        ];
+        for (const o of overrides) base.push(o);
+        for (let i = 0; i < 55; i++) {
+          base.push({
+            a: `Line ending in screen (#${i + 6})`,
+            aWord: "screen",
+            b: `Partner line ending in dream (#${i + 6})`,
+            artist: ["Joni Mitchell", "Adrianne Lenker", "Sufjan Stevens", "Townes Van Zandt", "Laura Marling", "Leonard Cohen", "Bob Dylan"][i % 7],
+            song: `Demo song ${i + 6}`,
+            year: 1965 + ((i * 3) % 60),
+          });
+        }
+        return base;
+      };
+
+      const stanzaFor = (inst) => [
+        "Some prelude line drifting in",
+        inst.a,
+        inst.b,
+        "Then it fades back to the room",
+      ];
+
+      const GROUPS = [
+        { partner: "screen", instances: real() },
+        {
+          partner: "clean",
+          instances: [
+            { a: "The back seat is nice and clean", aWord: "clean", b: "She rides as quiet as a dream", artist: "Laura Marling", song: "Sophia", year: 2011 },
+            { a: "My shirt is starched, my hands are clean", aWord: "clean", b: "But I was paid in a dream", artist: "Bill Callahan", song: "Drover", year: 2011 },
+            { a: "The country roads are wide and clean", aWord: "clean", b: "We rolled the windows in a dream", artist: "Jason Isbell", song: "Cover Me Up", year: 2013 },
+            { a: "Lord, make my hands and conscience clean", aWord: "clean", b: "I sang my way out of the dream", artist: "Brandi Carlile", song: "The Joke", year: 2017 },
+            { a: "Snow in February, road still clean", aWord: "clean", b: "I write to keep alive the dream", artist: "Lucinda Williams", song: "Ghosts of Highway 20", year: 2016 },
+            { a: "A linen shirt, a kitchen clean", aWord: "clean", b: "She lived inside her sister's dream", artist: "Big Thief", song: "Mary", year: 2019 },
+            { a: "The morning broke up wide and clean", aWord: "clean", b: "And nothing left but yesterday's dream", artist: "Aoife O'Donovan", song: "Magpie", year: 2016 },
+            { a: "He swept the floor, the room was clean", aWord: "clean", b: "He fell asleep inside his dream", artist: "Phoebe Bridgers", song: "Funeral", year: 2017 },
+            { a: "Tin cup rinsed, the river clean", aWord: "clean", b: "We bathed the ashes of the dream", artist: "Gillian Welch", song: "Look at Miss Ohio", year: 2003 },
+            { a: "A second-hand white wedding clean", aWord: "clean", b: "Buried twice inside her dream", artist: "Joanna Newsom", song: "Have One on Me", year: 2010 },
+            { a: "The afternoon was bright and clean", aWord: "clean", b: "I never told her about the dream", artist: "Andy Shauf", song: "The Magician", year: 2016 },
+            { a: "Lord, my heart and house are clean", aWord: "clean", b: "But yours still haunts my dream", artist: "Iron & Wine", song: "Naked as We Came", year: 2004 },
+          ],
+        },
+        {
+          partner: "queen",
+          instances: [
+            { a: "And I'm in love with being queen", aWord: "queen", b: "We're bigger than we ever dreamed", artist: "Lorde", song: "Royals", year: 2013 },
+            { a: "She was the prom-night Hollywood queen", aWord: "queen", b: "Held in her lap a paper dream", artist: "Lana Del Rey", song: "Carmen", year: 2012 },
+            { a: "Plays the part of the suburb queen", aWord: "queen", b: "Lives inside a magazine dream", artist: "Father John Misty", song: "Pure Comedy", year: 2017 },
+            { a: "There once was a freckled green queen", aWord: "queen", b: "Who promised what she didn't dream", artist: "Joanna Newsom", song: "Emily", year: 2006 },
+            { a: "We crowned her in a kitchen, queen", aWord: "queen", b: "Of all the worst kinds of dream", artist: "Adrianne Lenker", song: "Crybaby Bridge", year: 2020 },
+            { a: "Some say she walked off as a queen", aWord: "queen", b: "Some say she vanished in a dream", artist: "Lucinda Williams", song: "Drunken Angel", year: 1998 },
+            { a: "Her mother told her: act the queen", aWord: "queen", b: "Don't fall asleep inside the dream", artist: "Laura Marling", song: "Master Hunter", year: 2013 },
+            { a: "Fourteen and already half a queen", aWord: "queen", b: "She held her brother in a dream", artist: "Big Thief", song: "Capacity", year: 2017 },
+            { a: "Carry the bouquet, walk like a queen", aWord: "queen", b: "Through every fold of a folded dream", artist: "Andrew Bird", song: "Pulaski at Night", year: 2013 },
+          ],
+        },
+        {
+          partner: "seem",
+          instances: [
+            { a: "But her favorite one, it seems", aWord: "seems", b: "Was sinking into your dreams", artist: "Townes Van Zandt", song: "Pancho and Lefty", year: 1972 },
+            { a: "Closer than they sometimes seem", aWord: "seem", b: "Are the past and present dream", artist: "Sufjan Stevens", song: "Should Have Known Better", year: 2015 },
+            { a: "Things are not always what they seem", aWord: "seem", b: "Said the man inside my dream", artist: "Leonard Cohen", song: "The Stranger Song", year: 1967 },
+            { a: "The lights were not as bright as they seemed", aWord: "seemed", b: "Mid-July, my brother dreamed", artist: "Adrianne Lenker", song: "Indiana", year: 2018 },
+            { a: "I see things as they ought to seem", aWord: "seem", b: "Half-awake inside the dream", artist: "Joanna Newsom", song: "Sapokanikan", year: 2015 },
+            { a: "The fence-line longer than it seemed", aWord: "seemed", b: "We slept where my mother had dreamed", artist: "Iron & Wine", song: "House by the Sea", year: 2007 },
+            { a: "The wind was colder than it seemed", aWord: "seemed", b: "She left a note inside a dream", artist: "Gillian Welch", song: "Caleb Meyer", year: 1998 },
+          ],
+        },
+        {
+          partner: "mean",
+          instances: [
+            { a: "I don't know what it's supposed to mean", aWord: "mean", b: "Standing at the edge of the dream", artist: "Leonard Cohen", song: "Famous Blue Raincoat", year: 1971 },
+            { a: "What does it mean, what does it mean?", aWord: "mean", b: "I keep asking it inside the dream", artist: "Aimee Mann", song: "Save Me", year: 1999 },
+            { a: "Words that don't quite catch the mean", aWord: "mean", b: "Of half-remembered childhood dreams", artist: "Vienna Teng", song: "City Hall", year: 2006 },
+            { a: "He looked at me as if to mean", aWord: "mean", b: "There's nothing left but the dream", artist: "Mount Eerie", song: "Real Death", year: 2017 },
+            { a: "Don't ask me what the lyrics mean", aWord: "mean", b: "They live one floor above the dream", artist: "Andy Shauf", song: "Quite Like You", year: 2016 },
+          ],
+        },
+        {
+          partner: "team",
+          instances: [
+            { a: "We were the bad-luck winning team", aWord: "team", b: "Trading bruises for a dream", artist: "Bruce Springsteen", song: "Glory Days", year: 1984 },
+            { a: "Two against the world, the team", aWord: "team", b: "Held together by the dream", artist: "Jason Isbell", song: "If We Were Vampires", year: 2017 },
+            { a: "She picked me from her grade-school team", aWord: "team", b: "Held my hand inside the dream", artist: "Sufjan Stevens", song: "John My Beloved", year: 2015 },
+          ],
+        },
+        {
+          partner: "between",
+          instances: [
+            { a: "We lived in the rooms in between", aWord: "between", b: "Between the waking and the dream", artist: "Leonard Cohen", song: "Hallelujah", year: 1984 },
+            { a: "I see the wires running in between", aWord: "between", b: "Each separate strand of a dream", artist: "Joanna Newsom", song: "Time, As a Symptom", year: 2015 },
+          ],
+        },
+        { partner: "ravine", instances: [
+          { a: "We slept above the cold ravine", aWord: "ravine", b: "Below it ran a small black dream", artist: "Bill Callahan", song: "Riding for the Feeling", year: 2011 },
+        ]},
+        { partner: "routine", instances: [
+          { a: "This orphanage we call a ghetto is quite a routine", aWord: "routine", b: "I'm fortunate you believe in a dream", artist: "Lauryn Hill", song: "To Zion", year: 1998 },
+        ]},
+        { partner: "kerosene", instances: [
+          { a: "Your breath's as hard as kerosene", aWord: "kerosene", b: "You weren't your mama's only dream", artist: "Townes Van Zandt", song: "Pancho and Lefty", year: 1972 },
+        ]},
+      ];
+
+      // Sort descending by count; ties → alphabetical
+      GROUPS.sort((x, y) => y.instances.length - x.instances.length || x.partner.localeCompare(y.partner));
+
+      // ── Render ────────────────────────────────────────────────
+      const INITIAL_BATCH = 5;
+      const NEXT_BATCH = 10;
+
+      const wordRe = (w) => new RegExp(`\\b${w}\\b`, "gi");
+      const highlightSource = (line) =>
+        line.replace(wordRe("dream"), `<span class="mark-source">$&</span>`)
+            .replace(wordRe("dreams"), `<span class="mark-source">$&</span>`)
+            .replace(wordRe("dreamed"), `<span class="mark-source">$&</span>`)
+            .replace(wordRe("dreaming"), `<span class="mark-source">$&</span>`);
+      const highlightPartner = (line, word) =>
+        line.replace(wordRe(word), `<span class="mark-partner">$&</span>`);
+
+      const renderInstance = (inst, opts = {}) => {
+        const stanza = stanzaFor(inst);
+        const stanzaHtml = stanza.map((s, i) => {
+          if (i === 1) return `<p class="is-match">${highlightPartner(s, inst.aWord)}</p>`;
+          if (i === 2) return `<p class="is-match">${highlightSource(s)}</p>`;
+          return `<p>${s}</p>`;
+        }).join("");
+        return `
+          <li class="instance${opts.openStanza ? ' is-open' : ''}" tabindex="0">
+            <div class="instance-glyph" aria-hidden="true">&ldquo;</div>
+            <div class="pair">
+              <p class="pair-a">${highlightPartner(inst.a, inst.aWord)}</p>
+              <p class="pair-b">${highlightSource(inst.b)}</p>
+            </div>
+            <div class="attr">
+              <span>${inst.artist}</span>
+              <em>${inst.song}${inst.year ? ` · ${inst.year}` : ""}</em>
+            </div>
+            <div class="stanza">${stanzaHtml}</div>
+          </li>
+        `;
+      };
+
+      const renderGroup = (g, idx) => {
+        const defaultOpen = idx < 2;
+        const peek = g.instances[0];
+        const peekText = `${peek.artist} — &ldquo;${peek.a}&rdquo;`;
+        const fullyExpanded = idx === 4; // a middle group shown fully expanded
+        return `
+          <li class="group${defaultOpen ? ' is-open' : ''}" data-shown="${defaultOpen ? INITIAL_BATCH : 0}" data-total="${g.instances.length}" data-partner="${g.partner}">
+            <div class="group-head${defaultOpen ? ' is-open' : ''}" role="button" tabindex="0" aria-expanded="${defaultOpen}">
+              <span class="group-marker">${defaultOpen ? '−' : '+'}</span>
+              <span class="group-partner">${g.partner}</span>
+              <span class="group-peek">${peekText}</span>
+              <span class="group-count"><b>${g.instances.length}</b> ${g.instances.length === 1 ? 'song' : 'songs'}</span>
+            </div>
+            <div class="group-body">
+              <ul style="list-style:none;margin:0;padding:0;" data-list="${g.partner}">
+                ${g.instances.slice(0, defaultOpen ? (fullyExpanded ? g.instances.length : INITIAL_BATCH) : 0)
+                  .map((inst, i) => renderInstance(inst, { openStanza: idx === 4 && i === 0 }))
+                  .join("")}
+              </ul>
+              <button class="more" data-more="${g.partner}" ${(defaultOpen && (fullyExpanded || g.instances.length <= INITIAL_BATCH)) ? 'hidden' : ''}>
+                Show ${Math.min(NEXT_BATCH, g.instances.length - (defaultOpen ? INITIAL_BATCH : 0))} more
+              </button>
+            </div>
+          </li>
+        `;
+      };
+
+      document.getElementById("groups").innerHTML = GROUPS.map(renderGroup).join("");
+
+      // ── Interactions ──────────────────────────────────────────
+      document.querySelectorAll(".group-head").forEach((head) => {
+        const open = (head, list, partner) => {
+          const g = GROUPS.find(x => x.partner === partner);
+          if (!g) return;
+          const li = head.closest(".group");
+          let shown = Number(li.dataset.shown) || 0;
+          if (shown === 0) shown = Math.min(INITIAL_BATCH, g.instances.length);
+          li.dataset.shown = shown;
+          list.innerHTML = g.instances.slice(0, shown).map((inst, i) => renderInstance(inst)).join("");
+          const btn = li.querySelector("[data-more]");
+          const remaining = g.instances.length - shown;
+          if (remaining <= 0) btn.hidden = true;
+          else { btn.hidden = false; btn.textContent = `Show ${Math.min(NEXT_BATCH, remaining)} more`; }
+        };
+        head.addEventListener("click", () => {
+          const li = head.closest(".group");
+          const partner = li.dataset.partner;
+          const list = li.querySelector("[data-list]");
+          const isOpen = li.classList.toggle("is-open");
+          head.classList.toggle("is-open", isOpen);
+          head.querySelector(".group-marker").textContent = isOpen ? "−" : "+";
+          head.setAttribute("aria-expanded", isOpen);
+          if (isOpen) open(head, list, partner);
+          else li.dataset.shown = 0;
+        });
+      });
+
+      document.querySelectorAll("[data-more]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const li = btn.closest(".group");
+          const partner = li.dataset.partner;
+          const g = GROUPS.find(x => x.partner === partner);
+          let shown = Number(li.dataset.shown) || 0;
+          shown = Math.min(shown + NEXT_BATCH, g.instances.length);
+          li.dataset.shown = shown;
+          const list = li.querySelector("[data-list]");
+          list.innerHTML = g.instances.slice(0, shown).map((inst, i) => renderInstance(inst)).join("");
+          const remaining = g.instances.length - shown;
+          if (remaining <= 0) btn.hidden = true;
+          else btn.textContent = `Show ${Math.min(NEXT_BATCH, remaining)} more`;
+        });
+      });
+
+      // Toggle nested stanza popout on instance click
+      document.addEventListener("click", (e) => {
+        const inst = e.target.closest(".instance");
+        if (!inst) return;
+        if (e.target.closest(".more")) return;
+        inst.classList.toggle("is-open");
+      });
+    </script>
+  </body>
+</html>

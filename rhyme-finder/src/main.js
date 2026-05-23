@@ -1493,7 +1493,7 @@ async function renderCorpusGallery(word) {
       sideCardHTML(next, "next") +
       `</div>` +
       `<div class="cd-prim-footer">` +
-      `<a class="cd-prim-explore" href="#" aria-disabled="true">explore all <b>${groups.length}</b> partners ↗</a>` +
+      `<a class="cd-prim-explore" href="#">explore all <b>${groups.length}</b> partners ↗</a>` +
       `</div>` +
       `</section>`
     );
@@ -1638,14 +1638,279 @@ async function renderCorpusGallery(word) {
         setPair(pIdx + (Number(card.dataset.step) || 0));
       });
     });
-    // Footer "explore all N" — destination view is out of scope; preserve
-    // the link affordance but no-op the click for now.
+    // Footer "explore all N" — opens the full corpus view (Atlas).
     const explore = mount.querySelector(".cd-prim-explore");
-    if (explore) explore.addEventListener("click", (e) => e.preventDefault());
+    if (explore)
+      explore.addEventListener("click", (e) => {
+        e.preventDefault();
+        renderCorpusExplore(word);
+      });
     bindCenter();
   }
 
   rerender();
+}
+
+// ── "Explore all partners" — full corpus view (Atlas) ─────────────
+// Reached from the gallery footer link. Swaps the 3-card strip in
+// #corpus-gallery for an overview-then-detail layout: a frequency
+// strip naming every partner word (sized by corpus recurrence) over a
+// list of collapsible groups. Ported from briefs/demo-c-atlas.html;
+// rationale in briefs/corpus-section-redesign.md.
+const EXPLORE_INITIAL_BATCH = 5;
+const EXPLORE_NEXT_BATCH = 10;
+
+// Highlight the matched word in a line with an explore-view mark.
+// Mirrors markCoupletPartner's regex but emits the class span the
+// Atlas CSS expects (source vs partner get different treatments).
+function exploreMark(line, word, cls) {
+  if (!word) return escapeHtml(line);
+  const safe = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`\\b${safe}(?:['’]\\w{0,3})?\\b`, "gi");
+  return escapeHtml(line).replace(re, `<span class="${cls}">$&</span>`);
+}
+
+async function renderCorpusExplore(word) {
+  const mount = document.getElementById("corpus-gallery");
+  if (!mount) return;
+
+  const quotes = await getQuotes(word);
+  const groups = groupPairQuotes(quotes);
+
+  // Within each group, oldest-first (genealogy reads influence-forward);
+  // alpha-by-author when a year is missing. groupPairQuotes returns a
+  // fresh array each call, so this sort doesn't disturb the gallery.
+  const yearOf = (q) => {
+    const y = Number(q.year);
+    return Number.isFinite(y) ? y : Infinity;
+  };
+  for (const g of groups) {
+    g.instances.sort(
+      (a, b) =>
+        yearOf(a) - yearOf(b) ||
+        (a.credit || a.artist || "").localeCompare(b.credit || b.artist || "")
+    );
+  }
+
+  const backHTML = `<button type="button" class="cd-explore-back">back to browse</button>`;
+
+  if (!groups.length) {
+    mount.innerHTML =
+      `<section class="cd-explore">${backHTML}` +
+      `<p class="cd-prim-empty">No paired line-end uses for <em>${escapeHtml(word)}</em> in the corpus yet.</p>` +
+      `</section>`;
+    mount
+      .querySelector(".cd-explore-back")
+      ?.addEventListener("click", () => renderCorpusGallery(word));
+    return;
+  }
+
+  const songs = groups.reduce((s, g) => s + g.instances.length, 0);
+  const writers = new Set();
+  for (const g of groups)
+    for (const q of g.instances)
+      writers.add((q.credit || q.artist || "").toLowerCase());
+
+  // Frequency tiers for the atlas strip — log-ish buckets so the visual
+  // size hierarchy reads at a glance (clichés big, gems small).
+  const maxCount = Math.max(...groups.map((g) => g.instances.length), 1);
+  const tierOf = (n) => {
+    const r = n / maxCount;
+    if (r > 0.66) return 1;
+    if (r > 0.33) return 2;
+    if (r > 0.15) return 3;
+    if (r > 0.05) return 4;
+    return 5;
+  };
+
+  const metaCell = (num, lbl) =>
+    `<div class="cd-explore-meta-cell"><div class="cd-explore-meta-num">${num}</div><div class="cd-explore-meta-lbl">${lbl}</div></div>`;
+
+  const atlasHTML = groups
+    .map(
+      (g, i) =>
+        `<button type="button" class="cd-explore-atlas-item tier-${tierOf(g.instances.length)}" data-gi="${i}">` +
+        `<span class="cd-explore-atlas-word">${escapeHtml(g.partner)}</span>` +
+        `<span class="cd-explore-atlas-count">${g.instances.length}</span>` +
+        `</button>`
+    )
+    .join("");
+
+  const instanceHTML = (q) => {
+    const hasStanza = Array.isArray(q.stanza) && q.stanza.length;
+    const matchIdx = Number.isInteger(q.stanzaLineIdx) ? q.stanzaLineIdx : -1;
+    const partnerIdx =
+      q.partner && Number.isInteger(q.partner.stanzaLineIdx)
+        ? q.partner.stanzaLineIdx
+        : -1;
+    const stanza = hasStanza
+      ? `<div class="cd-explore-stanza">` +
+        q.stanza
+          .map((s, j) => {
+            if (j === partnerIdx && q.partner)
+              return `<p class="is-match">${exploreMark(s, q.partner.word, "cd-explore-mark-partner")}</p>`;
+            if (j === matchIdx)
+              return `<p class="is-match">${exploreMark(s, q.surface, "cd-explore-mark-source")}</p>`;
+            return `<p>${escapeHtml(s)}</p>`;
+          })
+          .join("") +
+        `</div>`
+      : "";
+    const year = q.year ? ` · ${escapeHtml(String(q.year))}` : "";
+    const partnerLine = q.partner
+      ? exploreMark(q.partner.line, q.partner.word, "cd-explore-mark-partner")
+      : "";
+    return (
+      `<li class="cd-explore-instance${hasStanza ? "" : " no-stanza"}" tabindex="0">` +
+      `<div class="cd-explore-glyph" aria-hidden="true">&ldquo;</div>` +
+      `<div class="cd-explore-pair">` +
+      `<p class="cd-explore-a">${partnerLine}</p>` +
+      `<p class="cd-explore-b">${exploreMark(q.line, q.surface, "cd-explore-mark-source")}</p>` +
+      `</div>` +
+      `<div class="cd-explore-attr">` +
+      `<span>${escapeHtml(q.credit || q.artist || "")}</span>` +
+      `<em>${escapeHtml(q.songTitle || q.song || "")}${year}</em>` +
+      `</div>` +
+      stanza +
+      `</li>`
+    );
+  };
+
+  const groupHTML = (g, i) => {
+    const open = i < 2;
+    const shown = open ? Math.min(EXPLORE_INITIAL_BATCH, g.instances.length) : 0;
+    const remaining = g.instances.length - shown;
+    return (
+      `<li class="cd-explore-group${open ? " is-open" : ""}" data-gi="${i}" data-shown="${shown}">` +
+      `<div class="cd-explore-group-head${open ? " is-open" : ""}" role="button" tabindex="0" aria-expanded="${open}">` +
+      `<span class="cd-explore-group-partner">${escapeHtml(g.partner)}</span>` +
+      `<span class="cd-explore-group-count"><b>${g.instances.length}</b> ${g.instances.length === 1 ? "song" : "songs"}</span>` +
+      `<span class="cd-explore-group-toggle">${open ? "−" : "+"}</span>` +
+      `</div>` +
+      `<div class="cd-explore-group-body">` +
+      `<ul class="cd-explore-instances" style="list-style:none;margin:0;padding:0;">` +
+      g.instances.slice(0, shown).map(instanceHTML).join("") +
+      `</ul>` +
+      `<button type="button" class="cd-explore-more"${remaining > 0 ? "" : " hidden"}>Show ${Math.min(EXPLORE_NEXT_BATCH, remaining)} more</button>` +
+      `</div>` +
+      `</li>`
+    );
+  };
+
+  mount.innerHTML =
+    `<section class="cd-explore">` +
+    backHTML +
+    `<header class="cd-explore-head">` +
+    `<div>` +
+    `<div class="cd-explore-eyebrow">In the corpus</div>` +
+    `<h2 class="cd-explore-title">How songwriters rhyme <em>${escapeHtml(word)}</em></h2>` +
+    `</div>` +
+    `<div class="cd-explore-meta">` +
+    metaCell(groups.length, groups.length === 1 ? "Partner" : "Partners") +
+    metaCell(songs, songs === 1 ? "Song" : "Songs") +
+    metaCell(writers.size, writers.size === 1 ? "Writer" : "Writers") +
+    `</div>` +
+    `</header>` +
+    `<nav class="cd-explore-atlas" aria-label="Partner-word atlas">` +
+    `<div class="cd-explore-atlas-label">All partner words, sized by frequency · click to jump</div>` +
+    `<div class="cd-explore-atlas-row">${atlasHTML}</div>` +
+    `</nav>` +
+    `<ul class="cd-explore-groups">${groups.map(groupHTML).join("")}</ul>` +
+    `</section>`;
+
+  // ── Bindings ───────────────────────────────────────────────────
+  const section = mount.querySelector(".cd-explore");
+  const groupEls = [...section.querySelectorAll(".cd-explore-group")];
+
+  section
+    .querySelector(".cd-explore-back")
+    .addEventListener("click", () => renderCorpusGallery(word));
+
+  const refreshAtlas = () => {
+    section.querySelectorAll(".cd-explore-atlas-item").forEach((item) => {
+      const isOpen = groupEls[Number(item.dataset.gi)]?.classList.contains("is-open");
+      item.classList.toggle("is-active", !!isOpen);
+    });
+  };
+
+  const fillGroup = (li) => {
+    const g = groups[Number(li.dataset.gi)];
+    const shown = Number(li.dataset.shown) || 0;
+    li.querySelector(".cd-explore-instances").innerHTML = g.instances
+      .slice(0, shown)
+      .map(instanceHTML)
+      .join("");
+    const btn = li.querySelector(".cd-explore-more");
+    const remaining = g.instances.length - shown;
+    if (remaining <= 0) btn.hidden = true;
+    else {
+      btn.hidden = false;
+      btn.textContent = `Show ${Math.min(EXPLORE_NEXT_BATCH, remaining)} more`;
+    }
+  };
+
+  const toggleGroup = (li, forceOpen) => {
+    const head = li.querySelector(".cd-explore-group-head");
+    const willOpen = forceOpen ?? !li.classList.contains("is-open");
+    li.classList.toggle("is-open", willOpen);
+    head.classList.toggle("is-open", willOpen);
+    head.setAttribute("aria-expanded", String(willOpen));
+    head.querySelector(".cd-explore-group-toggle").textContent = willOpen ? "−" : "+";
+    if (willOpen) {
+      let shown = Number(li.dataset.shown) || 0;
+      if (shown === 0)
+        shown = Math.min(EXPLORE_INITIAL_BATCH, groups[Number(li.dataset.gi)].instances.length);
+      li.dataset.shown = shown;
+      fillGroup(li);
+    } else {
+      li.dataset.shown = 0;
+    }
+    refreshAtlas();
+  };
+
+  section.querySelectorAll(".cd-explore-group-head").forEach((head) => {
+    const li = head.closest(".cd-explore-group");
+    head.addEventListener("click", () => toggleGroup(li));
+    head.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleGroup(li);
+      }
+    });
+  });
+
+  section.querySelectorAll(".cd-explore-atlas-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      const li = groupEls[Number(item.dataset.gi)];
+      if (!li) return;
+      if (!li.classList.contains("is-open")) toggleGroup(li, true);
+      li.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
+  section.querySelectorAll(".cd-explore-more").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const li = btn.closest(".cd-explore-group");
+      const g = groups[Number(li.dataset.gi)];
+      const shown = Math.min(
+        (Number(li.dataset.shown) || 0) + EXPLORE_NEXT_BATCH,
+        g.instances.length
+      );
+      li.dataset.shown = shown;
+      fillGroup(li);
+    });
+  });
+
+  // Stanza popout — click an instance row. Delegated on the section so
+  // it survives the show-more re-render of the instances list.
+  section.addEventListener("click", (e) => {
+    const inst = e.target.closest(".cd-explore-instance");
+    if (!inst || inst.classList.contains("no-stanza")) return;
+    inst.classList.toggle("is-open");
+  });
+
+  refreshAtlas();
 }
 
 // ── Tabs (Rhyme dictionary / In the corpus) ───────────────────────

@@ -11,6 +11,11 @@ test/
 scripts/
 README.md
 
+# Design scaffolding for the corpus "explore all partners" view — brief +
+# standalone demo prototypes + mock data. Reference only; the shipped
+# implementation lives in src/main.js + styles.css (.cd-explore-*).
+rhyme-finder/briefs/
+
 # Build artifacts not loaded at runtime (data/cmu-entries.json is 31 MB).
 data/
 

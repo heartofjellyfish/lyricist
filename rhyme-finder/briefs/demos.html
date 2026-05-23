@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Corpus redesign · choose a demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Spectral:ital,wght@0,400;0,500;1,400;1,500&family=DM+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      :root {
+        --paper: #dcc28e;
+        --ink: #1a140e;
+        --ink-soft: #3a2e1f;
+        --ink-faded: #6e5a3c;
+        --ink-ghost: rgba(26, 20, 14, 0.14);
+        --hair: rgba(26, 20, 14, 0.22);
+        --vermilion: #b13b2c;
+        --display: "Cormorant Garamond", serif;
+        --serif: "Spectral", serif;
+        --mono: "DM Mono", monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        min-height: 100vh; color: var(--ink);
+        background-color: var(--paper);
+        background-image: url("../xuan-bg.png");
+        background-size: 600px 600px;
+        font-family: var(--serif);
+        -webkit-font-smoothing: antialiased;
+      }
+      body::before {
+        content: ""; position: fixed; inset: 0; pointer-events: none;
+        background: radial-gradient(ellipse 95% 75% at 50% 35%, rgba(255, 230, 180, 0.18), transparent 70%);
+        box-shadow: inset 0 0 120px rgba(80, 50, 20, 0.18), inset 0 0 280px rgba(100, 70, 30, 0.10);
+        z-index: 0;
+      }
+      .wrap { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; padding: 80px 28px; }
+      .eyebrow {
+        font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+        letter-spacing: 0.22em; text-transform: uppercase;
+        color: var(--vermilion); margin-bottom: 8px;
+      }
+      h1 {
+        font-family: var(--display); font-style: italic; font-weight: 500;
+        font-size: clamp(36px, 5vw, 52px); line-height: 1.05;
+        color: var(--ink); margin: 0 0 12px;
+        letter-spacing: -0.01em;
+      }
+      .sub {
+        font-family: var(--serif); font-style: italic; font-size: 19px;
+        color: var(--ink-soft); margin: 0 0 48px; line-height: 1.4;
+        max-width: 640px;
+      }
+      .card {
+        display: block; padding: 28px 0;
+        border-top: 1px solid var(--ink-ghost);
+        text-decoration: none; color: inherit;
+        transition: padding-left 200ms ease;
+        position: relative;
+      }
+      .card:last-of-type { border-bottom: 1px solid var(--ink-ghost); }
+      .card:hover { padding-left: 16px; }
+      .card:hover::before {
+        content: ""; position: absolute; left: 0; top: 28px; bottom: 28px;
+        width: 3px; background: var(--vermilion);
+      }
+      .card-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 8px; }
+      .card-num {
+        font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+        letter-spacing: 0.22em; color: var(--vermilion);
+      }
+      .card-name {
+        font-family: var(--display); font-style: italic; font-weight: 600;
+        font-size: 32px; line-height: 1; color: var(--ink);
+        transition: color 160ms ease;
+      }
+      .card:hover .card-name { color: var(--vermilion); }
+      .card-tag {
+        font-family: var(--mono); font-size: 9.5px; font-weight: 500;
+        letter-spacing: 0.18em; text-transform: uppercase;
+        color: var(--ink-faded);
+      }
+      .card-desc {
+        font-family: var(--serif); font-style: italic; font-size: 16px;
+        line-height: 1.5; color: var(--ink-soft);
+        max-width: 600px;
+      }
+      .footer {
+        margin-top: 48px;
+        font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+        color: var(--ink-faded); text-transform: uppercase;
+      }
+      .footer a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px dotted var(--hair); }
+      .footer a:hover { color: var(--vermilion); border-bottom-color: var(--vermilion); }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <div class="eyebrow">Corpus redesign — pick a direction</div>
+      <h1>Three takes on <em>How songwriters rhyme</em></h1>
+      <p class="sub">
+        Same data, same design tokens (xuan paper · sumi ink · vermilion accent · Cormorant + Spectral + DM Mono). Different reading models. Click in, scroll, expand a few groups, and tell me which one feels right.
+      </p>
+
+      <a class="card" href="./demo-a-ledger.html">
+        <div class="card-head">
+          <span class="card-num">A</span>
+          <span class="card-name">Ledger</span>
+          <span class="card-tag">compact · scannable</span>
+        </div>
+        <p class="card-desc">
+          Each group collapses to one tight row: partner word, song count, and a peek of the first instance. Scan ten rhymes in one glance, expand the ones you want. Closest in spirit to the current row-list — feels like a footnote index in a scholarly edition.
+        </p>
+      </a>
+
+      <a class="card" href="./demo-b-folio.html">
+        <div class="card-head">
+          <span class="card-num">B</span>
+          <span class="card-name">Folio</span>
+          <span class="card-tag">typographic · book-like</span>
+        </div>
+        <p class="card-desc">
+          Each group opens with a 40px Cormorant italic partner word — like a chapter heading. Generous vertical rhythm; the page reads as a sequence of small entries. Slower, more deliberate; rewards reading top-to-bottom rather than skimming.
+        </p>
+      </a>
+
+      <a class="card" href="./demo-c-atlas.html">
+        <div class="card-head">
+          <span class="card-num">C</span>
+          <span class="card-name">Atlas</span>
+          <span class="card-tag">overview + detail</span>
+        </div>
+        <p class="card-desc">
+          A frequency strip at the top names every partner word inline, sized by how often it appears. One glance: you see <em>screen</em> and <em>clean</em> are the clichés, <em>kerosene</em> is the gem. Click any word in the strip to jump down to its group. Two reading modes — survey, then dive.
+        </p>
+      </a>
+
+      <div class="footer">
+        <a href="./corpus-section-redesign.md">Brief</a> · same mock data across all three (one inflated group shows the batch-reveal "Show K more" mechanic)
+      </div>
+    </main>
+  </body>
+</html>
