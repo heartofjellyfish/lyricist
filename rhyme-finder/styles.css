@@ -561,33 +561,32 @@ body::before {
   flex: 1 1 auto;
   min-width: 0;
 }
-/* Close × — a 26×26 hairline frame that visually rhymes with the
-   jump/filter icon buttons up in the bar (same size, same hairline
-   feel). The glyph is italic Cormorant ×, not a mono label. */
+/* Close × — a frameless italic Cormorant glyph (no box). Larger and
+   lighter than a labelled control, with a generous invisible hit area;
+   on hover it warms to vermilion and rotates a quarter-turn. */
 .rf-drawer-close {
   appearance: none;
   cursor: pointer;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   padding: 0;
   flex: 0 0 auto;
-  border: 1px solid var(--hair);
-  background: rgba(255, 250, 235, 0.4);
+  border: 0;
+  background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-family: var(--display);
   font-style: italic;
-  font-weight: 500;
-  font-size: 16px;
+  font-weight: 400;
+  font-size: 23px;
   line-height: 1;
   color: var(--ink-faded);
-  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+  transition: color 180ms ease, transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .rf-drawer-close:hover {
   color: var(--vermilion);
-  border-color: var(--vermilion);
-  background: rgba(255, 250, 235, 0.6);
+  transform: rotate(90deg);
 }
 
 /* Jump-drawer body — tier shortcuts as mono-caps buttons. */
