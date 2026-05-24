@@ -1949,17 +1949,37 @@ input[type="text"]::placeholder {
   transform: translateY(-1px);
   flex: none;
 }
-/* Inflected-only candidates: same vermilion hue, just a smaller dot
-   and a lighter count weight. Stays in the red family so it reads as
-   "still a lyric match", just less assertive than an exact hit. */
-.rf-lyric-badge.rf-lyric-badge--inflected {
-  color: var(--vermilion);
-  font-weight: 400;
+/* Ambient "in the corpus" badge (Option A): a HOLLOW vermilion ring, no
+   count. Keeps the page full of red marks, while the filled dot + count
+   above means "actually rhymed with the searched word". Replaces the
+   retired exact/inflected size split. */
+.rf-lyric-badge.rf-lyric-badge--corpus::before {
+  background: transparent;
+  border: 1.5px solid var(--vermilion);
+  width: 7px; height: 7px;
 }
-.rf-lyric-badge.rf-lyric-badge--inflected::before {
-  width: 3px; height: 3px;
-  background: var(--vermilion);
+
+/* Standalone-uses (not-rhymed / inspiration) control at the foot of a
+   popover. Collapsed by default — a faint mono toggle; the list is the
+   word used at line-end without a rhyme partner. */
+.rf-lyric-standalone {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hair-soft);
 }
+.rf-lyric-standalone-toggle {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--ink-faded);
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  cursor: pointer;
+}
+.rf-lyric-standalone-toggle:hover { color: var(--vermilion); }
+.rf-lyric-standalone-list[hidden] { display: none; }
+.rf-lyric-standalone-list { margin-top: 6px; }
 
 .rf-lyric-pop {
   position: absolute;

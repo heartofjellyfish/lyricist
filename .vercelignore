@@ -29,7 +29,8 @@ lyric-library/inspector.html
 
 # Per-letter index files (a.json … z.json, _.json) are inputs to
 # scripts/buildLyricBuckets.mjs only. The runtime client fetches
-# /wordlists/lyric-library/buckets/<rhymeKey>.json + /existence.json
-# instead, so the per-letter files are pure dead weight in the deploy
-# bundle (~83 MB). Keep them in git as the build source of truth.
+# /wordlists/lyric-library/index.json + rhymed/ + rhymed-more/ +
+# not-rhymed/<rhymeKey>.json instead (those DO ship — multi-char names,
+# not matched here), so the per-letter files are pure dead weight in the
+# deploy bundle. Keep them in git as the build source of truth.
 wordlists/lyric-library/?.json

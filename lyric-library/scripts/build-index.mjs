@@ -28,12 +28,18 @@ const CMU = JSON.parse(readFileSync(CMU_PATH, "utf8"));
 }
 
 const MAX_LINE_LEN = 80;
-// Cap raised from 30 → 60 because we now emit only end-position quotes.
-// The UI renders only end-position (Phase 1.7); mid-line and start-line
-// quotes were dead weight on disk + on the wire. Dropping them lets each
-// hot word carry twice as many genuinely-useful end-rhyme uses.
-const MAX_QUOTES_PER_WORD = 60;
 const PARTNER_WINDOW = 4; // search ±N lines within the same stanza for a rhyme partner
+
+// Length thresholds (display chars) — used only to pick which line best
+// represents a collapsed refrain group. No capping happens here anymore;
+// ranking + tiering live downstream in buildLyricBuckets.mjs.
+const LEN_MIN = 15;       // below this = fragment ("Oh, fire")
+const LEN_LO = 18;        // readable sweet-spot bounds
+const LEN_HI = 64;
+// Keep the FULL stanza when it's a real verse/chorus (≤ this many lines, ~p95
+// of stanzas). Songs without blank-line breaks parse into one giant "stanza"
+// (up to 157 lines) — for those we store ±1 context instead of the monster.
+const STANZA_MAX = 12;
 
 if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
 
@@ -47,6 +53,12 @@ function cleanLyrics(raw) {
   // start; if there's none, fall through and trust the input.
   const bracketIdx = raw.indexOf("[");
   let body = bracketIdx > 0 ? raw.slice(bracketIdx) : raw;
+  // ~15% of songs have no [section] header, so the bracket slice above is a
+  // no-op and the Genius page header rides on line 1: "20 ContributorsWhite
+  // Fire LyricsEverything is tragic…". Strip "<n> Contributors…<Title> Lyrics"
+  // up to the first "Lyrics" marker. Anchored at start + non-greedy, so a
+  // bracketed body (starts with "[") is never touched.
+  body = body.replace(/^\s*\d+\s*Contributors.*?Lyrics/su, "");
   body = body.replace(/Read More\s*/g, "");
   // Trailing "12Embed" appears on the very last line.
   body = body.replace(/(\d+)Embed\s*$/i, "");
@@ -265,13 +277,20 @@ for (const f of files) {
             song: song.slug,
             songTitle: song.title,
             year: song.year,
-            linePrev: truncate(flatLines[songLineIdx - 1] ?? ""),
             line: truncate(lineObj.text),
-            lineNext: truncate(flatLines[songLineIdx + 1] ?? ""),
             lineIdx: songLineIdx,
             section_label: stanza.section,
-            stanza: stanzaTexts,
-            stanzaLineIdx: lineInStanzaIdx,
+            // Context: the FULL stanza when it's a real verse/chorus (≤ STANZA_MAX
+            // lines). For songs without blank-line breaks that parse into one
+            // giant "stanza" (up to 157 lines), fall back to ±1 line — the rhyme
+            // is `line + partner.line` regardless, and section_label (86% labeled)
+            // still says Verse/Chorus/Bridge.
+            ...(stanzaTexts.length <= STANZA_MAX
+              ? { stanza: stanzaTexts, stanzaLineIdx: lineInStanzaIdx }
+              : {
+                  linePrev: truncate(flatLines[songLineIdx - 1] ?? ""),
+                  lineNext: truncate(flatLines[songLineIdx + 1] ?? ""),
+                }),
             partner,
             // `position` and `wordPos` are always "end" now that mid-line
             // emission is gone. Both kept for API compatibility with the
@@ -293,48 +312,73 @@ for (const f of files) {
   console.log(`  ${artistSlug}: ${songCount} songs, ${lineCount} lines`);
 }
 
-// De-dup identical quotes. Choruses repeat the same lyric verbatim across
-// the song; we key on (artist, song, line text) so those collapse to one.
-// `canonicalize` folds Cyrillic-looking-like-Latin homoglyphs (Genius
-// data sometimes has them mid-word — "whеn" vs "when") and case so two
-// visually-identical lines hash to the same signature. Display still
-// uses the raw `q.line`.
+// ── Pass 2: per-word dedup + refrain-collapse (PRESERVE ALL) ──────────
+// Pass 1 kept EVERY end-quote per word. Here we only strip genuine NOISE —
+// no capping, no ranking. Ranking + tiering happen downstream in
+// buildLyricBuckets.mjs, which knows rhyme keys + favorite-artist tiers and
+// splits quotes into rhymed / rhymed-more / not-rhymed shards.
+//   1. drop Genius-header cruft, then near-dup dedup (homoglyph-folded, so
+//      "whеn"/"when" and "we"/"you" refrain swaps collapse)
+//   2. collapse intra-song (song, rhyme-partner) groups to ONE — a word
+//      rhymed with the same partner inside one song is a refrain repeat
+// Every survivor keeps `partner`, `artist`, `_songOrder` for the downstream
+// builder. The per-letter index is .vercelignore'd (build input only).
 const HOMOGLYPHS = {
   // Cyrillic → Latin lookalikes, lowercase + uppercase
   "а":"a","е":"e","о":"o","р":"p","с":"c","у":"y","х":"x",
   "А":"A","В":"B","Е":"E","К":"K","М":"M","Н":"H","О":"O",
   "Р":"P","С":"C","Т":"T","Х":"X","У":"Y","і":"i","І":"I",
 };
-function canonicalize(s) {
-  return [...s].map((c) => HOMOGLYPHS[c] ?? c).join("").toLowerCase();
+// Fold homoglyphs, lowercase, strip non-alphanumerics, collapse whitespace —
+// one signature for exact + near-dup dedup. Display still uses raw `q.line`.
+function normLine(s) {
+  const folded = [...(s ?? "")].map((c) => HOMOGLYPHS[c] ?? c).join("");
+  return folded.toLowerCase().replace(/[^a-z0-9' ]+/gu, "").replace(/\s+/gu, " ").trim();
+}
+// Genius page-furniture that survives cleanLyrics on odd songs.
+const isCruft = (line) =>
+  /\d+\s*contributors/iu.test(line) || /\d+\s*embed/iu.test(line) || /\bLyrics[A-Z]/u.test(line);
+const displayLen = (line) => (line ?? "").replace(/…$/u, "").trim().length;
+
+// Light readability score — used ONLY to pick which line best represents a
+// collapsed refrain group. The real ranking (quality + favorite tiers +
+// artist diversity) is downstream; this just avoids keeping a fragment.
+function repScore(q) {
+  let s = q.partner ? 3 : 0;
+  const L = displayLen(q.line);
+  if (L < LEN_MIN) s -= 3;
+  else if (L >= LEN_LO && L <= LEN_HI) s += 1;
+  return s;
 }
 
-for (const [k, arr] of index) {
+function dedupeQuotes(quotes) {
+  // 1. cruft drop + near-dup dedup
   const seen = new Set();
-  const dedup = [];
-  for (const q of arr) {
-    const sig = `${q.artist}|${q.song}|${canonicalize(q.line)}`;
-    if (seen.has(sig)) continue;
-    seen.add(sig);
-    dedup.push(q);
+  const pool = [];
+  for (const q of quotes) {
+    if (isCruft(q.line)) continue;
+    const nl = normLine(q.line);
+    if (!nl || seen.has(nl)) continue;
+    seen.add(nl);
+    pool.push(q);
   }
-  index.set(k, dedup);
+  // 2. intra-song (song, rhyme-partner∨∅) collapse — keep the best representative
+  const bySong = new Map();
+  for (const q of pool) {
+    const key = `${q.artist}|${q.song}|${q.partner?.word ?? "∅"}`;
+    const cur = bySong.get(key);
+    if (!cur || repScore(q) > repScore(cur)) bySong.set(key, q);
+  }
+  const kept = [...bySong.values()];
+  for (const q of kept) delete q.wordPos; // legacy; keep partner + _songOrder for downstream
+  return kept;
 }
 
-// Rank by song popularity (lower _songOrder = more popular), then by
-// shorter line length. All quotes are now end-position so the prior
-// position-rank step is gone.
+let totalKept = 0;
 for (const [k, arr] of index) {
-  arr.sort((a, b) => {
-    const so = a._songOrder - b._songOrder;
-    if (so !== 0) return so;
-    return a.line.length - b.line.length;
-  });
-  if (arr.length > MAX_QUOTES_PER_WORD) arr.length = MAX_QUOTES_PER_WORD;
-  for (const q of arr) {
-    delete q._songOrder;
-    delete q.wordPos; // legacy build-side field; consumers use `position`
-  }
+  const sel = dedupeQuotes(arr);
+  index.set(k, sel);
+  totalKept += sel.length;
 }
 
 // Bucket by first letter.
@@ -344,6 +388,12 @@ for (const [k, arr] of index) {
   const letter = /[a-z]/.test(c) ? c : "_";
   if (!buckets.has(letter)) buckets.set(letter, {});
   buckets.get(letter)[k] = arr;
+}
+// Self-heal: reset any letter file we don't produce this run to empty. The
+// tokenizer only emits [a-z]-initial keys, so "_.json" would otherwise keep
+// fossil tokens ("6ers", "ﬁne", "*nsync") from an older, looser tokenizer.
+for (const letter of "abcdefghijklmnopqrstuvwxyz_") {
+  if (!buckets.has(letter)) buckets.set(letter, {});
 }
 
 let totalKeys = 0;
@@ -364,6 +414,10 @@ const partnerPct = meta.totalEndQuotes
 console.log(
   `\nTotal: ${meta.totalSongs} songs, ${meta.totalLines} lines, ${meta.totalTokens} tokens, ` +
   `${totalKeys} unique lemmas, ${(totalBytes / 1024).toFixed(0)} KB.`,
+);
+console.log(
+  `After dedup + refrain-collapse: kept ${totalKept} quotes from ${meta.totalTokens} raw end-quotes ` +
+  `(${(100 * totalKept / meta.totalTokens).toFixed(1)}%) — no caps, ranking/tiering is downstream.`,
 );
 console.log(
   `End-position quotes with rhyme partner: ${meta.totalEndQuotesWithPartner}/${meta.totalEndQuotes} (${partnerPct}%).`,
