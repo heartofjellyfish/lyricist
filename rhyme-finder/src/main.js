@@ -1496,11 +1496,30 @@ async function renderCorpusGallery(word) {
 
   const quotes = await getQuotes(word);
   const groups = groupPairQuotes(quotes);
+  // groupPairQuotes only sees tier-1 (≤5 instances/pair). Attach the TRUE
+  // total per pair from the cached source bucket so the UI shows the real
+  // count; the rest (tier-2) pages in lazily as the user advances songs.
+  for (const g of groups) g.total = pairCount(word, g.partner) || g.instances.length;
 
   if (!groups.length) {
     mount.innerHTML =
       `<p class="cd-prim-empty">No paired line-end uses for <em>${escapeHtml(word)}</em> in the corpus yet — try the dictionary tab.</p>`;
     return;
+  }
+
+  // Lazily grow g.instances up to index `idx` (capped at g.total) by paging
+  // tier-2. PAGE_SIZE-aligned with the build + getPairQuotes.
+  async function loadUpTo(g, idx) {
+    const want = Math.min(idx + 1, g.total);
+    let guard = 0;
+    while (g.instances.length < want && guard++ < 40) {
+      const page = Math.floor(g.instances.length / PAGE_SIZE);
+      const r = await getPairQuotes(word, g.partner, page, PAGE_SIZE);
+      const start = g.instances.length - page * PAGE_SIZE;
+      let added = 0;
+      for (let i = start; i < r.quotes.length; i++) { g.instances.push(r.quotes[i]); added += 1; }
+      if (added === 0 || !r.hasMore) break;
+    }
   }
 
   // Pair-cue separator is the em-dash variant by default (per the spec).
@@ -1534,13 +1553,13 @@ async function renderCorpusGallery(word) {
     return (
       `<div class="cd-paircue">` +
       `<span class="cd-paircue-item cd-paircue-item--current" ` +
-      `title="${escapeHtml(word)} · ${escapeHtml(g.partner)} — ${g.instances.length} song${g.instances.length === 1 ? "" : "s"}">` +
+      `title="${escapeHtml(word)} · ${escapeHtml(g.partner)} — ${g.total} song${g.total === 1 ? "" : "s"}">` +
       `<span class="cd-paircue-pair">` +
       `<em class="src">${escapeHtml(word)}</em>` +
       `<span class="cd-pair-sep" aria-hidden="true"></span>` +
       `<em class="prt">${escapeHtml(g.partner)}</em>` +
       `<span class="cd-pair-dot" aria-hidden="true">·</span>` +
-      `<span class="cd-pair-count">${g.instances.length}</span>` +
+      `<span class="cd-pair-count">${g.total}</span>` +
       `</span>` +
       `</span>` +
       `<span class="cd-paircue-pos">PAIR <b>${pIdx + 1}</b><span class="sl">/</span><b>${groups.length}</b></span>` +
@@ -1567,10 +1586,10 @@ async function renderCorpusGallery(word) {
       })
       .join("");
     const songCue =
-      g.instances.length > 1
+      g.total > 1
         ? `<span class="cd-strip-songcue">` +
           `<button type="button" class="cd-song-btn cd-song-btn--prev" aria-label="previous song">↑</button>` +
-          `<span class="cd-song-pos">song <b>${iIdx + 1}</b> of <b>${g.instances.length}</b></span>` +
+          `<span class="cd-song-pos">song <b>${iIdx + 1}</b> of <b>${g.total}</b></span>` +
           `<button type="button" class="cd-song-btn cd-song-btn--next" aria-label="next song">↓</button>` +
           `</span>`
         : "";
@@ -1645,11 +1664,13 @@ async function renderCorpusGallery(word) {
       setTimeout(() => el.classList.remove(`is-shifting-${dir}`), 480);
     });
   }
-  function setInstance(newI) {
+  async function setInstance(newI) {
     const g = groups[pIdx];
-    const mod = ((newI % g.instances.length) + g.instances.length) % g.instances.length;
+    const mod = ((newI % g.total) + g.total) % g.total;
     if (mod === iIdx) return;
-    iIdx = mod;
+    await loadUpTo(g, mod);            // page in tier-2 if we advanced past what's loaded
+    if (groups[pIdx] !== g) return;    // pair changed during the await — bail
+    iIdx = Math.min(mod, g.instances.length - 1);
     stanzaOpen = false;
     rerenderCenterOnly();
     const center = mount.querySelector(".cd-strip-card--center");
@@ -1792,6 +1813,22 @@ async function renderCorpusExplore(word) {
 
   const quotes = await getQuotes(word);
   const groups = groupPairQuotes(quotes);
+
+  // "Explore all" wants completeness, so page in the FULL set per pair
+  // (tier-2 included) — getQuotes only returns the tier-1 preview (≤5). Only
+  // pairs with >5 songs actually fetch; the rest are already complete.
+  await Promise.all(
+    groups.map(async (g) => {
+      const total = pairCount(word, g.partner) || g.instances.length;
+      let page = 1;
+      while (g.instances.length < total && page < 80) {
+        const r = await getPairQuotes(word, g.partner, page, PAGE_SIZE);
+        for (const q of r.quotes) g.instances.push(q);
+        if (!r.hasMore) break;
+        page += 1;
+      }
+    })
+  );
 
   // Within each group, oldest-first (genealogy reads influence-forward);
   // alpha-by-author when a year is missing. groupPairQuotes returns a
