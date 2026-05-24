@@ -7,9 +7,18 @@ import { findRhymes, TYPE_ORDER, prewarm } from "./rhymeFinder.js";
 import {
   hasQuotes,
   getQuotes,
+  getCounts,
+  pairCount,
+  getPairQuotes,
+  getNotRhymed,
   ensureExistence,
   prefetchBucketsFor,
 } from "./lyricLibrary.js";
+
+// Fire a PostHog event if the library is present (it's a no-op stub otherwise).
+function track(event, props) {
+  try { window.posthog?.capture?.(event, props); } catch {}
+}
 
 // Eager warmup — fire all heavy fetches in the background the moment main.js
 // runs, in parallel with the user reading the page. CMU dict (~500 KB br),
@@ -714,7 +723,7 @@ function renderWord(candidate, source) {
     el.appendChild(flag);
   }
 
-  decorateWithLyrics(el, candidate.word);
+  decorateWithLyrics(el, candidate.word, source.word);
 
   return el;
 }
@@ -728,43 +737,40 @@ function renderWord(candidate, source) {
 // the phonetic header (renderSourcePanel below) — not duplicated per
 // candidate. Click on the matched line itself reveals the surrounding
 // stanza; no `+ context` button.
-const POP_CAP = 2; // tier-1 quotes shown by default
+const POP_CAP = 2; // tier-1 quotes shown by default (legacy inflected footer)
+const PAGE_SIZE = 5; // pair quotes per page — matches the build's tier-1 size
 
-async function decorateWithLyrics(el, word) {
-  // Fast-path the badge gate: if the existence index says we have no quotes
-  // for this word, skip the bucket fetch entirely. (Avoids a network call
-  // on every candidate without quotes — most candidates don't have them.)
-  if (!hasQuotes(word)) return;
-  const quotes = await getQuotes(word);
-  if (!quotes.length) return;
-
-  const isEnd = (q) => (q.position ?? q.wordPos) === "end";
-  const isExactSurface = (q) => (q.surface || "").toLowerCase() === word.toLowerCase();
-  const tier1 = quotes.filter((q) => isEnd(q) && isExactSurface(q));
-  const tier2 = quotes.filter((q) => isEnd(q) && !isExactSurface(q));
-  if (!tier1.length && !tier2.length) return; // nothing rhyme-relevant
-
-  // Within each tier, lift quotes that have a rhyme partner — they
-  // make the rhyme visible as a couplet rather than a lone line. Stable
-  // sort preserves the original popularity / line-length ordering
-  // within each (with-partner / without-partner) bucket.
-  const partnerFirst = (a, b) => (a.partner ? 0 : 1) - (b.partner ? 0 : 1);
-  tier1.sort(partnerFirst);
-  tier2.sort(partnerFirst);
+function decorateWithLyrics(el, word, sourceWord) {
+  // SEARCH-RELATIVE gate + count. The badge shows how often the searched
+  // word actually rhymes with THIS candidate in the corpus (sourceWord ↔
+  // word), not the candidate's global usage — otherwise "heart·55" while
+  // searching "apart" misleads (51 of those aren't with apart). pairCount
+  // is sync: the source word's tier-1 bucket was prefetched before results
+  // rendered. n === 0 means "valid rhyme, nobody's paired it with the
+  // source yet" → no badge (fresh territory, not an error).
+  const n = pairCount(sourceWord, word);   // times it rhymed with the SEARCHED word
+  const inCorpus = hasQuotes(word);          // lives in the corpus at all
+  if (n <= 0 && !inCorpus) return;           // no signal → no mark
 
   el.classList.add("rf-has-lyrics");
 
-  // Badge: chunky vermilion dot + count when at least one tier-1
-  // (exact end-of-line) match exists; smaller, ink-faded dot + count
-  // when only tier-2 (inflected) matches exist. The dot is a ::before
-  // pseudo on .rf-lyric-badge — see styles.css.
+  // Two tiers (Option A). The OLD exact/inflected size split is retired —
+  // inflected forms (heart/hearts) are now their own candidates with their
+  // own counts, so that sub-signal is redundant. The dot's axis now carries
+  // the meaningful distinction:
+  //   · hollow ring, no count  → "this word lives in lyrics" (ambient — keeps
+  //                               the page full of dots)
+  //   · filled dot + count     → "actually rhymed with the searched word"
+  //                               (attested precedent, the honest pair count)
+  const attested = n > 0;
   const badge = document.createElement("span");
-  const hasExact = tier1.length > 0;
-  badge.className = hasExact ? "rf-lyric-badge" : "rf-lyric-badge rf-lyric-badge--inflected";
-  const count = document.createElement("span");
-  count.className = "rf-lyric-badge-count";
-  count.textContent = String(hasExact ? tier1.length : tier2.length);
-  badge.appendChild(count);
+  badge.className = attested ? "rf-lyric-badge" : "rf-lyric-badge rf-lyric-badge--corpus";
+  if (attested) {
+    const count = document.createElement("span");
+    count.className = "rf-lyric-badge-count";
+    count.textContent = String(n);
+    badge.appendChild(count);
+  }
   el.appendChild(badge);
 
   // Lightweight popover scaffold — empty until first interaction.
@@ -785,23 +791,59 @@ async function decorateWithLyrics(el, word) {
   el.appendChild(pop);
 
   let materialised = false;
-  const materialise = () => {
+  let page = 0, shown = 0, loading = false;
+  const materialise = async () => {
     if (materialised) return;
     materialised = true;
-    pop.appendChild(renderPopHeader(word, tier1));
-    for (const q of tier1.slice(0, POP_CAP)) pop.appendChild(renderEndQuote(q, word));
-    if (tier1.length > POP_CAP) {
-      pop.appendChild(renderToggleMore(tier1.slice(POP_CAP), (q) => renderEndQuote(q, word), pop));
+    const list = document.createElement("div");
+    list.className = "rf-lyric-list";
+    const append = (quotes) => {
+      for (const q of quotes) { list.appendChild(renderEndQuote(q, word)); shown += 1; }
+    };
+
+    // Ambient (in corpus, but not rhymed with the source): show the word's
+    // OWN usage — how it rhymes generally. Honest inspiration, framed as the
+    // word's own (the couplets show word↔its-partners, never the source).
+    if (!attested) {
+      const own = await getQuotes(word);
+      const c = getCounts(word);
+      pop.appendChild(renderPairHeader(word, c?.rhymed ?? own.length, own));
+      pop.appendChild(list);
+      append(own.slice(0, PAGE_SIZE));
+      if (own.length > PAGE_SIZE)
+        pop.appendChild(renderToggleMore(own.slice(PAGE_SIZE), (q) => renderEndQuote(q, word), list));
+      addStandaloneToggle(pop, word);
+      return;
     }
-    if (tier2.length) {
-      if (!tier1.length) {
-        // No exact matches → tier-2 is all the user has.
-        pop.appendChild(renderInlineInflectedList(tier2, pop));
-      } else {
-        // Exact matches lead; tier-2 lives in the collapsible footer.
-        pop.appendChild(renderInflectedFooter(tier2));
-      }
+
+    // First page = tier-1 (≤5, artist-diverse, favorites first). The rhyme
+    // couplet is line + partner.line; click a quote to expand its stanza.
+    const first = await getPairQuotes(sourceWord, word, 0, PAGE_SIZE);
+    pop.appendChild(renderPairHeader(word, n, first.quotes));
+    pop.appendChild(list);
+    append(first.quotes);
+
+    if (first.hasMore) {
+      const more = document.createElement("button");
+      more.type = "button";
+      more.className = "rf-lyric-more";
+      more.textContent = `show ${Math.min(PAGE_SIZE, n - shown)} more`;
+      more.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (loading) return;
+        loading = true;
+        page += 1;
+        const next = await getPairQuotes(sourceWord, word, page, PAGE_SIZE); // pulls tier-2 lazily
+        append(next.quotes);
+        loading = false;
+        track("lyric_load_more", { source: sourceWord, word, shown, total: n });
+        if (next.hasMore) { more.textContent = `show ${Math.min(PAGE_SIZE, n - shown)} more`; ensureBottomVisible(more); }
+        else more.remove();
+      });
+      bindMobileTapFeedback(more);
+      pop.appendChild(more);
     }
+    addStandaloneToggle(pop, word);
   };
   // pointerenter covers desktop hover; focusin covers keyboard tabbing
   // into the pop (the pin button inside is focusable); click covers
@@ -988,6 +1030,80 @@ function attachSheetSwipeDismiss(wordEl) {
 
 // Header strip: word · "N line-end · M artists" · pin glyph. No close ×,
 // no summary line, no hover-hint copy — 1.7 is deliberately spare.
+// Header for the pair-relative popover: candidate word + honest pair total
+// (sourceWord ↔ word songs) + a sample of the artists. Distinct from the
+// legacy renderPopHeader (which counted the word's global line-ends).
+function renderPairHeader(word, total, sampleQuotes) {
+  const head = document.createElement("header");
+  head.className = "rf-lyric-head";
+
+  const w = document.createElement("div");
+  w.className = "rf-lyric-head-word";
+  w.textContent = word;
+  head.appendChild(w);
+
+  const meta = document.createElement("div");
+  meta.className = "rf-lyric-head-meta";
+  const artists = new Set(sampleQuotes.map((q) => q.credit || q.artist)).size;
+  meta.textContent = `${total} song${total === 1 ? "" : "s"} · ${artists}${total > sampleQuotes.length ? "+" : ""} artist${artists === 1 ? "" : "s"}`;
+  head.appendChild(meta);
+
+  const pin = document.createElement("button");
+  pin.className = "rf-lyric-head-pin";
+  pin.type = "button";
+  pin.setAttribute("aria-label", "Pin");
+  pin.title = "Click to pin";
+  pin.textContent = "⊹ pin";
+  pin.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const wordEl = head.closest(".rf-word");
+    if (wordEl) setPin(wordEl, !wordEl.classList.contains("rf-pinned"));
+  });
+  bindMobileTapFeedback(pin);
+  head.appendChild(pin);
+
+  return head;
+}
+
+// Collapsed "+ N standalone uses" control — the not-rhymed / inspiration
+// layer. OFF by default; lazily fetches getNotRhymed on first expand. Shows
+// the word used at line-end with NO rhyme partner ("how others use this word",
+// not a rhyme). Appended to the bottom of a word popover. PostHog-tracked so
+// we can see how often people open it.
+function addStandaloneToggle(pop, word) {
+  const c = getCounts(word);
+  const nAlone = c?.notRhymed ?? 0;
+  if (nAlone <= 0) return;
+  const wrap = document.createElement("div");
+  wrap.className = "rf-lyric-standalone";
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "rf-lyric-standalone-toggle";
+  const collapsed = `+ ${nAlone} standalone use${nAlone === 1 ? "" : "s"}`;
+  toggle.textContent = collapsed;
+  const list = document.createElement("div");
+  list.className = "rf-lyric-standalone-list";
+  list.hidden = true;
+  let loaded = false;
+  toggle.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    const opening = list.hidden;
+    if (opening && !loaded) {
+      loaded = true;
+      const alone = await getNotRhymed(word);
+      for (const q of alone.slice(0, 24)) list.appendChild(renderEndQuote(q, word));
+      track("lyric_standalone_open", { word, count: nAlone });
+    }
+    list.hidden = !opening;
+    toggle.textContent = opening ? "− hide standalone uses" : collapsed;
+    if (opening) ensureBottomVisible(toggle);
+  });
+  bindMobileTapFeedback(toggle);
+  wrap.appendChild(toggle);
+  wrap.appendChild(list);
+  pop.appendChild(wrap);
+}
+
 function renderPopHeader(word, tier1) {
   const head = document.createElement("header");
   head.className = "rf-lyric-head";
@@ -1938,13 +2054,11 @@ async function renderTabs(word, buckets) {
     dictCounts.innerHTML = `<b>${tierCount}</b> tier${tierCount === 1 ? "" : "s"} · <b>${wordCount}</b> word${wordCount === 1 ? "" : "s"}`;
   }
 
-  // ── Corpus counts ──
-  // Reuse the same getQuotes call the gallery used; the bucket is
-  // already cached so this is sync-fast.
-  const quotes = await getQuotes(word);
-  const groups = groupPairQuotes(quotes);
-  const partnerCount = groups.length;
-  const songCount = groups.reduce((s, g) => s + g.instances.length, 0);
+  // ── Corpus counts ── from the index: the HONEST totals (rhymeWords +
+  // rhymed appearances), not the display-capped getQuotes length.
+  const c = getCounts(word);
+  const partnerCount = c?.rhymeWords ?? 0;
+  const songCount = c?.rhymed ?? 0;
   const corpusCounts = tabs.querySelector('[data-counts="corpus"]');
   if (corpusCounts) {
     corpusCounts.innerHTML = partnerCount

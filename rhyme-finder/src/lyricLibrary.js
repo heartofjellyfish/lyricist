@@ -1,138 +1,170 @@
-// Lyric Library loader — phonetic-bucket model (May 2026 redesign).
+// Lyric Library loader — tiered model (May 2026 redesign).
 //
 // Storage layout (built by scripts/buildLyricBuckets.mjs):
-//   /wordlists/lyric-library/existence.json
-//       Flat sorted array of every word that has at least one quote AND a
-//       CMU pronunciation. ~120 KB raw / ~25 KB compressed. Loaded once on
-//       page init, drives the `hasQuotes()` sync gate used for badges.
+//   index.json
+//       { words: { word: [appearances, rhymed, notRhymed, rhymeWords] },
+//         buckets: { rhymed: [key…], notRhymed: [key…] } }
+//       Loaded once on init. Drives the sync hasQuotes() gate, the headline
+//       counts, and the fetch presence-gate (no 404s for empty keys).
 //
-//   /wordlists/lyric-library/buckets/{rhymeKey}.json
-//       Per-rhyme-key shard, format { word: quote[] }. Words sharing a
-//       bucket are perfect rhymes — searches for "future" pull only the
-//       handful of buckets matching the source word's tier; the rest of
-//       the alphabet never touches the network.
+//   rhymed/{rhymeKey}.json        TIER 1 — { word: { rhymeWord: { q: [≤5 quotes], n } } }
+//       Loaded on search. Top-K per rhyme (artist-diverse, favorites first).
+//       `n` is the honest pair count (word↔rhymeWord across the corpus).
+//   rhymed-more/{rhymeKey}.json   TIER 2 — { word: { rhymeWord: [overflow quotes] } }
+//       Lazy, on "show N more". Paginated client-side.
+//   not-rhymed/{rhymeKey}.json    TIER 3 — { word: [quotes] }
+//       Opt-in "inspiration" layer (off by default).
 //
-// Each quote keeps the shape established in Phase 1.6:
-//   { artist, credit, song, songTitle, year, surface,
-//     line, linePrev, lineNext, lineIdx,
-//     stanza: string[], stanzaLineIdx,
-//     section_label, position, partner }
+// Each quote: { artist, credit, song, songTitle, year, line, lineIdx,
+//   section_label, partner?, surface, position,
+//   stanza?+stanzaLineIdx? (real verse) | linePrev?+lineNext? (giant fallback) }
 
 import { PRONUNCIATION_MAP } from "./pronunciation.js";
 import { rhymeKeyOf } from "./rhymeClassifier.js";
 
-const BUCKETS_BASE = new URL("../../wordlists/lyric-library/buckets/", import.meta.url);
-const EXISTENCE_URL = new URL("../../wordlists/lyric-library/existence.json", import.meta.url);
+const INDEX_URL = new URL("../../wordlists/lyric-library/index.json", import.meta.url);
+const RHYMED_BASE = new URL("../../wordlists/lyric-library/rhymed/", import.meta.url);
+const MORE_BASE = new URL("../../wordlists/lyric-library/rhymed-more/", import.meta.url);
+const NOT_RHYMED_BASE = new URL("../../wordlists/lyric-library/not-rhymed/", import.meta.url);
 
-let existenceSet = null; // Set<string> of words with quotes
-let existentBuckets = null; // Set<string> of rhyme keys that have a bucket file
-let existencePromise = null;
-const bucketCache = new Map(); // key -> { word: quote[] }
-const bucketInflight = new Map(); // key -> Promise
+const PAGE = 5; // matches the build's per-rhyme tier-1 size
 
-// ── Existence index ──────────────────────────────────────────────────
-// existence.json shape: { words: string[], buckets: string[] }
-//   words   — every word that has at least one corpus quote
-//   buckets — every rhyme key with at least one bucket file (used to gate
-//             fetches so candidates whose rhyme key has no corpus presence
-//             don't trigger 404s)
+let words = null;             // Map<string, number[]>  (word → counts)
+let rhymedKeys = null;        // Set<string>
+let notRhymedKeys = null;     // Set<string>
+let indexPromise = null;
+
+const cache = { rhymed: new Map(), more: new Map(), notRhymed: new Map() };
+const inflight = { rhymed: new Map(), more: new Map(), notRhymed: new Map() };
+
+// ── Index (presence + counts) ────────────────────────────────────────
 export function ensureExistence() {
-  if (existenceSet) return Promise.resolve();
-  if (existencePromise) return existencePromise;
-  existencePromise = fetch(EXISTENCE_URL)
-    .then((r) => (r.ok ? r.json() : { words: [], buckets: [] }))
-    .catch(() => ({ words: [], buckets: [] }))
+  if (words) return Promise.resolve();
+  if (indexPromise) return indexPromise;
+  indexPromise = fetch(INDEX_URL)
+    .then((r) => (r.ok ? r.json() : { words: {}, buckets: {} }))
+    .catch(() => ({ words: {}, buckets: {} }))
     .then((obj) => {
-      existenceSet = new Set(obj.words ?? []);
-      existentBuckets = new Set(obj.buckets ?? []);
+      words = new Map(Object.entries(obj.words ?? {}));
+      rhymedKeys = new Set(obj.buckets?.rhymed ?? []);
+      notRhymedKeys = new Set(obj.buckets?.notRhymed ?? []);
     });
-  return existencePromise;
+  return indexPromise;
 }
+export const ensureIndex = ensureExistence; // preferred new name
 
-// Sync — only useful after ensureExistence() has resolved. Falls back to
-// "false" before the index loads, which is the safe default (no spurious
-// badge or popover scaffold until we actually know).
+// Sync — false until the index loads (safe default: no badge/scaffold yet).
 export function hasQuotes(word) {
-  if (!existenceSet) return false;
+  if (!words) return false;
   const w = word.toLowerCase();
-  return existenceSet.has(w) || existenceSet.has(clientLemma(w));
+  return words.has(w) || words.has(clientLemma(w));
 }
 
-// ── Bucket fetch ─────────────────────────────────────────────────────
-function bucketKeyForWord(word) {
-  const phonemes = PRONUNCIATION_MAP.get(word.toLowerCase());
-  return rhymeKeyOf(phonemes);
+// Headline numbers for a word, or null. { appearances, rhymed, notRhymed, rhymeWords }
+export function getCounts(word) {
+  if (!words) return null;
+  const w = word.toLowerCase();
+  const c = words.get(w) ?? words.get(clientLemma(w));
+  if (!c) return null;
+  return { appearances: c[0], rhymed: c[1], notRhymed: c[2], rhymeWords: c[3] };
 }
 
-function fetchBucket(key) {
-  if (bucketCache.has(key)) return Promise.resolve(bucketCache.get(key));
-  if (bucketInflight.has(key)) return bucketInflight.get(key);
-  // Skip the network for rhyme keys with no corpus presence (the classifier
-  // happily returns candidates like "futurist" whose key UW1_CH_ER0_IH0_S_T
-  // matches nothing in the library — fetching would just 404).
-  if (existentBuckets && !existentBuckets.has(key)) {
-    bucketCache.set(key, {});
-    return Promise.resolve({});
-  }
-  const p = fetch(new URL(`${key}.json`, BUCKETS_BASE))
+// ── Tier fetch (cache + inflight, presence-gated) ────────────────────
+function fetchTier(tier, base, presence, key) {
+  const c = cache[tier];
+  if (c.has(key)) return Promise.resolve(c.get(key));
+  const inf = inflight[tier];
+  if (inf.has(key)) return inf.get(key);
+  if (presence && !presence.has(key)) { c.set(key, {}); return Promise.resolve({}); }
+  const p = fetch(new URL(`${key}.json`, base))
     .then((r) => (r.ok ? r.json() : {}))
     .catch(() => ({}))
-    .then((data) => {
-      bucketCache.set(key, data);
-      bucketInflight.delete(key);
-      return data;
-    });
-  bucketInflight.set(key, p);
+    .then((data) => { c.set(key, data); inf.delete(key); return data; });
+  inf.set(key, p);
   return p;
 }
+const fetchRhymed = (key) => fetchTier("rhymed", RHYMED_BASE, rhymedKeys, key);
+const fetchMore = (key) => fetchTier("more", MORE_BASE, rhymedKeys, key);
+const fetchNotRhymed = (key) => fetchTier("notRhymed", NOT_RHYMED_BASE, notRhymedKeys, key);
 
-// Async — returns the quotes for `word`, fetching its bucket if not cached.
-// Tries the input word and its lemma in parallel (they may land in different
-// buckets if the surface form has its own CMU entry).
+function keyForWord(word) {
+  const w = word.toLowerCase();
+  return (
+    rhymeKeyOf(PRONUNCIATION_MAP.get(w)) ??
+    rhymeKeyOf(PRONUNCIATION_MAP.get(clientLemma(w)))
+  );
+}
+
+// Resolve a word's entry inside a fetched tier object (surface or lemma key).
+function entryOf(bucket, word) {
+  const w = word.toLowerCase();
+  return bucket[w] ?? bucket[clientLemma(w)] ?? null;
+}
+
+// ── Word's rhyme map: { rhymeWord: { q: [≤5], n } } (one tier-1 fetch) ──
+// The source of pair counts (badges) AND the source-panel rhyme list.
+export async function getRhymeMap(word) {
+  const key = keyForWord(word);
+  if (!key) return {};
+  const bucket = await fetchRhymed(key);
+  return entryOf(bucket, word) ?? {};
+}
+
+// Sync pair count word↔rhymeWord — valid only after getRhymeMap(word)/the
+// word's tier-1 bucket is cached (caller prefetches the source word). 0 if
+// the pair has no corpus precedent. This is the honest, search-relative count.
+export function pairCount(word, rhymeWord) {
+  const key = keyForWord(word);
+  if (!key || !cache.rhymed.has(key)) return 0;
+  const entry = entryOf(cache.rhymed.get(key), word);
+  return entry?.[rhymeWord]?.n ?? 0;
+}
+
+// ── Compat: flat quote[] for a word (top-K across its rhymes) ─────────
+// Lets the legacy popover keep working until main.js adopts the pair API.
 export async function getQuotes(word) {
-  const w = word.toLowerCase();
-  const lemma = clientLemma(w);
-  const keys = new Set();
-  const kw = bucketKeyForWord(w);
-  const kl = bucketKeyForWord(lemma);
-  if (kw) keys.add(kw);
-  if (kl) keys.add(kl);
-  if (keys.size === 0) return [];
-  await Promise.all([...keys].map(fetchBucket));
-  // Index is keyed by lemma; surface form is a fallback for entries
-  // that the build kept verbatim (rare — most quotes lemmatize).
-  for (const k of keys) {
-    const bucket = bucketCache.get(k) ?? {};
-    const direct = bucket[w] ?? bucket[lemma];
-    if (direct && direct.length) return direct;
+  const entry = await getRhymeMap(word);
+  const out = [];
+  for (const rw in entry) for (const q of entry[rw].q) out.push(q);
+  return out;
+}
+
+// ── Paginated quotes for ONE pair (tier-1 then lazy tier-2 overflow) ──
+export async function getPairQuotes(word, rhymeWord, page = 0, pageSize = PAGE) {
+  const key = keyForWord(word);
+  if (!key) return { quotes: [], total: 0, hasMore: false };
+  const entry = entryOf(await fetchRhymed(key), word);
+  const pair = entry?.[rhymeWord];
+  if (!pair) return { quotes: [], total: 0, hasMore: false };
+  const total = pair.n;
+  let all = pair.q;
+  // Pull tier-2 overflow only once we page past what tier-1 holds.
+  if (total > all.length && (page + 1) * pageSize > all.length) {
+    const overflow = entryOf(await fetchMore(key), word)?.[rhymeWord] ?? [];
+    all = pair.q.concat(overflow);
   }
-  return [];
+  const start = page * pageSize;
+  return { quotes: all.slice(start, start + pageSize), total, hasMore: start + pageSize < total };
 }
 
-// Bulk prefetch — fires off bucket fetches for every distinct bucket the
-// given words land in, in parallel. Used to warm the cache for visible
-// candidates before the user hovers. Resolves when all buckets are ready.
-export function prefetchBucketsFor(words) {
+// ── Not-rhymed "inspiration" uses for a word (opt-in tier 3) ──────────
+export async function getNotRhymed(word) {
+  const key = keyForWord(word);
+  if (!key || (notRhymedKeys && !notRhymedKeys.has(key))) return [];
+  return entryOf(await fetchNotRhymed(key), word) ?? [];
+}
+
+// ── Prefetch tier-1 buckets for a set of words (warm the cache) ───────
+export function prefetchBucketsFor(words_) {
   const keys = new Set();
-  for (const w of words) {
-    const wl = w.toLowerCase();
-    const kw = bucketKeyForWord(wl);
-    const kl = bucketKeyForWord(clientLemma(wl));
-    if (kw) keys.add(kw);
-    if (kl) keys.add(kl);
-  }
-  return Promise.all([...keys].map(fetchBucket));
+  for (const w of words_) { const k = keyForWord(w); if (k) keys.add(k); }
+  return Promise.all([...keys].map(fetchRhymed));
 }
 
-// Per-word bucket key (exported so the caller can group DOM elements by
-// bucket and re-decorate progressively as buckets resolve).
-export function bucketKeyFor(word) {
-  const w = word.toLowerCase();
-  return bucketKeyForWord(w) ?? bucketKeyForWord(clientLemma(w));
-}
+// Per-word bucket key (for grouping DOM by bucket).
+export const bucketKeyFor = (word) => keyForWord(word);
 
-// Lightweight lemmatizer — same suffix collapses that build-index.mjs uses
-// upstream. If the input is itself a lemma the rules no-op.
+// Lightweight lemmatizer — same suffix collapses build-index.mjs uses.
 function clientLemma(w) {
   if (w.endsWith("ies") && w.length > 4) return w.slice(0, -3) + "y";
   if (w.endsWith("ses") || w.endsWith("xes") || w.endsWith("zes")) return w.slice(0, -2);
