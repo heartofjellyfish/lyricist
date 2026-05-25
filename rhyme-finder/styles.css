@@ -1943,18 +1943,18 @@ input[type="text"]::placeholder {
 .rf-lyric-badge::before {
   content: "";
   display: inline-block;
-  width: 7px; height: 7px;   /* attested (rhymed with the searched word): bigger filled dot */
+  width: 6px; height: 6px;   /* attested (rhymed with the searched word): slightly bigger */
   background: var(--vermilion);
   border-radius: 50%;
   transform: translateY(-1px);
   flex: none;
 }
-/* In-corpus (ambient): a SMALL filled dot (inherits the vermilion fill above —
-   no more hollow ring) + a FADED count of the word's own line-end uses. Size
-   carries the distinction: bigger = rhymed with your word, small = just lives
-   in the corpus. The page stays full of filled red dots. */
+/* In-corpus (ambient): filled vermilion dot (inherits the fill above), a touch
+   smaller + a FADED count of the word's own line-end uses. The size gap is
+   gentle — attested still reads as bigger, but not jarringly so; the faded
+   count reinforces the distinction. */
 .rf-lyric-badge.rf-lyric-badge--corpus::before {
-  width: 4px; height: 4px;
+  width: 5px; height: 5px;
 }
 .rf-lyric-badge.rf-lyric-badge--corpus .rf-lyric-badge-count {
   color: var(--ink-faded);
