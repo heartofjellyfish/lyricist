@@ -34,6 +34,25 @@ const MAX = Number(args.find(a => a.startsWith("--max="))?.split("=")[1] ?? Infi
 const Client = new Genius.Client(TOKEN);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const SLEEP_MS = 1200; // ~50 req/min, well under Genius's typical limits
+const PER_PAGE_MAX = 50; // Genius caps /artists/:id/songs per_page at 50; >50 → 422
+
+// Page through an artist's song list in chunks of <=50. Asking Genius for
+// per_page>50 returns 422 Unprocessable Entity (this silently capped every
+// n=55 favorite). Sorted pagination preserves the popularity order across pages.
+async function fetchSongStubs(artist, wanted, sort) {
+  const perPage = Math.min(wanted, PER_PAGE_MAX);
+  const out = [];
+  let page = 1;
+  while (out.length < wanted) {
+    const batch = await artist.songs({ sort, perPage, page });
+    if (!batch.length) break;
+    out.push(...batch);
+    if (batch.length < perPage) break; // last page
+    page++;
+    await sleep(SLEEP_MS); // throttle the listing pagination
+  }
+  return out.slice(0, wanted);
+}
 
 if (!existsSync(RAW_DIR)) mkdirSync(RAW_DIR, { recursive: true });
 
@@ -94,6 +113,7 @@ async function fetchTopForArtist(entry, accum) {
   const existing = loadExisting(slug);
   const out = existing ?? { slug, credit, geniusArtistName: null, fetchedAt: null, songs: [] };
 
+  await sleep(SLEEP_MS); // throttle the per-artist listing burst (search + get + songs)
   const stub = await resolveArtist(entry.artist);
   if (!stub) {
     accum.failures.push({ artist: credit, reason: "artist not found" });
@@ -103,7 +123,7 @@ async function fetchTopForArtist(entry, accum) {
   out.geniusArtistName = artist.name;
 
   const wanted = entry.n;
-  const songs = await artist.songs({ sort: "popularity", perPage: wanted });
+  const songs = await fetchSongStubs(artist, wanted, "popularity");
   console.log(`  ${credit} (top:${wanted}) — got ${songs.length} stubs`);
 
   let added = 0;

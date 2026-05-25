@@ -266,7 +266,19 @@ for (const f of files) {
         // never used at line-end (e.g. "the") simply don't appear.
         const t = tokens[lastNon];
         if (t) {
-          const key = lemma(t);
+          // Key by SURFACE form, not lemma. Lemmatizing the key (while the
+          // partner word is stored as surface) folded non-rhyming forms
+          // together and corrupted counts: "eyes" (377 line-ends) vanished
+          // under "eye", "clothes" under "clothe", "ground" under "grind",
+          // "does" under "doe" — the last two are wink-lemmatizer homograph
+          // ERRORS, not inflections. It also broke pairCount symmetry
+          // (partner=surface vs key=lemma → down→ground=37 but ground→down=0).
+          // For a rhyme tool eyes /aɪz/ and eye /aɪ/ are different rhymes
+          // anyway. Surface keying matches how partners and rhymeKey() are
+          // already derived (both surface). Inflectional links (eyes↔eye)
+          // return as an explicit *pivot suggestion* in a separate sibling
+          // map — see lemma() below, retained for that purpose.
+          const key = t;
           if (!index.has(key)) index.set(key, []);
           meta.totalEndQuotes++;
           if (partner) meta.totalEndQuotesWithPartner++;
