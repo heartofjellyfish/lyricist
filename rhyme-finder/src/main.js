@@ -223,11 +223,15 @@ async function runSearch(word, { updateUrl = true } = {}) {
     updateBucketCounts();
     setStatus("");
 
-    // Everything below is non-blocking — quote text streams in after first
-    // paint. The corpus gallery fetches the source bucket in the background
-    // (warming the perfect-rhyme hovers, which share the source's key);
-    // every other candidate's quotes load on demand when its popover opens.
+    // First paint is done (word list + counts, no fetch). NOW proactively warm
+    // every badged candidate's popover in the background so hovers are instant:
+    // prefetch the tier-1 bucket (the top-5 per pair) for each. Non-blocking,
+    // dedups by rhyme key (~tens of fetches, not thousands). The source word
+    // goes first — its bucket backs all the attested popovers + perfect rhymes.
     renderCorpusGallery(source.word).catch(() => {});
+    const warm = [source.word];
+    for (const t of TYPE_ORDER) for (const c of buckets[t] ?? []) if (hasQuotes(c.word)) warm.push(c.word);
+    prefetchBucketsFor(warm).catch(() => {});
 
     // Reflect the searched word in the URL so the page is link-shareable.
     // Use replaceState rather than pushState so multiple consecutive
