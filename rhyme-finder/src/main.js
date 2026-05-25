@@ -765,12 +765,17 @@ function decorateWithLyrics(el, word, sourceWord) {
   const attested = n > 0;
   const badge = document.createElement("span");
   badge.className = attested ? "rf-lyric-badge" : "rf-lyric-badge rf-lyric-badge--corpus";
+  const count = document.createElement("span");
+  count.className = "rf-lyric-badge-count";
+  // attested → times rhymed WITH the searched word (vermilion, loud);
+  // in-corpus → the word's OWN line-end uses (faded) — its corpus presence.
   if (attested) {
-    const count = document.createElement("span");
-    count.className = "rf-lyric-badge-count";
     count.textContent = String(n);
-    badge.appendChild(count);
+  } else {
+    const c = getCounts(word);
+    count.textContent = String(c?.rhymed || c?.appearances || "");
   }
+  badge.appendChild(count);
   el.appendChild(badge);
 
   // Lightweight popover scaffold — empty until first interaction.
