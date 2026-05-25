@@ -853,6 +853,37 @@ function decorateWithLyrics(el, word, sourceWord) {
   el.addEventListener("focusin", materialise, { once: true });
   el.addEventListener("click", materialise);
 
+  // Hover-intent: don't reveal the moment the cursor touches the word — a
+  // pointer crossing the dense candidate grid would trail a comet of
+  // popovers. Sample pointer velocity (jQuery-hoverIntent style) and only
+  // add .rf-hovering once the cursor has *slowed* over this word: a fast
+  // pass-through never settles, a deliberate pause opens in ~one sample.
+  // Keyboard (:focus-within) and click (.rf-pinned) bypass this entirely.
+  if (matchMedia("(hover: hover)").matches) {
+    const SETTLE_PX = 6;   // movement under this between samples = settled
+    const SAMPLE_MS = 100;
+    let timer = null, pX = 0, pY = 0, cX = 0, cY = 0;
+    const track = (e) => { cX = e.clientX; cY = e.clientY; };
+    const stop = () => {
+      if (timer) { clearInterval(timer); timer = null; }
+      el.removeEventListener("pointermove", track);
+    };
+    el.addEventListener("pointerenter", (e) => {
+      pX = cX = e.clientX; pY = cY = e.clientY;
+      el.addEventListener("pointermove", track);
+      timer = setInterval(() => {
+        if (!el.isConnected) { stop(); return; }  // word re-rendered mid-hover
+        const moved = Math.hypot(cX - pX, cY - pY);
+        pX = cX; pY = cY;
+        if (moved < SETTLE_PX) { stop(); el.classList.add("rf-hovering"); }
+      }, SAMPLE_MS);
+    });
+    el.addEventListener("pointerleave", () => {
+      stop();
+      el.classList.remove("rf-hovering");
+    });
+  }
+
   // Click on the word still pins (the header pin glyph is additive —
   // both paths set `.rf-pinned`). Clicks landing inside the popover are
   // ignored so quote/stanza interactions don't toggle pin state.

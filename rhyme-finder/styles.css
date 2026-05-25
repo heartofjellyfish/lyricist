@@ -2006,12 +2006,16 @@ input[type="text"]::placeholder {
   transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 200ms;
   text-align: left;
 }
-/* Hover / focus-within reveal the pop on devices with a real pointer.
+/* Reveal the pop on devices with a real pointer. The open trigger is
+   .rf-hovering (added by JS hover-intent, not bare :hover) so a pointer
+   sweeping across the dense candidate grid doesn't trail a comet of
+   popovers — see the velocity sampler in main.js. focus-within (keyboard)
+   and .rf-pinned (click) stay instant: those are explicit intent already.
    Touch devices skip this — there's no useful intermediate state on a
    phone (every "hover" is a tap), and showing the pop on focus-within
    after a tap fights the explicit pin/unpin toggle. */
 @media (hover: hover) {
-  .rf-word.rf-has-lyrics:hover .rf-lyric-pop,
+  .rf-word.rf-has-lyrics.rf-hovering .rf-lyric-pop,
   .rf-word.rf-has-lyrics:focus-within .rf-lyric-pop {
     opacity: 1;
     visibility: visible;
