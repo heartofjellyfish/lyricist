@@ -1173,7 +1173,7 @@ function renderEndQuote(q, word) {
 
   // Click the quote to reveal the stanza around it. If no stanza data,
   // the quote is non-interactive (cursor: default).
-  if (Array.isArray(q.stanza) && q.stanza.length) {
+  const expand = (build) => {
     quote.addEventListener("click", (e) => {
       e.stopPropagation();
       const opened = item.classList.toggle("is-open");
@@ -1181,9 +1181,14 @@ function renderEndQuote(q, word) {
     });
     bindMobileTapFeedback(quote);
     item.appendChild(quote);
-    item.appendChild(renderStanza(q));
+    item.appendChild(build());
+  };
+  if (Array.isArray(q.stanza) && q.stanza.length) {
+    expand(() => renderStanza(q));            // full verse
+  } else if (q.linePrev || q.lineNext) {
+    expand(() => renderContext(q));           // giant-stanza fallback → ±1 context
   } else {
-    quote.style.cursor = "default";
+    quote.style.cursor = "default";           // truly no context
     item.appendChild(quote);
   }
   return item;
@@ -1280,6 +1285,26 @@ function renderStanza(q) {
     }
     wrap.appendChild(p);
   });
+  return wrap;
+}
+
+// Fallback context for quotes with NO full stanza (giant blank-line-less songs
+// store only ±1 line). Renders linePrev / matched line / lineNext so clicking
+// still reveals local context instead of nothing.
+function renderContext(q) {
+  const wrap = document.createElement("div");
+  wrap.className = "rf-lyric-stanza";
+  const rows = [];
+  if (q.linePrev) rows.push([q.linePrev, false]);
+  rows.push([q.line, true]);
+  if (q.lineNext) rows.push([q.lineNext, false]);
+  for (const [text, isMatch] of rows) {
+    const p = document.createElement("p");
+    p.className = "rf-lyric-stanza-line";
+    if (isMatch) { p.classList.add("is-match"); p.innerHTML = highlightSurface(text, q.surface); }
+    else p.textContent = text;
+    wrap.appendChild(p);
+  }
   return wrap;
 }
 
