@@ -209,33 +209,25 @@ async function runSearch(word, { updateUrl = true } = {}) {
     await new Promise((r) => setTimeout(r, 0));
     const { source, buckets } = await findRhymes({ word, perBucket: 200 });
 
-    // Block on only what initial paint truly needs:
-    //   · existence.json  → drives hasQuotes() sync gate for candidate badges
-    //   · source bucket   → renderSourcePanel reads it synchronously after
-    //   · cliché pairs    → renderResults flags overworked pairs
-    // Candidate buckets are NOT awaited — they stream in parallel after
-    // results paint and decorate the DOM as each one resolves (see below).
-    await Promise.all([
-      ensureExistence(),
-      prefetchBucketsFor([source.word]),
-      loadCliches(),
-    ]);
+    // First paint needs ONLY the word list + counts. Both come from data that's
+    // already loaded: the classifier (above) for the words, and index.json for
+    // every badge number (pair counts + per-word counts) — NO quote bucket is
+    // fetched on the critical path. Quote text loads on hover. So we block on
+    // just the index + cliché list (both tiny, loaded once at init).
+    await Promise.all([ensureExistence(), loadCliches()]);
     renderSource(source);
     renderLexFilter(buckets);
-    await renderCorpusGallery(source.word);
-    renderResults(source, buckets);
+    renderResults(source, buckets);     // word list + badges (counts from index — no fetch)
     renderTabs(source.word, buckets);
     renderStickybar(source.word);
     updateBucketCounts();
     setStatus("");
 
-    // Kick off candidate-bucket prefetch in the background — renderWord
-    // has already attached an awaiting `decorateWithLyrics()` per candidate
-    // that resolves as its bucket arrives. Fire-and-forget here; failures
-    // are non-fatal (the popover just stays empty for that candidate).
-    const candidateWords = [];
-    for (const t of TYPE_ORDER) for (const c of buckets[t] ?? []) candidateWords.push(c.word);
-    prefetchBucketsFor(candidateWords).catch(() => {});
+    // Everything below is non-blocking — quote text streams in after first
+    // paint. The corpus gallery fetches the source bucket in the background
+    // (warming the perfect-rhyme hovers, which share the source's key);
+    // every other candidate's quotes load on demand when its popover opens.
+    renderCorpusGallery(source.word).catch(() => {});
 
     // Reflect the searched word in the URL so the page is link-shareable.
     // Use replaceState rather than pushState so multiple consecutive

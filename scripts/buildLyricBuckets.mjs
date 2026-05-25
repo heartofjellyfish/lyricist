@@ -91,6 +91,7 @@ const rhymed = new Map();     // key → { word: { rhymeWord: {q, n} } }
 const rhymedMore = new Map(); // key → { word: { rhymeWord: [overflow] } }
 const notRhymed = new Map();  // key → { word: [quotes] }
 const counts = {};            // word → [appearances, rhymed, notRhymed, rhymeWords]
+const pairs = {};             // word → { rhymeWord: n }  (pair counts, for first-paint badges with NO bucket fetch)
 let dropped = 0;
 
 function put(map, key, word, val) {
@@ -123,7 +124,12 @@ for (const f of letterFiles) {
       page[rw] = { q: ordered.slice(0, PAGE).map(strip), n: ordered.length };
       if (ordered.length > PAGE) more[rw] = ordered.slice(PAGE).map(strip);
     }
-    if (Object.keys(page).length) put(rhymed, key, word, page);
+    if (Object.keys(page).length) {
+      put(rhymed, key, word, page);
+      const pm = {};
+      for (const rw in page) pm[rw] = page[rw].n; // pair total (n), no quotes
+      pairs[word] = pm;
+    }
     if (Object.keys(more).length) put(rhymedMore, key, word, more);
 
     if (alone.length) {
@@ -158,8 +164,11 @@ const nr = writeDir("not-rhymed", notRhymed);
 // no corpus presence).
 const sortedWords = {};
 for (const w of Object.keys(counts).sort()) sortedWords[w] = counts[w];
+const sortedPairs = {};
+for (const w of Object.keys(pairs).sort()) sortedPairs[w] = pairs[w];
 const index = {
   words: sortedWords,
+  pairs: sortedPairs, // word → {rhymeWord: n} — lets first paint show badges with no bucket fetch
   buckets: { rhymed: [...rhymed.keys()].sort(), notRhymed: [...notRhymed.keys()].sort() },
 };
 fs.writeFileSync(path.join(LIB, "index.json"), JSON.stringify(index));

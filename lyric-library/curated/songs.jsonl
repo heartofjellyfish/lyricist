@@ -161,3 +161,161 @@
 {"mode":"picks","artist":"Patti Smith","titles":["Because the Night","Gloria","Land","Frederick","People Have the Power","Dancing Barefoot","Free Money","Pissing in a River","Birdland","Easter"],"tier":"stretch"}
 {"mode":"picks","artist":"Leonard Cohen","titles":["The Future","Democracy","If It Be Your Will","I'm Your Man","Closing Time","Waiting for the Miracle","The Master Song","One of Us Cant Be Wrong","Story of Isaac"],"tier":"mirror"}
 {"mode":"picks","artist":"Bob Dylan","titles":["Knockin on Heavens Door","All Along the Watchtower","The Lonesome Death of Hattie Carroll","Hurricane","Sara","I Want You","Lay Lady Lay","If You See Her Say Hello","One More Cup of Coffee","Series of Dreams"],"tier":"mirror"}
+
+{"mode":"top","artist":"Adrianne Lenker","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Aesop Rock","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Aimee Mann","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Anaïs Mitchell","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Andrew Bird","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Andy Shauf","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Angel Olsen","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Arcade Fire","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Aretha Franklin","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Bahamas","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Beirut","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Big Thief","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Bill Callahan","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Bill Fay","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Bill Withers","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Billie Holiday","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Black Box Recorder","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Bob Dylan","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Bon Iver","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Bonnie Prince Billy","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Bright Eyes","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Burt Bacharach","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Carly Simon","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Carole King","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Cass McCombs","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Cassandra Jenkins","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Cat Stevens","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Cole Porter","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Counting Crows","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Curtis Mayfield","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Damien Jurado","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Damien Rice","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"DAngelo","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"David Bowie","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Death Cab for Cutie","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Dire Straits","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Don Henley","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Donny Hathaway","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Dr. Dog","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"E.Y. Harburg","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Eagles","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Earl Sweatshirt","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Eden Ahbez","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Elliott Smith","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Eminem","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Erykah Badu","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Father John Misty","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Fiona Apple","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Fleetwood Mac","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Florence + the Machine","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Frank Ocean","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Gillian Welch","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Guy Clark","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Hank Williams","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Harry Nilsson","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Hoagy Carmichael","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Hozier","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Iris DeMent","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Iron & Wine","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Irving Berlin","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Jackson Browne","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"James Taylor","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Jason Isbell","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Jason Molina","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Jeff Buckley","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Jeff Tweedy","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Jimmy Webb","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Joanna Newsom","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Joe Henry","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"John Lennon","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"John Martyn","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"John Moreland","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"John Prine","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Johnny Mercer","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Joni Mitchell","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Julien Baker","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Justin Townes Earle","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Kae Tempest","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Kate Bush","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Keren Ann","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Kris Kristofferson","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Lana Del Rey","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Laura Marling","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Lauryn Hill","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Leonard Cohen","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Lorde","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Lorenz Hart","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Lori McKenna","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Lou Reed","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Loudon Wainwright III","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Lucinda Williams","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Lyle Lovett","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Magnolia Electric Co.","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Mark Knopfler","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Marvin Gaye","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Mary Gauthier","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Men I Trust","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"MF DOOM","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Mitski","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Mos Def","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Mount Eerie","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Nas","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Neil Young","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Neutral Milk Hotel","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Nick Cave","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Nick Drake","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Open Mike Eagle","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Otis Redding","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Patti Smith","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Patty Griffin","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Paul McCartney","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Paul Simon","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Phil Ochs","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Phoebe Bridgers","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Pink Floyd","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"PJ Harvey","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Purple Mountains","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Radiohead","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Randy Newman","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Ray LaMontagne","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Regina Spektor","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Richard Thompson","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Robert Wyatt","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Roger Waters","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Roy Harper","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Rufus Wainwright","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Sade","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Sam Cooke","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Sandy Denny","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Sharon Van Etten","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Silver Jews","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Smokey Robinson","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Solange","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Stephen Foster","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Stephen Sondheim","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Steve Earle","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Stevie Wonder","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Sturgill Simpson","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Sufjan Stevens","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Suzanne Vega","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"SZA","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"The 1975","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"The Band","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"The Decemberists","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"The Magnetic Fields","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"The Mountain Goats","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"The National","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Thom Yorke","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Tom Petty","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Tom Waits","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Tori Amos","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Townes Van Zandt","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Tracy Chapman","n":22,"tier":"stretch","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Tyler Childers","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Warren Zevon","n":35,"tier":"canon","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Weyes Blood","n":55,"tier":"mirror","note":"corpus expansion May2026"}
+{"mode":"top","artist":"Wilco","n":55,"tier":"mirror","note":"corpus expansion May2026"}

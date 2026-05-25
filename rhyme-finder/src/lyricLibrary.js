@@ -30,6 +30,7 @@ const NOT_RHYMED_BASE = new URL("../../wordlists/lyric-library/not-rhymed/", imp
 const PAGE = 5; // matches the build's per-rhyme tier-1 size
 
 let words = null;             // Map<string, number[]>  (word → counts)
+let pairsByWord = null;       // { word: { rhymeWord: n } }  (pair counts — first-paint badges, no fetch)
 let rhymedKeys = null;        // Set<string>
 let notRhymedKeys = null;     // Set<string>
 let indexPromise = null;
@@ -46,6 +47,7 @@ export function ensureExistence() {
     .catch(() => ({ words: {}, buckets: {} }))
     .then((obj) => {
       words = new Map(Object.entries(obj.words ?? {}));
+      pairsByWord = obj.pairs ?? {};
       rhymedKeys = new Set(obj.buckets?.rhymed ?? []);
       notRhymedKeys = new Set(obj.buckets?.notRhymed ?? []);
     });
@@ -110,14 +112,14 @@ export async function getRhymeMap(word) {
   return entryOf(bucket, word) ?? {};
 }
 
-// Sync pair count word↔rhymeWord — valid only after getRhymeMap(word)/the
-// word's tier-1 bucket is cached (caller prefetches the source word). 0 if
-// the pair has no corpus precedent. This is the honest, search-relative count.
+// Sync pair count word↔rhymeWord — read straight from index.json (loaded once
+// at init), so first paint can show badges with NO bucket fetch. 0 if the pair
+// has no corpus precedent. The honest, search-relative count.
 export function pairCount(word, rhymeWord) {
-  const key = keyForWord(word);
-  if (!key || !cache.rhymed.has(key)) return 0;
-  const entry = entryOf(cache.rhymed.get(key), word);
-  return entry?.[rhymeWord]?.n ?? 0;
+  if (!pairsByWord) return 0;
+  const w = word.toLowerCase();
+  const m = pairsByWord[w] ?? pairsByWord[clientLemma(w)];
+  return m?.[rhymeWord] ?? 0;
 }
 
 // ── Compat: flat quote[] for a word (top-K across its rhymes) ─────────
