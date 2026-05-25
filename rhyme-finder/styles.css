@@ -1816,7 +1816,7 @@ input[type="text"]::placeholder {
   .rf-app:has(#results:not(:empty)) .rf-input-row,
   .rf-app:has(#source-summary:not(:empty)) .rf-input-row {
     width: 100%;
-    min-width: 160px;
+    min-width: 150px;
   }
   /* min-width:0 lets the input itself scroll for words longer than the
      pill rather than widening (and overflowing) the bar. */
@@ -1844,28 +1844,26 @@ input[type="text"]::placeholder {
 }
 
 /* ── Collapsed-bar priority: shed tools to protect the search bar ────
-   Priority order is search bar > toggle > jump/filter. The thresholds
-   are set generously (not at the bare minimum) so the search bar stays
-   visually roomy rather than getting squeezed down to a stubby box as
-   soon as it technically fits. Tools drop in reverse-priority order:
-     · ≤430px — drop jump + filter. This covers every phone, so on a
-       phone the bar is seal · search · toggle: the search bar fills the
-       space the two icons used to take (e.g. ~210px at 414, ~173px at
-       375) instead of being pinched to ~150px beside them.
-     · ≤361px — drop the toggle too (the search bar would otherwise dip
-       under ~160px). Dict/corpus is still switchable via the tab strip
-       below the bar, so nothing becomes unreachable.
-   Above 430px (tablets, foldables) there's room for all three tools
-   alongside a roomy search bar, so they stay. */
-@media (max-width: 430px) {
-  .rf-app:has(#results:not(:empty)) .rf-iconbtn,
-  .rf-app:has(#source-summary:not(:empty)) .rf-iconbtn {
+   Priority: search bar > filter > toggle > jump. Filter is the ONLY way
+   to reach lexicon filtering on a phone, so it (and the colophon ✉) are
+   kept at every width; jump and then the toggle yield as the bar
+   narrows. The toggle is mirrored by the tab strip below the results,
+   so dropping it loses no reach.
+     · ≤445px (all phones): drop jump → bar is search · toggle · filter.
+       The search bar takes the freed space (e.g. ~168px at 402).
+     · ≤383px: drop the toggle too, so the search bar keeps a roomy
+       width beside the filter (e.g. ~225px at 375).
+   Above 445px (tablets, foldables) all three tools fit beside a roomy
+   search bar, so they stay. */
+@media (max-width: 445px) {
+  .rf-app:has(#results:not(:empty)) #btn-jump,
+  .rf-app:has(#source-summary:not(:empty)) #btn-jump {
     display: none;
   }
 }
-@media (max-width: 361px) {
-  .rf-app:has(#results:not(:empty)) .rf-bar-tools,
-  .rf-app:has(#source-summary:not(:empty)) .rf-bar-tools {
+@media (max-width: 383px) {
+  .rf-app:has(#results:not(:empty)) .rf-tab-toggle,
+  .rf-app:has(#source-summary:not(:empty)) .rf-tab-toggle {
     display: none;
   }
 }
