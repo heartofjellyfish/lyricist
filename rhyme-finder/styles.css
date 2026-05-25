@@ -1792,32 +1792,81 @@ input[type="text"]::placeholder {
   .rf-tier-count { margin-left: 0; }
   .rf-seal { right: -42px; width: 36px; height: 36px; font-size: 18px; }
 
-  /* Slim banner stacks: wordmark on top, pill below — both full-width.
-     Per the design's mobile spec for Option A. */
+  /* Collapsed bar stays ONE row on phones — seal · pill · toggle ·
+     jump · filter all inline (no column stack). Gaps, paddings, and
+     the tools cluster are tightened vs. desktop so everything fits
+     beside a usable pill at 375px. The colophon stays fixed at the
+     bar's right edge, so the right padding reserves room for it. */
   .rf-app:has(#results:not(:empty)) .rf-hero,
   .rf-app:has(#source-summary:not(:empty)) .rf-hero {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    padding: 10px 4px;
+    gap: 10px;
+    padding: 9px 64px 9px 8px;
   }
-  .rf-app:has(#results:not(:empty)) .rf-title-row,
-  .rf-app:has(#source-summary:not(:empty)) .rf-title-row {
-    justify-content: flex-start;
-  }
+  /* The search bar is the priority control — let it grow to fill the
+     free space, and give it a generous floor so it never reads as a
+     stubby little box. The point isn't a literal letter count; it's
+     visual balance — a search bar shorter than this looks cramped next
+     to the toggle. The stepped breakpoints below shed the secondary
+     tools early so the bar stays roomy rather than getting squeezed. */
   .rf-app:has(#results:not(:empty)) .rf-panel,
   .rf-app:has(#source-summary:not(:empty)) .rf-panel {
-    max-width: 100%;
-    width: 100%;
+    max-width: none;
+    min-width: 0;
   }
-  /* The mobile rule above changes .rf-seal sizing for the empty-state
-     hero; in the collapsed banner we want the 22px shrunk seal back. */
+  .rf-app:has(#results:not(:empty)) .rf-input-row,
+  .rf-app:has(#source-summary:not(:empty)) .rf-input-row {
+    width: 100%;
+    min-width: 160px;
+  }
+  /* min-width:0 lets the input itself scroll for words longer than the
+     pill rather than widening (and overflowing) the bar. */
+  .rf-app:has(#results:not(:empty)) input[type="text"],
+  .rf-app:has(#source-summary:not(:empty)) input[type="text"] {
+    min-width: 0;
+  }
+  /* Tighten the tools cluster so the toggle + 2 icon buttons claim
+     less of the row. */
+  .rf-app:has(#results:not(:empty)) .rf-bar-tools,
+  .rf-app:has(#source-summary:not(:empty)) .rf-bar-tools {
+    gap: 6px;
+    padding-left: 10px;
+    margin-left: 0;
+  }
+  /* The mobile .rf-seal rule above is for the empty-state hero; in the
+     collapsed bar keep the 22px shrunk home stamp. */
   .rf-app:has(#results:not(:empty)) .rf-seal,
   .rf-app:has(#source-summary:not(:empty)) .rf-seal {
     right: auto;
     width: 22px;
     height: 22px;
     font-size: 12px;
+  }
+}
+
+/* ── Collapsed-bar priority: shed tools to protect the search bar ────
+   Priority order is search bar > toggle > jump/filter. The thresholds
+   are set generously (not at the bare minimum) so the search bar stays
+   visually roomy rather than getting squeezed down to a stubby box as
+   soon as it technically fits. Tools drop in reverse-priority order:
+     · ≤430px — drop jump + filter. This covers every phone, so on a
+       phone the bar is seal · search · toggle: the search bar fills the
+       space the two icons used to take (e.g. ~210px at 414, ~173px at
+       375) instead of being pinched to ~150px beside them.
+     · ≤361px — drop the toggle too (the search bar would otherwise dip
+       under ~160px). Dict/corpus is still switchable via the tab strip
+       below the bar, so nothing becomes unreachable.
+   Above 430px (tablets, foldables) there's room for all three tools
+   alongside a roomy search bar, so they stay. */
+@media (max-width: 430px) {
+  .rf-app:has(#results:not(:empty)) .rf-iconbtn,
+  .rf-app:has(#source-summary:not(:empty)) .rf-iconbtn {
+    display: none;
+  }
+}
+@media (max-width: 361px) {
+  .rf-app:has(#results:not(:empty)) .rf-bar-tools,
+  .rf-app:has(#source-summary:not(:empty)) .rf-bar-tools {
+    display: none;
   }
 }
 
