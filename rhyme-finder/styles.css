@@ -1795,12 +1795,14 @@ input[type="text"]::placeholder {
   /* Collapsed bar stays ONE row on phones — seal · pill · toggle ·
      jump · filter all inline (no column stack). Gaps, paddings, and
      the tools cluster are tightened vs. desktop so everything fits
-     beside a usable pill at 375px. The colophon stays fixed at the
-     bar's right edge, so the right padding reserves room for it. */
+     beside a usable pill at 375px. The 8px left pad and the 56px right
+     pad keep the bar edge-symmetric: the seal sits 8px from the left
+     and the colophon ✉ (pulled to right:8 below) sits 8px from the
+     right, with the reserve just clearing the ✉. */
   .rf-app:has(#results:not(:empty)) .rf-hero,
   .rf-app:has(#source-summary:not(:empty)) .rf-hero {
     gap: 10px;
-    padding: 9px 64px 9px 8px;
+    padding: 9px 56px 9px 8px;
   }
   /* The search bar is the priority control — let it grow to fill the
      free space, and give it a generous floor so it never reads as a
@@ -1841,6 +1843,10 @@ input[type="text"]::placeholder {
     height: 22px;
     font-size: 12px;
   }
+  /* (Colophon ✉ position + divider for this collapsed mobile bar are
+     overridden in a media query AFTER the base .rf-colophon rules — see
+     "Colophon · collapsed mobile" near the colophon section — because
+     equal-specificity rules need to win on source order.) */
 }
 
 /* ── Collapsed-bar priority: shed tools to protect the search bar ────
@@ -3257,6 +3263,25 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   height: 26px;
   background: var(--hair);
 }
+
+/* ── Colophon · collapsed mobile ────────────────────────────────────
+   Must live AFTER the base rules above to win on source order (equal
+   specificity). On phones the collapsed bar pulls the ✉ in to 8px from
+   the edge so it mirrors the seal's 8px left inset (edge-symmetric), and
+   drops the tools↔colophon divider — the filling search bar shoves the
+   tools flush against the ✉, so that divider would otherwise fall on top
+   of the filter button as a stray vertical line. */
+@media (max-width: 640px) {
+  body:has(#results:not(:empty)) .rf-colophon,
+  body:has(#source-summary:not(:empty)) .rf-colophon {
+    right: 8px;
+  }
+  body:has(#results:not(:empty)) .rf-colophon::before,
+  body:has(#source-summary:not(:empty)) .rf-colophon::before {
+    display: none;
+  }
+}
+
 .rf-colophon-details { position: relative; }
 
 /* ── Trigger frame ─────────────────────────────────────────────── */
