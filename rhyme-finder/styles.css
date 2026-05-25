@@ -1943,20 +1943,18 @@ input[type="text"]::placeholder {
 .rf-lyric-badge::before {
   content: "";
   display: inline-block;
-  width: 5px; height: 5px;
+  width: 7px; height: 7px;   /* attested (rhymed with the searched word): bigger filled dot */
   background: var(--vermilion);
   border-radius: 50%;
   transform: translateY(-1px);
   flex: none;
 }
-/* Ambient "in the corpus" badge (Option A): a small HOLLOW vermilion ring +
-   a FADED count (the word's own line-end uses). The filled dot + vermilion
-   count above means "rhymed with the searched word" and stays the loud one,
-   so the page reads full-of-dots but the attested pairs still pop. */
+/* In-corpus (ambient): a SMALL filled dot (inherits the vermilion fill above —
+   no more hollow ring) + a FADED count of the word's own line-end uses. Size
+   carries the distinction: bigger = rhymed with your word, small = just lives
+   in the corpus. The page stays full of filled red dots. */
 .rf-lyric-badge.rf-lyric-badge--corpus::before {
-  background: transparent;
-  border: 1px solid var(--vermilion);
-  width: 5px; height: 5px;
+  width: 4px; height: 4px;
 }
 .rf-lyric-badge.rf-lyric-badge--corpus .rf-lyric-badge-count {
   color: var(--ink-faded);
