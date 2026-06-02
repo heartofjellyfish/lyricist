@@ -3946,13 +3946,33 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
 .cd-tab[aria-selected="true"] .cd-tab-counts b { color: var(--vermilion); }
 
 @media (max-width: 720px) {
-  .cd-tabs {
-    grid-template-columns: 1fr;
+  /* Stay side-by-side on mobile (two equal cells) — the dotted left
+     divider is kept. Title + counts tighten so "Rhyme dictionary" and
+     "In the corpus" each sit on one line in a ~half-width cell. */
+  .cd-tab {
+    padding: 12px 14px;
+    gap: 4px;
   }
-  .cd-tab + .cd-tab {
-    border-left: 0;
-    border-top: 1px dotted var(--hair);
+  .cd-tab-title {
+    font-size: 16px;
+    gap: 7px;
   }
+  .cd-tab-icon {
+    width: 15px;
+    height: 15px;
+  }
+  .cd-tab-counts {
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+  }
+}
+
+@media (max-width: 360px) {
+  /* Very narrow phones (≤360px) — shave the title once more so the
+     longer "Rhyme dictionary" label still clears a single line. */
+  .cd-tab { padding: 11px 11px; }
+  .cd-tab-title { font-size: 14px; gap: 6px; }
+  .cd-tab-icon { width: 14px; height: 14px; }
 }
 
 .rf-tab-body[hidden] { display: none; }
