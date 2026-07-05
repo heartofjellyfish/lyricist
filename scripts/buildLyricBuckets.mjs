@@ -41,7 +41,9 @@ const LEN_MIN = 15, LEN_LO = 18, LEN_HI = 64; // display-length sweet spot
 const cmu = JSON.parse(fs.readFileSync(CMU_PATH, "utf8"));
 const ovr = JSON.parse(fs.readFileSync(OVR_PATH, "utf8"));
 const PRON = new Map();
-for (const w in cmu) PRON.set(w, normalizePhonemes(cmu[w]).split(" "));
+// Strip trailing " # comment" annotations (16 CMU entries carry them)
+// so they don't become fake phonemes — mirrors the runtime loader.
+for (const w in cmu) PRON.set(w, normalizePhonemes(cmu[w].split(" # ")[0]).split(" "));
 for (const w in ovr) if (!w.startsWith("_")) PRON.set(w.toLowerCase(), normalizePhonemes(ovr[w]).split(" "));
 
 // ── artist → favorite tier (mirror/canon/stretch) ────────────────────

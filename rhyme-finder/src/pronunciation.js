@@ -55,7 +55,11 @@ export function ensurePronunciation() {
       if (!dictResp.ok) throw new Error(`Failed to load CMU dict: ${dictResp.status}`);
       const obj = await dictResp.json();
       for (const word in obj) {
-        PRONUNCIATION_MAP.set(word, normalizePhonemes(obj[word]).split(" "));
+        // A few CMU entries carry trailing " # comment" annotations
+        // (aalborg → "AO1 L B AO0 R G # place, danish") — strip before
+        // splitting or the comment words become fake phonemes.
+        const pron = obj[word].split(" # ")[0];
+        PRONUNCIATION_MAP.set(word, normalizePhonemes(pron).split(" "));
       }
       // Apply overrides last so they win against the base CMU entry.
       // Overrides patch known CMU transcription errors (e.g. typology).

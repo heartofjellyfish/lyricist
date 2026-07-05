@@ -158,15 +158,45 @@ export function phonemesFor(word) {
 // "lullaby" → ...AY2 are NOT artifacts: their 2-stress either has a
 // coda after it or sits on a full vowel — both patterns survive this
 // filter and remain valid rhyme anchors.
+//
+// SECOND CLASS — word-final OW2 straight after a stressed syllable.
+// CMU marks the unstressed final -ow/-o of trochee-tail words randomly:
+// meadow/borrow/shadow/tomorrow/potato get OW2, window/follow/sorrow/
+// tomato get OW0 — same sound, two markings (552 vs 4185 words). An
+// OW2 anchor makes "go/meadow" a fake perfect rhyme AND breaks true
+// pairs whose two halves got different digits (borrow/sorrow,
+// potato/tomato). Detection: the vowel immediately BEFORE the final
+// OW2 is stressed — a stressed penult means the final -o is a trailing
+// syllable, not a rhyme anchor. Dactyl-tail words (radio, mexico,
+// buffalo, afterglow: unstressed vowel before the final OW2) keep
+// their anchor — that final -o carries a real rhythmic beat and
+// rhyming it with "go" is standard songwriting practice.
+// Known casualties (accepted): rainbow/elbow/tiptoe — compounds whose
+// second element is a real word with true secondary stress, but
+// distinguishing them from borrow/tomorrow needs morphology CMU
+// doesn't have (borrow also ends in the word "row").
 const SUFFIX_ARTIFACT_VOWELS = new Set(["IH", "IY", "AH", "ER"]);
+
+function hasPrimaryElsewhere(phonemes, index) {
+  for (let i = 0; i < phonemes.length; i += 1) {
+    if (i !== index && vowelStress(phonemes[i]) === "1") return true;
+  }
+  return false;
+}
 
 function isSuffixArtifact(phoneme, index, phonemes) {
   if (vowelStress(phoneme) !== "2") return false;
   if (index !== phonemes.length - 1) return false; // must be the last phoneme
-  if (!SUFFIX_ARTIFACT_VOWELS.has(vowelBase(phoneme))) return false;
-  // Only treat as artifact if a primary 1-stress exists earlier.
-  for (let i = 0; i < phonemes.length; i += 1) {
-    if (i !== index && vowelStress(phonemes[i]) === "1") return true;
+  const base = vowelBase(phoneme);
+  if (SUFFIX_ARTIFACT_VOWELS.has(base)) {
+    return hasPrimaryElsewhere(phonemes, index);
+  }
+  if (base === "OW") {
+    if (!hasPrimaryElsewhere(phonemes, index)) return false;
+    // Artifact only when the preceding vowel is stressed (trochee tail).
+    for (let i = index - 1; i >= 0; i -= 1) {
+      if (isVowel(phonemes[i])) return isStressed(phonemes[i]);
+    }
   }
   return false;
 }
@@ -261,6 +291,16 @@ export function rhymeKeyOf(phonemes) {
   const stressIdx = lastStressedVowelIndex(phonemes);
   if (stressIdx === -1) return null;
   return phonemes.slice(stressIdx).join("_");
+}
+
+// The rhyme-anchor index for a raw phoneme array — same artifact-aware
+// logic the classifier uses internally. Exported so rhymeFinder's corpus
+// prefilter anchors candidates identically to classifyRhyme; a second,
+// artifact-blind anchor (the old deriveRhymeInfo) silently dropped
+// candidates like agronomy-for-economy and borrow-for-sorrow before the
+// classifier ever saw them.
+export function rhymeAnchorIndex(phonemes) {
+  return lastStressedVowelIndex(phonemes);
 }
 
 export function analyzeWord(word) {
@@ -407,16 +447,21 @@ function compareCodas(codaA, codaB) {
 // the end of a trailing.
 const Y_SUFFIX_VOWELS = new Set(["IH0", "IH2", "IY0", "IY2"]);
 
+// Trailing vowels are functionally unstressed — any stress digit on them
+// is either 0 or a CMU fake-secondary artifact the anchor logic skipped
+// (borrow's OW2 vs sorrow's OW0). Compare trailings digit-blind so the
+// same trailing sound matches regardless of CMU's marking.
+function trailingToken(phoneme, isLast) {
+  if (isLast && Y_SUFFIX_VOWELS.has(phoneme)) return "_Y";
+  const m = phoneme.match(VOWEL_RE);
+  return m ? m[1] : phoneme;
+}
+
 function trailingsMatch(a, b) {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i += 1) {
-    let pa = a[i];
-    let pb = b[i];
-    if (i === a.length - 1) {
-      if (Y_SUFFIX_VOWELS.has(pa)) pa = "_Y";
-      if (Y_SUFFIX_VOWELS.has(pb)) pb = "_Y";
-    }
-    if (pa !== pb) return false;
+    const isLast = i === a.length - 1;
+    if (trailingToken(a[i], isLast) !== trailingToken(b[i], isLast)) return false;
   }
   return true;
 }
@@ -500,7 +545,8 @@ function trailingNucleiCompatible(aTrailing, bTrailing) {
   if (aTrailing.length === 0 || bTrailing.length === 0) return false;
   if (aTrailing.length !== bTrailing.length) return false;
   for (let i = 0; i < aTrailing.length; i += 1) {
-    if (aTrailing[i] !== bTrailing[i]) return false;
+    // Digit-blind like trailingsMatch — trailing stress digits are noise.
+    if (trailingToken(aTrailing[i], false) !== trailingToken(bTrailing[i], false)) return false;
   }
   return true;
 }
@@ -764,8 +810,16 @@ export function classifyRhyme(wordA, wordB) {
     // even though the stressed syllable is a full perfect match, Pattison's
     // strict rule for feminine rhyme requires trailing identity. Without it,
     // the foot doesn't close as a rhyme; we demote to assonance.
+    //
+    // NOTE: no femNucleiBad gate here, unlike the weaker-coda branches
+    // below. When the stressed syllable matches PERFECTLY (vowel + coda),
+    // that match alone carries the sonic connection — Pattison's own
+    // examples for this case (passion/ashes Ch2 p31, with AH vs IH
+    // nuclei) have "incompatible" trailing nuclei and he still calls the
+    // connection undeniable. The gate is for pairs whose only link is
+    // the bare stressed vowel (lonely/broken) — those need a compatible
+    // trailing to bind at all.
     if (femTrailingMismatch) {
-      if (femNucleiBad) return noneForBadFemNucleus();
       return {
         type: "assonance",
         stability: 2,
@@ -839,16 +893,24 @@ export function classifyRhyme(wordA, wordB) {
     // a sort key (no UI label) — let the user scan tightest matches first
     // without having to learn Pattison's vocabulary. The whole pair's
     // closeness is the loosest single position (the bottleneck the ear hears).
-    //   tight   — every position is same or partners
-    //   medium  — at least one companion, no cross
-    //   loose   — at least one cross-axis swap (Pattison's "further away")
-    const hasCross = codaCmp.notes.some((n) => n.kind === "cross");
-    const hasCompanion = codaCmp.notes.some((n) => n.kind === "companions");
-    const familyCloseness = hasCross
-      ? "loose"
-      : hasCompanion
-      ? "medium"
-      : "tight";
+    //   tight  — closest family link at every position
+    //   medium — one step further
+    //   loose  — at least one cross-axis swap (Pattison's "further away")
+    // Pattison's closeness order DEPENDS on the family: for plosives,
+    // partners (b↔p) are closest and companions (b↔d) further; for
+    // fricatives it's REVERSED — companions (f↔s, sharing voicing) are
+    // closer than partners (f↔v). Rank each position accordingly.
+    const isFricative = (c) =>
+      VOICED_FRICATIVES.has(c) || UNVOICED_FRICATIVES.has(c);
+    const noteRank = (n) => {
+      if (n.kind === "same") return 0;
+      if (n.kind === "cross") return 3;
+      const fricPair = isFricative(n.a) && isFricative(n.b);
+      if (n.kind === "partners") return fricPair ? 2 : 1;
+      return fricPair ? 1 : 2; // companions
+    };
+    const worst = Math.max(...codaCmp.notes.map(noteRank));
+    const familyCloseness = worst >= 3 ? "loose" : worst === 2 ? "medium" : "tight";
     return {
       type: "family",
       stability: 4,

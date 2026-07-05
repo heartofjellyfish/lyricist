@@ -8,10 +8,9 @@
 //   • commonRank — Map<word, rank> from a top-10k common-English-words list,
 //                  used to surface lyric-friendly words first.
 
-import { classifyRhyme, analyzeWord } from "./rhymeClassifier.js";
+import { classifyRhyme, analyzeWord, rhymeAnchorIndex } from "./rhymeClassifier.js";
 import {
   PRONUNCIATION_MAP,
-  deriveRhymeInfo,
   ensurePronunciation,
 } from "./pronunciation.js";
 
@@ -85,14 +84,18 @@ function buildCorpus() {
   const entries = [];
   for (const [word, phonemes] of PRONUNCIATION_MAP.entries()) {
     if (!isWellFormedToken(word)) continue;
-    const info = deriveRhymeInfo(phonemes);
+    // Anchor with the classifier's own artifact-aware logic. The old
+    // deriveRhymeInfo anchor ignored CMU fake-secondary artifacts, so the
+    // prefilter below dropped candidates (agronomy for economy, borrow for
+    // sorrow) before classifyRhyme ever ran on them.
+    const anchorIdx = rhymeAnchorIndex(phonemes);
+    const rhymeTail = anchorIdx === -1 ? phonemes : phonemes.slice(anchorIdx);
     const syllables = phonemes.filter((p) => /\d/u.test(p)).length || 1;
     entries.push({
       text: word,
       phonemes,
       syllables,
-      rhymeVowel: info.rhymeVowel,
-      rhymeTail: info.rhymeTail,
+      rhymeTail,
     });
   }
   CORPUS_ENTRIES = entries;

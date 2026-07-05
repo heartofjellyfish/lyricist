@@ -1,5 +1,5 @@
 {
-  "_comment": "Hand-curated overrides for CMU 0.7b. Format matches CMU: space-separated ARPAbet phonemes with stress digits 0/1/2. Five classes of fixes:\n  (1) Outright transcription errors (typology, intention).\n  (2) Missing words that appear in Pattison's worksheets (pretention, jezebel, fibber, twerp).\n  (3) Stress-digit fixes for compound or affixed endings — CMU often marks the second component as unstressed when songwriters/Pattison treat it as secondary-stressed (suburb, iceberg, egomaniac, kleptomaniac).\n  (4) Syllabification quirks where CMU inserts a schwa that shouldn't be there (solely).\n  (5) Pronunciation disambiguation — CMU keeps only one entry per word, so for homographs we override to the pronunciation Pattison uses in his examples (wind = noun /wɪnd/, not verb /waɪnd/).",
+  "_comment": "Hand-curated overrides for CMU 0.7b. Format matches CMU: space-separated ARPAbet phonemes with stress digits 0/1/2. Five classes of fixes:\n  (1) Outright transcription errors (typology, intention).\n  (2) Missing words that appear in Pattison's worksheets (pretention, jezebel, fibber, twerp).\n  (3) Stress-digit fixes for compound or affixed endings — CMU often marks the second component as unstressed when songwriters/Pattison treat it as secondary-stressed (suburb, iceberg, egomaniac, kleptomaniac), or vice versa (tissue, statue: fake UW2 on an unstressed -ue that breaks tissue/issue, statue/value).\n  (4) Syllabification quirks where CMU inserts a schwa that shouldn't be there (solely).\n  (5) Pronunciation disambiguation — CMU keeps only one entry per word, so for homographs we override to the pronunciation Pattison uses in his examples (wind = noun /wɪnd/, not verb /waɪnd/).\nThe June 2026 batch (tissue…rehab) fixes word-final stress digits where CMU marks one member of a rhyme family V0 while its siblings are V2 — splitting anchors so the family can't rhyme (grandma/grandpa, envoy/convoy, monday/sunday/away, cacti/alumni, dehumidify/testify, mayday/birthday).",
 
   "typology": "T AY2 P AA1 L AH0 JH IY0",
 
@@ -17,5 +17,28 @@
 
   "solely": "S OW1 L IY0",
 
-  "wind": "W IH1 N D"
+  "wind": "W IH1 N D",
+
+  "tissue": "T IH1 S Y UW0",
+  "statue": "S T AE1 CH UW0",
+  "devalue": "D IH0 V AE1 L Y UW0",
+  "revalue": "R IY0 V AE1 L Y UW0",
+
+  "grandma": "G R AE1 N D M AA2",
+  "envoy": "EH1 N V OY2",
+  "viceroy": "V AY1 S R OY2",
+
+  "mayday": "M EY1 D EY2",
+  "entryway": "EH1 N T R IY0 W EY2",
+  "monday": "M AH1 N D EY2",
+  "tuesday": "T UW1 Z D EY2",
+  "wednesday": "W EH1 N Z D EY2",
+  "friday": "F R AY1 D EY2",
+  "saturday": "S AE1 T ER0 D EY2",
+
+  "dehumidify": "D IY0 HH Y UW0 M IH1 D AH0 F AY2",
+  "cacti": "K AE1 K T AY2",
+  "ally": "AE1 L AY2",
+
+  "rehab": "R IY1 HH AE2 B"
 }

@@ -238,12 +238,14 @@ introduce a third copy or a third loader.
 ### CMU overrides (`wordlists/cmu-overrides.json`)
 
 Hand-curated patches for words where CMU 0.7b is genuinely wrong (not
-just inconsistent).
-
-Current entries:
-- `typology` — CMU has `T AY2 P OW1 L AH0 G IH2`; correct is `T AY2 P
-  AA1 L AH0 JH IY0` (every other -ology word uses AA1 + JH, only
-  typology was wrong).
+just inconsistent). ~30 entries in five classes — see the `_comment`
+field inside the file for the taxonomy. Notable batches: outright
+transcription errors (typology), Pattison worksheet words (jezebel,
+fibber, twerp), and the July 2026 word-final stress-digit batch
+(grandma, envoy, viceroy, monday–saturday, cacti, ally, dehumidify,
+tissue, statue…) that rejoins rhyme families CMU had split by marking
+one member V0 while its siblings got V2 (grandma/grandpa,
+monday/sunday/away, tissue/issue).
 
 To add an override:
 1. Look up the word on Wiktionary US IPA, e.g. `/taɪˈpɑːlədʒi/`
@@ -263,7 +265,7 @@ assets and **must be rebuilt whenever the lyric library expands**.
 |---|---|---|
 | `wordlists/lyric-frequency.json` | `scripts/buildLyricFrequency.mjs` | word → song-appearance count, drives the lyric-familiarity score |
 | `wordlists/cliche-pairs.json` | `scripts/buildClicheList.mjs` | top-50 most-co-occurring rhyme pairs at line-end, drives the cliché flag |
-| `wordlists/lyric-library/buckets/{rhymeKey}.json` + `existence.json` | `scripts/buildLyricBuckets.mjs` | per-rhyme-key bucket files (~4,900) + lookup index — what rhyme-finder fetches at runtime. See "Lyric library on-the-wire" below. |
+| `wordlists/lyric-library/index.json` + `rhymed/`, `rhymed-more/`, `not-rhymed/` tier dirs | `scripts/buildLyricBuckets.mjs` | per-rhyme-key quote files (~4,100 tier-1) + upfront index — what rhyme-finder fetches at runtime. See "Lyric library on-the-wire" below. |
 | `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
 
 **Re-run protocol after corpus expansion:**
@@ -279,12 +281,16 @@ node scripts/buildLyricBuckets.mjs
 
 # 3. Commit the regenerated JSONs (and the underlying lyric-library/*.json)
 git add wordlists/lyric-frequency.json wordlists/cliche-pairs.json \
-        wordlists/lyric-library/buckets wordlists/lyric-library/existence.json \
         wordlists/lyric-library/
 git commit -m "Corpus expansion: <which artists/songs added>"
 ```
 
-#### Lyric library on-the-wire (May 2026 redesign)
+⚠️ The bucket layout is keyed by `rhymeKeyOf()` — **any change to the
+classifier's anchor logic (artifact rules, overrides) also requires
+`node scripts/buildLyricBuckets.mjs`**, or quote lookups miss for the
+words whose keys moved.
+
+#### Lyric library on-the-wire (May 2026 redesign; tiered June 2026)
 
 The per-letter index files (`wordlists/lyric-library/[a-z_].json`) are
 NO LONGER fetched by the runtime client. They're build inputs only,
@@ -292,17 +298,19 @@ NO LONGER fetched by the runtime client. They're build inputs only,
 
 At runtime the client fetches:
 
-1. `wordlists/lyric-library/existence.json` once on init (~120 KB raw,
-   ~30 KB compressed). Carries `{ words, buckets }` — `words` drives the
-   sync `hasQuotes()` badge gate; `buckets` is the set of rhyme keys
-   that actually exist as files, used to short-circuit fetches for
-   classifier candidates whose rhyme key has no corpus presence.
+1. `wordlists/lyric-library/index.json` once on init. Carries
+   `{ words, buckets }` — `words` drives the sync `hasQuotes()` badge
+   gate (appearance/rhymed counts per word); `buckets` records which
+   rhyme keys exist as files, short-circuiting fetches for classifier
+   candidates with no corpus presence.
 
-2. `wordlists/lyric-library/buckets/{rhymeKey}.json` lazily, one per
-   Pattison rhyme key (e.g. `UW1_CH_ER0.json` holds quotes for
-   "future", "creature", etc.). Median 1 word per bucket, max ~157
-   (`EY1_SH_AH0_N` — the -ation family). Each fetch is sub-100 KB
-   compressed.
+2. Per-rhyme-key quote files lazily (e.g. `UW1_CH_ER0.json` holds
+   quotes for "future", "creature", etc.), in three tiers:
+   `rhymed/{key}.json` on search (top-K per rhyme pair),
+   `rhymed-more/{key}.json` on "show more" (overflow pages),
+   `not-rhymed/{key}.json` opt-in (inspiration layer). Each fetch is
+   small; first-paint cost is bounded by the page size, not corpus
+   size.
 
 A search of "future" no longer downloads the entire corpus — it
 fetches the existence index once + a handful of small bucket files on
@@ -328,16 +336,50 @@ The classifier already handles these patterns algorithmically:
   library, typology) — CMU inconsistently marks these. Treated as
   artifact in `lastStressedVowelIndex` (only when it's the last
   phoneme + word has a primary stress earlier).
+- **Word-final OW2 after a stressed syllable** (July 2026). CMU marks
+  the unstressed -ow/-o of trochee-tail words randomly: meadow/borrow/
+  shadow/tomorrow/potato got OW2 (552 words), window/follow/sorrow/
+  tomato got OW0 (4,185) — same sound. An OW2 anchor made go/meadow a
+  fake PERFECT and broke borrow/sorrow + potato/tomato entirely. Rule:
+  final OW2 whose preceding vowel is stressed = artifact (demote to
+  trailing); dactyl tails (radio, mexico, buffalo, afterglow) keep the
+  anchor, so radio/go survives. Accepted casualties: rainbow, elbow,
+  tiptoe (true compounds — separating them from borrow, which also
+  ends in the word "row", needs morphology CMU doesn't have). UW was
+  audited and deliberately NOT rule-fixed: its trochee list is mostly
+  real compounds (breakthrough, preview, horseshoe, hairdo); the four
+  true artifacts (tissue, statue, devalue, revalue) are overrides.
+- **Stress digits inside trailings are noise** — borrow's trailing is
+  `OW2`, sorrow's is `OW0`. `trailingsMatch` / `trailingNucleiCompatible`
+  compare digit-blind.
 - **IH ↔ IY confusion at end of trailing** (agronomy/autonomy: same
   sound, different ARPAbet symbols) — normalized to a canonical
   token in `trailingsMatch`.
 - **Suffix-identity false positives** for vowel-initial shorter
   words (action/fraction, eyes/lies) — `isSuffixOfOther` requires
   the shorter word to start with a consonant.
+- **16 entries carry `" # comment"` suffixes** (aalborg → `…G # place,
+  danish`). Both the runtime loader and `buildLyricBuckets.mjs` strip
+  them before splitting into phonemes; keep that if you touch a loader.
+
+⚠️ **The corpus prefilter must share the classifier's anchor.**
+`rhymeFinder.js` anchors candidates via `rhymeAnchorIndex()` exported
+from `rhymeClassifier.js`. It previously used `deriveRhymeInfo` (no
+artifact filtering), which silently dropped agronomy from economy's
+results before the classifier ever saw it. Never reintroduce a second
+anchor implementation.
+
+All of the above is locked in by **`test/rhymeClassifier.test.js`** —
+golden fixtures from Pattison's textbook plus these regressions. Run
+after ANY classifier/pronunciation/override change:
+
+```bash
+node --test test/rhymeClassifier.test.js
+```
 
 If you find a NEW class of CMU bug, prefer fixing the algorithm
 over adding individual overrides. Save overrides for one-off
-data errors.
+data errors — and add a golden fixture either way.
 
 ### Phonetic helpers (`src/pronunciation.js`, `rhyme-finder/src/pronunciation.js`)
 
