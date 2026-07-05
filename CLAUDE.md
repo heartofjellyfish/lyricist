@@ -20,7 +20,7 @@ Active tools (Apr 2026):
 | Landing | `songwriter.qi.land/` | `landing.html` (root) |
 | Stress Lyric Workshop | `songwriter.qi.land/stress-workshop/` | `stress-workshop/` |
 | Line Craft | `songwriter.qi.land/line-craft/` | `line-craft/` |
-| Rhyme Finder | **`rhyme.qi.land/`** + legacy `songwriter.qi.land/rhyme-finder/` | `rhyme-finder/` |
+| Rhyme Finder | **`rhyme.land/`** (apex, DNS on Cloudflare) + legacy `songwriter.qi.land/rhyme-finder/` | `rhyme-finder/` |
 
 Plan is to grow to ~5–6 tools, each on its own subdomain, all in
 this single repo.
@@ -49,7 +49,7 @@ this single repo.
 │   ├── index.html
 │   ├── styles.css
 │   └── src/main.js
-├── rhyme-finder/              ← rhyme.qi.land  ✅ attached
+├── rhyme-finder/              ← rhyme.land  ✅ attached (apex domain, Cloudflare DNS)
 │   ├── index.html             (uses ABSOLUTE paths /rhyme-finder/...)
 │   ├── styles.css
 │   ├── xuan-bg.png
@@ -80,7 +80,7 @@ hours of debugging.
 
 ```html
 <!-- WRONG: '/rhyme-finder' on the URL bar means './styles.css' becomes
-     '/rhyme-finder/styles.css', but on rhyme.qi.land/ the URL bar shows
+     '/rhyme-finder/styles.css', but on rhyme.land/ the URL bar shows
      '/' and './styles.css' becomes '/styles.css' — which is a DIFFERENT
      file (the songwriter root stylesheet). -->
 <link rel="stylesheet" href="./styles.css" />
@@ -129,7 +129,7 @@ Examples that already burned us:
 
 **Fix pattern (already applied):**
 - Renamed root `/index.html` → `/landing.html` (no longer collides
-  with `rhyme.qi.land/` which rewrites to `/rhyme-finder/index.html`)
+  with `rhyme.land/` which rewrites to `/rhyme-finder/index.html`)
 - Tool HTML uses absolute paths (Rule 1), so they reach into
   `/rhyme-finder/styles.css` etc. and never request `/styles.css`.
 
@@ -149,7 +149,7 @@ Routing is via host-conditional rewrites in `vercel.json`:
 ```json
 {
   "rewrites": [
-    { "source": "/", "has": [{"type":"host","value":"rhyme.qi.land"}], "destination": "/rhyme-finder/index.html" },
+    { "source": "/", "has": [{"type":"host","value":"rhyme.land"}], "destination": "/rhyme-finder/index.html" },
     { "source": "/", "destination": "/landing.html" }
   ]
 }

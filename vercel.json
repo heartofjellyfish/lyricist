@@ -7,22 +7,22 @@
   "rewrites": [
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "rhyme.qi.land" }],
+      "has": [{ "type": "host", "value": "rhyme.land" }],
       "destination": "/rhyme-finder/index.html"
     },
     {
       "source": "/sitemap.xml",
-      "has": [{ "type": "host", "value": "rhyme.qi.land" }],
+      "has": [{ "type": "host", "value": "rhyme.land" }],
       "destination": "/rhyme-finder/sitemap.xml"
     },
     {
       "source": "/robots.txt",
-      "has": [{ "type": "host", "value": "rhyme.qi.land" }],
+      "has": [{ "type": "host", "value": "rhyme.land" }],
       "destination": "/rhyme-finder/robots.txt"
     },
     {
       "source": "/google46169d289ad3d09a.html",
-      "has": [{ "type": "host", "value": "rhyme.qi.land" }],
+      "has": [{ "type": "host", "value": "rhyme.land" }],
       "destination": "/rhyme-finder/google46169d289ad3d09a.html"
     },
     {

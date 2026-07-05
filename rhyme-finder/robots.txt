@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://rhyme.qi.land/sitemap.xml
+Sitemap: https://rhyme.land/sitemap.xml

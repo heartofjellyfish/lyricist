@@ -11,7 +11,7 @@ exposed at its own subdomain.
 | Landing | https://songwriter.qi.land/ | `landing.html` |
 | Stress Lyric Workshop | https://songwriter.qi.land/stress-workshop/ | `stress-workshop/` |
 | Line Craft | https://songwriter.qi.land/line-craft/ | `line-craft/` |
-| Rhyme Finder | **https://rhyme.qi.land/** | `rhyme-finder/` |
+| Rhyme Finder | **https://rhyme.land/** | `rhyme-finder/` |
 
 ## Local dev
 

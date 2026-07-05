@@ -307,7 +307,7 @@ document.getElementById("input-clear")?.addEventListener("click", () => {
 
 // ── Deep-link support ──────────────────────────────────────────────
 // On first load, if ?q=<word> is in the URL, pre-fill the input and
-// auto-run the search. This lets links like rhyme.qi.land/?q=love
+// auto-run the search. This lets links like rhyme.land/?q=love
 // land the visitor directly on results — useful for sharing.
 (() => {
   const params = new URLSearchParams(window.location.search);
