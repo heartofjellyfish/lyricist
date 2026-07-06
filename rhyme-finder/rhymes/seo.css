@@ -1,0 +1,185 @@
+/* ── Rhyme Finder · programmatic SEO pages ────────────────────────
+   A slim standalone stylesheet for /rhymes/{word}/ pages. Reuses the
+   xuan-paper look of the app (see rhyme-finder/styles.css tokens) but
+   ships none of the app CSS — these pages are static HTML, no JS.
+   url() below resolves relative to THIS file (/rhyme-finder/rhymes/),
+   so ../xuan-bg.png reaches the app's background texture. */
+
+:root {
+  --paper: #dcc28e;
+  --ink: #1a140e;
+  --ink-soft: #3a2e1f;
+  --ink-faded: #6e5a3c;
+  --hair: rgba(26, 20, 14, 0.22);
+  --hair-soft: rgba(26, 20, 14, 0.10);
+  --vermilion: #b13b2c;
+  --vermilion-deep: #8a2a1e;
+  --serif: "Cormorant Garamond", "Songti SC", "STSong", "SimSun", "Times New Roman", serif;
+  --sans: "Inter", "PingFang SC", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  background-color: var(--paper);
+  background-image: url("../xuan-bg.png");
+  background-size: 600px 600px;
+  background-repeat: repeat;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.sp {
+  width: min(720px, calc(100vw - 40px));
+  margin: 0 auto;
+  padding: 28px 0 64px;
+}
+
+a { color: var(--vermilion-deep); text-decoration-color: rgba(138, 42, 30, 0.4); }
+a:hover { color: var(--vermilion); }
+
+/* Breadcrumb */
+.sp-crumb {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faded);
+  margin-bottom: 28px;
+}
+.sp-crumb a { color: var(--ink-faded); text-decoration: none; }
+.sp-crumb a:hover { color: var(--vermilion-deep); }
+
+/* Header */
+h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(30px, 6vw, 42px);
+  line-height: 1.12;
+  margin: 0 0 10px;
+}
+h1 em { font-style: italic; color: var(--vermilion-deep); }
+
+.sp-pron { margin: 0 0 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.sp-pron .tag {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+  border: 1px solid var(--hair);
+  border-radius: 3px;
+  padding: 2px 8px;
+  background: rgba(255, 250, 235, 0.25);
+}
+.sp-pron .tag b { font-weight: 500; color: var(--vermilion-deep); }
+
+.sp-lede { margin: 0 0 8px; font-size: 15.5px; color: var(--ink-soft); max-width: 60ch; }
+
+/* Tier sections */
+.sp-tier { margin-top: 34px; border-top: 1px solid var(--hair-soft); padding-top: 18px; }
+h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+.sp-sub {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: var(--ink-faded);
+  margin-left: 10px;
+  white-space: nowrap;
+}
+.sp-exp { margin: 2px 0 12px; font-size: 14px; color: var(--ink-faded); max-width: 62ch; }
+
+/* Narrow screens: the nowrap sub-label would force the h2 itself to
+   wrap mid-phrase — drop it to its own line instead. */
+@media (max-width: 560px) {
+  .sp-sub { display: block; margin: 2px 0 0; }
+}
+
+.sp-words {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-family: var(--serif);
+  font-size: 19px;
+}
+.sp-words li { white-space: nowrap; }
+.sp-words strong { font-weight: 700; }
+.sp-words sup.cliche {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: var(--vermilion);
+  margin-left: 2px;
+}
+.sp-more { margin: 12px 0 0; font-size: 14px; }
+
+/* Corpus quotes */
+.sp-quotes { margin-top: 40px; border-top: 1px solid var(--hair-soft); padding-top: 18px; }
+.sp-quotes figure { margin: 0 0 20px; padding-left: 16px; border-left: 2px solid var(--vermilion); }
+.sp-quotes blockquote { margin: 0; font-family: var(--serif); font-size: 18px; font-style: italic; }
+.sp-quotes .ql { display: block; }
+.sp-quotes .rw { font-style: normal; font-weight: 700; color: var(--vermilion-deep); }
+.sp-quotes figcaption {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-faded);
+}
+
+/* CTA */
+.sp-cta {
+  margin-top: 40px;
+  padding: 20px;
+  border: 1px solid var(--hair);
+  border-radius: 4px;
+  background: rgba(255, 250, 235, 0.28);
+  text-align: center;
+}
+.sp-cta a.sp-btn {
+  display: inline-block;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff8ec;
+  background: var(--vermilion);
+  border-radius: 4px;
+  padding: 10px 22px;
+  text-decoration: none;
+}
+.sp-cta a.sp-btn:hover { background: var(--vermilion-deep); color: #fff8ec; }
+.sp-cta p { margin: 10px 0 0; font-size: 13px; color: var(--ink-faded); }
+
+/* Related pages */
+.sp-related { margin-top: 40px; border-top: 1px solid var(--hair-soft); padding-top: 18px; }
+.sp-related ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 14.5px;
+}
+
+/* Footer */
+.sp-foot {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hair-soft);
+  font-size: 13px;
+  color: var(--ink-faded);
+}

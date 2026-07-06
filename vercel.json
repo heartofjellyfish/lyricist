@@ -16,6 +16,20 @@
       "destination": "/rhyme-finder/sitemap.xml"
     },
     {
+      "source": "/sitemap-home.xml",
+      "has": [{ "type": "host", "value": "rhyme.land" }],
+      "destination": "/rhyme-finder/sitemap-home.xml"
+    },
+    {
+      "source": "/sitemap-pages.xml",
+      "has": [{ "type": "host", "value": "rhyme.land" }],
+      "destination": "/rhyme-finder/sitemap-pages.xml"
+    },
+    {
+      "source": "/rhymes/:path*",
+      "destination": "/rhyme-finder/rhymes/:path*"
+    },
+    {
       "source": "/robots.txt",
       "has": [{ "type": "host", "value": "rhyme.land" }],
       "destination": "/rhyme-finder/robots.txt"

@@ -267,6 +267,7 @@ assets and **must be rebuilt whenever the lyric library expands**.
 | `wordlists/cliche-pairs.json` | `scripts/buildClicheList.mjs` | top-50 most-co-occurring rhyme pairs at line-end, drives the cliché flag |
 | `wordlists/lyric-library/index.json` + `rhymed/`, `rhymed-more/`, `not-rhymed/` tier dirs | `scripts/buildLyricBuckets.mjs` | per-rhyme-key quote files (~4,100 tier-1) + upfront index — what rhyme-finder fetches at runtime. See "Lyric library on-the-wire" below. |
 | `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
+| `rhyme-finder/rhymes/{word}/index.html` + `rhyme-finder/sitemap*.xml` + `rhymes/manifest.json` | `scripts/buildSeoPages.mjs` | programmatic SEO pages (`rhyme.land/rhymes/{word}/`) — static snapshots of the engine's output with corpus quotes + cliché flags. Design doc: `rhyme-finder/SEO-PLAN.md`. Incremental (content-hashed, honest lastmod); pilot batch by default, `--full` for the whole derived set |
 
 **Re-run protocol after corpus expansion:**
 
@@ -279,16 +280,20 @@ node scripts/buildLyricFrequency.mjs
 node scripts/buildClicheList.mjs
 node scripts/buildLyricBuckets.mjs
 
-# 3. Commit the regenerated JSONs (and the underlying lyric-library/*.json)
+# 3. Regenerate the SEO pages (quotes/cliché/frequency baked into them)
+node scripts/buildSeoPages.mjs
+
+# 4. Commit the regenerated JSONs (and the underlying lyric-library/*.json)
 git add wordlists/lyric-frequency.json wordlists/cliche-pairs.json \
-        wordlists/lyric-library/
+        wordlists/lyric-library/ rhyme-finder/rhymes/ rhyme-finder/sitemap*.xml
 git commit -m "Corpus expansion: <which artists/songs added>"
 ```
 
 ⚠️ The bucket layout is keyed by `rhymeKeyOf()` — **any change to the
 classifier's anchor logic (artifact rules, overrides) also requires
-`node scripts/buildLyricBuckets.mjs`**, or quote lookups miss for the
-words whose keys moved.
+`node scripts/buildLyricBuckets.mjs` AND `node scripts/buildSeoPages.mjs`**,
+or quote lookups miss for the words whose keys moved and the static SEO
+pages keep serving the old classification.
 
 #### Lyric library on-the-wire (May 2026 redesign; tiered June 2026)
 
