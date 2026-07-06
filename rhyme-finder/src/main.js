@@ -223,6 +223,16 @@ async function runSearch(word, { updateUrl = true } = {}) {
     updateBucketCounts();
     setStatus("");
 
+    // Static SEO pages (/rhymes/{word}/) carry a pre-rendered extras
+    // section (quotes, tier explainers) describing the PATH word. Keep
+    // it for that word; hide it once the user searches something else,
+    // so stale prose never sits under fresh results.
+    const seoExtra = document.querySelector(".sp-extra");
+    if (seoExtra) {
+      const m = window.location.pathname.match(/\/rhymes\/([^/]+)\/?$/u);
+      seoExtra.hidden = !m || decodeURIComponent(m[1]).toLowerCase() !== source.word.toLowerCase();
+    }
+
     // First paint is done (word list + counts, no fetch). NOW proactively warm
     // every badged candidate's popover in the background so hovers are instant:
     // prefetch the tier-1 bucket (the top-5 per pair) for each. Non-blocking,
@@ -311,7 +321,14 @@ document.getElementById("input-clear")?.addEventListener("click", () => {
 // land the visitor directly on results — useful for sharing.
 (() => {
   const params = new URLSearchParams(window.location.search);
-  const initial = (params.get("q") || "").trim().toLowerCase();
+  // Static SEO pages (/rhymes/{word}/ — see scripts/buildSeoPages.mjs)
+  // ship this same script with results pre-rendered. The path names the
+  // word; the search below re-renders in place, upgrading the static
+  // snapshot into the full interactive app. ?q= wins over the path so
+  // in-page searches survive a reload.
+  const pathMatch = window.location.pathname.match(/\/rhymes\/([^/]+)\/?$/u);
+  const pathWord = pathMatch ? decodeURIComponent(pathMatch[1]) : "";
+  const initial = (params.get("q") || pathWord).trim().toLowerCase();
   if (initial) {
     wordInput.value = initial;
     // Don't push another URL state — we're already there.
@@ -327,8 +344,11 @@ function renderSource(source) {
   // the viewport — see renderStickybar() and the IntersectionObserver
   // at the bottom of this file.
   const stressLabel = source.masculine ? "masculine" : "feminine";
+  // h1, not span — on the static SEO pages (/rhymes/{word}/) the source
+  // word is the page's heading, and this re-render must not demote it.
+  // The wordmark is the h1 only on the homepage's empty state.
   sourceSummary.innerHTML = `
-    <span class="rf-source-word">${escapeHtml(source.word)}</span>
+    <h1 class="rf-source-word">${escapeHtml(source.word)}</h1>
     <span class="rf-source-tag rf-source-tag-stress" tabindex="0">${stressLabel}</span>
     <span class="rf-source-tag">vowel <span class="rf-tag-val">${escapeHtml(source.stressedVowel)}</span></span>
     <span class="rf-source-tag">coda <span class="rf-tag-val">${escapeHtml(codaText)}</span></span>

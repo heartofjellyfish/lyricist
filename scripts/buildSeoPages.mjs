@@ -3,8 +3,13 @@
 // Design doc: rhyme-finder/SEO-PLAN.md. Key decisions:
 //   * imports the REAL engine (findRhymes) — never reimplements
 //     classification; one engine, three consumers (app, tests, SEO).
-//   * static HTML output committed to rhyme-finder/rhymes/{word}/index.html,
-//     served on rhyme.land via the /rhymes/:path* rewrite in vercel.json.
+//   * each page is the app's own index.html with the word's results
+//     PRE-RENDERED into #source-summary/#results (same DOM classes the
+//     app renders, same styles.css) — so the landing page looks exactly
+//     like the product. The app's main.js (loaded by the template)
+//     recognizes /rhymes/{word}/ paths and re-renders in place, turning
+//     the static snapshot into the fully interactive app.
+//   * crawlers get complete static HTML; humans get the live product.
 //   * incremental: a page is rewritten only when its content changes;
 //     lastmod (kept in rhyme-finder/rhymes/manifest.json) stays honest.
 //
@@ -13,8 +18,9 @@
 //   node scripts/buildSeoPages.mjs --full    # full derived batch (slow)
 //   node scripts/buildSeoPages.mjs --prune   # also delete orphaned pages
 //
-// Rerun after corpus expansion (quotes/cliché/frequency change) or any
-// classifier/override change — same trigger as buildLyricBuckets.mjs.
+// Rerun after corpus expansion, any classifier/override change, OR any
+// index.html / main.js render-markup change (the static markup below
+// mirrors main.js renderTier/renderWord — keep them in sync).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -27,8 +33,7 @@ const MANIFEST_PATH = path.join(OUT_DIR, "manifest.json");
 const SITEMAP_DIR = path.join(ROOT, "rhyme-finder");
 
 // Shim fetch → local filesystem BEFORE importing the engine modules
-// (same pattern as test/rhymeClassifier.test.js). Lets the browser
-// modules load cmu-dict.json / wordnet-categories.json / etc. from disk.
+// (same pattern as test/rhymeClassifier.test.js).
 globalThis.fetch = async (url) => {
   const p = fileURLToPath(url);
   let buf;
@@ -74,7 +79,8 @@ const EXCLUDED_FUNCTION = new Set([
 ]);
 
 // Profanity-adjacent exclusions — we don't want these as indexed
-// landing pages even though the app itself will happily rhyme them.
+// landing pages (nor in their word lists) even though the app itself
+// will happily rhyme them.
 const EXCLUDED_PROFANITY = new Set([
   "fuck", "fucked", "fucking", "shit", "bitch", "bitches", "cunt",
   "dick", "cock", "pussy", "whore", "slut", "nigger", "nigga", "niggas",
@@ -111,6 +117,7 @@ const LYRIC_FREQ = readJson(path.join(ROOT, "wordlists", "lyric-frequency.json")
 const LIB_INDEX = readJson(path.join(ROOT, "wordlists", "lyric-library", "index.json"));
 const CLICHE_PAIRS = readJson(path.join(ROOT, "wordlists", "cliche-pairs.json"));
 const RHYMED_DIR = path.join(ROOT, "wordlists", "lyric-library", "rhymed");
+const TEMPLATE = fs.readFileSync(path.join(ROOT, "rhyme-finder", "index.html"), "utf8");
 
 const COMMON_RANK = new Map();
 fs.readFileSync(path.join(ROOT, "rhyme-finder", "wordlists", "common-10k.txt"), "utf8")
@@ -129,7 +136,7 @@ const isCliche = (a, b) => CLICHE_INDEX.get(a)?.has(b) ?? false;
 
 // Corpus-attested = the word appears at line-end in the lyric library
 // (same signal as the app's hasQuotes badge gate).
-const isAttested = (w) => Object.hasOwn(LIB_INDEX.words ?? {}, w);
+const wordCounts = (w) => LIB_INDEX.words?.[w] ?? null; // [appearances, rhymed, notRhymed, rhymeWords]
 
 // ── Quote lookup (tier-1 rhymed buckets, read from disk) ────────────
 
@@ -147,6 +154,13 @@ function rhymedBucket(key) {
   return data;
 }
 
+// The source word's tier-1 pair map: { partnerWord: { q, n } } — the
+// same data the app's corpus tab and pair-count badges read.
+function pairMapFor(word) {
+  const key = rhymeKeyOf(PRONUNCIATION_MAP.get(word));
+  return rhymedBucket(key)?.[word] ?? null;
+}
+
 // Lyric lines containing these don't get quoted on an indexed page —
 // same SafeSearch concern as the word gate above.
 const PROFANE_LINE_RE =
@@ -157,9 +171,7 @@ const isCleanQuote = (q) =>
 // Up to `max` quotes for a source word, one per rhyme partner, partners
 // with the most corpus evidence first. Each item: { quote, partner }.
 function quotesFor(word, max = 3) {
-  const key = rhymeKeyOf(PRONUNCIATION_MAP.get(word));
-  const bucket = rhymedBucket(key);
-  const entry = bucket?.[word];
+  const entry = pairMapFor(word);
   if (!entry) return [];
   const partners = Object.entries(entry)
     .filter(([, v]) => Array.isArray(v?.q) && v.q.length > 0)
@@ -193,53 +205,66 @@ function countRhymes(buckets) {
   return RHYME_TIERS.reduce((n, t) => n + (buckets[t]?.length ?? 0), 0);
 }
 
-// ── Page rendering ───────────────────────────────────────────────────
+// ── Static results markup ────────────────────────────────────────────
+// ⚠️ Mirrors the app's renderTier / renderSubgroup / renderWord DOM in
+// rhyme-finder/src/main.js — if those change classes/structure, change
+// this too and rerun. The hydrated app replaces all of it at runtime,
+// so drift shows up only pre-hydration / for crawlers.
 
 const SITE = "https://rhyme.land";
-const TOP_N = 20; // words shown per rhyme tier
-const IDENTITY_N = 8; // identity is an anti-example, keep it short
+const STATIC_CAP = 36; // default-tier words pre-rendered per rhyme tier
+const IDENTITY_CAP = 8; // identity is an anti-example, keep it short
 const RELATED_N = 12;
 
+// label/subtitle/stability match the app's TIER_META (main.js).
+// explainer is SEO-page-only copy (the app puts this in popovers).
 const TIER_COPY = {
   perfect: {
-    label: "Perfect rhymes",
-    subtitle: "full resolution · stability 5",
+    label: "Perfect rhyme",
+    subtitle: "full resolution",
+    stability: 5,
     explainer:
-      "Same stressed vowel, same sounds after it, different beginning. This is full resolution — the strongest closure a rhyme can give a line.",
+      "Same stressed vowel, same sounds after it, different beginning. Full resolution — the strongest closure a rhyme can give a line.",
   },
   family: {
-    label: "Family rhymes",
-    subtitle: "close resolution · stability 4",
+    label: "Family rhyme",
+    subtitle: "close resolution",
+    stability: 4,
     explainer:
       "The consonants after the vowel are swapped for phonetic siblings — T↔D, M↔N, S↔Z. Nearly as stable as perfect rhyme, with far more word choices.",
   },
   additive: {
-    label: "Additive rhymes",
-    subtitle: "trailing resolution · stability 3",
+    label: "Additive",
+    subtitle: "trailing resolution",
+    stability: 3,
     explainer:
       "Same vowel, but one word carries an extra consonant after the shared ending. The added sound softens the landing slightly.",
   },
   subtractive: {
-    label: "Subtractive rhymes",
-    subtitle: "clipped resolution · stability 3",
+    label: "Subtractive",
+    subtitle: "clipped resolution",
+    stability: 3,
     explainer:
       "Same vowel, but one word stops a consonant early. A slightly clipped, softer resolution than perfect rhyme.",
   },
   assonance: {
     label: "Assonance",
-    subtitle: "loose resolution · stability 2",
+    subtitle: "loose resolution",
+    stability: 2,
     explainer:
       "Only the stressed vowel matches; the consonants after it are unrelated. Loose and open — useful when a section should stay unresolved.",
   },
   consonance: {
     label: "Consonance",
-    subtitle: "faint resolution · stability 1",
+    subtitle: "faint resolution",
+    stability: 1,
     explainer:
       "The vowels differ but the ending consonants match. The faintest echo of all — texture rather than closure.",
   },
   identity: {
-    label: "Identity — sounds like a rhyme, isn't one",
-    subtitle: "echo, not rhyme · stability 0",
+    label: "Identity",
+    subtitle: "echo, not rhyme",
+    stability: 0,
     explainer:
       "The whole stressed syllable repeats, beginning included. That's repetition, not rhyme — the line echoes instead of resolving.",
   },
@@ -252,8 +277,70 @@ const esc = (s) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 
-// Bold the rhyme word inside a lyric line (last whole-word occurrence,
-// case-insensitive). Falls back to the untouched line when not found.
+// main.js recommendationTier()
+const scoreTier = (c) =>
+  (c.score ?? 0) >= 5000 ? "very-common" : (c.score ?? 0) >= 1000 ? "common" : "uncommon";
+
+function staticWord(c, source, pairMap) {
+  const classes = ["rf-word", `rf-c-${scoreTier(c)}`];
+  const cliche = isCliche(source.word, c.word);
+  if (cliche) classes.push("rf-cliche");
+  if (c.masculine !== source.masculine) classes.push("rf-mismatch");
+
+  // Badge logic mirrors decorateWithLyrics(): filled dot + pair count
+  // when the pair is corpus-attested; hollow dot + own rhymed count
+  // when the word merely lives in the corpus.
+  const pairN = pairMap?.[c.word]?.n ?? 0;
+  const counts = wordCounts(c.word);
+  let badge = "";
+  if (pairN > 0) {
+    classes.push("rf-has-lyrics");
+    badge = `<span class="rf-lyric-badge"><span class="rf-lyric-badge-count">${pairN}</span></span>`;
+  } else if (counts) {
+    classes.push("rf-has-lyrics");
+    badge = `<span class="rf-lyric-badge rf-lyric-badge--corpus"><span class="rf-lyric-badge-count">${counts[1] || counts[0] || ""}</span></span>`;
+  }
+  const flag = cliche ? `<span class="rf-word-flag">cliché</span>` : "";
+  return `<span class="${classes.join(" ")}" data-lex="${esc(c.lex ?? "common")}">${esc(c.word)}${flag}${badge}</span>`;
+}
+
+function staticTier(type, candidates, source, pairMap) {
+  if (!candidates || candidates.length === 0) return "";
+  const meta = TIER_COPY[type];
+  const cap = type === "identity" ? IDENTITY_CAP : STATIC_CAP;
+  const shown = candidates.filter((c) => c.tier !== "lower").slice(0, cap);
+  if (shown.length === 0) return "";
+
+  const bySyll = new Map();
+  for (const c of shown) {
+    const s = Math.max(1, c.syllables ?? 1);
+    if (!bySyll.has(s)) bySyll.set(s, []);
+    bySyll.get(s).push(c);
+  }
+  const groups = [...bySyll.keys()]
+    .sort((a, b) => a - b)
+    .map((s) => {
+      const label = s === 1 ? "1 syllable" : `${s} syllables`;
+      const words = bySyll.get(s).map((c) => staticWord(c, source, pairMap)).join("");
+      return `<div class="rf-subgroup"><div class="rf-subgroup-label">${label}</div><div class="rf-words">${words}</div></div>`;
+    })
+    .join("");
+
+  return `<article class="rf-tier" data-tier="${type}" data-stability="${meta.stability}">
+<header class="rf-tier-head" data-stability="${meta.stability}">
+<button class="rf-tier-titlebox" type="button" aria-label="What is ${esc(meta.label)}?">
+<span class="rf-tier-title-row"><span class="rf-tier-title">${esc(meta.label)}</span><span class="rf-tier-info" aria-hidden="true">?</span></span>
+<span class="rf-tier-subtitle">${esc(meta.subtitle)}</span>
+</button>
+<span class="rf-tier-count" data-total="${candidates.length}">${candidates.length}</span>
+</header>
+<div class="rf-tier-body">${groups}</div>
+</article>`;
+}
+
+// ── SEO extras (below the results — the crawlable differentiators the
+// app keeps behind popovers/tabs: quotes, tier explainers, page links) ──
+
 function highlightWord(line, word) {
   const re = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}\\b`, "giu");
   const matches = [...line.matchAll(re)];
@@ -266,64 +353,65 @@ function highlightWord(line, word) {
   );
 }
 
-function wordItem(cand, sourceWord, linkable) {
-  const w = cand.word;
-  const inner = isAttested(w) ? `<strong>${esc(w)}</strong>` : esc(w);
-  const linked = linkable.has(w)
-    ? `<a href="${SITE}/rhymes/${encodeURIComponent(w)}/">${inner}</a>`
-    : inner;
-  const flag = isCliche(sourceWord, w) ? `<sup class="cliche">cliché</sup>` : "";
-  return `<li>${linked}${flag}</li>`;
+function extrasHtml({ word, buckets, quotes, related, total }) {
+  const figures = quotes
+    .map(({ quote }) => {
+      const surface = quote.surface || word;
+      const qIdx = quote.stanzaLineIdx ?? 0;
+      const pIdx = quote.partner.stanzaLineIdx ?? qIdx + 1;
+      const lines =
+        pIdx < qIdx
+          ? [
+              [quote.partner.line, quote.partner.word],
+              [quote.line, surface],
+            ]
+          : [
+              [quote.line, surface],
+              [quote.partner.line, quote.partner.word],
+            ];
+      return `<figure>
+<blockquote>${lines.map(([l, w]) => `<span class="ql">${highlightWord(l, w)}</span>`).join("")}</blockquote>
+<figcaption>— ${esc(quote.credit)}, “${esc(quote.songTitle)}” · rhymes ${esc(surface)} / ${esc(quote.partner.word)}</figcaption>
+</figure>`;
+    })
+    .join("\n");
+
+  const tierDefs = TYPE_ORDER.filter((t) => (buckets[t]?.length ?? 0) > 0)
+    .map(
+      (t) =>
+        `<div class="sp-def"><dt>${esc(TIER_COPY[t].label)} <span class="sp-def-n">${buckets[t].length}</span></dt><dd>${esc(TIER_COPY[t].explainer)}</dd></div>`,
+    )
+    .join("");
+
+  const relatedLinks = related
+    .map((w) => `<li><a href="${SITE}/rhymes/${encodeURIComponent(w)}/">Words that rhyme with ${esc(w)}</a></li>`)
+    .join("");
+
+  return `<section class="sp-extra">
+${quotes.length > 0 ? `<div class="sp-block sp-quotes">
+<h2>“${esc(word)}” at line end — from real songs</h2>
+${figures}
+</div>` : ""}
+<div class="sp-block">
+<h2>How to read the ${total} results</h2>
+<p class="sp-note">Tiers follow Pat Pattison's stability scale — pick the resolution your line needs, not just the closest sound. <strong>Bold</strong> words are common in lyrics; a struck-through <span class="sp-strike">word</span> with a <span class="sp-flag">cliché</span> flag is an overworked pair; a vermilion dot counts how often the pair appears at line end in our corpus of real songs.</p>
+<dl class="sp-defs">${tierDefs}</dl>
+</div>
+${related.length > 0 ? `<nav class="sp-block sp-related" aria-label="More rhyme pages">
+<h2>More rhyme pages</h2>
+<ul>${relatedLinks}</ul>
+</nav>` : ""}
+</section>
+`;
 }
 
-function renderTier(type, candidates, sourceWord, linkable) {
-  if (!candidates || candidates.length === 0) return "";
-  const cap = type === "identity" ? IDENTITY_N : TOP_N;
-  const shown = candidates.slice(0, cap);
-  const meta = TIER_COPY[type];
-  const more = candidates.length > shown.length
-    ? `<p class="sp-more"><a href="${SITE}/?q=${encodeURIComponent(sourceWord)}">+ ${candidates.length - shown.length} more ${esc(meta.label.toLowerCase())} in the interactive finder →</a></p>`
-    : "";
-  return `
-  <section class="sp-tier" data-t="${type}">
-    <h2>${esc(meta.label)}<span class="sp-sub">${esc(meta.subtitle)}</span></h2>
-    <p class="sp-exp">${esc(meta.explainer)}</p>
-    <ul class="sp-words">
-      ${shown.map((c) => wordItem(c, sourceWord, linkable)).join("\n      ")}
-    </ul>${more}
-  </section>`;
-}
+// ── Page assembly: transform the app's index.html ────────────────────
 
-function renderQuotes(word, quotes) {
-  if (quotes.length === 0) return "";
-  const figures = quotes.map(({ partner, quote }) => {
-    const surface = quote.surface || word;
-    // Show the two rhyming lines in song order when we know it.
-    const qIdx = quote.stanzaLineIdx ?? 0;
-    const pIdx = quote.partner.stanzaLineIdx ?? qIdx + 1;
-    const lines =
-      pIdx < qIdx
-        ? [
-            [quote.partner.line, quote.partner.word],
-            [quote.line, surface],
-          ]
-        : [
-            [quote.line, surface],
-            [quote.partner.line, quote.partner.word],
-          ];
-    return `
-    <figure>
-      <blockquote>
-        ${lines.map(([l, w]) => `<span class="ql">${highlightWord(l, w)}</span>`).join("\n        ")}
-      </blockquote>
-      <figcaption>— ${esc(quote.credit)}, “${esc(quote.songTitle)}”${partner ? ` · rhymes ${esc(surface)} / ${esc(quote.partner.word)}` : ""}</figcaption>
-    </figure>`;
-  });
-  return `
-  <section class="sp-quotes">
-    <h2>“${esc(word)}” at line end — from real songs</h2>
-    ${figures.join("\n")}
-  </section>`;
+function mustReplace(html, anchor, replacement) {
+  if (!html.includes(anchor)) {
+    throw new Error(`index.html template anchor missing: ${anchor.slice(0, 70)}…`);
+  }
+  return html.replace(anchor, replacement);
 }
 
 function renderPage({ word, source, buckets, quotes, linkable }) {
@@ -344,15 +432,12 @@ function renderPage({ word, source, buckets, quotes, linkable }) {
     `${perfectCount} perfect rhymes${exampleText}, plus family rhymes, assonance and consonance. ` +
     `With cliché warnings and real lyric examples from songs.`;
 
-  const codaText = source.coda.length > 0 ? source.coda.join("·") : "—";
-  const stressLabel = source.masculine ? "masculine" : "feminine";
-
-  // Related pages: perfect-bucket neighbors first (same rhyme sound),
-  // then strongest cross-tier candidates that have pages of their own.
+  // Related pages: strongest candidates (stability order) that have
+  // pages of their own.
   const related = [];
   for (const t of TYPE_ORDER) {
+    if (t === "identity") continue;
     for (const c of buckets[t] ?? []) {
-      if (t === "identity") continue;
       if (related.includes(c.word)) continue;
       if (!linkable.has(c.word)) continue;
       related.push(c.word);
@@ -361,7 +446,43 @@ function renderPage({ word, source, buckets, quotes, linkable }) {
     if (related.length >= RELATED_N) break;
   }
 
-  const jsonLd = {
+  const pairMap = pairMapFor(word);
+
+  // Source summary — mirrors main.js renderSource(), with the word
+  // promoted to the page's h1 (the wordmark h1 is demoted below).
+  const codaText = source.coda.length > 0 ? source.coda.join("·") : "—";
+  const stressLabel = source.masculine ? "masculine" : "feminine";
+  // Inline kicker keeps the h1 on one line box, so the flex row's
+  // baseline alignment against the tags stays identical to the app.
+  const sourceSummary =
+    `<h1 class="rf-source-word"><span class="sp-kicker">Words that rhyme with</span>${esc(word)}</h1>` +
+    `<span class="rf-source-tag rf-source-tag-stress" tabindex="0">${stressLabel}</span>` +
+    `<span class="rf-source-tag">vowel <span class="rf-tag-val">${esc(source.stressedVowel)}</span></span>` +
+    `<span class="rf-source-tag">coda <span class="rf-tag-val">${esc(codaText)}</span></span>`;
+
+  // Tab counts — mirror main.js updateTabCounts().
+  let tierCount = 0;
+  let wordCount = 0;
+  for (const t of TYPE_ORDER) {
+    const n = buckets[t]?.length ?? 0;
+    if (n > 0) {
+      tierCount += 1;
+      wordCount += n;
+    }
+  }
+  const c = wordCounts(word);
+  const partnerCount = c?.[3] ?? 0;
+  const songCount = c?.[1] ?? 0;
+  const dictCounts = `<b>${tierCount}</b> tier${tierCount === 1 ? "" : "s"} · <b>${wordCount}</b> word${wordCount === 1 ? "" : "s"}`;
+  const corpusCounts = partnerCount
+    ? `<b>${partnerCount}</b> partner${partnerCount === 1 ? "" : "s"} · <b>${songCount}</b> song${songCount === 1 ? "" : "s"}`
+    : `no paired uses yet`;
+
+  const resultsHtml = TYPE_ORDER.map((t) =>
+    staticTier(t, buckets[t], source, pairMap),
+  ).join("\n");
+
+  const breadcrumbLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
@@ -382,60 +503,104 @@ function renderPage({ word, source, buckets, quotes, linkable }) {
     ],
   };
 
-  const tierSections = TYPE_ORDER.map((t) =>
-    renderTier(t, buckets[t], word, linkable),
-  ).join("\n");
+  let html = TEMPLATE;
 
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${esc(title)}</title>
-  <meta name="description" content="${esc(description)}" />
-  <link rel="canonical" href="${canonical}" />
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Rhyme Finder" />
-  <meta property="og:url" content="${canonical}" />
-  <meta property="og:title" content="${esc(title)}" />
-  <meta property="og:description" content="${esc(description)}" />
-  <meta property="og:image" content="${SITE}/rhyme-finder/og-image.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <link rel="icon" type="image/svg+xml" href="/rhyme-finder/favicon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/rhyme-finder/rhymes/seo.css" />
-  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
-</head>
-<body>
-<main class="sp">
-  <nav class="sp-crumb"><a href="${SITE}/">Rhyme Finder</a> › rhymes › ${esc(word)}</nav>
-  <header>
-    <h1>Words that rhyme with <em>${esc(word)}</em></h1>
-    <p class="sp-pron"><span class="tag">${stressLabel}</span> <span class="tag">vowel <b>${esc(source.stressedVowel)}</b></span> <span class="tag">coda <b>${esc(codaText)}</b></span></p>
-    <p class="sp-lede">${total} rhymes for “${esc(word)}”, organized the way Pat Pattison teaches it — from perfect rhyme down to consonance. <strong>Bold</strong> words appear at line end in real songs; overworked pairs carry a <sup class="cliche">cliché</sup> flag. <a href="${SITE}/?q=${encodeURIComponent(word)}">Open “${esc(word)}” in the interactive finder →</a></p>
-  </header>
-${tierSections}
-${renderQuotes(word, quotes)}
-  <section class="sp-cta">
-    <a class="sp-btn" href="${SITE}/?q=${encodeURIComponent(word)}">See all ${total} rhymes for “${esc(word)}”</a>
-    <p>The interactive finder adds the full stability spectrum, syllable filters, and line-end quotes from the lyric corpus. Free, no signup.</p>
-  </section>
-${related.length > 0 ? `  <nav class="sp-related">
-    <h2>More rhyme pages</h2>
-    <ul>
-      ${related.map((w) => `<li><a href="${SITE}/rhymes/${encodeURIComponent(w)}/">Words that rhyme with ${esc(w)}</a></li>`).join("\n      ")}
-    </ul>
-  </nav>` : ""}
-  <footer class="sp-foot">
-    <a href="${SITE}/">Rhyme Finder</a> — a rhyming dictionary for songwriters, organized by Pat Pattison's stability tiers, with cliché flags and line-end examples from real songs.
-  </footer>
-</main>
-<script defer src="/_vercel/insights/script.js"></script>
-</body>
-</html>
-`;
+  // Head: title / description / canonical / OG / twitter.
+  html = mustReplace(
+    html,
+    "<title>Rhyme Finder — a rhyming dictionary for songwriters</title>",
+    `<title>${esc(title)}</title>`,
+  );
+  html = mustReplace(
+    html,
+    `<meta name="description" content="A rhyming dictionary for songwriters — organized by Pat Pattison's stability tiers, with cliché flags and line-end examples from real songs." />`,
+    `<meta name="description" content="${esc(description)}" />`,
+  );
+  html = mustReplace(
+    html,
+    `<link rel="canonical" href="https://rhyme.land/" />`,
+    `<link rel="canonical" href="${canonical}" />`,
+  );
+  html = mustReplace(
+    html,
+    `<meta property="og:url" content="https://rhyme.land/" />`,
+    `<meta property="og:url" content="${canonical}" />`,
+  );
+  html = mustReplace(
+    html,
+    `<meta property="og:title" content="Rhyme Finder — a rhyming dictionary for songwriters" />`,
+    `<meta property="og:title" content="${esc(title)}" />`,
+  );
+  html = mustReplace(
+    html,
+    `<meta property="og:description" content="Organized by Pat Pattison's stability tiers, with cliché flags and line-end examples from real songs." />`,
+    `<meta property="og:description" content="${esc(description)}" />`,
+  );
+  html = mustReplace(
+    html,
+    `<meta name="twitter:title" content="Rhyme Finder — a rhyming dictionary for songwriters" />`,
+    `<meta name="twitter:title" content="${esc(title)}" />`,
+  );
+  html = mustReplace(
+    html,
+    `<meta name="twitter:description" content="Organized by Pat Pattison's stability tiers, with cliché flags and line-end examples from real songs." />`,
+    `<meta name="twitter:description" content="${esc(description)}" />`,
+  );
+  // Extras stylesheet + per-page JSON-LD, appended to the head.
+  html = mustReplace(
+    html,
+    `<link rel="stylesheet" href="/rhyme-finder/styles.css" />`,
+    `<link rel="stylesheet" href="/rhyme-finder/styles.css" />\n    <link rel="stylesheet" href="/rhyme-finder/rhymes/seo.css" />`,
+  );
+  html = mustReplace(
+    html,
+    "</head>",
+    `  <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>\n  </head>`,
+  );
+
+  // Body: demote the wordmark h1 (the page h1 is the source word),
+  // prefill the search box, inject source summary / tab counts / results.
+  html = mustReplace(html, `<h1 class="rf-title">`, `<div class="rf-title">`);
+  html = mustReplace(html, `</h1>`, `</div>`); // the wordmark h1's only close tag
+  html = mustReplace(
+    html,
+    `placeholder="give me an english word"`,
+    `placeholder="give me an english word"\n                value="${esc(word)}"`,
+  );
+  html = mustReplace(
+    html,
+    `<div id="source-summary" class="rf-source-summary"></div>`,
+    `<div id="source-summary" class="rf-source-summary">${sourceSummary}</div>`,
+  );
+  html = mustReplace(
+    html,
+    `<div id="cd-tabs" class="cd-tabs" role="tablist" hidden>`,
+    `<div id="cd-tabs" class="cd-tabs" role="tablist">`,
+  );
+  html = mustReplace(
+    html,
+    `<span class="cd-tab-counts" data-counts="dict"></span>`,
+    `<span class="cd-tab-counts" data-counts="dict">${dictCounts}</span>`,
+  );
+  html = mustReplace(
+    html,
+    `<span class="cd-tab-counts" data-counts="corpus"></span>`,
+    `<span class="cd-tab-counts" data-counts="corpus">${corpusCounts}</span>`,
+  );
+  html = mustReplace(
+    html,
+    `<div id="results" class="rf-results"></div>`,
+    `<div id="results" class="rf-results">${resultsHtml}</div>`,
+  );
+  // SEO extras go right before the epigraphs footer (which the app's
+  // CSS hides whenever results are present).
+  html = mustReplace(
+    html,
+    `<footer class="rf-epigraphs"`,
+    `${extrasHtml({ word, buckets, quotes, related, total })}<footer class="rf-epigraphs"`,
+  );
+
+  return html;
 }
 
 // ── Sitemaps ─────────────────────────────────────────────────────────
