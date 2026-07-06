@@ -4,20 +4,20 @@ import {
   analyzeIdeaCoverage,
   explainSlotPlanning,
   getLyricShapeCoverageSnapshot,
-  lineMatchesSegmentationPlan,
-  parseStressPattern,
+  matchesSegmentationPlan,
+  parsePatternDetailed,
   clicheChecker,
   generateLyrics,
-  parseStressTokens,
+  parsePattern,
   realizeSegmentationPlan,
   rhymeMaster,
-  validateLineStress,
+  validateLine,
 } from "../src/lyricEngine.js";
 import { scansionCases } from "./fixtures/scansionCases.js";
 
 test("parsePattern accepts spaced and compact notation", () => {
-  assert.deepEqual(parseStressTokens("DUM DUM da DUM"), ["DUM", "DUM", "da", "DUM"]);
-  assert.deepEqual(parseStressTokens("Dum dum Dum da Dum dum Dum"), [
+  assert.deepEqual(parsePattern("DUM DUM da DUM"), ["DUM", "DUM", "da", "DUM"]);
+  assert.deepEqual(parsePattern("Dum dum Dum da Dum dum Dum"), [
     "DUM",
     "dum",
     "DUM",
@@ -26,11 +26,11 @@ test("parsePattern accepts spaced and compact notation", () => {
     "dum",
     "DUM",
   ]);
-  assert.deepEqual(parseStressTokens("Dumdum Dumda da daDum"), ["DUM", "dum", "DUM", "da", "da", "da", "DUM"]);
+  assert.deepEqual(parsePattern("Dumdum Dumda da daDum"), ["DUM", "dum", "DUM", "da", "da", "da", "DUM"]);
 });
 
-test("parseStressPattern preserves compact groups", () => {
-  const parsed = parseStressPattern("Dumdum Dum da daDum");
+test("parsePatternDetailed preserves compact groups", () => {
+  const parsed = parsePatternDetailed("Dumdum Dum da daDum");
   assert.deepEqual(
     parsed.groups.map((group) => ({ text: group.text, compact: group.compact, tokens: group.tokens })),
     [
@@ -43,56 +43,56 @@ test("parseStressPattern preserves compact groups", () => {
 });
 
 test("parsePattern rejects unknown tokens", () => {
-  assert.throws(() => parseStressTokens("DUM bop da"), /only DUM, dum, and da/);
+  assert.throws(() => parsePattern("DUM bop da"), /only DUM, dum, and da/);
 });
 
 test("validateLine confirms exact stress matches", () => {
-  const result = validateLineStress("stars burn in moon", "DUM DUM da DUM");
+  const result = validateLine("stars burn in moon", "DUM DUM da DUM");
   assert.equal(result.isValid, true);
 });
 
 test("validateLine rejects mismatched stress", () => {
-  const result = validateLineStress("moonlight in june", "DUM DUM da DUM");
+  const result = validateLine("moonlight in june", "DUM DUM da DUM");
   assert.equal(result.isValid, false);
 });
 
 test("validateLine allows lyric-placement overrides for prepositions", () => {
-  const result = validateLineStress("into", "dumda");
+  const result = validateLine("into", "dumda");
   assert.equal(result.isValid, true);
   assert.match(result.reason, /Acceptable lyric placement|Exact stress match/);
 });
 
 test("validateLine allows compact fallback from DUMdum to DUMda", () => {
-  const result = validateLineStress("summer", "DUMdum");
+  const result = validateLine("summer", "DUMdum");
   assert.equal(result.isValid, true);
   assert.match(result.reason, /Acceptable compact fallback match/);
 });
 
 test("validateLine accepts common CMU-backed words without a curated whitelist", () => {
-  assert.equal(validateLineStress("glass bell in pulse", "DUM DUM da DUM").isValid, true);
-  assert.equal(validateLineStress("orb light in bloom", "DUM DUM da DUM").isValid, true);
-  assert.equal(validateLineStress("moon arc of nerves", "DUM DUM da DUM").isValid, true);
+  assert.equal(validateLine("glass bell in pulse", "DUM DUM da DUM").isValid, true);
+  assert.equal(validateLine("orb light in bloom", "DUM DUM da DUM").isValid, true);
+  assert.equal(validateLine("moon arc of nerves", "DUM DUM da DUM").isValid, true);
 });
 
 test("compact fallback generalizes beyond DUMdum", () => {
-  const result = validateLineStress("ordinary", "DUMdadumda");
+  const result = validateLine("ordinary", "DUMdadumda");
   assert.equal(result.isValid, true);
   assert.match(result.reason, /Exact stress match|Acceptable compact fallback match/);
 });
 
 test("compact dumda can accept a natural DUMda content word", () => {
-  const result = validateLineStress("dreaming", "dumda");
+  const result = validateLine("dreaming", "dumda");
   assert.equal(result.isValid, true);
   assert.match(result.reason, /Acceptable compact fallback match|Acceptable lyric placement match|Exact stress match/);
 });
 
 test("validateLine allows a loose DUM da group to be satisfied by one word", () => {
-  const result = validateLineStress("the walls are fading into the veil", "da DUM da DUM da dumda da DUM");
+  const result = validateLine("the walls are fading into the veil", "da DUM da DUM da dumda da DUM");
   assert.equal(result.isValid, true);
 });
 
 test("validateLine allows auxiliaries to sit in weak slots", () => {
-  const result = validateLineStress("the veil is fading into the night", "da DUM da DUM da dumda da DUM");
+  const result = validateLine("the veil is fading into the night", "da DUM da DUM da dumda da DUM");
   assert.equal(result.isValid, true);
 });
 
@@ -122,7 +122,7 @@ test("generateLyrics returns exact-match candidates with requested rhyme", () =>
   }
 });
 
-test("lineMatchesSegmentationPlan checks word-to-segment alignment", () => {
+test("matchesSegmentationPlan checks word-to-segment alignment", () => {
   const planSlots = [
     { tokens: ["da"], compact: false },
     { tokens: ["DUM"], compact: false },
@@ -133,8 +133,8 @@ test("lineMatchesSegmentationPlan checks word-to-segment alignment", () => {
     { tokens: ["DUM"], compact: false },
   ];
 
-  assert.equal(lineMatchesSegmentationPlan("the dream is slipping into the night", planSlots), true);
-  assert.equal(lineMatchesSegmentationPlan("the dream is softly slipping into the night", planSlots), false);
+  assert.equal(matchesSegmentationPlan("the dream is slipping into the night", planSlots), true);
+  assert.equal(matchesSegmentationPlan("the dream is softly slipping into the night", planSlots), false);
 });
 
 test("realizeSegmentationPlan can assemble from per-segment candidates", () => {

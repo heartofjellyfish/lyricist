@@ -92,7 +92,7 @@ test("requestOpenAIPlanDrafts uses model-appropriate verbosity", async () => {
 });
 
 test("index.html includes default hint dropdown values", () => {
-  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const html = fs.readFileSync(new URL("../stress-workshop/index.html", import.meta.url), "utf8");
   assert.match(html, /<select id="orientation-input"[\s\S]*?<option value="descriptive" selected>/u);
   assert.match(html, /<select id="stability-input"[\s\S]*?<option value="unstable" selected>/u);
   assert.match(html, /<select id="distance-input"[\s\S]*?<option value="close" selected>/u);

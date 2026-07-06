@@ -16,23 +16,30 @@ export function normalizeText(text) {
     .filter(Boolean);
 }
 
-async function loadCmuDictionary() {
-  const url = new URL("../wordlists/cmu-dict.json", import.meta.url);
+async function loadJson(url) {
+  if (url.protocol === "file:") {
+    // node --test loads this module straight from disk; Node's fetch
+    // rejects file: URLs, so read the file directly. The dynamic import
+    // never runs in the browser (url.protocol is http/https there).
+    const { readFile } = await import("node:fs/promises");
+    return JSON.parse(await readFile(url, "utf8"));
+  }
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to load CMU dict (${response.status}) — expected at ${url}`);
+    throw new Error(`Failed to load ${url} (${response.status})`);
   }
   return response.json();
 }
 
+async function loadCmuDictionary() {
+  return loadJson(new URL("../wordlists/cmu-dict.json", import.meta.url));
+}
+
 async function loadOverrides() {
   // Hand-curated patches over CMU 0.7b mis-transcriptions (e.g. typology).
-  // Verified against Wiktionary US IPA. Optional file — silently skip on 404.
-  const url = new URL("../wordlists/cmu-overrides.json", import.meta.url);
+  // Verified against Wiktionary US IPA. Optional file — silently skip if missing.
   try {
-    const response = await fetch(url);
-    if (!response.ok) return {};
-    const obj = await response.json();
+    const obj = await loadJson(new URL("../wordlists/cmu-overrides.json", import.meta.url));
     const cleaned = {};
     for (const word in obj) {
       if (word.startsWith("_")) continue;
