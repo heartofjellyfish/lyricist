@@ -295,7 +295,7 @@ function extrasHtml({ word, buckets, quotes, related, total }) {
     .join("");
 
   const relatedLinks = related
-    .map((w) => `<li><a href="${SITE}/rhymes/${encodeURIComponent(w)}/">Words that rhyme with ${esc(w)}</a></li>`)
+    .map((w) => `<li><a href="${SITE}/rhymes/${encodeURIComponent(w)}">Words that rhyme with ${esc(w)}</a></li>`)
     .join("");
 
   return `<section class="sp-extra">
@@ -567,7 +567,7 @@ function writeSitemaps(manifest) {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(
       ([w, m]) => `  <url>
-    <loc>${SITE}/rhymes/${encodeURIComponent(w)}/</loc>
+    <loc>${SITE}/rhymes/${encodeURIComponent(w)}</loc>
     <lastmod>${m.lastmod}</lastmod>
   </url>`,
     )
@@ -686,7 +686,7 @@ try {
   for (const [word, data] of selected) {
     const captured = await captureWord(page, word);
 
-    const canonical = `${SITE}/rhymes/${encodeURIComponent(word)}/`;
+    const canonical = `${SITE}/rhymes/${encodeURIComponent(word)}`;
     const total = countRhymes(data.buckets);
     const perfectCount = data.buckets.perfect?.length ?? 0;
     const examples = (data.buckets.perfect ?? [])

@@ -4,6 +4,7 @@
   "buildCommand": null,
   "outputDirectory": null,
   "framework": null,
+  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/",
