@@ -1137,10 +1137,6 @@ input[type="text"]::placeholder {
 .rf-source-summary:empty { display: none; }
 
 .rf-source-word {
-  /* Rendered as an <h1> since the SEO-pages work (the source word IS
-     the page heading on /rhymes/{word}/) — zero the UA heading margins
-     so the flex row lays out exactly as the old <span> did. */
-  margin: 0;
   font-family: var(--display);
   font-style: italic;
   font-weight: 600;
@@ -1160,10 +1156,11 @@ input[type="text"]::placeholder {
 }
 
 .rf-source-tag::before { content: "·  "; color: var(--vermilion); opacity: 0.7; }
-/* NOTE: no :first-of-type styling here. Two such rules used to sit dead
-   (the source word was the first <span>, so they never matched); when
-   the word became an <h1> for the SEO pages they suddenly fired and
-   restyled the stress tag. Removed to keep the shipped look. */
+/* NOTE: no :first-of-type styling here. Two such rules sat dead for the
+   app (the source word is the first <span>, so they never matched), but
+   the static SEO snapshots (/rhymes/{word}/) promote the source word to
+   an <h1> — which made the rules fire there and restyle the stress tag.
+   Removed as dead code; the shipped look is unchanged. */
 /* Stress tag carries an info popover that appears on hover (desktop)
    or tap-to-focus (touch — tabindex="0" makes it focusable, and
    :focus-within shows the popover; tapping elsewhere blurs it). */

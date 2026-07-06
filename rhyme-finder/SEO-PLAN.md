@@ -5,38 +5,44 @@ Last updated: 2026-07-06 (pilot batch implemented — 100 pages in
 Remaining: push, attach Search Console, verify indexing for a week,
 then `--full`.)
 
-## v2 revision (2026-07-06): the page IS the app
+## v3 architecture (2026-07-06): render, don't reimplement
 
-The v1 pages were standalone documents with a dedicated slim
-stylesheet. Verdict after review: they looked like a different site,
-showed none of the product's actual UI, and gave a visitor no reason
-to stay. Superseded by the app-shell approach:
+v1 (standalone document pages) looked like a foreign site and showed
+none of the product — rejected on review. v2 (hand-mirroring the app's
+render markup in the generator) duplicated `main.js` DOM knowledge and
+sprinkled SEO hooks into app source — rejected: every future UI change
+would need a matching generator change. v3 replaces both:
 
-- Each page is the app's own `index.html` (string-surgery at build
-  time, anchors throw if the template drifts) with the word's results
-  **pre-rendered into `#source-summary`/`#results` using the exact DOM
-  classes `main.js` renders** — same styles.css, same tier sections,
-  syllable chips, bold/normal/italic word weights, pair-count dots,
-  cliché strikethroughs, filled tab counts.
-- The template's `main.js` recognizes `/rhymes/{word}/` paths (same
-  code path as `?q=` deep links) and re-renders in place: the static
-  snapshot hydrates into the fully interactive app. Crawlers and
-  first-paint get complete static HTML; a human lands INSIDE the
-  product with the search box live. `?q=` beats the path on reload so
-  in-app searches survive refresh.
-- Below the results, a `.sp-extra` section (styled by
-  `rhymes/seo.css`, tokens from styles.css) carries the crawlable
-  differentiators the app keeps behind popovers: 2–3 corpus quotes,
-  per-tier explainers, related-page links. `runSearch` hides it when
-  the user searches a different word.
-- The source word is now an `<h1>` in `renderSource` (app-wide) so the
-  page keeps its heading after hydration; the wordmark `h1` is demoted
-  to a `div` on SEO pages only. Static pages prefix an inline
-  "words that rhyme with" kicker inside the h1.
-- Static tier lists are capped (36/tier, identity 8) — hydration
-  brings the full lists. ~13 KB gzipped per page (target < 15 KB;
-  styles.css/main.js/dict are shared with the app and cached, so the
-  SEO page → app transition is free).
+- **The generator runs the real app.** `buildSeoPages.mjs` starts a
+  local static server, drives headless Chrome (puppeteer-core + your
+  installed Chrome; `CHROME_PATH` to override) through the actual
+  search box for each word, waits for the real render, and serializes
+  the DOM. The snapshot IS the app's own output — change the UI
+  freely, rerun the script (or don't: pages still hydrate and work,
+  they just show the previous look until regenerated).
+- **Zero SEO code in app source.** `main.js` / `index.html` untouched.
+  A generator-injected inline boot script adds `?q={word}` via
+  `replaceState` before `main.js` runs, so the app's own existing
+  deep-link code hydrates the snapshot into the full interactive app;
+  the same script hides the extras block when a different word is
+  searched (MutationObserver on `#source-summary`). Only app change:
+  two already-dead `:first-of-type` rules removed from styles.css.
+- Post-processing on the CAPTURED page only: head swaps (title /
+  description / canonical / OG), breadcrumb JSON-LD, wordmark h1→div +
+  source-word span→h1 with a "words that rhyme with" kicker, extras
+  section (corpus quotes, tier explainers, related links — styled by
+  `rhymes/seo.css`), analytics stripped from generation runs.
+- Pre-capture the page is slimmed: CSS-hidden lower-tier words, empty
+  lazy popover shells, and the corpus gallery are removed (crawlers
+  can't see them; hydration rebuilds them), and profanity is scrubbed
+  from candidate lists (SafeSearch). Pages hash deterministically —
+  incremental lastmod stays honest.
+- Tradeoffs accepted: pages are the app's real rendered size (~17–25 KB
+  gzipped, vs the original <15 KB target); the visible h1 exists in
+  the static HTML but reverts to the app's span after hydration.
+  Note for `--full` (2–4k pages): at ~160 KB avg raw the committed set
+  would be ~300–500 MB — revisit slimming or build-on-deploy before
+  running it.
 
 This supersedes decision 4's "NO app JS" and the rejection of
 client-side rendering: the crawl-cost objection applied to JS-ONLY

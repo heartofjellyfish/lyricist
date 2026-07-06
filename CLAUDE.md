@@ -267,7 +267,7 @@ assets and **must be rebuilt whenever the lyric library expands**.
 | `wordlists/cliche-pairs.json` | `scripts/buildClicheList.mjs` | top-50 most-co-occurring rhyme pairs at line-end, drives the cliché flag |
 | `wordlists/lyric-library/index.json` + `rhymed/`, `rhymed-more/`, `not-rhymed/` tier dirs | `scripts/buildLyricBuckets.mjs` | per-rhyme-key quote files (~4,100 tier-1) + upfront index — what rhyme-finder fetches at runtime. See "Lyric library on-the-wire" below. |
 | `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
-| `rhyme-finder/rhymes/{word}/index.html` + `rhyme-finder/sitemap*.xml` + `rhymes/manifest.json` | `scripts/buildSeoPages.mjs` | programmatic SEO pages (`rhyme.land/rhymes/{word}/`) — static snapshots of the engine's output with corpus quotes + cliché flags. Design doc: `rhyme-finder/SEO-PLAN.md`. Incremental (content-hashed, honest lastmod); pilot batch by default, `--full` for the whole derived set |
+| `rhyme-finder/rhymes/{word}/index.html` + `rhyme-finder/sitemap*.xml` + `rhymes/manifest.json` | `scripts/buildSeoPages.mjs` | programmatic SEO pages (`rhyme.land/rhymes/{word}/`) — headless-Chrome snapshots of the REAL app rendering each word (needs local Chrome; puppeteer-core). Pages hydrate back into the live app via a generator-injected `?q=` boot script; app source carries no SEO code. Rerun after UI changes you want reflected (not required for function). Design doc: `rhyme-finder/SEO-PLAN.md`. Incremental (content-hashed, honest lastmod); pilot batch by default, `--full` for the whole derived set |
 
 **Re-run protocol after corpus expansion:**
 

@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "genius-lyrics": "^4.4.7",
+    "puppeteer-core": "^25.3.0",
     "wink-lemmatizer": "^3.0.4"
   }
 }

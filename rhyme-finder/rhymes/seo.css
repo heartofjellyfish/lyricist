@@ -6,6 +6,11 @@
    page links — the crawlable text the app keeps behind popovers).
    All color/type tokens come from styles.css :root. */
 
+/* The static snapshot promotes the source word to <h1> (the app's own
+   render uses a <span> and takes over on hydration) — zero the UA
+   heading margins so the flex row lays out identically. */
+h1.rf-source-word { margin: 0; }
+
 /* "WORDS THAT RHYME WITH" — small mono label inline before the big
    source word, sharing its baseline so the tag row alignment is
    untouched. Replaced by the app's own render on hydration. */
