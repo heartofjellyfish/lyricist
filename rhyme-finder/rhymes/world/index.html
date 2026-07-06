@@ -296,7 +296,7 @@
   <div class="rf-tier-pop"><div class="rf-tier-pop-section"><div class="rf-tier-pop-eyebrow">What it is</div><ol class="rf-tier-pop-rule-list"><li>The syllables' vowel sounds are identical.</li><li>The sounds after the vowels (if any) are identical.</li><li>The syllables begin the same — repetition, not a rhyme.</li></ol></div><div class="rf-tier-pop-section"><div class="rf-tier-pop-eyebrow">Where it sits</div><p class="rf-tier-pop-note">Off the rhyme scale — identity is repetition, not resolution. Listed here so you can recognize and avoid it.</p></div><div class="rf-tier-pop-section"><div class="rf-tier-pop-eyebrow">Example</div><p class="rf-tier-pop-body rf-tier-pop-example">fuse / confuse — both stressed syllables are 'fuse'</p></div></div></header><div class="rf-tier-empty" hidden="">No words in this tier match the active filter.<span class="rf-tier-empty-hint">adjust filters to see 3 hidden</span></div><div class="rf-tier-body"><div class="rf-subgroup"><div class="rf-subgroup-label">2 syllables</div><div class="rf-words"><span class="rf-word rf-c-uncommon" data-lex="common" title="masculine · 2 syll. · uncommon">dreamworld</span></div></div><div class="rf-subgroup"><div class="rf-subgroup-label">3 syllables</div><div class="rf-words"><span class="rf-word rf-c-common rf-has-lyrics" data-lex="common">underworld<span class="rf-lyric-badge rf-lyric-badge--corpus"><span class="rf-lyric-badge-count">4</span></span></span><span class="rf-word rf-c-uncommon" data-lex="common" title="masculine · 3 syll. · uncommon">netherworld</span></div></div></div></article></div>
           </div>
           <div class="rf-tab-body" data-tab-body="corpus" role="tabpanel" aria-labelledby="cd-tab-corpus" hidden="">
-            <div id="corpus-gallery"><section class="cd-prim"><div class="cd-paircue"><span class="cd-paircue-item cd-paircue-item--current" title="world · girl — 52 songs"><span class="cd-paircue-pair"><em class="src">world</em><span class="cd-pair-sep" aria-hidden="true"></span><em class="prt">girl</em><span class="cd-pair-dot" aria-hidden="true">·</span><span class="cd-pair-count">52</span></span></span><span class="cd-paircue-pos">PAIR <b>1</b><span class="sl">/</span><b>39</b></span></div><div class="cd-strip"><div class="cd-strip-card cd-strip-card--side cd-strip-card--empty cd-strip-card--prev" aria-hidden="true"></div><article class="cd-strip-card cd-strip-card--center" data-open="false" tabindex="0"><div class="cd-strip-center-inner"><div class="cd-hero-couplet"><p class="a">On every boy and every <mark>girl</mark></p><p class="b">Poured them out on into the <mark>world</mark>,</p></div><div class="cd-hero-stanza"><p>A vial of hope and a vial of pain,</p><p>In the light, they both looked the same</p><p class="match b">Poured them out on into the <mark>world</mark>,</p><p class="match a">On every boy and every <mark>girl</mark></p></div><div class="cd-hero-meta"><span class="cd-hero-meta-credit">Arcade Fire</span><span class="cd-hero-meta-sep">·</span><span class="cd-hero-meta-song">Neon Bible</span></div><span class="cd-strip-songcue"><button type="button" class="cd-song-btn cd-song-btn--prev" aria-label="previous song">↑</button><span class="cd-song-pos">song <b>1</b> of <b>52</b></span><button type="button" class="cd-song-btn cd-song-btn--next" aria-label="next song">↓</button></span></div></article><button type="button" class="cd-strip-card cd-strip-card--side cd-strip-card--next" data-step="1" aria-label="next pair · girls"><span class="cd-strip-card-word"><em>girls</em></span><span class="cd-strip-card-arrow">›</span></button></div><div class="cd-prim-footer"><a class="cd-prim-explore" href="#">explore all <b>39</b> partners ↗</a></div></section></div>
+            <div id="corpus-gallery"></div>
           </div>
         </div>
       </section>
@@ -659,18 +659,24 @@
 
 <script>
 (() => {
-  var m = location.pathname.match(/\/rhymes\/([^/]+)\/?$/);
+  var m = location.pathname.match(/^(.*)\/rhymes\/([^/]+)\/?$/);
   if (!m) return;
-  var w = decodeURIComponent(m[1]).toLowerCase();
+  var root = (m[1] || "") + "/";
+  var cleanPath = location.pathname;
+  var w = decodeURIComponent(m[2]).toLowerCase();
   if (!new URLSearchParams(location.search).get("q")) {
-    history.replaceState(null, "", location.pathname + location.search + (location.search ? "&" : "?") + "q=" + encodeURIComponent(w));
+    history.replaceState(null, "", cleanPath + location.search + (location.search ? "&" : "?") + "q=" + encodeURIComponent(w));
   }
   var summary = document.getElementById("source-summary");
   if (!summary) return;
   new MutationObserver(() => {
     var el = summary.querySelector(".rf-source-word");
     var ex = document.querySelector(".sp-extra");
-    if (el && ex) ex.hidden = el.textContent.trim().toLowerCase() !== w;
+    var cur = el ? el.textContent.trim().toLowerCase() : "";
+    if (ex) ex.hidden = cur !== w;
+    if (!cur) history.replaceState(null, "", root);
+    else if (cur !== w) history.replaceState(null, "", root + "?q=" + encodeURIComponent(cur));
+    else history.replaceState(null, "", cleanPath);
   }).observe(summary, { childList: true, subtree: true });
 })();
 </script></body></html>

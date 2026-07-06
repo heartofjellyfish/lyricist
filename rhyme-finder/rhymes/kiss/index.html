@@ -659,18 +659,24 @@
 
 <script>
 (() => {
-  var m = location.pathname.match(/\/rhymes\/([^/]+)\/?$/);
+  var m = location.pathname.match(/^(.*)\/rhymes\/([^/]+)\/?$/);
   if (!m) return;
-  var w = decodeURIComponent(m[1]).toLowerCase();
+  var root = (m[1] || "") + "/";
+  var cleanPath = location.pathname;
+  var w = decodeURIComponent(m[2]).toLowerCase();
   if (!new URLSearchParams(location.search).get("q")) {
-    history.replaceState(null, "", location.pathname + location.search + (location.search ? "&" : "?") + "q=" + encodeURIComponent(w));
+    history.replaceState(null, "", cleanPath + location.search + (location.search ? "&" : "?") + "q=" + encodeURIComponent(w));
   }
   var summary = document.getElementById("source-summary");
   if (!summary) return;
   new MutationObserver(() => {
     var el = summary.querySelector(".rf-source-word");
     var ex = document.querySelector(".sp-extra");
-    if (el && ex) ex.hidden = el.textContent.trim().toLowerCase() !== w;
+    var cur = el ? el.textContent.trim().toLowerCase() : "";
+    if (ex) ex.hidden = cur !== w;
+    if (!cur) history.replaceState(null, "", root);
+    else if (cur !== w) history.replaceState(null, "", root + "?q=" + encodeURIComponent(cur));
+    else history.replaceState(null, "", cleanPath);
   }).observe(summary, { childList: true, subtree: true });
 })();
 </script></body></html>

@@ -317,24 +317,36 @@ ${related.length > 0 ? `<nav class="sp-block sp-related" aria-label="More rhyme 
 }
 
 // Inline boot script (classic script — runs during parse, BEFORE the
-// deferred main.js module executes). Two jobs:
+// deferred main.js module executes). Three jobs:
 //   1. replaceState ?q={pathWord} so the app's own deep-link code
 //      re-renders/hydrates the snapshot with zero app changes.
-//   2. Hide the static extras when the app renders a different word.
+//   2. Hide the static extras when the app shows anything but the
+//      path word.
+//   3. Keep the URL honest as the user searches on: /rhymes/{word}/
+//      only while that word is showing; {appRoot}?q={other} after a
+//      new search; {appRoot} on home-reset. appRoot is derived from
+//      the path prefix, so it's "/" on rhyme.land and "/rhyme-finder/"
+//      on the legacy host / local dev.
 const BOOT_SCRIPT = `<script>
 (() => {
-  var m = location.pathname.match(/\\/rhymes\\/([^/]+)\\/?$/);
+  var m = location.pathname.match(/^(.*)\\/rhymes\\/([^/]+)\\/?$/);
   if (!m) return;
-  var w = decodeURIComponent(m[1]).toLowerCase();
+  var root = (m[1] || "") + "/";
+  var cleanPath = location.pathname;
+  var w = decodeURIComponent(m[2]).toLowerCase();
   if (!new URLSearchParams(location.search).get("q")) {
-    history.replaceState(null, "", location.pathname + location.search + (location.search ? "&" : "?") + "q=" + encodeURIComponent(w));
+    history.replaceState(null, "", cleanPath + location.search + (location.search ? "&" : "?") + "q=" + encodeURIComponent(w));
   }
   var summary = document.getElementById("source-summary");
   if (!summary) return;
   new MutationObserver(() => {
     var el = summary.querySelector(".rf-source-word");
     var ex = document.querySelector(".sp-extra");
-    if (el && ex) ex.hidden = el.textContent.trim().toLowerCase() !== w;
+    var cur = el ? el.textContent.trim().toLowerCase() : "";
+    if (ex) ex.hidden = cur !== w;
+    if (!cur) history.replaceState(null, "", root);
+    else if (cur !== w) history.replaceState(null, "", root + "?q=" + encodeURIComponent(cur));
+    else history.replaceState(null, "", cleanPath);
   }).observe(summary, { childList: true, subtree: true });
 })();
 </script>`;
