@@ -31,5 +31,5 @@
   </g>
   <text x="640" y="400" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f">the rhymes —</text>
   <text x="640" y="440" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#6e5a3c">and the <tspan fill="#8a2a1e">songs</tspan> that used them</text>
-  <text x="640" y="495" font-family="'DM Mono', ui-monospace, monospace" font-size="16" font-weight="500" fill="#6e5a3c" letter-spacing="0.18em">RHYME.LAND</text>
+  <text x="640" y="495" font-family="'DM Mono', ui-monospace, monospace" font-size="16" font-weight="500" fill="#6e5a3c" letter-spacing="0.1em">rhyme.land</text>
 </svg>
