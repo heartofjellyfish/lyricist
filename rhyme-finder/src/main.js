@@ -192,7 +192,11 @@ function setStatus(msg, isError = false) {
 // ── Search runner ───────────────────────────────────────────────────
 // Extracted from the submit handler so deep links (?q=love) can run
 // the same flow without going through a synthetic form-submit event.
-async function runSearch(word, { updateUrl = true } = {}) {
+// `via` distinguishes how the search was initiated: "form" (typed +
+// submitted), "deeplink" (?q= share link), "seo" (a /rhymes/{word}/
+// landing hydrating itself). Tracking lives HERE, not on the form's
+// submit listener, so all three paths land in the same PostHog event.
+async function runSearch(word, { updateUrl = true, via = "form" } = {}) {
   if (!word) {
     setStatus("Type a word to begin.", true);
     return;
@@ -204,10 +208,13 @@ async function runSearch(word, { updateUrl = true } = {}) {
   results.innerHTML = `<div class="rf-loading"><span class="rf-spinner"></span> Searching · ranked by feel</div>`;
   sourceSummary.innerHTML = "";
 
+  let reported = false;
   try {
     // Yield to the event loop so the loading UI paints before the scan.
     await new Promise((r) => setTimeout(r, 0));
     const { source, buckets } = await findRhymes({ word, perBucket: 200 });
+    track("search_submitted", { word, found: true, via });
+    reported = true;
 
     // First paint needs ONLY the word list + counts. Both come from data that's
     // already loaded: the classifier (above) for the words, and index.json for
@@ -242,6 +249,10 @@ async function runSearch(word, { updateUrl = true } = {}) {
       window.history.replaceState({ word }, "", url);
     }
   } catch (err) {
+    // Dictionary miss (word not in CMU) lands here — report it with
+    // found:false so we can watch the miss rate. `reported` guards the
+    // rare case where findRhymes succeeded but a renderer threw.
+    if (!reported) track("search_submitted", { word, found: false, via });
     results.innerHTML = "";
     setStatus(err.message || "Lookup failed.", true);
   } finally {
@@ -314,8 +325,11 @@ document.getElementById("input-clear")?.addEventListener("click", () => {
   const initial = (params.get("q") || "").trim().toLowerCase();
   if (initial) {
     wordInput.value = initial;
+    // SEO snapshot pages (/rhymes/{word}/) hydrate through this same
+    // path — their boot script injects ?q= before this module runs.
+    const via = /\/rhymes\//.test(window.location.pathname) ? "seo" : "deeplink";
     // Don't push another URL state — we're already there.
-    runSearch(initial, { updateUrl: false });
+    runSearch(initial, { updateUrl: false, via });
   }
 })();
 
@@ -801,6 +815,18 @@ function decorateWithLyrics(el, word, sourceWord) {
 
   let materialised = false;
   let page = 0, shown = 0, loading = false;
+
+  // "Opened" = the popover was actually shown (hover settled, pinned, or
+  // keyboard-focused) — NOT materialise, which fires on any pointerenter
+  // including fast pass-throughs. Desktop hover produces no click, so
+  // autocapture never sees this; it's the funnel step between
+  // search_submitted and lyric_load_more. Once per word per render.
+  let openReported = false;
+  const reportOpen = (openVia) => {
+    if (openReported) return;
+    openReported = true;
+    track("popover_opened", { source: sourceWord, word, attested, via: openVia });
+  };
   const materialise = async () => {
     if (materialised) return;
     materialised = true;
@@ -883,7 +909,7 @@ function decorateWithLyrics(el, word, sourceWord) {
         if (!el.isConnected) { stop(); return; }  // word re-rendered mid-hover
         const moved = Math.hypot(cX - pX, cY - pY);
         pX = cX; pY = cY;
-        if (moved < SETTLE_PX) { stop(); el.classList.add("rf-hovering"); }
+        if (moved < SETTLE_PX) { stop(); el.classList.add("rf-hovering"); reportOpen("hover"); }
       }, SAMPLE_MS);
     });
     el.addEventListener("pointerleave", () => {
@@ -898,8 +924,13 @@ function decorateWithLyrics(el, word, sourceWord) {
   el.addEventListener("click", (e) => {
     if (e.target.closest(".rf-lyric-pop")) return;
     e.stopPropagation();
-    setPin(el, !el.classList.contains("rf-pinned"));
+    const on = !el.classList.contains("rf-pinned");
+    setPin(el, on);
+    if (on) reportOpen("tap");
   });
+  // Keyboard path: tabbing into the word (or its pin) shows the popover
+  // via :focus-within with no hover/click involved.
+  el.addEventListener("focusin", () => reportOpen("focus"), { once: true });
   installGlobalDismissHandlers();
 }
 
