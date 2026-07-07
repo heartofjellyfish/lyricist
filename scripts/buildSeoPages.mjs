@@ -694,7 +694,7 @@ try {
       .filter((w) => !EXCLUDED_FUNCTION.has(w) && w.length >= 3)
       .slice(0, 2);
     const exampleText = examples.length > 0 ? ` like ${examples.join(" and ")}` : "";
-    const title = `Words that rhyme with ${word} — ${total} rhymes by quality | Rhyme Finder`;
+    const title = `Words that rhyme with ${word} — ${total} rhymes by quality | Rhyme Land`;
     const description =
       `Words that rhyme with ${word}: ${total} rhymes sorted by strength — ` +
       `${perfectCount} perfect rhymes${exampleText}, plus family rhymes, assonance and consonance. ` +
@@ -721,12 +721,12 @@ try {
           url: canonical,
           name: title,
           description,
-          isPartOf: { "@type": "WebSite", name: "Rhyme Finder", url: `${SITE}/` },
+          isPartOf: { "@type": "WebSite", name: "Rhyme Land", url: `${SITE}/` },
         },
         {
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Rhyme Finder", item: `${SITE}/` },
+            { "@type": "ListItem", position: 1, name: "Rhyme Land", item: `${SITE}/` },
             { "@type": "ListItem", position: 2, name: `Rhymes with ${word}`, item: canonical },
           ],
         },

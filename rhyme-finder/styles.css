@@ -401,45 +401,26 @@ body::before {
   background: var(--hair);
 }
 
-/* Tab toggle · knob-in-track. Track sits deeper (paper-deep tint
-   + inset shadow); the vermilion knob is raised (inset highlight
-   + drop shadow). Slide curve over-shoots slightly so the knob
-   movement reads as the primary event. */
+/* Tab toggle · labelled two-segment control. The track sits deeper
+   (paper-deep tint + inset shadow); the active segment fills vermilion
+   (inset highlight so it reads as raised). Icon + mono-caps label per
+   segment. On mobile the labels are hidden (icon-only) — see the
+   640px media query — so the collapsed bar stays compact. */
 .rf-tab-toggle {
   position: relative;
   display: inline-flex;
-  /* 78 (not 76) so the inner content is 76 px with border-box — two
-     38 px cells fit exactly, and the 34-wide vermilion marker keeps
-     a symmetric 2 px gap on every side (left, right, top, bottom)
-     in either state. Smaller widths made the corpus-state marker
-     touch the inner right border. */
-  width: 78px;
   height: 30px;
   border: 1px solid var(--ink);
   background: var(--paper-deep);
   padding: 0;
   flex: 0 0 auto;
+  overflow: hidden;
   box-shadow:
     inset 0 1px 2px rgba(26, 20, 14, 0.22),
     inset 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
-.rf-toggle-marker {
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  width: 34px;
-  left: 2px;
-  background: var(--vermilion);
-  transition: left 280ms cubic-bezier(0.5, 0, 0.25, 1.1);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 240, 220, 0.22),
-    inset 0 0 6px rgba(80, 10, 0, 0.4),
-    0 1px 2px rgba(26, 20, 14, 0.3);
-  pointer-events: none;
-}
-.rf-tab-toggle[data-state="corpus"] .rf-toggle-marker {
-  left: 40px;
-}
+/* Legacy sliding knob retired in favour of the active-segment fill. */
+.rf-toggle-marker { display: none; }
 .rf-toggle-cell {
   appearance: none;
   border: 0;
@@ -447,29 +428,40 @@ body::before {
   cursor: pointer;
   position: relative;
   z-index: 1;
-  width: 38px;
   height: 100%;
+  padding: 0 12px;
+  gap: 6px;
   color: var(--ink-soft);
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: color 200ms ease;
-  padding: 0;
+  transition: color 200ms ease, background 200ms ease;
 }
 .rf-toggle-cell[aria-selected="true"] {
   color: var(--paper);
+  background: var(--vermilion);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 220, 0.18),
+    inset 0 0 6px rgba(80, 10, 0, 0.35);
+}
+.rf-toggle-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
-/* Jump + filter icon buttons · 26 × 26, smaller than the toggle so
-   the toggle reads as the dominant control. Hover fills with ink;
-   open state ("pressed") stays ink-filled. On the corpus tab both
+/* Jump + filter buttons · icon + mono-caps label. Smaller than the
+   toggle so the toggle reads as the dominant control. Hover fills with
+   ink; open state ("pressed") stays ink-filled. On the corpus tab both
    are disabled (dashed border, dimmed); the tooltip explains why. */
 .rf-iconbtn {
   appearance: none;
   cursor: pointer;
-  width: 26px;
   height: 26px;
+  padding: 0 10px;
+  gap: 6px;
   border: 1px solid var(--ink);
   background: var(--paper);
   display: inline-flex;
@@ -477,8 +469,13 @@ body::before {
   justify-content: center;
   color: var(--ink);
   flex: 0 0 auto;
-  padding: 0;
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.rf-iconbtn-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 .rf-iconbtn:hover {
   background: var(--ink);
@@ -658,6 +655,31 @@ body::before {
   align-items: baseline;
   gap: 0;
   white-space: nowrap;
+}
+
+/* Hero tagline — sits between the wordmark and the search line in the
+   empty hero. Italic display face, one tone quieter than the wordmark;
+   the trailing "and hear who sang them" clause fades one step more so
+   the differentiator ("by ear, not alphabet") leads. */
+.rf-tagline {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(17px, 2.15vw, 23px);
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--ink-soft);
+  margin: 4px 0 30px;
+  max-width: 90vw;
+  text-wrap: balance;
+}
+.rf-tagline-dash { color: var(--ink-faded); margin: 0 0.1em; }
+.rf-tagline-soft { color: var(--ink-faded); }
+.rf-tagline-hot { color: var(--vermilion-deep); }
+/* Gone once the hero collapses into the sticky bar. */
+.rf-app:has(#results:not(:empty)) .rf-tagline,
+.rf-app:has(#source-summary:not(:empty)) .rf-tagline {
+  display: none;
 }
 
 /* "Rhyme" — italic, the leading voice */
@@ -1467,6 +1489,21 @@ input[type="text"]::placeholder {
   font-style: italic;
   color: var(--ink-faded);
 }
+.rf-tier-pop-source {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hair-soft);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faded);
+}
+.rf-tier-pop-source a {
+  color: var(--vermilion-deep);
+  text-decoration: underline;
+  text-decoration-color: rgba(177, 59, 44, 0.35);
+  text-underline-offset: 2px;
+}
 /* Pattison's 3-condition definition: numbered list rendered tight
    inside the popover. Markers sit in their own column so the bullet
    text aligns cleanly across all three rows. */
@@ -1832,6 +1869,14 @@ input[type="text"]::placeholder {
     padding-left: 10px;
     margin-left: 0;
   }
+  /* Icon-only on phones — the labels blow up the bar width, and the
+     tab strip below the results already names both views. */
+  .rf-toggle-label,
+  .rf-iconbtn-label {
+    display: none;
+  }
+  .rf-toggle-cell { padding: 0 12px; }
+  .rf-iconbtn { width: 28px; padding: 0; }
   /* The mobile .rf-seal rule above is for the empty-state hero; in the
      collapsed bar keep the 22px shrunk home stamp. */
   .rf-app:has(#results:not(:empty)) .rf-seal,
@@ -2118,9 +2163,8 @@ input[type="text"]::placeholder {
 }
 .rf-lyric-head-meta {
   font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
   color: var(--ink-faded);
   flex: 1;
 }
@@ -3459,6 +3503,19 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   line-height: 1.55;
   color: var(--ink-soft);
   text-wrap: pretty;
+}
+.rf-colophon-prose p + p { margin-top: 12px; }
+.rf-colophon-credit {
+  font-size: 13px !important;
+  color: var(--ink-faded) !important;
+  padding-top: 12px;
+  border-top: 1px solid var(--hair-soft);
+}
+.rf-colophon-credit a {
+  color: var(--vermilion-deep);
+  text-decoration: underline;
+  text-decoration-color: rgba(177, 59, 44, 0.4);
+  text-underline-offset: 2px;
 }
 
 /* ── Form chrome ───────────────────────────────────────────────── */

@@ -3,23 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rhyme Finder — a rhyming dictionary for songwriters</title>
-    <meta name="description" content="A rhyming dictionary for songwriters — organized by Pat Pattison's stability tiers, with cliché flags and line-end examples from real songs." />
+    <title>Rhyme Land — find rhymes, with the songs that used them</title>
+    <meta name="description" content="A rhyming dictionary for songwriters — every rhyme ranked by feel, from perfect to faint, each with references from real songs. Built on the rhyme craft Pat Pattison teaches at Berklee." />
     <link rel="canonical" href="https://rhyme.land/" />
 
     <!-- Open Graph (Twitter, Facebook, iMessage, Slack, Discord previews) -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Rhyme Finder" />
+    <meta property="og:site_name" content="Rhyme Land" />
     <meta property="og:url" content="https://rhyme.land/" />
-    <meta property="og:title" content="Rhyme Finder — a rhyming dictionary for songwriters" />
-    <meta property="og:description" content="Organized by Pat Pattison's stability tiers, with cliché flags and line-end examples from real songs." />
+    <meta property="og:title" content="Rhyme Land — find rhymes, with the songs that used them" />
+    <meta property="og:description" content="Every rhyme ranked by feel, from perfect to faint, each with references from real songs." />
     <meta property="og:image" content="https://rhyme.land/rhyme-finder/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Rhyme Finder — a shanshui-painted wordmark over warm xuan-paper background." />
+    <meta property="og:image:alt" content="Rhyme Land — a shanshui-painted wordmark over warm xuan-paper background." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Rhyme Finder — a rhyming dictionary for songwriters" />
-    <meta name="twitter:description" content="Organized by Pat Pattison's stability tiers, with cliché flags and line-end examples from real songs." />
+    <meta name="twitter:title" content="Rhyme Land — find rhymes, with the songs that used them" />
+    <meta name="twitter:description" content="Every rhyme ranked by feel, from perfect to faint, each with references from real songs." />
     <meta name="twitter:image" content="https://rhyme.land/rhyme-finder/og-image.png" />
 
     <!-- Favicon · vermilion 韵 seal as an inline SVG icon. -->
@@ -57,9 +57,9 @@
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Rhyme Finder",
+      "name": "Rhyme Land",
       "url": "https://rhyme.land/",
-      "description": "A rhyming dictionary for songwriters — organized by Pat Pattison's stability tiers, with cliché flags and line-end examples from real songs.",
+      "description": "A rhyming dictionary for songwriters — every rhyme ranked by feel, from perfect to faint, each with references from real songs. Built on the rhyme craft Pat Pattison teaches at Berklee.",
       "applicationCategory": "ReferenceApplication",
       "operatingSystem": "Any (web browser)",
       "browserRequirements": "Requires JavaScript and a modern browser",
@@ -168,9 +168,13 @@
             </g>
           </svg>
           <h1 class="rf-title">
-            <span class="rf-title-rhyme">Rhyme</span><span class="rf-title-amp" aria-hidden="true">·</span><span class="rf-title-finder">Finder</span><span class="rf-seal" aria-hidden="true"><span class="rf-seal-glyph">韵</span></span>
+            <span class="rf-title-rhyme">Rhyme</span><span class="rf-title-amp" aria-hidden="true">·</span><span class="rf-title-finder">Land</span><span class="rf-seal" aria-hidden="true"><span class="rf-seal-glyph">韵</span></span>
           </h1>
         </div>
+
+        <!-- Hero tagline — only in the empty hero; hidden once the hero
+             collapses into the sticky bar (see the :has(#results) rule). -->
+        <p class="rf-tagline">the rhymes <span class="rf-tagline-dash" aria-hidden="true">—</span> <span class="rf-tagline-soft">and the <span class="rf-tagline-hot">songs</span> that used them</span></p>
 
         <section class="rf-panel">
           <form id="finder-form" class="rf-form">
@@ -183,7 +187,7 @@
                 id="word-input"
                 name="word"
                 type="text"
-                placeholder="give me an english word"
+                placeholder="what rhymes with…"
                 autocomplete="off"
                 spellcheck="false"
                 autofocus
@@ -211,21 +215,25 @@
                     role="tab" aria-selected="true" aria-controls="cd-tab-dict"
                     aria-label="Rhyme dictionary">
               <svg class="rf-svg" width="16" height="16" aria-hidden="true"><use href="#rf-icon-book"/></svg>
+              <span class="rf-toggle-label">Dictionary</span>
             </button>
             <button type="button" class="rf-toggle-cell" data-tab="corpus"
                     role="tab" aria-selected="false" aria-controls="cd-tab-corpus"
-                    aria-label="In the corpus">
+                    aria-label="In songs">
               <svg class="rf-svg" width="16" height="16" aria-hidden="true"><use href="#rf-icon-notes"/></svg>
+              <span class="rf-toggle-label">In songs</span>
             </button>
           </div>
           <button type="button" class="rf-iconbtn" id="btn-jump" aria-expanded="false"
                   aria-controls="rf-drawer-jump" aria-label="Jump to tier">
             <svg class="rf-svg" width="16" height="16" aria-hidden="true"><use href="#rf-icon-jump"/></svg>
+            <span class="rf-iconbtn-label">Jump</span>
           </button>
           <button type="button" class="rf-iconbtn" id="btn-filter" aria-expanded="false"
                   aria-controls="rf-drawer-filter" aria-label="Filter by lexicon"
                   title="Filter rhymes by word type">
             <svg class="rf-svg" width="16" height="16" aria-hidden="true"><use href="#rf-icon-filter"/></svg>
+            <span class="rf-iconbtn-label">Filter</span>
           </button>
         </div>
       </header>
@@ -261,7 +269,7 @@
           <button type="button" class="cd-tab" role="tab" aria-selected="false" data-tab="corpus" id="cd-tab-corpus">
             <span class="cd-tab-title">
               <svg class="cd-tab-icon" width="18" height="18" aria-hidden="true"><use href="#rf-icon-notes"/></svg>
-              <span>In the corpus</span>
+              <span>In songs</span>
             </span>
             <span class="cd-tab-counts" data-counts="corpus"></span>
           </button>
@@ -373,7 +381,8 @@
           </header>
 
           <div class="rf-colophon-prose">
-            <p>Rhyme Finder is built and tended by one person, on weekends and quiet evenings. If a word here found its way into a line of yours, that's already plenty.</p>
+            <p>Rhyme Land is built and tended by one person, on weekends and quiet evenings. If a word here found its way into a line of yours, that's already plenty.</p>
+            <p class="rf-colophon-credit">The rhyme framework here is Pat Pattison's — the degrees of rhyme he teaches at Berklee. This is an independent tribute, not affiliated with or endorsed by him. If it helps you, his books teach the why: <a href="https://www.patpattison.com/" target="_blank" rel="noopener">patpattison.com</a>.</p>
           </div>
 
           <form class="rf-colophon-form"

@@ -201,7 +201,7 @@ async function runSearch(word, { updateUrl = true } = {}) {
   setStatus(`Searching ${word}…`);
   goBtn.disabled = true;
   goBtn.dataset.busy = "true";
-  results.innerHTML = `<div class="rf-loading"><span class="rf-spinner"></span> Searching the corpus · Pattison's tiers</div>`;
+  results.innerHTML = `<div class="rf-loading"><span class="rf-spinner"></span> Searching · ranked by feel</div>`;
   sourceSummary.innerHTML = "";
 
   try {
@@ -372,7 +372,7 @@ function renderStressPopover(currentIsMasculine) {
   const note = document.createElement("div");
   note.className = "rf-tier-pop-section";
   note.innerHTML =
-    `<p class="rf-tier-pop-note">Masculine and feminine endings rarely sing together — the rhyme lands on a different beat. Rhyme Finder shows mismatches with a dotted underline.</p>`;
+    `<p class="rf-tier-pop-note">Masculine and feminine endings rarely sing together — the rhyme lands on a different beat. Rhyme Land shows mismatches with a dotted underline.</p>`;
   pop.appendChild(note);
 
   return pop;
@@ -382,7 +382,7 @@ function renderResults(source, buckets) {
   results.innerHTML = "";
   const totalCount = TYPE_ORDER.reduce((acc, t) => acc + (buckets[t]?.length || 0), 0);
   if (totalCount === 0) {
-    results.innerHTML = `<div class="rf-empty">No rhyme candidates found in corpus. Try a more common word.</div>`;
+    results.innerHTML = `<div class="rf-empty">No rhymes found. Try a more common word.</div>`;
     return;
   }
   for (const type of TYPE_ORDER) {
@@ -473,6 +473,14 @@ function renderTierPopover(type) {
   if (type === "family") {
     pop.appendChild(renderFamilyChart());
   }
+
+  // Attribution — the whole rhyme framework is Pat Pattison's. Quiet
+  // footer line on every tier popover, linked, unaffiliated.
+  const src = document.createElement("div");
+  src.className = "rf-tier-pop-source";
+  src.innerHTML =
+    `after <a href="https://www.patpattison.com/" target="_blank" rel="noopener">Pat Pattison</a>'s degrees of rhyme`;
+  pop.appendChild(src);
 
   // Click inside popover shouldn't bubble out (would dismiss on
   // outside-click handler). The handler below stops propagation.
@@ -1065,6 +1073,11 @@ function attachSheetSwipeDismiss(wordEl) {
 // Header for the pair-relative popover: candidate word + honest pair total
 // (sourceWord ↔ word songs) + a sample of the artists. Distinct from the
 // legacy renderPopHeader (which counted the word's global line-ends).
+// The number here always equals the badge count on the word, so the
+// header is what tells the reader what that number means: "in 9 songs by
+// 4 artists" — the songs whose lyrics back this popover. Same format for
+// attested (rhymed with the searched word; the couplets below make that
+// plain) and ambient (the word's own line-end uses).
 function renderPairHeader(word, total, sampleQuotes) {
   const head = document.createElement("header");
   head.className = "rf-lyric-head";
@@ -1077,7 +1090,10 @@ function renderPairHeader(word, total, sampleQuotes) {
   const meta = document.createElement("div");
   meta.className = "rf-lyric-head-meta";
   const artists = new Set(sampleQuotes.map((q) => q.credit || q.artist)).size;
-  meta.textContent = `${total} song${total === 1 ? "" : "s"} · ${artists}${total > sampleQuotes.length ? "+" : ""} artist${artists === 1 ? "" : "s"}`;
+  const plus = total > sampleQuotes.length ? "+" : "";
+  const songs = `${total} song${total === 1 ? "" : "s"}`;
+  const by = `${artists}${plus} artist${artists === 1 ? "" : "s"}`;
+  meta.textContent = `in ${songs} by ${by}`;
   head.appendChild(meta);
 
   const pin = document.createElement("button");
@@ -1560,7 +1576,7 @@ async function renderCorpusGallery(word) {
 
   if (!groups.length) {
     mount.innerHTML =
-      `<p class="cd-prim-empty">No paired line-end uses for <em>${escapeHtml(word)}</em> in the corpus yet — try the dictionary tab.</p>`;
+      `<p class="cd-prim-empty">No paired line-end uses for <em>${escapeHtml(word)}</em> in songs yet — try the dictionary tab.</p>`;
     return;
   }
 
@@ -1907,7 +1923,7 @@ async function renderCorpusExplore(word) {
   if (!groups.length) {
     mount.innerHTML =
       `<section class="cd-explore">${backHTML}` +
-      `<p class="cd-prim-empty">No paired line-end uses for <em>${escapeHtml(word)}</em> in the corpus yet.</p>` +
+      `<p class="cd-prim-empty">No paired line-end uses for <em>${escapeHtml(word)}</em> in songs yet.</p>` +
       `</section>`;
     mount
       .querySelector(".cd-explore-back")
@@ -2012,7 +2028,7 @@ async function renderCorpusExplore(word) {
     backHTML +
     `<header class="cd-explore-head">` +
     `<div>` +
-    `<div class="cd-explore-eyebrow">In the corpus</div>` +
+    `<div class="cd-explore-eyebrow">In songs</div>` +
     `<h2 class="cd-explore-title">How songwriters rhyme <em>${escapeHtml(word)}</em></h2>` +
     `</div>` +
     `<div class="cd-explore-meta">` +
@@ -2145,7 +2161,7 @@ async function renderTabs(word, buckets) {
   }
   const dictCounts = tabs.querySelector('[data-counts="dict"]');
   if (dictCounts) {
-    dictCounts.innerHTML = `<b>${tierCount}</b> tier${tierCount === 1 ? "" : "s"} · <b>${wordCount}</b> word${wordCount === 1 ? "" : "s"}`;
+    dictCounts.innerHTML = `<b>${wordCount}</b> rhyme${wordCount === 1 ? "" : "s"} in <b>${tierCount}</b> flavor${tierCount === 1 ? "" : "s"}`;
   }
 
   // ── Corpus counts ── from the index: the HONEST totals (rhymeWords +
@@ -2156,8 +2172,8 @@ async function renderTabs(word, buckets) {
   const corpusCounts = tabs.querySelector('[data-counts="corpus"]');
   if (corpusCounts) {
     corpusCounts.innerHTML = partnerCount
-      ? `<b>${partnerCount}</b> partner${partnerCount === 1 ? "" : "s"} · <b>${songCount}</b> song${songCount === 1 ? "" : "s"}`
-      : `no paired uses yet`;
+      ? `<b>${partnerCount}</b> pairing${partnerCount === 1 ? "" : "s"} in <b>${songCount}</b> song${songCount === 1 ? "" : "s"}`
+      : `no pairings in songs yet`;
   }
 
   // ── Wire tab switching (idempotent — clones each button so a re-run
