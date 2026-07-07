@@ -1648,16 +1648,28 @@ async function renderCorpusGallery(word) {
       q.partner && Number.isInteger(q.partner.stanzaLineIdx)
         ? q.partner.stanzaLineIdx
         : -1;
-    const stanzaLines = Array.isArray(q.stanza) ? q.stanza : [];
-    const stanza = stanzaLines
-      .map((ln, j) => {
-        if (j === matchIdx)
-          return `<p class="match b">${markCoupletSource(ln, q.surface)}</p>`;
-        if (j === partnerIdx && q.partner)
-          return `<p class="match a">${markCoupletPartner(ln, q.partner.word)}</p>`;
-        return `<p>${escapeHtml(ln)}</p>`;
-      })
-      .join("");
+    let stanza;
+    if (Array.isArray(q.stanza) && q.stanza.length) {
+      stanza = q.stanza
+        .map((ln, j) => {
+          if (j === matchIdx)
+            return `<p class="match b">${markCoupletSource(ln, q.surface)}</p>`;
+          if (j === partnerIdx && q.partner)
+            return `<p class="match a">${markCoupletPartner(ln, q.partner.word)}</p>`;
+          return `<p>${escapeHtml(ln)}</p>`;
+        })
+        .join("");
+    } else {
+      // Giant blank-line-less songs store no full stanza — only ±1 line
+      // (see build-index.mjs). Fall back to linePrev / matched line /
+      // lineNext so opening the card still reveals local context instead
+      // of an empty panel.
+      const rows = [];
+      if (q.linePrev) rows.push(`<p>${escapeHtml(q.linePrev)}</p>`);
+      rows.push(`<p class="match b">${markCoupletSource(q.line, q.surface)}</p>`);
+      if (q.lineNext) rows.push(`<p>${escapeHtml(q.lineNext)}</p>`);
+      stanza = rows.join("");
+    }
     const songCue =
       g.total > 1
         ? `<span class="cd-strip-songcue">` +
