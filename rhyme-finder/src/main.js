@@ -49,7 +49,7 @@ const results = document.getElementById("results");
 const TIER_META = {
   perfect: {
     label: "Perfect rhyme",
-    subtitle: "full resolution",
+    subtitle: "fully resolved",
     stability: 5,
     bullets: [
       "The syllables' vowel sounds are identical.",
@@ -60,7 +60,7 @@ const TIER_META = {
   },
   family: {
     label: "Family rhyme",
-    subtitle: "close resolution",
+    subtitle: "almost resolved",
     stability: 4,
     bullets: [
       "The syllables' vowel sounds are identical.",
@@ -71,7 +71,7 @@ const TIER_META = {
   },
   additive: {
     label: "Additive",
-    subtitle: "trailing resolution",
+    subtitle: "resolved, plus a sound",
     stability: 3,
     bullets: [
       "The syllables' vowel sounds are identical.",
@@ -82,7 +82,7 @@ const TIER_META = {
   },
   subtractive: {
     label: "Subtractive",
-    subtitle: "clipped resolution",
+    subtitle: "resolved, cut short",
     stability: 3,
     bullets: [
       "The syllables' vowel sounds are identical.",
@@ -93,7 +93,7 @@ const TIER_META = {
   },
   assonance: {
     label: "Assonance",
-    subtitle: "loose resolution",
+    subtitle: "kinda resolved",
     stability: 2,
     bullets: [
       "The syllables' vowel sounds are the same.",
@@ -105,7 +105,7 @@ const TIER_META = {
   },
   consonance: {
     label: "Consonance",
-    subtitle: "faint resolution",
+    subtitle: "unresolved",
     stability: 1,
     bullets: [
       "The syllables' vowel sounds are different.",
@@ -116,7 +116,7 @@ const TIER_META = {
   },
   identity: {
     label: "Identity",
-    subtitle: "echo, not rhyme",
+    subtitle: "nothing to resolve",
     stability: 0,
     bullets: [
       "The syllables' vowel sounds are identical.",
@@ -439,14 +439,14 @@ function renderTierPopover(type) {
     const offScale = document.createElement("div");
     offScale.className = "rf-tier-pop-section";
     offScale.innerHTML =
-      `<div class="rf-tier-pop-eyebrow">Where it sits</div>` +
+      `<div class="rf-tier-pop-eyebrow">How it feels</div>` +
       `<p class="rf-tier-pop-note">Off the rhyme scale — identity is repetition, not resolution. Listed here so you can recognize and avoid it.</p>`;
     pop.appendChild(offScale);
   } else {
     const spec = document.createElement("div");
     spec.className = "rf-tier-pop-section";
     spec.innerHTML =
-      `<div class="rf-tier-pop-eyebrow">Where it sits</div>` +
+      `<div class="rf-tier-pop-eyebrow">How it feels</div>` +
       `<ol class="rf-tier-spectrum-stops">` +
       `<span class="rf-tier-spectrum-track" aria-hidden="true"></span>` +
       SPECTRUM_STOPS.map((stop) => {
@@ -460,7 +460,7 @@ function renderTierPopover(type) {
         );
       }).join("") +
       `</ol>` +
-      `<div class="rf-tier-pop-axis"><span>most stable</span><span>least stable</span></div>`;
+      `<div class="rf-tier-pop-axis"><span>resolved</span><span>unresolved</span></div>`;
     pop.appendChild(spec);
   }
 
@@ -493,7 +493,8 @@ function renderTierPopover(type) {
   const src = document.createElement("div");
   src.className = "rf-tier-pop-source";
   src.innerHTML =
-    `after <a href="https://www.patpattison.com/" target="_blank" rel="noopener">Pat Pattison</a>'s degrees of rhyme`;
+    `<div class="rf-tier-pop-eyebrow">Source</div>` +
+    `Berklee College of Music's songwriting method (<a href="https://www.patpattison.com/" target="_blank" rel="noopener">Pat Pattison</a>)`;
   pop.appendChild(src);
 
   // Click inside popover shouldn't bubble out (would dismiss on
