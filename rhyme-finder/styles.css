@@ -3555,6 +3555,8 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
 .rf-frame .rf-colophon-form { margin: 0; }
 
 /* ── Thanks · inspiration & songwriting resources ──────────────── */
+/* Flat on the card — like the intro prose, not a raised frame. */
+.rf-thanks { margin: 18px 0 0; }
 .rf-thanks-eyebrow {
   margin: 0 0 3px;
   font-family: var(--mono);
