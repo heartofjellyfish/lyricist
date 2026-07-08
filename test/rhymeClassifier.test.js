@@ -100,6 +100,22 @@ const GOLDEN = [
   ["go", "borrow", "mismatched", "REGRESSION: the user-reported case"],
   ["go", "shadow", "mismatched", "REGRESSION: fake OW2 class"],
   ["go", "window", "mismatched", "window is OW0 — must stay excluded"],
+
+  // ── cot/caught merger scope (July 2026 yukon bug) ──
+  // The AO→AA merge must apply ONLY in non-rhotic position. Pre-R AO is
+  // the NORTH/FORCE vowel and stays distinct from START (AA-R) for all
+  // American speakers. The old blanket merge made born/barn HOMOPHONES
+  // and poured every AO-R word into AA-vowel rhyme lists for ~2 months.
+  ["dawn", "john", "perfect", "non-rhotic merge kept: LOT/THOUGHT collapse"],
+  ["gone", "on", "perfect", "non-rhotic merge kept"],
+  ["born", "corn", "perfect", "NORTH class intact after merger scoping"],
+  ["storm", "warm", "perfect", "NORTH class intact"],
+  ["born", "barn", "consonance", "REGRESSION: was identity (false homophone) under blanket merge"],
+  ["star", "store", "consonance", "REGRESSION: was identity under blanket merge"],
+  ["farmer", "former", "consonance", "REGRESSION: was identity under blanket merge"],
+  ["far", "for", "consonance", "REGRESSION: was identity under blanket merge"],
+  ["born", "con", "consonance", "REGRESSION: the yukon-page symptom — was additive"],
+  ["yukon", "want", "additive", "true AA-vowel additive unaffected by the fix"],
 ];
 
 for (const [a, b, expected, note] of GOLDEN) {

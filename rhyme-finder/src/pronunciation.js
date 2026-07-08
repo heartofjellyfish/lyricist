@@ -36,8 +36,17 @@ export const PRONUNCIATION_MAP = new Map();
 // finder prefilter, UI display — sees one canonical vowel. Boston/NYC/
 // UK speakers who keep them distinct will get false-positive perfect
 // rhymes; acceptable default for the American songwriting audience.
+//
+// EXCEPTION — AO before R does NOT merge. The cot/caught merger is a
+// non-rhotic phenomenon (LOT/THOUGHT). Pre-rhotic AO is the separate
+// NORTH/FORCE vowel (born, corn, storm, warm, more, door, for, war) and
+// stays distinct from the START vowel AA-R (barn, arm, car, farm) for
+// ALL American speakers — nobody rhymes "born" with "barn". Merging it
+// blindly made every AO-R word a false additive/assonance match onto
+// AA-nasal words (yukon/con → born, storm, warm, more, door). Skip the
+// merge when the next phoneme is R.
 export function normalizePhonemes(s) {
-  return s.replace(/\bAO/gu, "AA");
+  return s.replace(/\bAO([0-2])(?!\s+R\b)/gu, "AA$1");
 }
 
 let LOAD_PROMISE = null;
