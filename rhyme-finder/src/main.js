@@ -386,7 +386,7 @@ function renderStressPopover(currentIsMasculine) {
   const note = document.createElement("div");
   note.className = "rf-tier-pop-section";
   note.innerHTML =
-    `<p class="rf-tier-pop-note">Masculine and feminine endings rarely sing together — the rhyme lands on a different beat. Rhyme Land shows mismatches with a dotted underline.</p>`;
+    `<p class="rf-tier-pop-note">Masculine and feminine endings rarely sing together — the rhyme lands on a different beat, so Rhyme Land keeps them in separate results.</p>`;
   pop.appendChild(note);
 
   return pop;
@@ -676,11 +676,10 @@ function renderWordRow(words, source) {
 
 // "10-second shortlist" tiering. The candidate's `score` already
 // combines lyricApps × 200 + max(0, 7000 − commonRank), so this
-// thresholds the score directly. Cliché, mas/fem mismatch, and
-// family-loose closeness each carry their own visual channels
-// (strikethrough, dotted underline, sort position) and are not
-// re-encoded as gates here — the user reads each warning alongside
-// the bold/normal/italic signal.
+// thresholds the score directly. Cliché and family-loose closeness
+// each carry their own visual channels (strikethrough, sort position)
+// and are not re-encoded as gates here — the user reads each warning
+// alongside the bold/normal/italic signal.
 //
 //   bold (very common): score ≥ 5000
 //   normal (common):    score ≥ 1000
@@ -706,17 +705,15 @@ function renderWord(candidate, source) {
   el.dataset.lex = candidate.lex || "common";
 
   const cliche = isCliche(source.word, candidate.word);
-  const mismatch = candidate.masculine !== source.masculine;
   const tier = recommendationTier(candidate);
 
   el.classList.add(`rf-c-${tier}`);
   if (cliche) el.classList.add("rf-cliche");
-  if (mismatch) el.classList.add("rf-mismatch");
 
   // Skip the native browser tooltip when we have a custom popover for
   // lyric quotes — otherwise the OS tooltip and our popover both appear,
   // which reads as cluttered. The phonetic info is non-essential and
-  // surfaced elsewhere already (mismatch underline, cliché strikethrough).
+  // surfaced elsewhere already (cliché strikethrough).
   // hasQuotes() reads the existence index (sync, loaded once at init), so
   // we can gate the tooltip without waiting on the per-bucket fetch.
   const willHaveLyrics = hasQuotes(candidate.word);
@@ -725,7 +722,6 @@ function renderWord(candidate, source) {
       candidate.masculine ? "masculine" : "feminine",
       `${candidate.syllables ?? "?"} syll.`,
       tier === "very-common" ? "very common" : tier === "common" ? "common" : "uncommon",
-      mismatch ? "stress class differs from source" : "",
       cliche ? "Pattison cliché — overworked pair" : "",
     ].filter(Boolean).join(" · ");
   }
@@ -734,8 +730,7 @@ function renderWord(candidate, source) {
 
   if (cliche) {
     // Cliché flag is rendered as a vermilion superscript "cliché" tag
-    // beside the (struck-through) word. Mismatched words are styled
-    // by the .rf-mismatch class only — no glyph needed.
+    // beside the (struck-through) word.
     const flag = document.createElement("span");
     flag.className = "rf-word-flag";
     flag.textContent = "cliché";

@@ -6,7 +6,7 @@
 //   { type, stability, masculine, vowelMatch, codaRelation, explanation, ... }
 //
 // Types: perfect | family | additive | subtractive | assonance | consonance
-//      | identity | partial | mismatched | none
+//      | identity | mismatched | none
 //
 // Uses ARPAbet phonemes from the CMU pronouncing dictionary (via
 // src/pronunciation.js). The phonetic family tables mirror
@@ -673,67 +673,16 @@ export function classifyRhyme(wordA, wordB) {
     };
   }
 
-  // Masculine / feminine mismatch check.
-  // Partial rhyme = masculine pairs with the stressed syllable of a feminine
-  // word, leaving the feminine's trailing syllable unrhymed.
+  // Masculine ↔ feminine mismatch = not a usable end-rhyme.
+  // Even when the two stressed syllables ring together (love / cover), the
+  // feminine word's trailing unstressed syllable dangles unrhymed and the
+  // two line-ends fall on different beats. Songwriters don't pair these at
+  // line-end (RhymeZone doesn't surface them either), so the whole class is
+  // a non-rhyme rather than a distinct tier. Poetry's "apocopated rhyme"
+  // lives here — it sits outside Pattison's stability scale and outside this
+  // tool's scope. We keep classifying it (so hasRhyme queries stay honest),
+  // but it never enters TYPE_ORDER and never reaches results.
   if (a.masculine !== b.masculine) {
-    // Partial rhyme (Pattison): the masculine word pairs with the STRESSED
-    // syllable of the feminine word; the feminine's trailing unstressed
-    // syllable is left unrhymed. The stressed-syllable pairing can be at any
-    // level (perfect/family/additive/assonance). Minimum bar: vowels match.
-    const vowelMatch = a.stressedVowel === b.stressedVowel;
-    const codaCmp = compareCodas(a.coda, b.coda);
-
-    if (vowelMatch) {
-      const codaLevel =
-        codaCmp.relation === "same"
-          ? "perfect"
-          : codaCmp.relation === "family"
-          ? "family"
-          : codaCmp.relation === "additive"
-          ? "additive"
-          : "assonance";
-      return {
-        type: "partial",
-        stability: 2,
-        isRhyme: true,
-        wordA,
-        wordB,
-        masculineA: a.masculine,
-        masculineB: b.masculine,
-        stressedVowelA: a.stressedVowel,
-        stressedVowelB: b.stressedVowel,
-        codaA: a.coda,
-        codaB: b.coda,
-        codaRelation: codaCmp,
-        innerLevel: codaLevel,
-        explanation:
-          `Partial rhyme. The masculine word pairs with the stressed syllable of the feminine word (${codaLevel}-level match); the feminine's trailing unstressed syllable stays unrhymed. Good for preventing closure, keeping motion into the next section.`,
-      };
-    }
-
-    // Different vowels across a mas/fem pair — falls back to consonance-partial
-    // if codas match, else mismatched.
-    if (codaCmp.relation === "same" && (a.coda.length > 0 || b.coda.length > 0)) {
-      return {
-        type: "partial",
-        stability: 1,
-        isRhyme: true,
-        wordA,
-        wordB,
-        masculineA: a.masculine,
-        masculineB: b.masculine,
-        stressedVowelA: a.stressedVowel,
-        stressedVowelB: b.stressedVowel,
-        codaA: a.coda,
-        codaB: b.coda,
-        codaRelation: codaCmp,
-        innerLevel: "consonance",
-        explanation:
-          "Partial rhyme at consonance level — the masculine word's coda matches the feminine's stressed-syllable coda, but the vowels differ. Very unstable, but binds the lines sonically.",
-      };
-    }
-
     return {
       type: "mismatched",
       stability: 0,
@@ -745,7 +694,7 @@ export function classifyRhyme(wordA, wordB) {
       stressedVowelA: a.stressedVowel,
       stressedVowelB: b.stressedVowel,
       explanation:
-        "Masculine ↔ feminine mismatch. The stresses don't align, and the stressed syllables don't rhyme closely enough for a partial rhyme.",
+        "Masculine ↔ feminine mismatch. The stresses land on different beats, and the feminine word's trailing unstressed syllable is left unrhymed — not a usable end-rhyme.",
     };
   }
 
@@ -769,8 +718,8 @@ export function classifyRhyme(wordA, wordB) {
   //     flying/quiet — stressed match alone doesn't earn a family label)
   //   * family-coda + mismatched trailing → assonance (lonely/voting)
   //   * additive-coda + mismatched trailing → assonance (lonely/solely)
-  // Weaker tiers (assonance, consonance, partial) inherently allow
-  // mismatched trailings — they're already at "vowel ring only."
+  // Weaker tiers (assonance, consonance) inherently allow mismatched
+  // trailings — they're already at "vowel ring only."
   const trailingSame = trailingsMatch(a.trailing, b.trailing);
   const bothFeminine = !a.masculine && !b.masculine;
   const femTrailingMismatch = bothFeminine && !trailingSame;

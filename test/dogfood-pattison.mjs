@@ -37,7 +37,7 @@ globalThis.fetch = async (url) => {
 
 // pairs: [a, b, expectedType, note]
 // expectedType is a Pattison label: perfect | family | additive | subtractive
-//                                   | assonance | consonance | partial | identity
+//                                   | assonance | consonance | identity | mismatched
 export async function runPairs(label, pairs) {
   console.log(`\n=== ${label} ===`);
   for (const [a, b, expected, note] of pairs) {
@@ -715,18 +715,21 @@ await checkFindContains("love", "thrive", "consonance");
 await checkFindContains("save", "leave", "consonance");
 
 // =====================================================================
-// CHAPTER 6 (cont) — Partial rhyme
+// CHAPTER 6 (cont) — Masculine ↔ feminine mismatch
 // =====================================================================
-// Partial rhyme = masculine paired with the stressed syllable of feminine.
-// Pattison's examples from Ric Ocasek and Michael Jackson:
+// A masculine word paired with the stressed syllable of a feminine one
+// (Pattison's "apocopated" examples from Ric Ocasek / Michael Jackson).
+// The stressed syllables ring, but the feminine trailing dangles and the
+// line-ends fall on different beats — so we classify these as mismatched
+// non-rhymes and never surface them (see rhymeClassifier's mas/fem block).
 
-await runPairs("Ch6: partial rhymes (mas + fem stressed syll)", [
-  ["moving", "you", "partial", "Ric Ocasek 'Why Can't I Have You'"],
-  ["striking", "night", "partial", "Ocasek again"],
-  ["lover", "one", "partial", "Michael Jackson 'Billie Jean'"],
-  ["closing", "rose", "partial"],
-  ["like", "hiking", "partial"],
-  ["steamer", "cream", "partial"],
+await runPairs("Ch6: mas/fem mismatches (classified, not surfaced)", [
+  ["moving", "you", "mismatched", "Ric Ocasek 'Why Can't I Have You'"],
+  ["striking", "night", "mismatched", "Ocasek again"],
+  ["lover", "one", "mismatched", "Michael Jackson 'Billie Jean'"],
+  ["closing", "rose", "mismatched"],
+  ["like", "hiking", "mismatched"],
+  ["steamer", "cream", "mismatched"],
 ]);
 
 // =====================================================================

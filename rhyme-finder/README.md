@@ -64,7 +64,7 @@ When a word is submitted, the hero shrinks (smaller padding-top) and a results s
   - **Tier title** (italic display, 24px) + **rule** in tiny uppercase tracking
   - **Pattison stability spectrum:** a 5-cell horizontal indicator (`unstable` ← five small bars, one filled at the tier's stability rank → `stable`)
   - **Count badge** — small uppercase number on the right
-  - **Word grid** rendered as syllable-grouped rows. Each word is `.rf-word` span; classes `rf-c-very-common` (bold), `rf-c-common` (italic), `rf-c-uncommon` (italic + faded). Mismatch words get dotted underline; clichés get strikethrough plus a vermilion superscript `cliché` flag.
+  - **Word grid** rendered as syllable-grouped rows. Each word is `.rf-word` span; classes `rf-c-very-common` (bold), `rf-c-common` (italic), `rf-c-uncommon` (italic + faded). Clichés get strikethrough plus a vermilion superscript `cliché` flag. (Masculine↔feminine mismatches aren't marked — they're classified as non-rhymes and never enter results; see `rhymeClassifier.js`.)
 - **Hover state:** any `.rf-word` turns vermilion with a 1px vermilion underline (offset 4px).
 
 ---
@@ -182,7 +182,7 @@ Desktop-first with breakpoints at 980px and 640px. On small screens:
 
 The tool is fully client-side. `src/main.js` orchestrates input → lookup → render; `src/rhymeFinder.js` and `src/rhymeClassifier.js` produce the tiered rhyme buckets using the Pattison stability framework; `src/pronunciation.js` loads the shared CMU dictionary from `/wordlists/cmu-dict.json`.
 
-The tier taxonomy (5 tiers, their order, labels, rules) is defined in `src/main.js` as `TIER_META` and `TYPE_ORDER`. Per-word metadata includes commonness rank (very-common / common / uncommon), syllable count, mismatch flag, and cliché pairs (e.g. `love`/`above`). State flow: `ready` → `searching` → `results` (or `error` / `not-found`). No persistence in v1.
+The tier taxonomy (5 tiers, their order, labels, rules) is defined in `src/main.js` as `TIER_META` and `TYPE_ORDER`. Per-word metadata includes commonness rank (very-common / common / uncommon), syllable count, and cliché pairs (e.g. `love`/`above`). State flow: `ready` → `searching` → `results` (or `error` / `not-found`). No persistence in v1.
 
 Shared wordlists and the CMU override system are documented in `/CLAUDE.md` under "Shared resources".
 

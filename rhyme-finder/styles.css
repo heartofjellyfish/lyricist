@@ -1778,17 +1778,9 @@ input[type="text"]::placeholder {
 .rf-word.rf-pinned.rf-c-very-common,
 .rf-word.rf-pinned.rf-c-common,
 .rf-word.rf-pinned.rf-c-uncommon,
-.rf-word.rf-pinned.rf-cliche,
-.rf-word.rf-pinned.rf-mismatch {
+.rf-word.rf-pinned.rf-cliche {
   color: var(--vermilion);
   opacity: 1;
-}
-
-.rf-word.rf-mismatch {
-  color: var(--ink-faded);
-  text-decoration: underline dotted;
-  text-decoration-color: var(--hair);
-  text-underline-offset: 4px;
 }
 
 .rf-word.rf-cliche {

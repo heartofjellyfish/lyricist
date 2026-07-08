@@ -91,9 +91,12 @@ const GOLDEN = [
   ["monday", "sunday", "identity", "shared -day morpheme = rhyming day with day"],
   ["envoy", "convoy", "identity", "shared -voy syllable, same onset — attention/detention pattern"],
 
-  // ── partial (masculine ↔ feminine stressed-syllable pairing) ──
-  ["moving", "you", "partial", "Pattison: trailing left unrhymed, prevents closure"],
-  ["striking", "night", "partial", "Pattison partial at family level"],
+  // ── masculine ↔ feminine mismatch (not a usable end-rhyme) ──
+  // The stressed syllables ring together, but the feminine word's trailing
+  // syllable dangles and the line-ends fall on different beats. We classify
+  // these as non-rhymes and never surface them (RhymeZone doesn't either).
+  ["moving", "you", "mismatched", "fem/mas: trailing left unrhymed — not surfaced"],
+  ["striking", "night", "mismatched", "fem/mas at family stressed-coda — still not surfaced"],
 
   // ── wrenched pairs must NOT count as rhymes ──
   ["go", "meadow", "mismatched", "REGRESSION: was a fake perfect via meadow's OW2"],
