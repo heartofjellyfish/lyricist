@@ -1121,11 +1121,14 @@ function renderPairHeader(word, total, sampleQuotes) {
 
   const meta = document.createElement("div");
   meta.className = "rf-lyric-head-meta";
-  const artists = new Set(sampleQuotes.map((q) => q.credit || q.artist)).size;
-  const plus = total > sampleQuotes.length ? "+" : "";
+  const quotes = sampleQuotes || [];
+  const artists = new Set(quotes.map((q) => q.credit || q.artist)).size;
+  const plus = total > quotes.length ? "+" : "";
   const songs = `${total} song${total === 1 ? "" : "s"}`;
   const by = `${artists}${plus} artist${artists === 1 ? "" : "s"}`;
-  meta.textContent = `in ${songs} by ${by}`;
+  // Index says quotes exist but none were fetched (count/fetch misalignment
+  // or a missing bucket file): don't claim "by 0+ artists" over an empty list.
+  meta.textContent = artists > 0 ? `in ${songs} by ${by}` : `in ${songs}`;
   head.appendChild(meta);
 
   const pin = document.createElement("button");
