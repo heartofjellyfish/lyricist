@@ -3556,7 +3556,7 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
 
 /* ── Thanks · inspiration & songwriting resources ──────────────── */
 /* Flat on the card — like the intro prose, not a raised frame. */
-.rf-thanks { margin: 18px 0 0; }
+.rf-thanks { margin: 26px 0 0; }
 .rf-thanks-eyebrow {
   margin: 0 0 3px;
   font-family: var(--mono);
@@ -3592,14 +3592,14 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   flex: 0 0 auto;
   align-self: flex-start;
   margin-top: 2px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   display: grid;
   place-items: center;
   border: 1px solid var(--vermilion);
   color: var(--vermilion-deep);
   font-family: var(--display);
-  font-size: 10.5px;
+  font-size: 9.5px;
   line-height: 1;
   border-radius: 2px;
   opacity: 0.9;
@@ -3607,14 +3607,14 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
 .rf-thanks-line {
   margin: 0;
   font-family: var(--display);
-  font-size: 14px;
+  font-size: 12.5px;
   line-height: 1.4;
   color: var(--ink-faded);
   text-wrap: pretty;
 }
 .rf-thanks-name {
   font-style: italic;
-  font-size: 15px;
+  font-size: 13.5px;
   color: var(--ink);
   text-decoration: none;
   border-bottom: 1px solid var(--hair);
