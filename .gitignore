@@ -6,3 +6,6 @@ books/
 lyric-library/.env
 lyric-library/raw/
 lyric-library/raw
+
+# local secrets (PostHog personal key, etc.)
+.env

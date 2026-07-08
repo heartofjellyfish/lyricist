@@ -150,12 +150,52 @@ function isLikelyAcronym(word, syllables) {
   return false;
 }
 
+// WordNet lists lemmas, not most regular inflections — "hurled", "swirled",
+// "whirled", "unfurled" are all absent though "hurl"/"swirl"/… are present.
+// Without a fallback these get dropped as candidates, so a search for "world"
+// surfaced only "curled" (the one -ed form WordNet happens to list) out of a
+// large perfect family. Recover a candidate whose regularly-inflected form
+// reduces to a lemma that IS in WORD_LEX. Conservative by construction: the
+// stem must itself be a lexicon entry, so real inflections get in without
+// opening the door to CMU's surname/fragment residue.
+function inflectionStems(word) {
+  const out = [];
+  const push = (s) => { if (s.length >= 3) out.push(s); };
+  if (word.length > 4 && (word.endsWith("ies") || word.endsWith("ied"))) {
+    push(word.slice(0, -3) + "y"); // tries/tried → try
+  }
+  if (word.length > 5 && word.endsWith("ing")) {
+    const s = word.slice(0, -3);
+    push(s); push(s + "e"); // hoping → hope
+    if (s.length >= 3 && s[s.length - 1] === s[s.length - 2]) push(s.slice(0, -1)); // running → run
+  }
+  if (word.length > 4 && word.endsWith("ed")) {
+    const s = word.slice(0, -2);
+    push(s); push(word.slice(0, -1)); // hurled → hurl, hoped → hope
+    if (s.length >= 3 && s[s.length - 1] === s[s.length - 2]) push(s.slice(0, -1)); // stopped → stop
+  }
+  if (word.length > 4 && word.endsWith("es")) {
+    push(word.slice(0, -2)); push(word.slice(0, -1)); // boxes → box, notes → note
+  }
+  if (word.length > 3 && word.endsWith("s") && !word.endsWith("ss")) {
+    push(word.slice(0, -1)); // dreams → dream
+  }
+  return out;
+}
+
+function hasInflectedStemInLex(word) {
+  for (const stem of inflectionStems(word)) {
+    if (WORD_LEX.has(stem)) return true;
+  }
+  return false;
+}
+
 function isAcceptableWord(word, syllables) {
   if (word.length <= 2) return SHORT_ALLOWED.has(word);
   if (isLikelyAcronym(word, syllables)) return false;
   if (ROMAN_NUMERAL_RE.test(word)) return false;
   if (JUNK_TOKENS.has(word)) return false;
-  if (!WORD_LEX.has(word)) return false;
+  if (!WORD_LEX.has(word) && !hasInflectedStemInLex(word)) return false;
   return true;
 }
 
