@@ -673,15 +673,20 @@ export function classifyRhyme(wordA, wordB) {
     };
   }
 
-  // Masculine ↔ feminine mismatch = not a usable end-rhyme.
-  // Even when the two stressed syllables ring together (love / cover), the
-  // feminine word's trailing unstressed syllable dangles unrhymed and the
-  // two line-ends fall on different beats. Songwriters don't pair these at
-  // line-end (RhymeZone doesn't surface them either), so the whole class is
-  // a non-rhyme rather than a distinct tier. Poetry's "apocopated rhyme"
-  // lives here — it sits outside Pattison's stability scale and outside this
-  // tool's scope. We keep classifying it (so hasRhyme queries stay honest),
-  // but it never enters TYPE_ORDER and never reaches results.
+  // Masculine ↔ feminine mismatch: the two stressed syllables can ring
+  // together (love / cover), but the feminine word's trailing unstressed
+  // syllable dangles unrhymed and the line-ends fall on different beats.
+  // This IS a real device — Pattison teaches it in Ch6 (his "partial
+  // rhyme"), and hit lyrics use it (Billie Jean: lover/one; Ocasek:
+  // moving/you). But it's a writer's tool, not a lookup result: surfacing
+  // hundreds of feminine words under a masculine query (each carrying that
+  // "accept a dangling syllable + beat shift" caveat) drowns the words a
+  // writer can use directly, and RhymeZone doesn't surface them either.
+  // So it's a PRODUCT decision to keep the whole class out of results, not
+  // a claim that it isn't a rhyme. It sits outside Pattison's stability
+  // scale (a rhythmic axis, not a resolution one). We keep classifying it
+  // (so hasRhyme queries stay honest), but it never enters TYPE_ORDER and
+  // never reaches results. If a future opt-in wants it, the data is here.
   if (a.masculine !== b.masculine) {
     return {
       type: "mismatched",
@@ -694,7 +699,7 @@ export function classifyRhyme(wordA, wordB) {
       stressedVowelA: a.stressedVowel,
       stressedVowelB: b.stressedVowel,
       explanation:
-        "Masculine ↔ feminine mismatch. The stresses land on different beats, and the feminine word's trailing unstressed syllable is left unrhymed — not a usable end-rhyme.",
+        "Masculine ↔ feminine mismatch. The stressed syllables may ring, but the feminine word's trailing syllable is left unrhymed and the line-ends land on different beats — a real device (Pattison's partial rhyme), but kept out of lookup results by design.",
     };
   }
 
