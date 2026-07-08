@@ -157,7 +157,9 @@ function isLikelyAcronym(word, syllables) {
 // large perfect family. Recover a candidate whose regularly-inflected form
 // reduces to a lemma that IS in WORD_LEX. Conservative by construction: the
 // stem must itself be a lexicon entry, so real inflections get in without
-// opening the door to CMU's surname/fragment residue.
+// opening the door to CMU's surname/fragment residue. Pairs with
+// buildCmuDict.mjs's inflection synthesis, which creates the pronunciations
+// (furled, creaming) this gate then admits.
 function inflectionStems(word) {
   const out = [];
   const push = (s) => { if (s.length >= 3) out.push(s); };

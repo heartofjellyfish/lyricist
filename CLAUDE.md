@@ -39,7 +39,7 @@ this single repo.
 │   ├── stressConstants.js     ← shared: VOWEL_LABELS, RHYME_ALIASES, etc.
 │   └── (rest is stress-workshop-specific)
 ├── wordlists/                 ← shared static data (large JSON / TXT)
-│   ├── cmu-dict.json          ← 3.7 MB, full CMU dict with our overrides applied
+│   ├── cmu-dict.json          ← 4.1 MB, CMU dict + synthesized regular inflections
 │   ├── cmu-overrides.json     ← hand-curated patches over CMU mis-transcriptions
 │   ├── cmu-entries.json       ← derived index (NOT deployed; .vercelignore'd)
 │   └── ...
@@ -59,7 +59,7 @@ this single repo.
 ├── api/                       ← Vercel serverless functions
 │   └── openai.js              ← proxies OpenAI for line-craft / stress-workshop
 ├── scripts/                   ← build-time scripts (run manually, not on deploy)
-│   └── buildCmuDict.mjs       ← regenerates wordlists/cmu-dict.json from npm pkg
+│   └── buildCmuDict.mjs       ← regenerates wordlists/cmu-dict.json (npm pkg + inflection synthesis)
 ├── packages/                  ← npm workspace packages (currently 1)
 │   └── stress_scansion_core/
 ├── test/                      ← node --test tests for stress-workshop logic
@@ -225,8 +225,18 @@ Say you're adding `melody.qi.land` for a new "Melody Lab" tool.
 
 ### CMU pronouncing dictionary (`wordlists/cmu-dict.json`)
 
-3.7 MB JSON, ~126k entries. Built from the npm package
-`cmu-pronouncing-dictionary` via `scripts/buildCmuDict.mjs`.
+4.1 MB JSON, ~139k entries. Built by `scripts/buildCmuDict.mjs` from
+the npm package `cmu-pronouncing-dictionary` (~126k) PLUS ~12.5k
+**synthesized regular inflections** (July 2026): CMU's -s/-ed/-ing
+coverage is spotty (cream but not creaming; no furl at all), which made
+rhyme-finder's recall trail RhymeZone. The suffix phonemes are fully
+predictable from the stem (voicing-dependent: D/T/IH0-D, Z/S/IH0-Z,
+IH0-NG), so the build generates any form whose stem is in CMU +
+overrides, gated against junk by WordNet POS (verbs get -ed/-ing;
+common/science nouns get -s; irregular-lemma lists block runned/womans;
+pure person/place lemmas are excluded so no plural surnames). Native
+CMU entries are never overwritten. Boundary fixtures live in
+`test/rhymeClassifier.test.js` ("synth:" tests).
 
 Used by:
 - `src/pronunciation.js` (stress-workshop, line-craft)
@@ -254,6 +264,10 @@ To add an override:
 4. Add a line to `wordlists/cmu-overrides.json`
 5. No code change needed — both pronunciation modules apply
    overrides at load time.
+6. BUT rerun `node scripts/buildCmuDict.mjs` and commit the dict:
+   overrides feed the inflection synthesis as stems (furl → furled),
+   and a synthesized entry bakes the stem's phonemes — the load-time
+   override application never reaches derived entries.
 
 ### Lyric corpus & derived wordlists
 

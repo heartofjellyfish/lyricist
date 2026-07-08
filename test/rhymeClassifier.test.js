@@ -119,6 +119,13 @@ const GOLDEN = [
   ["far", "for", "consonance", "REGRESSION: was identity under blanket merge"],
   ["born", "con", "consonance", "REGRESSION: the yukon-page symptom — was additive"],
   ["yukon", "want", "additive", "true AA-vowel additive unaffected by the fix"],
+
+  // ── synthesized inflections (July 2026 buildCmuDict extension) ──
+  // CMU 0.7b lacks many regular -s/-ed/-ing forms; buildCmuDict.mjs now
+  // synthesizes them from the stem's phonemes (POS-gated via WordNet).
+  ["world", "furled", "perfect", "SYNTH: furl is an override stem, furled synthesized"],
+  ["world", "pearled", "perfect", "SYNTH: -ed on a native CMU stem"],
+  ["dreaming", "creaming", "perfect", "SYNTH: -ing on a native CMU stem"],
 ];
 
 for (const [a, b, expected, note] of GOLDEN) {
@@ -214,6 +221,54 @@ test("findRhymes(economy): -y artifact words pass the prefilter", async () => {
     all.has("agronomy") || all.has("astronomy"),
     "artifact-anchored -omy words must survive the prefilter",
   );
+});
+
+// ── Synthesized regular inflections (buildCmuDict.mjs, July 2026) ──
+// Fixtures for BOTH sides of the transform boundary, per the CLAUDE.md
+// dict-wide-transform rule: what gets synthesized (with the right
+// voicing-dependent suffix) and what must never be.
+
+test("synth: voicing-dependent suffixes follow CMU conventions", () => {
+  const pron = (w) => analyzeWord(w)?.phonemes.join(" ");
+  // -ed: D after voiced, T after voiceless, IH0 D after T/D
+  assert.equal(pron("furled"), "F ER1 L D", "override stem furl + voiced D");
+  assert.equal(pron("gapped"), "G AE1 P T", "voiceless stem + T, CVC doubling");
+  assert.equal(pron("cricketed"), "K R IH1 K AH0 T IH0 D", "syllabic IH0 D after T");
+  assert.equal(pron("shimmied"), "SH IH1 M IY0 D", "-y → -ied spelling");
+  // -s: Z after voiced, IH0 Z after sibilants
+  assert.equal(pron("purls"), "P ER1 L Z", "override stem purl + voiced Z");
+  assert.equal(pron("carouses"), "K ER0 AW1 Z IH0 Z", "syllabic IH0 Z after sibilant");
+  // -ing
+  assert.equal(pron("creaming"), "K R IY1 M IH0 NG");
+});
+
+test("synth: irregular and junk forms are NOT in the dict", () => {
+  // Irregular verbs must not get a fake regular past (sing has no
+  // *singed of its own — the entry belongs to singe, via the
+  // longer-stem-wins collision rule).
+  assert.equal(analyzeWord("singed")?.phonemes.join(" "), "S IH1 N JH D");
+  for (const junk of [
+    "runned", "goed", "payed", // irregular verbs
+    "womans", "stepses", // irregular/plural-lemma nouns ("mens"/"childs" ARE native CMU)
+    "dianas", "egypts", // proper nouns laundered to "common" by the corpus override
+    "informationed", // -ed needs a verb (or attested) stem
+  ]) {
+    assert.equal(analyzeWord(junk), null, `"${junk}" must not be synthesized`);
+  }
+});
+
+test("findRhymes(world): synthesized -ed family surfaces as perfect", async () => {
+  const { byType } = await bucketWords("world");
+  for (const w of ["furled", "pearled", "purled", "burled"]) {
+    assert.ok(byType.perfect.has(w), `"${w}" must be a perfect rhyme for world`);
+  }
+});
+
+test("findRhymes(dreaming): synthesized -ing family surfaces as perfect", async () => {
+  const { byType } = await bucketWords("dreaming");
+  for (const w of ["creaming", "reaming", "deeming", "seaming"]) {
+    assert.ok(byType.perfect.has(w), `"${w}" must be a perfect rhyme for dreaming`);
+  }
 });
 
 test("loader: CMU '# comment' annotations are stripped", async () => {
