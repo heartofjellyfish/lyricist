@@ -387,9 +387,9 @@
 
           <div class="rf-colophon-prose">
             <p>Rhyme Land is built and tended by one person, on weekends and quiet evenings. If a word here found its way into a line of yours, that's already plenty.</p>
-            <p class="rf-colophon-credit">The rhyme framework here is Pat Pattison's — the degrees of rhyme he teaches at Berklee. This is an independent tribute, not affiliated with or endorsed by him. If it helps you, his books teach the why: <a href="https://www.patpattison.com/" target="_blank" rel="noopener">patpattison.com</a>.</p>
           </div>
 
+          <div class="rf-frame">
           <form class="rf-colophon-form"
                 id="colophon-form"
                 data-variant="tagged"
@@ -411,7 +411,7 @@
             <div class="rf-cf-row">
               <div class="rf-cf-field rf-cf-field--name">
                 <label class="rf-cf-label" for="colophon-name">
-                  <span class="rf-cf-label-main">Your name</span>
+                  <span class="rf-cf-label-main">Name</span>
                   <span class="rf-cf-label-aux">optional</span>
                 </label>
                 <input class="rf-cf-input"
@@ -439,7 +439,7 @@
               <span class="rf-colophon-form-note">anonymous is plenty</span>
               <button type="submit" class="rf-colophon-form-send">
                 <span class="rf-colophon-form-send-label">Send</span>
-                <span class="rf-colophon-form-send-arrow" aria-hidden="true">→</span>
+                <svg class="rf-send-plane" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
               </button>
             </div>
 
@@ -465,6 +465,23 @@
                  target="_blank" rel="noopener">leave a coffee</a>.
             </p>
           </footer>
+          </div>
+
+          <div class="rf-frame">
+            <p class="rf-thanks-eyebrow">With thanks</p>
+            <p class="rf-thanks-lead">This tool wouldn't exist without the teachers at these two — who treat songwriting as a high art, and cultivate it.</p>
+            <ul class="rf-thanks-list">
+              <li class="rf-thanks-row">
+                <span class="rf-thanks-seal" aria-hidden="true">韵</span>
+                <p class="rf-thanks-line"><a class="rf-thanks-name" href="https://online.berklee.edu/?utm_source=rhyme.land&utm_medium=referral&utm_campaign=inspiration-resources" target="_blank" rel="noopener">Berklee Online</a> — <a href="https://www.patpattison.com/?utm_source=rhyme.land&utm_medium=referral&utm_campaign=inspiration-resources" target="_blank" rel="noopener">Pat Pattison</a> &amp; <a href="https://online.berklee.edu/instructors/gabby-tulloch?utm_source=rhyme.land&utm_medium=referral&utm_campaign=inspiration-resources" target="_blank" rel="noopener">Gabby Tulloch</a></p>
+              </li>
+              <li class="rf-thanks-row">
+                <span class="rf-thanks-seal" aria-hidden="true">歌</span>
+                <p class="rf-thanks-line"><a class="rf-thanks-name" href="https://schoolofsong.org/?utm_source=rhyme.land&utm_medium=referral&utm_campaign=inspiration-resources" target="_blank" rel="noopener">School of Song</a> — <a href="https://schoolofsong.org/products/copy-of-songwriting-workshop-with-adrianne-lenker-of-big-thief?utm_source=rhyme.land&utm_medium=referral&utm_campaign=inspiration-resources" target="_blank" rel="noopener">Adrianne Lenker</a>, <a href="https://schoolofsong.org/collections/the-archive?utm_source=rhyme.land&utm_medium=referral&utm_campaign=inspiration-resources" target="_blank" rel="noopener">Robin Pecknold</a>, <a href="https://schoolofsong.org/products/songwriting-with-laura-marling-march-25-archive?utm_source=rhyme.land&utm_medium=referral&utm_campaign=inspiration-resources" target="_blank" rel="noopener">Laura Marling</a></p>
+              </li>
+            </ul>
+            <p class="rf-thanks-note">An independent tribute — not affiliated with or endorsed by anyone above.</p>
+          </div>
         </div>
       </details>
     </aside>
@@ -604,6 +621,7 @@
            · colophon_opened    — discovery of feedback/coffee surface
            · feedback_submitted — Formspree completion
            · coffee_clicked     — Ko-fi click-through
+           · outbound_berklee / outbound_school_of_song — resource click-through
          search_submitted + popover_opened are fired from src/main.js:
          runSearch() covers all three entry paths (form / ?q= deep link /
          SEO page hydration) — a submit listener here would miss the
@@ -641,6 +659,20 @@
         if (coffee) {
           coffee.addEventListener("click", () => posthog.capture("coffee_clicked"));
         }
+
+        // Outbound resource links (With thanks) — proof of the traffic
+        // we send each institution, bucketed by destination. The links
+        // also carry ?utm_source=rhyme.land so the receiving analytics
+        // sees it independently.
+        document.querySelectorAll(".rf-thanks-line a").forEach((a) => {
+          a.addEventListener("click", () => {
+            const host = a.hostname;
+            let ev = null;
+            if (host.indexOf("schoolofsong") !== -1) ev = "outbound_school_of_song";
+            else if (host.indexOf("berklee") !== -1 || host.indexOf("patpattison") !== -1) ev = "outbound_berklee";
+            if (ev) posthog.capture(ev, { href: a.href });
+          });
+        });
       })();
     </script>
   </body>

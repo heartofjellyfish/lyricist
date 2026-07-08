@@ -3465,8 +3465,11 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   max-width: calc(100vw - 28px);
   padding: 24px 26px 22px;
   background-color: var(--paper);
-  background-image: url("./xuan-bg.png");
-  background-size: 600px 600px;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='rfc'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23rfc)' opacity='0.32'/%3E%3C/svg%3E"),
+    url("./xuan-bg.png");
+  background-size: 150px 150px, 600px 600px;
+  background-blend-mode: multiply, normal;
   border: 1px solid var(--ink);
   box-shadow: 4px 4px 0 var(--ink-ghost);
   text-align: left;
@@ -3533,6 +3536,113 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   text-decoration: underline;
   text-decoration-color: rgba(177, 59, 44, 0.4);
   text-underline-offset: 2px;
+}
+
+/* ── Framed sub-panels · form+coffee / with-thanks ─────────────── */
+.rf-frame {
+  border: 1px solid var(--hair);
+  border-radius: 11px;
+  padding: 16px 17px;
+  background-color: rgba(250, 235, 201, 0.46);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='rff'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23rff)' opacity='0.45'/%3E%3C/svg%3E"),
+    url("./xuan-bg.png");
+  background-size: 140px 140px, 520px 520px;
+  background-blend-mode: multiply, normal;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.rf-frame + .rf-frame { margin-top: 14px; }
+/* Form loses its own bottom margin inside the frame; coffee foot sits under it. */
+.rf-frame .rf-colophon-form { margin: 0; }
+
+/* ── Thanks · inspiration & songwriting resources ──────────────── */
+.rf-thanks-eyebrow {
+  margin: 0 0 3px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--vermilion);
+}
+.rf-thanks-lead {
+  margin: 0 0 11px;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 14.5px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+.rf-thanks-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.rf-thanks-row {
+  display: flex;
+  gap: 9px;
+  align-items: baseline;
+}
+.rf-thanks-seal {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--vermilion);
+  color: var(--vermilion-deep);
+  font-family: var(--display);
+  font-size: 10.5px;
+  line-height: 1;
+  border-radius: 2px;
+  opacity: 0.9;
+}
+.rf-thanks-line {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink-faded);
+  text-wrap: pretty;
+}
+.rf-thanks-name {
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 0.5px;
+}
+.rf-thanks-name:hover {
+  color: var(--vermilion-deep);
+  border-bottom-color: var(--vermilion);
+}
+.rf-thanks-line a:not(.rf-thanks-name) {
+  font-style: italic;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hair-soft);
+}
+.rf-thanks-line a:not(.rf-thanks-name):hover {
+  color: var(--vermilion-deep);
+  border-bottom-color: var(--vermilion);
+}
+.rf-thanks-note {
+  margin: 12px 0 0;
+  padding-top: 11px;
+  border-top: 1px dashed var(--ink-ghost);
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-faded);
+  opacity: 0.85;
 }
 
 /* ── Form chrome ───────────────────────────────────────────────── */
@@ -3703,16 +3813,16 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   appearance: none;
   cursor: pointer;
   display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 7px 16px 8px;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 13px 6px;
   background: rgba(177, 59, 44, 0.06);
   border: 1px solid rgba(177, 59, 44, 0.35);
   border-radius: 999px;
   font-family: var(--display);
   font-style: italic;
   font-weight: 600;
-  font-size: 17px;
+  font-size: 14px;
   letter-spacing: 0.005em;
   color: var(--vermilion);
   transition:
@@ -3755,6 +3865,13 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
 @keyframes rf-colophon-arrow-pulse {
   0%, 100% { transform: translateX(0); opacity: 1; }
   50% { transform: translateX(4px); opacity: 0.4; }
+}
+
+/* Paper-plane send icon */
+.rf-send-plane { transition: transform 160ms ease; }
+.rf-colophon-form-send:hover .rf-send-plane { transform: translate(2px, -2px); }
+.rf-colophon-form[data-state="sending"] .rf-send-plane {
+  animation: rf-colophon-arrow-pulse 700ms ease-in-out infinite;
 }
 
 /* Empty-textarea flash on Send. */
