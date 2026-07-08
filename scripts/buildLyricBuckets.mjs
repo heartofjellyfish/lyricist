@@ -27,13 +27,20 @@ import { fileURLToPath } from "node:url";
 import { rhymeKeyOf } from "../rhyme-finder/src/rhymeClassifier.js";
 import { normalizePhonemes } from "../rhyme-finder/src/pronunciation.js";
 
-// Hash of the phonetic-layer sources (anchor logic + normalization) that
-// determine every bucket filename. Must match test/derivedConsistency.test.js.
+// Hash of EVERY input that determines a bucket filename via rhymeKeyOf():
+// the anchor/normalization code AND the pronunciation data it runs on. The
+// dict + overrides matter because an override edit changes a word's phonemes
+// → its rhymeKey → its bucket, with zero code change (writhe's scythe-family
+// override, commit 4291ac47, moved it IH1_TH→AY1_DH but left the buckets stale
+// for a whole release — the guard was blind because it only hashed the .js).
+// Must match the identical list in test/derivedConsistency.test.js.
 function phoneticsHash() {
   const h = crypto.createHash("sha256");
   for (const f of [
     "rhyme-finder/src/rhymeClassifier.js",
     "rhyme-finder/src/pronunciation.js",
+    "wordlists/cmu-overrides.json",
+    "wordlists/cmu-dict.json",
   ]) {
     h.update(fs.readFileSync(path.resolve(HERE, "..", f)));
   }

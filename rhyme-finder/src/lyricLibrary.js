@@ -91,9 +91,22 @@ const fetchNotRhymed = (key) => fetchTier("notRhymed", NOT_RHYMED_BASE, notRhyme
 
 function keyForWord(word) {
   const w = word.toLowerCase();
+  const lemma = clientLemma(w);
+  // Resolve the bucket key from the SAME corpus identity the index uses
+  // (words.get(w) ?? words.get(lemma)). An inflected candidate with no entry
+  // of its own — swirled, curled — is stored under its LEMMA, and the lemma's
+  // rhyme key differs because the inflection changes the coda (swirl → ER1_L,
+  // swirled → ER1_L_D). Keying off the surface word would fetch the ER1_L_D
+  // bucket, which has no swirl data, and return zero quotes — while the badge
+  // and popover header, resolved via the lemma, already promised N songs
+  // (the "4 songs, 0 shown" popover bug). So when the surface word isn't a
+  // corpus entry but its lemma is, key off the lemma.
+  if (words && !words.has(w) && words.has(lemma)) {
+    return rhymeKeyOf(PRONUNCIATION_MAP.get(lemma)) ?? rhymeKeyOf(PRONUNCIATION_MAP.get(w));
+  }
   return (
     rhymeKeyOf(PRONUNCIATION_MAP.get(w)) ??
-    rhymeKeyOf(PRONUNCIATION_MAP.get(clientLemma(w)))
+    rhymeKeyOf(PRONUNCIATION_MAP.get(lemma))
   );
 }
 
