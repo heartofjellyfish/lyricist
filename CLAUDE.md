@@ -295,6 +295,19 @@ classifier's anchor logic (artifact rules, overrides) also requires
 or quote lookups miss for the words whose keys moved and the static SEO
 pages keep serving the old classification.
 
+This is machine-enforced since July 2026: `buildLyricBuckets.mjs` stamps
+a hash of `rhymeClassifier.js` + `pronunciation.js` into
+`wordlists/lyric-library/index.json`, and
+`test/derivedConsistency.test.js` recomputes it — touch the phonetic
+layer without rebuilding and the suite goes red with the exact rebuild
+commands in the failure message.
+
+Changes to the phonetic layer ALSO require re-running
+`lyric-library/scripts/build-index.mjs` first (needs `lyric-library/raw/`,
+which is gitignored — it lives only in the main working copy): the
+indexer's rhymed/not-rhymed tags are computed with the same shared
+anchor + normalization, so they move together with the keys.
+
 #### Lyric library on-the-wire (May 2026 redesign; tiered June 2026)
 
 The per-letter index files (`wordlists/lyric-library/[a-z_].json`) are
@@ -366,25 +379,51 @@ The classifier already handles these patterns algorithmically:
 - **16 entries carry `" # comment"` suffixes** (aalborg → `…G # place,
   danish`). Both the runtime loader and `buildLyricBuckets.mjs` strip
   them before splitting into phonemes; keep that if you touch a loader.
+- **Cot/caught merger is scoped to NON-RHOTIC position** (July 2026).
+  `normalizePhonemes` collapses AO→AA (dawn/john, talk/rock — merged
+  for most American speakers) but MUST NOT touch AO before R: pre-rhotic
+  AO is the NORTH/FORCE vowel (born, corn, storm, more, door, war),
+  distinct from START = AA-R (barn, arm, car, far) for ALL American
+  speakers. The original blanket `\bAO→AA` regex made born/barn, star/
+  store, far/for, farmer/former literal HOMOPHONES (362 false-homophone
+  groups; 5,676 entries mispronounced) and poured every AO-R word into
+  AA-vowel rhyme lists for two months before a user screenshot caught
+  it. The merger being a destructive load-time rewrite is a frozen
+  design decision: it contaminates `rhymeKeyOf()` and therefore the
+  bucket filenames and SEO page content — changing merger scope means
+  a FULL derived rebuild (see the re-run protocol above).
 
 ⚠️ **The corpus prefilter must share the classifier's anchor.**
 `rhymeFinder.js` anchors candidates via `rhymeAnchorIndex()` exported
 from `rhymeClassifier.js`. It previously used `deriveRhymeInfo` (no
 artifact filtering), which silently dropped agronomy from economy's
-results before the classifier ever saw it. Never reintroduce a second
-anchor implementation.
+results before the classifier ever saw it. Same rule for the lyric
+indexer: `lyric-library/scripts/build-index.mjs` used to carry its own
+raw-CMU rhymeKey (no merger, no artifact filter) and silently mistagged
+cross-class pairs — gone/on, dawn/john sat in the not-rhymed tier until
+July 2026 (+1,134 quotes recovered by unifying). Never reintroduce a
+second anchor or normalization implementation anywhere.
 
 All of the above is locked in by **`test/rhymeClassifier.test.js`** —
 golden fixtures from Pattison's textbook plus these regressions. Run
 after ANY classifier/pronunciation/override change:
 
 ```bash
-node --test test/rhymeClassifier.test.js
+node --test test/rhymeClassifier.test.js test/derivedConsistency.test.js
 ```
 
 If you find a NEW class of CMU bug, prefer fixing the algorithm
 over adding individual overrides. Save overrides for one-off
 data errors — and add a golden fixture either way.
+
+⚠️ **Dict-wide transforms ship with fixtures in the SAME commit.** The
+merger bug's real lesson: a one-line regex that rewrites 5,676 dict
+entries went in with zero assertions, and 49 golden tests stayed green
+for two months while star/store were "homophones" — because fixtures
+were only ever written for bug classes already found. Any change that
+sweeps the dictionary (normalization, merger scope, anchor rules) must
+land with fixtures for BOTH sides of its boundary (what merges + what
+must stay distinct), in the same commit.
 
 ### Phonetic helpers (`src/pronunciation.js`, `rhyme-finder/src/pronunciation.js`)
 
