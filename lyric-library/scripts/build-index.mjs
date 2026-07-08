@@ -8,6 +8,14 @@ import lemmatize from "wink-lemmatizer";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+// Phonetic layer MUST be shared with the runtime classifier (CLAUDE.md
+// single-anchor rule). This indexer previously had its own rhymeKey on
+// raw CMU — no cot/caught merger, no artifact-aware anchor — so its
+// rhymed/not-rhymed tags silently missed cross-class pairs (dawn/john)
+// and mis-anchored borrow-class words. rhymeAnchorIndex + normalizePhonemes
+// are the same functions the app and buildLyricBuckets.mjs use.
+import { rhymeAnchorIndex } from "../../rhyme-finder/src/rhymeClassifier.js";
+import { normalizePhonemes } from "../../rhyme-finder/src/pronunciation.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -127,24 +135,24 @@ function lemma(word) {
 }
 
 // --- rhyme partner detection (uses CMU dict) ---
-// Rhyme key = "VOWEL|CODA1.CODA2…" starting at the last *stressed* vowel.
-// Falls back to the last vowel of any stress when nothing's marked stressed.
+// Rhyme key = "VOWEL|CODA1.CODA2…" starting at the classifier's anchor
+// (last stressed vowel, artifact-aware). Phonemes go through the same
+// normalizePhonemes as the runtime (cot/caught merger, scoped to
+// non-rhotic position) and " # comment" suffixes are stripped like every
+// other loader. Digits are stripped from the tail before comparison —
+// trailing stress digits are CMU noise (borrow OW2 / sorrow OW0), same
+// rule as the classifier's trailingsMatch.
 function rhymeKey(word) {
   const arpa = CMU[word.toLowerCase()];
   if (!arpa) return null;
-  const phones = arpa.split(/\s+/);
-  let lastStressed = -1;
-  for (let i = phones.length - 1; i >= 0; i--) {
-    if (/[12]$/.test(phones[i])) { lastStressed = i; break; }
-  }
-  if (lastStressed === -1) {
-    for (let i = phones.length - 1; i >= 0; i--) {
-      if (/\d$/.test(phones[i])) { lastStressed = i; break; }
-    }
-  }
-  if (lastStressed === -1) return null;
-  const vowel = phones[lastStressed].replace(/\d/g, "");
-  const coda = phones.slice(lastStressed + 1).join(".");
+  const phones = normalizePhonemes(arpa.split(" # ")[0]).split(/\s+/);
+  const anchor = rhymeAnchorIndex(phones);
+  if (anchor === -1) return null;
+  const vowel = phones[anchor].replace(/\d/g, "");
+  const coda = phones
+    .slice(anchor + 1)
+    .map((p) => p.replace(/\d/g, ""))
+    .join(".");
   return { vowel, coda, full: `${vowel}|${coda}` };
 }
 

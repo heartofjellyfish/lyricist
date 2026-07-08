@@ -22,9 +22,23 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { rhymeKeyOf } from "../rhyme-finder/src/rhymeClassifier.js";
 import { normalizePhonemes } from "../rhyme-finder/src/pronunciation.js";
+
+// Hash of the phonetic-layer sources (anchor logic + normalization) that
+// determine every bucket filename. Must match test/derivedConsistency.test.js.
+function phoneticsHash() {
+  const h = crypto.createHash("sha256");
+  for (const f of [
+    "rhyme-finder/src/rhymeClassifier.js",
+    "rhyme-finder/src/pronunciation.js",
+  ]) {
+    h.update(fs.readFileSync(path.resolve(HERE, "..", f)));
+  }
+  return h.digest("hex").slice(0, 16);
+}
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..");
@@ -169,6 +183,12 @@ for (const w of Object.keys(counts).sort()) sortedWords[w] = counts[w];
 const sortedPairs = {};
 for (const w of Object.keys(pairs).sort()) sortedPairs[w] = pairs[w];
 const index = {
+  // Consistency stamp: sha256 of the phonetic-layer sources this build was
+  // keyed with. test/derivedConsistency.test.js recomputes and compares —
+  // change rhymeClassifier.js / pronunciation.js without rebuilding buckets
+  // (+ SEO pages) and the suite goes red instead of quote lookups silently
+  // missing for words whose keys moved.
+  phonetics: phoneticsHash(),
   words: sortedWords,
   pairs: sortedPairs, // word → {rhymeWord: n} — lets first paint show badges with no bucket fetch
   buckets: { rhymed: [...rhymed.keys()].sort(), notRhymed: [...notRhymed.keys()].sort() },
