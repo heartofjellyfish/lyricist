@@ -497,8 +497,16 @@ spreading through every importer's promise chain.
 # Run stress-workshop tests
 node --test test/lyricEngine.test.js test/openaiDrafts.test.js
 
-# Build the CMU dict from npm pkg (only when upgrading the npm pkg)
+# Build the CMU dict: npm pkg + synthesized regular inflections
+# (rerun after editing cmu-overrides.json — overrides feed the synthesis)
 node scripts/buildCmuDict.mjs
+
+# Recall regression probe vs Datamuse (NOT a data source — a diff tool).
+# Reports rhymes Datamuse has that pass our OWN wordnet/10k gate yet don't
+# surface = our bugs (dict holes or CMU-artifact family splits like -ire).
+# Run after any classifier/pronunciation/dict change. Free API, no key.
+node scripts/evalDatamuse.mjs                 # default 20-word probe
+node scripts/evalDatamuse.mjs fire beer here  # explicit sources
 
 # Local dev server (path-based URLs only — subdomain rewrites don't run locally)
 npm run dev    # python3 -m http.server 5173
