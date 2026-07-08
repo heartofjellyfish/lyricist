@@ -212,9 +212,14 @@ async function runSearch(word, { updateUrl = true, via = "form" } = {}) {
   try {
     // Yield to the event loop so the loading UI paints before the scan.
     await new Promise((r) => setTimeout(r, 0));
-    const { source, buckets } = await findRhymes({ word, perBucket: 200 });
+    const { source, buckets, mosaics } = await findRhymes({ word, perBucket: 200 });
     track("search_submitted", { word, found: true, via });
     reported = true;
+
+    // Group mosaic (multi-word) rhymes by tier so they render merged into the
+    // matching single-word tier, under their own "mosaic" divider.
+    const mosaicsByType = {};
+    for (const m of mosaics ?? []) (mosaicsByType[m.type] ||= []).push(m);
 
     // First paint needs ONLY the word list + counts. Both come from data that's
     // already loaded: the classifier (above) for the words, and index.json for
@@ -224,7 +229,7 @@ async function runSearch(word, { updateUrl = true, via = "form" } = {}) {
     await Promise.all([ensureExistence(), loadCliches()]);
     renderSource(source);
     renderLexFilter(buckets);
-    renderResults(source, buckets);     // word list + badges (counts from index — no fetch)
+    renderResults(source, buckets, mosaicsByType);  // single words + badges + merged mosaics
     renderTabs(source.word, buckets);
     renderStickybar(source.word);
     updateBucketCounts();
@@ -392,17 +397,21 @@ function renderStressPopover(currentIsMasculine) {
   return pop;
 }
 
-function renderResults(source, buckets) {
+function renderResults(source, buckets, mosaicsByType = {}) {
   results.innerHTML = "";
-  const totalCount = TYPE_ORDER.reduce((acc, t) => acc + (buckets[t]?.length || 0), 0);
+  const totalCount = TYPE_ORDER.reduce(
+    (acc, t) => acc + (buckets[t]?.length || 0) + (mosaicsByType[t]?.length || 0),
+    0,
+  );
   if (totalCount === 0) {
     results.innerHTML = `<div class="rf-empty">No rhymes found. Try a more common word.</div>`;
     return;
   }
   for (const type of TYPE_ORDER) {
     const candidates = buckets[type] || [];
-    if (candidates.length === 0) continue;
-    results.appendChild(renderTier(type, candidates, source));
+    const mosaics = mosaicsByType[type] || [];
+    if (candidates.length === 0 && mosaics.length === 0) continue;
+    results.appendChild(renderTier(type, candidates, source, mosaics));
   }
   // Ensure the global dismiss handler is wired even on searches where
   // no candidate happens to have a lyric badge — tier popovers still
@@ -536,12 +545,21 @@ function renderFamilyChart() {
   return wrap;
 }
 
-function renderTier(type, candidates, source) {
+function renderTier(type, candidates, source, mosaics = []) {
   const meta = TIER_META[type];
   const tier = document.createElement("article");
   tier.className = "rf-tier";
   tier.dataset.tier = type;
   tier.dataset.stability = String(meta.stability);
+
+  // Mosaics live under their own "MOSAIC RHYME" black label — a peer of the
+  // "N syllables" groups, no special count/tag/filter. ATTESTED ones (the
+  // phrase ends lines in real songs → everyday + a red dot) show by default,
+  // most-attested first; UN-attested ones sit behind the group's show-more.
+  // (By construction mosaics only ever land in the perfect + additive tiers,
+  // so this label only appears there.)
+  const attested = mosaics.filter((m) => m.songs > 0).sort((a, b) => b.songs - a.songs);
+  const nonAttested = mosaics.filter((m) => !(m.songs > 0));
 
   const head = document.createElement("header");
   head.className = "rf-tier-head";
@@ -592,10 +610,8 @@ function renderTier(type, candidates, source) {
   const body = document.createElement("div");
   body.className = "rf-tier-body";
 
-  // Group all candidates by syllable count, splitting each group into
-  // default-tier vs lower-tier entries. Each subgroup decides locally
-  // whether to inline-show its lower entries (if few) or hide them
-  // behind a "show N more" button (if many).
+  // Group single-word candidates by syllable count, splitting each group into
+  // default-tier vs lower-tier entries.
   const bySyll = new Map();
   for (const c of candidates) {
     const s = Math.max(1, c.syllables ?? 1);
@@ -610,9 +626,167 @@ function renderTier(type, candidates, source) {
     body.appendChild(renderSubgroup(label, def, low, source));
   }
 
+  // Mosaics get their own "MOSAIC RHYME" group — same black label as the
+  // syllable groups, treated identically. Attested (everyday, red dot) show
+  // by default; un-attested sit behind the group's own show-more.
+  if (attested.length || nonAttested.length) {
+    body.appendChild(renderMosaicSubgroup(attested, nonAttested, source));
+  }
+
   tier.appendChild(body);
 
   return tier;
+}
+
+// The "MOSAIC RHYME" subgroup — a peer of the "N syllables" groups. Attested
+// mosaics are the default row; un-attested ones are the lower row (hidden
+// behind a show-more when numerous, mirroring the single-word subgroups).
+function renderMosaicSubgroup(attested, nonAttested, source) {
+  const wrap = document.createElement("div");
+  wrap.className = "rf-subgroup rf-mosaic-subgroup";
+  const title = document.createElement("div");
+  title.className = "rf-subgroup-label";
+  title.textContent = "mosaic rhyme";
+  wrap.appendChild(title);
+
+  const row = document.createElement("div");
+  row.className = "rf-words";
+  for (const m of attested) row.appendChild(renderMosaicChip(m, source));
+  for (const m of nonAttested) {
+    const el = renderMosaicChip(m, source);
+    el.classList.add("rf-word--lower");
+    row.appendChild(el);
+  }
+  wrap.appendChild(row);
+
+  if (!nonAttested.length) return wrap;
+  if (nonAttested.length <= LOWER_INLINE_THRESHOLD && attested.length) {
+    wrap.classList.add("rf-subgroup--lower-shown");
+    return wrap;
+  }
+  // No attested at all, or many un-attested → hide behind a show-more.
+  if (!attested.length) {
+    // Nothing everyday to anchor the group — keep it collapsed by default.
+    const btn = document.createElement("button");
+    btn.className = "rf-subgroup-show-more";
+    btn.type = "button";
+    btn.textContent = `Show ${nonAttested.length} multi-word`;
+    btn.addEventListener("click", () => {
+      wrap.classList.add("rf-subgroup--lower-shown");
+      btn.remove();
+    });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+  const btn = document.createElement("button");
+  btn.className = "rf-subgroup-show-more";
+  btn.type = "button";
+  btn.textContent = `Show ${nonAttested.length} more`;
+  btn.addEventListener("click", () => {
+    wrap.classList.add("rf-subgroup--lower-shown");
+    btn.remove();
+  });
+  wrap.appendChild(btn);
+  return wrap;
+}
+
+// One mosaic chip: just the phrase (the "MOSAIC RHYME" group label already
+// says what these are — no per-chip tag). Clicking the WORD re-searches the
+// phrase (closing the loop between generation and phrase-input). Weak-form
+// mosaics ("get her" → "get 'er") carry a pronunciation hint. Attested mosaics
+// (in the lyric corpus) get the same red-dot badge single words do — tapping
+// the badge opens the real song lines; hovering shows them on desktop.
+const TAIL_REDUCED = {
+  her: "’er", them: "’em", him: "’im", his: "’is", you: "ya",
+  of: "o’", and: "’n’", to: "tuh", there: "’ere",
+};
+function renderMosaicChip(mosaic, source) {
+  const el = document.createElement("span");
+  el.className = "rf-word rf-mosaic-chip";
+  el.dataset.lex = "mosaic";
+  el.textContent = mosaic.display;
+
+  // Weak-form pronunciation hint (native tooltip — low-clutter).
+  const hintParts = [`${mosaic.syllables ?? "?"} syll.`, "click to search as a phrase"];
+  if (mosaic.weakForm) {
+    const tailWord = mosaic.words[mosaic.words.length - 1];
+    const red = TAIL_REDUCED[tailWord];
+    if (red) hintParts.unshift(`sounds like “${mosaic.words.slice(0, -1).join(" ")} ${red}”`);
+  }
+  el.title = hintParts.join(" · ");
+
+  // Corpus attestation → the same badge single words use, with the SAME rule:
+  // a HOLLOW dot (--corpus) = "this lives in the lyric corpus" (ambient). We
+  // use hollow, not the filled dot, because the filled dot specifically means
+  // "rhymed WITH the searched word" (a verified pairing) — mosaic-phrases.json
+  // only records the phrase's own line-end appearances, not source pairings.
+  // Count = songs the phrase ends a line in. Quotes ship inline (no fetch).
+  if (mosaic.songs > 0) {
+    el.classList.add("rf-has-lyrics", "rf-mosaic-attested");
+    const badge = document.createElement("span");
+    badge.className = "rf-lyric-badge rf-lyric-badge--corpus";
+    const count = document.createElement("span");
+    count.className = "rf-lyric-badge-count";
+    count.textContent = String(mosaic.songs);
+    badge.appendChild(count);
+    el.appendChild(badge);
+    el.appendChild(renderMosaicQuotePop(mosaic));
+  }
+
+  el.addEventListener("click", (e) => {
+    // Interactions inside the popover never navigate.
+    if (e.target.closest(".rf-lyric-pop")) return;
+    // Tapping the badge pins the quotes (mobile has no hover); tapping the
+    // word text re-searches the phrase.
+    if (e.target.closest(".rf-lyric-badge")) {
+      e.stopPropagation();
+      setPin(el, !el.classList.contains("rf-pinned"));
+      return;
+    }
+    e.stopPropagation();
+    track("mosaic_click", { source: source.word, phrase: mosaic.display, tier: mosaic.type });
+    wordInput.value = mosaic.display;
+    runSearch(mosaic.display);
+  });
+  return el;
+}
+
+// Synchronous quote popover for an attested mosaic — header + the real song
+// lines where the phrase ends a line. Built from the quotes shipped on the
+// mosaic (no fetch); reuses the lyric-pop shell + item styling.
+function renderMosaicQuotePop(mosaic) {
+  const pop = document.createElement("div");
+  pop.className = "rf-lyric-pop";
+  const handle = document.createElement("div");
+  handle.className = "rf-lyric-pop-handle";
+  handle.setAttribute("aria-hidden", "true");
+  pop.appendChild(handle);
+
+  // Same header as single words ("in N songs by M artists" + pin button).
+  pop.appendChild(renderPairHeader(mosaic.display, mosaic.songs, mosaic.quotes));
+
+  const list = document.createElement("div");
+  list.className = "rf-lyric-list";
+  for (const q of mosaic.quotes) {
+    const item = document.createElement("article");
+    item.className = "rf-lyric-item";
+    const quote = document.createElement("div");
+    quote.className = "rf-lyric-quote rf-lyric-quote--static";
+    const line = document.createElement("p");
+    line.className = "rf-lyric-line";
+    line.innerHTML = highlightSurface(q.line, q.surface);
+    quote.appendChild(line);
+    const attr = document.createElement("div");
+    attr.className = "rf-lyric-attr";
+    attr.innerHTML =
+      `${escapeHtml(q.credit)} · ` +
+      `<span class="rf-lyric-attr-song">${escapeHtml(q.songTitle)}</span>`;
+    quote.appendChild(attr);
+    item.appendChild(quote);
+    list.appendChild(item);
+  }
+  pop.appendChild(list);
+  return pop;
 }
 
 // If a subgroup has few lower-tier entries, just show them inline alongside
@@ -2472,6 +2646,9 @@ function updateBucketCounts() {
     //     lower words so the user sees the surviving NAMES/PLACES/etc.
     //     candidates instead of an empty tier.
     tier.querySelectorAll(".rf-subgroup").forEach((sg) => {
+      // The MOSAIC RHYME group isn't lex-filtered (mosaics have no lex
+      // category) and manages its own show-more — leave it alone.
+      if (sg.classList.contains("rf-mosaic-subgroup")) return;
       if (sg.classList.contains("rf-subgroup--lower-shown")) return;
       const lowerEls = [...sg.querySelectorAll(".rf-word--lower")];
       if (lowerEls.length === 0) return;
@@ -2493,6 +2670,7 @@ function updateBucketCounts() {
     // Pass 2 — hide subgroups whose every word is filtered out so
     // the syllable label doesn't float above empty space.
     tier.querySelectorAll(".rf-subgroup").forEach((sg) => {
+      if (sg.classList.contains("rf-mosaic-subgroup")) return;
       let sgVisible = 0;
       sg.querySelectorAll(".rf-word").forEach((w) => {
         if (getComputedStyle(w).display !== "none") sgVisible++;
@@ -2500,7 +2678,9 @@ function updateBucketCounts() {
       sg.hidden = sgVisible === 0;
     });
 
-    // Pass 3 — tier-level zero check, after subgroup adjustments.
+    // Pass 3 — tier-level zero check, after subgroup adjustments. Mosaic
+    // chips (also .rf-word) count as visible content — a tier that's all
+    // mosaics is not "zero", and the lex filter never hides mosaics.
     let visible = 0;
     tier.querySelectorAll(".rf-word").forEach((w) => {
       if (getComputedStyle(w).display !== "none") visible++;

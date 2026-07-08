@@ -53,13 +53,16 @@ this single repo.
 │   ├── index.html             (uses ABSOLUTE paths /rhyme-finder/...)
 │   ├── styles.css
 │   ├── xuan-bg.png
-│   ├── src/{main.js, rhymeFinder.js, rhymeClassifier.js, pronunciation.js}
-│   ├── wordlists/             ← rhyme-finder-only wordlists (wordnet, common-10k)
+│   ├── src/{main.js, rhymeFinder.js, rhymeClassifier.js, pronunciation.js, mosaicRhyme.js}
+│   ├── wordlists/             ← rhyme-finder-only wordlists (wordnet, common-10k, mosaic-verbs)
+│   ├── MOSAIC-PLAN.md         ← mosaic (compound) rhyme design + as-built notes
 │   └── README.md              ← design reference (tokens, type, painting, interactions)
 ├── api/                       ← Vercel serverless functions
 │   └── openai.js              ← proxies OpenAI for line-craft / stress-workshop
 ├── scripts/                   ← build-time scripts (run manually, not on deploy)
-│   └── buildCmuDict.mjs       ← regenerates wordlists/cmu-dict.json (npm pkg + inflection synthesis)
+│   ├── buildCmuDict.mjs       ← regenerates wordlists/cmu-dict.json (npm pkg + inflection synthesis)
+│   ├── buildMosaicVerbs.mjs   ← bakes WordNet verbs → rhyme-finder/wordlists/mosaic-verbs.json
+│   └── buildMosaicPhrases.mjs ← corpus attestation → wordlists/mosaic-phrases.json
 ├── packages/                  ← npm workspace packages (currently 1)
 │   └── stress_scansion_core/
 ├── test/                      ← node --test tests for stress-workshop logic
@@ -280,6 +283,7 @@ assets and **must be rebuilt whenever the lyric library expands**.
 | `wordlists/lyric-frequency.json` | `scripts/buildLyricFrequency.mjs` | word → song-appearance count, drives the lyric-familiarity score |
 | `wordlists/cliche-pairs.json` | `scripts/buildClicheList.mjs` | top-50 most-co-occurring rhyme pairs at line-end, drives the cliché flag |
 | `wordlists/lyric-library/index.json` + `rhymed/`, `rhymed-more/`, `not-rhymed/` tier dirs | `scripts/buildLyricBuckets.mjs` | per-rhyme-key quote files (~4,100 tier-1) + upfront index — what rhyme-finder fetches at runtime. See "Lyric library on-the-wire" below. |
+| `wordlists/mosaic-phrases.json` | `scripts/buildMosaicPhrases.mjs` | corpus attestation for mosaic rhymes — line-ending verb+function-word bigrams → {song count, sample quotes}. Drives the mosaic red-dot badge + the "everyday" ordering (attested shown, un-attested folded). |
 | `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
 | `rhyme-finder/rhymes/{word}/index.html` + `rhyme-finder/sitemap*.xml` + `rhymes/manifest.json` | `scripts/buildSeoPages.mjs` | programmatic SEO pages (`rhyme.land/rhymes/{word}/`) — headless-Chrome snapshots of the REAL app rendering each word (needs local Chrome; puppeteer-core). Pages hydrate back into the live app via a generator-injected `?q=` boot script; app source carries no SEO code. Rerun after UI changes you want reflected (not required for function). Design doc: `rhyme-finder/SEO-PLAN.md`. Incremental (content-hashed, honest lastmod); pilot batch by default, `--full` for the whole derived set |
 
@@ -293,12 +297,14 @@ node lyric-library/scripts/build-index.mjs
 node scripts/buildLyricFrequency.mjs
 node scripts/buildClicheList.mjs
 node scripts/buildLyricBuckets.mjs
+node scripts/buildMosaicPhrases.mjs   # mosaic attestation (reads per-letter index)
 
 # 3. Regenerate the SEO pages (quotes/cliché/frequency baked into them)
 node scripts/buildSeoPages.mjs
 
 # 4. Commit the regenerated JSONs (and the underlying lyric-library/*.json)
 git add wordlists/lyric-frequency.json wordlists/cliche-pairs.json \
+        wordlists/mosaic-phrases.json \
         wordlists/lyric-library/ rhyme-finder/rhymes/ rhyme-finder/sitemap*.xml
 git commit -m "Corpus expansion: <which artists/songs added>"
 ```
@@ -481,6 +487,61 @@ rhyme-finder uses the other). They diverge slightly:
 If you ever consolidate, the cleaner one to adopt is rhyme-finder's
 explicit `ensurePronunciation()` pattern — no top-level await
 spreading through every importer's promise chain.
+
+### Mosaic (compound) rhyme (`rhyme-finder/src/mosaicRhyme.js`)
+
+*Added July 2026. Full design + as-built notes: `rhyme-finder/MOSAIC-PLAN.md`.*
+
+Multi-word rhymes for one word (`bought her / water`, `hit me / city`).
+Two directions: phrase INPUT (`findRhymes({word:"bought her"})`) and mosaic
+GENERATION (searching `water` also generates `bought her`, `got her`…).
+
+The one invariant to preserve: **mosaics are pseudo-words fed through the
+existing classifier, not a parallel taxonomy.** `mosaicRhyme.js` does NO
+anchoring / normalization / trailing comparison of its own — it imports
+`analyzeFromPhonemes`, `classifyRhymeAnalyzed`, `trailingsMatch`,
+`rhymeAnchorIndex` from `rhymeClassifier.js` (the §4-seam exports) and
+assembles head-word + function-word phonemes into an analysis object the
+classifier grades normally. The only local derived strings are Map lookup
+keys (headKey/tailKey — digit-stripped joins), never bucket filenames.
+
+Three data dependencies:
+- **Function-word tail table** (in-module) — the ~40 pronoun/particle tails
+  with weak forms (`her → 'er`). Data, not code; prune/extend freely.
+- **`rhyme-finder/wordlists/mosaic-verbs.json`** — the verb-head gate.
+  Every mosaic head must be a verb (`know it`, `bought her` — not `oh it`,
+  `scott her`), because the productive pattern is verb + pronoun/particle.
+  Rebuild via `node scripts/buildMosaicVerbs.mjs` only when upgrading
+  wordnet-db or the irregular-verb list.
+- **`wordlists/mosaic-phrases.json`** — corpus ATTESTATION (which generated
+  phrases actually end lines in real songs). This is the "everyday" filter
+  the verb gate can't do: `bought her`/`hit me` are attested, `caught there`
+  isn't. Attested → shown in the syllable groups with a red dot + real song
+  quotes; un-attested → folded. Rebuilt from the lyric corpus (in the
+  derived re-run protocol above).
+
+UI: mosaics render under their own **"MOSAIC RHYME" black label** — a peer of
+the "N syllables" groups (`renderMosaicSubgroup`), treated identically (no
+per-chip tag, no headline "＋N", not lex-filtered; `updateBucketCounts` skips
+`.rf-mosaic-subgroup`). By the tier invariant that label only appears in the
+perfect + additive tiers. Attested mosaics are the default row with the same
+red-dot lyric badge single words get (quotes ship inline on the mosaic — do
+NOT call `hasQuotes`/`getQuotes` with a phrase); un-attested ones are the
+"lower" row behind the group's show-more. Clicking a mosaic re-searches it as
+a phrase (closes the A/B loop).
+
+Invariants worth knowing (verified 2026-07-08): mosaics are **feminine-only**
+(masculine sources → `[]`, structural) and land **only in perfect + additive**
+(never family/subtractive) — the head is matched on an exact rhyme-tail key so
+the stressed syllable is always a perfect match, and the JOIN decides the tier
+(exact/geminate → perfect, additive-onset → additive). Family mosaics would
+require v2 head-substitution.
+
+Mosaic generation is runtime-only (no derived artifact besides
+mosaic-verbs.json); the classifier seam is behavior-preserving, so it does
+NOT move any lyric-library bucket. §4b (trailing IH→AH weak-vowel merger,
+shipped in the same change) is a *comparison* change, not a `rhymeKeyOf`
+change — buckets are unaffected; only the derived-staleness hash restamps.
 
 ---
 

@@ -8,7 +8,14 @@
 //   • commonRank — Map<word, rank> from a top-10k common-English-words list,
 //                  used to surface lyric-friendly words first.
 
-import { classifyRhyme, analyzeWord, rhymeAnchorIndex } from "./rhymeClassifier.js";
+import {
+  classifyRhymeAnalyzed,
+  analyzeWord,
+  analyzeFromPhonemes,
+  phonemesFor,
+  rhymeAnchorIndex,
+} from "./rhymeClassifier.js";
+import { generateMosaics, assemblePhrase } from "./mosaicRhyme.js";
 import {
   PRONUNCIATION_MAP,
   ensurePronunciation,
@@ -18,6 +25,8 @@ let CORPUS_ENTRIES = null;
 let WORD_LEX = null;          // Map<word, "common"|"person"|"place"|"science">
 let COMMON_RANK = null;
 let LYRIC_FREQ = null;
+let MOSAIC_VERBS = null;      // Set<word> — verb-form gate for mosaic heads
+let MOSAIC_PHRASES = null;    // { "bought her": {n, q:[…]} } — corpus attestation
 let WORDLISTS_PROMISE = null;
 
 const WORDLISTS_BASE = new URL("../wordlists/", import.meta.url);
@@ -27,17 +36,24 @@ const WORDLISTS_BASE = new URL("../wordlists/", import.meta.url);
 const ROOT_WORDLISTS_BASE = new URL("../../wordlists/", import.meta.url);
 
 async function loadWordlists() {
-  if (WORD_LEX && COMMON_RANK && LYRIC_FREQ) return;
+  if (WORD_LEX && COMMON_RANK && LYRIC_FREQ && MOSAIC_VERBS && MOSAIC_PHRASES) return;
   if (!WORDLISTS_PROMISE) {
     WORDLISTS_PROMISE = (async () => {
-      const [catResp, commonResp, freqResp] = await Promise.all([
+      const [catResp, commonResp, freqResp, verbResp, phraseResp] = await Promise.all([
         fetch(new URL("wordnet-categories.json", WORDLISTS_BASE)),
         fetch(new URL("common-10k.txt", WORDLISTS_BASE)),
         fetch(new URL("lyric-frequency.json", ROOT_WORDLISTS_BASE)),
+        fetch(new URL("mosaic-verbs.json", WORDLISTS_BASE)),
+        fetch(new URL("mosaic-phrases.json", ROOT_WORDLISTS_BASE)),
       ]);
       if (!catResp.ok) throw new Error(`wordnet-categories.json ${catResp.status}`);
       if (!commonResp.ok) throw new Error(`common-10k.txt ${commonResp.status}`);
       if (!freqResp.ok) throw new Error(`lyric-frequency.json ${freqResp.status}`);
+      // mosaic-verbs / mosaic-phrases are non-fatal — without them the mosaic
+      // head verb-gate passes everything and no mosaic is attested (no red
+      // dot), but the app still works.
+      MOSAIC_VERBS = verbResp.ok ? new Set(await verbResp.json()) : new Set();
+      MOSAIC_PHRASES = phraseResp.ok ? await phraseResp.json() : {};
       // wordnet-categories.json is the source of truth for "real word"
       // membership AND lex category. Built by scripts/buildWordnetCategories.mjs;
       // already includes top-10k and lyric-corpus words classified as "common"
@@ -228,9 +244,37 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
   // call (analyzeWord reads PRONUNCIATION_MAP synchronously).
   await Promise.all([ensurePronunciation(), loadWordlists()]);
 
-  const source = analyzeWord(word);
-  if (!source) {
-    throw new Error(`"${word}" not in pronouncing dictionary.`);
+  // Phrase (Direction A) vs single word. A phrase — whitespace-separated,
+  // 2–4 words, all in the dict — is assembled into one pseudo-word and
+  // analyzed via analyzeFromPhonemes; a single word takes the dictionary
+  // path. Both yield a `source` analysis + an `exclude` set of constituent
+  // words that can't be their own rhymes.
+  const raw = String(word).trim();
+  const parts = raw.split(/\s+/u).filter(Boolean);
+  let source;
+  let exclude;
+  if (parts.length > 1) {
+    if (parts.length > 4) {
+      throw new Error("Phrases are limited to 4 words.");
+    }
+    const lowered = parts.map((p) => p.toLowerCase());
+    for (const w of lowered) {
+      if (!phonemesFor(w)) {
+        throw new Error(`"${w}" not in pronouncing dictionary.`);
+      }
+    }
+    const phon = assemblePhrase(lowered);
+    source = phon ? analyzeFromPhonemes(lowered.join(" "), phon) : null;
+    if (!source) {
+      throw new Error(`Couldn't analyze "${raw}".`);
+    }
+    exclude = new Set(lowered);
+  } else {
+    source = analyzeWord(raw);
+    if (!source) {
+      throw new Error(`"${raw}" not in pronouncing dictionary.`);
+    }
+    exclude = new Set([raw.toLowerCase()]);
   }
   const entries = buildCorpus();
   const buckets = Object.fromEntries(types.map((t) => [t, []]));
@@ -241,7 +285,7 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
   const collected = Object.fromEntries(types.map((t) => [t, []]));
 
   for (const entry of entries) {
-    if (entry.text === word.toLowerCase()) continue;
+    if (exclude.has(entry.text)) continue;
     if (!isAcceptableWord(entry.text, entry.syllables)) continue;
 
     const entryStressedVowel = vowelOfPhoneme(entry.rhymeTail?.[0]);
@@ -249,7 +293,11 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
     const codaSame = !!sourceLastCoda && strippedLastCoda(entry.rhymeTail) === sourceLastCoda;
     if (!stressedSame && !codaSame) continue;
 
-    const cls = classifyRhyme(word, entry.text);
+    // Analyzed path (single code path for words + phrases): the source was
+    // analyzed once above; classify it against each entry's analysis. For a
+    // single-word source this is exactly equivalent to classifyRhyme(word,
+    // entry.text) — the goldens verify the equivalence.
+    const cls = classifyRhymeAnalyzed(source, analyzeFromPhonemes(entry.text, entry.phonemes));
     if (!collected[cls.type]) continue;
     // Identity entries have isRhyme=false but should still be surfaced —
     // Pattison's textbook includes them as "(oops! Identity.)" annotations
@@ -387,14 +435,34 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
     buckets[type] = [...defaultTier, ...lowerTier];
   }
 
+  // Mosaic rhymes (Direction B, §5). Generated at runtime from the same
+  // in-memory corpus + the same classifier — no derived artifact. Empty for
+  // masculine sources (mosaic rhyme is a feminine-ending phenomenon).
+  const scoreOf = (w) => lyricScore(w, COMMON_RANK.get(w) ?? Infinity);
+  const mosaics = generateMosaics(source, entries, {
+    isAcceptableWord,
+    scoreOf,
+    isVerb: (w) => MOSAIC_VERBS.has(w),
+    exclude,
+  });
+  // Corpus attestation: a mosaic phrase that actually ends lines in real
+  // songs is everyday (surfaced first) and carries a real song-reference
+  // badge. `songs` = 0 for un-attested phrases (folded in the UI).
+  for (const m of mosaics) {
+    const att = MOSAIC_PHRASES[m.display];
+    m.songs = att ? att.n : 0;
+    m.quotes = att ? att.q : [];
+  }
+
   return {
     source: {
-      word,
+      word: source.word,
       stressedVowel: source.stressedVowel,
       coda: source.coda,
       masculine: source.masculine,
     },
     buckets,
+    mosaics,
   };
 }
 

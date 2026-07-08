@@ -304,7 +304,17 @@ export function rhymeAnchorIndex(phonemes) {
 }
 
 export function analyzeWord(word) {
-  const phonemes = phonemesFor(word);
+  return analyzeFromPhonemes(word, phonemesFor(word));
+}
+
+// Analyze a raw phoneme array under an arbitrary label. This is the body of
+// analyzeWord after the dictionary lookup, exposed so callers can analyze
+// PSEUDO-WORDS — e.g. a mosaic candidate (`bought her` = [B AO1 T HH ER0]) or
+// a phrase source (`know it`) — through the exact same anatomy + artifact
+// logic a real dict word gets. The `label` is carried through as `.word`
+// (used only for display + the identity `sameSpelling` check, both of which
+// treat a phrase label like "know it" harmlessly via normalizeWordKey).
+export function analyzeFromPhonemes(label, phonemes) {
   if (!phonemes || phonemes.length === 0) {
     return null;
   }
@@ -336,7 +346,7 @@ export function analyzeWord(word) {
   const masculine = trailing.length === 0;
 
   return {
-    word,
+    word: label,
     phonemes,
     stressedVowel: vowelBase(phonemes[stressIdx]),
     stressedVowelFull: phonemes[stressIdx],
@@ -454,10 +464,22 @@ const Y_SUFFIX_VOWELS = new Set(["IH0", "IH2", "IY0", "IY2"]);
 function trailingToken(phoneme, isLast) {
   if (isLast && Y_SUFFIX_VOWELS.has(phoneme)) return "_Y";
   const m = phoneme.match(VOWEL_RE);
-  return m ? m[1] : phoneme;
+  // Weak-vowel merger (§4b): CMU marks the reduced vowel of a NON-final
+  // unstressed trailing syllable randomly as IH0 or AH0 — the same schwa
+  // sound, two spellings (13,445 IH0+C words vs 19,269 AH0+C, 1,097 rhyme
+  // families split down the middle). Canonicalize IH→AH so waited/hated,
+  // created/awaited, and the mosaic flagship know it/poet stop being demoted
+  // to assonance by a marking artifact. Word-FINAL unstressed IH already hit
+  // the _Y branch above (it groups with the happy vowel [i], a different
+  // reduction target), so this only fires mid-trailing. IY is deliberately
+  // NOT merged: non-final IY stays IY (lonely/broken stays distinct).
+  return m ? (m[1] === "IH" ? "AH" : m[1]) : phoneme;
 }
 
-function trailingsMatch(a, b) {
+// Exported for mosaicRhyme.js tail matching (§5.3): digit-blind, final
+// IH/IY canonicalized, weak-vowel IH↔AH tolerant — exactly the tolerance a
+// mosaic tail needs. mosaicRhyme MUST NOT reimplement this comparison.
+export function trailingsMatch(a, b) {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i += 1) {
     const isLast = i === a.length - 1;
@@ -636,6 +658,25 @@ export function classifyRhyme(wordA, wordB) {
       explanation: "One or both words are not in the pronouncing dictionary.",
     };
   }
+
+  return classifyRhymeAnalyzed(a, b);
+}
+
+/**
+ * Classify the rhyme relationship between two already-analyzed words. This is
+ * the body of classifyRhyme after the dictionary lookup + null guard, exposed
+ * so mosaic pseudo-words (analyzed via analyzeFromPhonemes) go through the
+ * exact same tier logic a real dict pair does — the generator produces
+ * candidates; this keeps them honest. Both args must be non-null analysis
+ * objects (from analyzeWord / analyzeFromPhonemes).
+ *
+ * @param {object} a  analysis object (carries .word label + anatomy)
+ * @param {object} b  analysis object
+ * @returns {object} classification
+ */
+export function classifyRhymeAnalyzed(a, b) {
+  const wordA = a.word;
+  const wordB = b.word;
 
   // Identity per Pattison (Ch 1): the ear hears repetition, not tension.
   // Three cases all collapse to the same rule:

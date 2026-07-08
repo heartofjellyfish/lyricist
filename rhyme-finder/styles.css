@@ -1804,6 +1804,31 @@ input[type="text"]::placeholder {
   font-style: normal;
 }
 
+/* ── Mosaic (multi-word) rhymes ─────────────────────────────────────
+   Mosaics live under their own "MOSAIC RHYME" black label (a peer of the
+   "N syllables" groups) and read exactly like the single-word chips — same
+   face, size, weight, hover — so the group is visually uniform with the rest.
+   The only difference is they're clickable (re-search the phrase), so the
+   cursor is a pointer. Attested chips carry the single-word red-dot badge. */
+.rf-mosaic-chip.rf-word {
+  cursor: pointer;
+}
+
+/* The mosaic chips are sparse (a handful per tier), so unlike the dense
+   single-word grid they can reveal their quote popover on bare :hover — no
+   hover-intent sampler needed. Pin (badge tap) + focus stay via the shared
+   .rf-pinned rule. */
+@media (hover: hover) {
+  .rf-mosaic-chip.rf-has-lyrics:hover .rf-lyric-pop {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0s;
+  }
+}
+/* Mosaic quote lines are non-interactive (no stanza-expand). */
+.rf-lyric-quote--static { cursor: default; }
+
 .rf-empty {
   padding: 40px 24px;
   text-align: center;

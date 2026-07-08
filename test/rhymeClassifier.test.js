@@ -148,6 +148,24 @@ const GOLDEN = [
   ["world", "furled", "perfect", "SYNTH: furl is an override stem, furled synthesized"],
   ["world", "pearled", "perfect", "SYNTH: -ed on a native CMU stem"],
   ["dreaming", "creaming", "perfect", "SYNTH: -ing on a native CMU stem"],
+
+  // ── trailing weak-vowel merger (§4b, July 2026) ──
+  // CMU marks the reduced vowel of a NON-final unstressed trailing syllable
+  // randomly as IH0 or AH0 (same schwa). Canonicalizing IH→AH in trailingToken
+  // rejoins 1,097 rhyme families CMU had split. Fixtures for BOTH sides of the
+  // boundary (what merges + what must stay distinct), per the CLAUDE.md
+  // dict-wide-transform rule. All "was" values verified against the pre-§4b
+  // classifier, 2026-07-08.
+  ["waited", "hated", "perfect", "MERGE: was assonance (IH0 D vs AH0 D)"],
+  ["created", "awaited", "perfect", "MERGE: was assonance"],
+  ["instructed", "inducted", "perfect", "MERGE: was assonance (AH0 D vs IH0 D)"],
+  ["habit", "abbot", "perfect", "MERGE: was assonance (AH0 T vs IH0 T)"],
+  ["conducted", "abducted", "identity", "GUARD: same -ducted stressed syll; trailing never enters identity check"],
+  ["habit", "cohabit", "identity", "GUARD: stressed-syllable identity wins despite AH0/IH0 split"],
+  ["lonely", "broken", "none", "DISTINCT: IY vs AH trailing intact (IY not merged)"],
+  ["dreaming", "demon", "assonance", "DISTINCT: NG≠N terminal still gates"],
+  ["china", "miner", "assonance", "DISTINCT: AH vs ER trailing — no upgrade"],
+  ["passion", "ashes", "assonance", "DISTINCT: AH0-N vs IH0-Z terminals differ"],
 ];
 
 for (const [a, b, expected, note] of GOLDEN) {
