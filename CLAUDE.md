@@ -406,6 +406,30 @@ The classifier already handles these patterns algorithmically:
   design decision: it contaminates `rhymeKeyOf()` and therefore the
   bucket filenames and SEO page content — changing merger scope means
   a FULL derived rebuild (see the re-run protocol above).
+- **-ire smoothing is collapsed to the schwa spelling** (July 2026).
+  CMU randomly syllabifies the AY+R rime: fire/higher/wire/desire/choir
+  get `AY1 ER0` (r-colored schwa, "2-syllable"), dire/admire/retire/
+  inquire/spire get `AY1 R` (bare tap, "1-syllable") — identical sound,
+  every American rhymes fire/dire. `normalizePhonemes` rewrites
+  SYLLABLE-FINAL `AY R` (R at word end or before a consonant) → `AY ER0`
+  so both land on the `AY1_ER0` key. Guard: `AY R` before a VOWEL is a
+  true onset (iris `AY1 R AH0 S`, virus, iron) and stays. Left split,
+  "fire" — one of the highest-frequency lyric rimes (fire/desire/higher)
+  — missed dire/admire/retire/inquire entirely. Found by the Datamuse
+  recall-diff eval (see below). Like the merger, this is a destructive
+  load-time rewrite that contaminates `rhymeKeyOf()` → a scope change
+  needs a FULL derived rebuild.
+  - **Audited siblings deliberately NOT merged** (the OW2 "accepted
+    casualties" lesson — don't merge look-alikes with real contrasts):
+    **AW** (hour/power) is already unified as `AW1_ER0` in CMU, nothing
+    to do. **EY** player/layer (`EY1_ER0`, 2-syll) vs air/prayer
+    (`EH1_R`, 1-syll) are genuinely different — merging would make
+    player=air. **IY** beer/deer (`IH1_R`) vs here/seer (`IY1_R`) vs
+    freer (`IY1_ER0`) is a separate NEAR-vowel IH/IY mess with a fuzzy
+    1-vs-2-syllable boundary (seer, freer go either way) — left for its
+    own audit. **UW** tour/sure (`UH1_R` CURE) vs poor/amour (`UW1_R`)
+    vs bluer/newer (`UW1_ER0`) keep real vowel/syllable contrasts. Only
+    AY is a clean same-sound split.
 
 ⚠️ **The corpus prefilter must share the classifier's anchor.**
 `rhymeFinder.js` anchors candidates via `rhymeAnchorIndex()` exported

@@ -45,8 +45,26 @@ export const PRONUNCIATION_MAP = new Map();
 // blindly made every AO-R word a false additive/assonance match onto
 // AA-nasal words (yukon/con → born, storm, warm, more, door). Skip the
 // merge when the next phoneme is R.
+//
+// -IRE smoothing (July 2026): CMU randomly syllabifies diphthong+R.
+// The AY+R rime is transcribed BOTH as "AY1 ER0" (fire, higher, wire,
+// desire, choir — 135 words, an r-colored schwa = the CMU "2-syllable"
+// spelling) AND as "AY1 R" (dire, admire, retire, inquire, spire — 93
+// words, a bare tap = the "1-syllable" spelling). They are the SAME
+// sound; every American rhymes fire/dire, higher/admire. Left split,
+// searching "fire" missed dire/admire/retire/inquire — one of the
+// highest-frequency lyric rime families (fire/desire/higher). Collapse
+// the bare-tap spelling into the schwa spelling so both land on the
+// AY1_ER0 rhyme key. Scoped like the merger: only SYLLABLE-FINAL AY R
+// (R at word end or before a consonant) — R before a vowel is a true
+// onset (iris AY1 R IH0 S, virus, iron) and must stay. Audited siblings
+// (AW hour/power already unified as AW1 ER0; EY player≠air, IY beer/here,
+// UW tour/bluer keep real syllable/vowel contrasts) are deliberately NOT
+// touched — see the July 2026 -ire audit note in CLAUDE.md.
 export function normalizePhonemes(s) {
-  return s.replace(/\bAO([0-2])(?!\s+R\b)/gu, "AA$1");
+  return s
+    .replace(/\bAO([0-2])(?!\s+R\b)/gu, "AA$1")
+    .replace(/\bAY([0-2]) R(?=$|\s+[^AEIOU])/gu, "AY$1 ER0");
 }
 
 let LOAD_PROMISE = null;

@@ -120,6 +120,18 @@ const GOLDEN = [
   ["born", "con", "consonance", "REGRESSION: the yukon-page symptom — was additive"],
   ["yukon", "want", "additive", "true AA-vowel additive unaffected by the fix"],
 
+  // ── -ire smoothing scope (July 2026 fire/dire bug) ──
+  // CMU splits the AY+R rime into "AY1 ER0" (fire) and "AY1 R" (dire);
+  // same sound. normalizePhonemes collapses SYLLABLE-FINAL AY R into the
+  // schwa spelling. These pairs must now be perfect; the R-before-vowel
+  // words (iris, virus) must stay distinct — they are NOT the AY+R rime.
+  ["fire", "dire", "perfect", "REGRESSION: fire AY1 ER0 vs dire AY1 R — same rime"],
+  ["higher", "admire", "perfect", "REGRESSION: -ire split, the user-reported class"],
+  ["fire", "retire", "perfect", "REGRESSION: multisyllable -ire (retire AY1 R)"],
+  ["desire", "choir", "perfect", "both native AY1 ER0 — unaffected control"],
+  ["fired", "aspired", "perfect", "REGRESSION: AY1 R D → AY1 ER0 D under a consonant"],
+  ["fire", "iris", "none", "GUARD: iris AY1 R AH0 S (R before vowel) must NOT merge into fire"],
+
   // ── synthesized inflections (July 2026 buildCmuDict extension) ──
   // CMU 0.7b lacks many regular -s/-ed/-ing forms; buildCmuDict.mjs now
   // synthesizes them from the stem's phonemes (POS-gated via WordNet).
