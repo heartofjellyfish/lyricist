@@ -1,5 +1,5 @@
 {
-  "_comment": "Hand-curated overrides for CMU 0.7b. Format matches CMU: space-separated ARPAbet phonemes with stress digits 0/1/2. Five classes of fixes:\n  (1) Outright transcription errors (typology, intention).\n  (2) Missing words that appear in Pattison's worksheets (pretention, jezebel, fibber, twerp), or needed as stems for buildCmuDict.mjs's inflection synthesis (furl, purl — Wiktionary US /fɝl/, /pɝl/; rerun the build after adding a stem here).\n  (3) Stress-digit fixes for compound or affixed endings — CMU often marks the second component as unstressed when songwriters/Pattison treat it as secondary-stressed (suburb, iceberg, egomaniac, kleptomaniac), or vice versa (tissue, statue: fake UW2 on an unstressed -ue that breaks tissue/issue, statue/value).\n  (4) Syllabification quirks where CMU inserts a schwa that shouldn't be there (solely).\n  (5) Pronunciation disambiguation — CMU keeps only one entry per word, so for homographs we override to the pronunciation Pattison uses in his examples (wind = noun /wɪnd/, not verb /waɪnd/).\nThe June 2026 batch (tissue…rehab) fixes word-final stress digits where CMU marks one member of a rhyme family V0 while its siblings are V2 — splitting anchors so the family can't rhyme (grandma/grandpa, envoy/convoy, monday/sunday/away, cacti/alumni, dehumidify/testify, mayday/birthday).",
+  "_comment": "Hand-curated overrides for CMU 0.7b. Format matches CMU: space-separated ARPAbet phonemes with stress digits 0/1/2. Five classes of fixes:\n  (1) Outright transcription errors (typology, intention).\n  (2) Missing words that appear in Pattison's worksheets (pretention, jezebel, fibber, twerp), missing NEAR words (smite), or needed as stems for buildCmuDict.mjs's inflection synthesis (furl, purl — Wiktionary US /fɝl/, /pɝl/; rerun the build after adding a stem here). skier is a class-1 transcription error: CMU records S K AY1 ER0 ('sky-er') but it's S K IY1 ER0, a 2-syllable NEAR agent noun rhyming with freer/clearer.\n  (3) Stress-digit fixes for compound or affixed endings — CMU often marks the second component as unstressed when songwriters/Pattison treat it as secondary-stressed (suburb, iceberg, egomaniac, kleptomaniac), or vice versa (tissue, statue: fake UW2 on an unstressed -ue that breaks tissue/issue, statue/value).\n  (4) Syllabification quirks where CMU inserts a schwa that shouldn't be there (solely).\n  (5) Pronunciation disambiguation — CMU keeps only one entry per word, so for homographs we override to the pronunciation Pattison uses in his examples (wind = noun /wɪnd/, not verb /waɪnd/).\nThe June 2026 batch (tissue…rehab) fixes word-final stress digits where CMU marks one member of a rhyme family V0 while its siblings are V2 — splitting anchors so the family can't rhyme (grandma/grandpa, envoy/convoy, monday/sunday/away, cacti/alumni, dehumidify/testify, mayday/birthday).",
 
   "typology": "T AY2 P AA1 L AH0 JH IY0",
 
@@ -14,6 +14,8 @@
   "twerp": "T W ER1 P",
   "furl": "F ER1 L",
   "purl": "P ER1 L",
+  "smite": "S M AY1 T",
+  "skier": "S K IY1 ER0",
 
   "suburb": "S AH1 B ER2 B",
   "iceberg": "AY1 S B ER2 G",

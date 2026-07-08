@@ -57,14 +57,25 @@ export const PRONUNCIATION_MAP = new Map();
 // the bare-tap spelling into the schwa spelling so both land on the
 // AY1_ER0 rhyme key. Scoped like the merger: only SYLLABLE-FINAL AY R
 // (R at word end or before a consonant) — R before a vowel is a true
-// onset (iris AY1 R IH0 S, virus, iron) and must stay. Audited siblings
-// (AW hour/power already unified as AW1 ER0; EY player≠air, IY beer/here,
-// UW tour/bluer keep real syllable/vowel contrasts) are deliberately NOT
-// touched — see the July 2026 -ire audit note in CLAUDE.md.
+// onset (iris AY1 R IH0 S, virus, iron) and must stay. Audited siblings:
+// AW hour/power is already unified as AW1 ER0; EY player≠air and UW
+// tour/bluer keep real syllable/vowel contrasts — left alone.
+//
+// NEAR merge (July 2026, same audit): CMU splits the monosyllabic NEAR
+// rime (beer/here/deer/near/year) between "IH1 R" (the majority — beer,
+// near, clear, fear, career, sincere, appear) and "IY1 R" (here, bier,
+// seer, engineer's tail). Same sound; beer/here/near all rhyme. Collapse
+// SYLLABLE-FINAL "IY R" into "IH R" so both land on the IH1_R key. Same
+// guard as -ire: "IY R" before a VOWEL is a true onset (material
+// IH1 R IY0…) — already IH anyway; the guard mainly protects 2-syllable
+// "IY ER0" agent nouns (freer, clearer, hearer), which carry no bare
+// "IY R" and stay feminine. All 86 syllable-final "IY1 R" dict words
+// were audited as NEAR — no false merges. See CLAUDE.md.
 export function normalizePhonemes(s) {
   return s
     .replace(/\bAO([0-2])(?!\s+R\b)/gu, "AA$1")
-    .replace(/\bAY([0-2]) R(?=$|\s+[^AEIOU])/gu, "AY$1 ER0");
+    .replace(/\bAY([0-2]) R(?=$|\s+[^AEIOU])/gu, "AY$1 ER0")
+    .replace(/\bIY([0-2]) R(?=$|\s+[^AEIOU])/gu, "IH$1 R");
 }
 
 let LOAD_PROMISE = null;

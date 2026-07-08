@@ -132,6 +132,16 @@ const GOLDEN = [
   ["fired", "aspired", "perfect", "REGRESSION: AY1 R D → AY1 ER0 D under a consonant"],
   ["fire", "iris", "none", "GUARD: iris AY1 R AH0 S (R before vowel) must NOT merge into fire"],
 
+  // ── NEAR merge scope (July 2026, same -ire audit) ──
+  // CMU splits the monosyllabic NEAR rime between IH1 R (beer, near) and
+  // IY1 R (here, bier, seer). normalizePhonemes collapses syllable-final
+  // IY R → IH R. 2-syllable agent nouns (freer IY1 ER0) carry no bare
+  // IY R and must stay feminine — the both-sides guard.
+  ["beer", "here", "perfect", "REGRESSION: beer IH1 R vs here IY1 R — same NEAR rime"],
+  ["here", "career", "perfect", "REGRESSION: here IY1_R joins the IH1_R NEAR family"],
+  ["near", "cheer", "perfect", "NEAR control: both native IH1_R, still perfect"],
+  ["beer", "freer", "mismatched", "GUARD: freer IY1 ER0 (2-syll agent noun) must NOT collapse into monosyllable beer"],
+
   // ── synthesized inflections (July 2026 buildCmuDict extension) ──
   // CMU 0.7b lacks many regular -s/-ed/-ing forms; buildCmuDict.mjs now
   // synthesizes them from the stem's phonemes (POS-gated via WordNet).

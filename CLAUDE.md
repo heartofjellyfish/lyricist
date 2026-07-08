@@ -310,11 +310,16 @@ or quote lookups miss for the words whose keys moved and the static SEO
 pages keep serving the old classification.
 
 This is machine-enforced since July 2026: `buildLyricBuckets.mjs` stamps
-a hash of `rhymeClassifier.js` + `pronunciation.js` into
-`wordlists/lyric-library/index.json`, and
-`test/derivedConsistency.test.js` recomputes it — touch the phonetic
-layer without rebuilding and the suite goes red with the exact rebuild
-commands in the failure message.
+a hash of the FULL derived-input set — `rhymeClassifier.js` +
+`pronunciation.js` (the code) AND `cmu-dict.json` + `cmu-overrides.json`
+(the data) — into `wordlists/lyric-library/index.json`, and
+`test/derivedConsistency.test.js` recomputes it. Touch the phonetic layer
+OR expand the dict (inflection synthesis, override edits) without
+rebuilding and the suite goes red with the exact rebuild commands in the
+failure message. (The data files were added to the hash after the
+inflection-synthesis batch shipped with stale buckets while a
+code-only hash stayed green — a dict expansion changes bucket contents
+without touching the code.)
 
 Changes to the phonetic layer ALSO require re-running
 `lyric-library/scripts/build-index.mjs` first (needs `lyric-library/raw/`,
