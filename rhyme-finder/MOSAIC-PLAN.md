@@ -109,15 +109,111 @@ of this doc is accurate; these override where they conflict.
    AND a lower additive (audible "her") with identical display. Kept only
    the best-ranked reading per display string.
 
-5. **`delta / felt to` (§10 geminate fixture) is shadowed.** The
-   identical-sounding `felt a` (exact join, same `F EH L T AH` phonemes)
-   wins the dedup on join quality, so `felt to` never surfaces — faithful
-   to the §5.4 dedup spec, which the plan's fixture didn't anticipate. The
-   geminate MECHANISM is correct and surfaces where unshadowed
-   (`splendid / spend did`, `candid / hand did`). Test fixtures use those.
+5. **The geminate join type is now dormant.** Originally the plan tested it
+   with `splendid / spend did`, `candid / hand did`. As of §1c those fixtures
+   are gone: a geminate needs a consonant-initial tail, which is always a
+   FUNCTION tail (`to`/`did`/`them`…), which the §1c attestation gate requires
+   corpus evidence for — and no geminate is attested yet. The `matchTail`
+   degemination mechanism is retained and correct; it simply produces no
+   output today. Re-add a fixture if a corpus expansion attests one. (The
+   plan's original `delta / felt to` example was doubly dead — even pre-§1c it
+   was shadowed by the identical-sounding exact `felt a`, per the §5.4 dedup.)
 
 Original plan follows. (Implementer: still read CLAUDE.md §"Lyric corpus &
 derived wordlists" — the derived-rebuild protocol applies, see §9.)
+
+---
+
+## Mosaic quality: the gate stack + lessons (2026-07-09)
+
+*The single most important thing to understand before touching mosaic
+filtering. Consolidates the hard-won lessons behind §1b / §1b′ / §1c so you
+don't re-derive them from a user screenshot the way we did.*
+
+### The gate stack — a layered pipeline
+
+Each layer exists because the previous one **shipped junk to a real user**.
+Never remove one without re-checking what it was catching. Order of
+application (heads gated in `buildHeadIndex`; tails at pair time in
+`generateMosaics`):
+
+| # | Gate | Where | Kills | Found by |
+|---|---|---|---|---|
+| 1 | **POS** — head is a verb | `deps.isVerb` | `oh it`, `radio it`, `scott her`, `apricot her` | mockup review |
+| 2 | **Object-class** — object-pronoun tail needs a matching WordNet object frame | `headEntry.objMask & fw.objMask` | `weekend her` (intransitive), `pretend her` (clause-only), `spend her` (thing-only) | user screenshot |
+| 3 | **Prepositional override** — strip frames WordNet mis-scored | `STRIP_BOTH`/`STRIP_PERSON` in build | `depend her`, `condescend her`, `rely her` (object is a PP object) | user screenshot |
+| 4 | **Attestation** — a NON-object-pronoun tail must end a real song line | `deps.isAttested` | `spend for`, `weekend your`, `bend there`, `pretend are`, `call so`, `low at` | user screenshot |
+
+Gates 1–3 govern the **head verb**; gate 4 governs the **tail**. A mosaic
+survives only if head and tail both clear.
+
+### The one principle that ties it together
+
+**Grammatical frames are trustworthy ONLY for object-pronoun tails; for
+every other tail, defer to corpus attestation.**
+
+- Object pronoun tails (`her/them/him/me/you/us/it`) attach to a verb as a
+  direct object, and WordNet's object frames model that — imperfectly (gate 3
+  patches the prepositional-verb false positives), but well enough to
+  *generate speculatively*.
+- Any other tail (preposition, possessive, locative, conjunction, auxiliary)
+  has **no grammatical model** for whether the pairing is a natural
+  line-ending. `die for` works, `spend for` doesn't, and nothing short of "did
+  a real song end a line this way" tells them apart. So those tails are
+  attestation-gated, not speculatively generated.
+
+That single split is why the code has two very different-looking gates
+(a WordNet-frame bitmask vs. a corpus lookup) — they're the same idea applied
+to the two tail classes.
+
+### Why WordNet frames leak (gate 3's root cause)
+
+WordNet scores a frame against a whole **polysemous synset**, not a word. The
+"rely ON" synset `[count, bet, depend, swear, rely, bank, look, calculate,
+reckon]` carries object frames 08 + 09, so every member inherits "takes an
+object" — but the object there is a **PP object** (`depend ON her`), not a
+direct one. There is no clean frame-level signal separating `defend her`
+(real direct object) from `depend her` (prepositional). Hence gate 3 is a
+**curated override**, not an algorithm, split two ways:
+- `STRIP_BOTH` — fully prepositional (`depend`, `rely`, `wait`, `respond`,
+  `pray`, `condescend`…): clear person AND thing, because `depend it` is as
+  broken as `depend her`.
+- `STRIP_PERSON` — a genuine thing-object exists (`count`, `calculate`,
+  `yield`, `relate`…): keep `count it`, drop `count her`.
+- Deliberately NOT stripped: `wish` (wish her well), `refer` (refer her) —
+  real bare person objects. The lesson: verify each candidate against *both*
+  "V her" and "V it" before adding it; a wrong add silently deletes a good
+  mosaic.
+
+### The quality bar (user's explicit call, 2026-07-09)
+
+**Every shown mosaic must be actually usable — quality over coverage.** When
+in doubt, HARD-gate (remove), don't soft-demote (rank lower). Consequences we
+accepted on purpose:
+- `follow`/`yellow` emit **zero** mosaics (their only candidates were
+  `call so`/`tell so`). Zero beats junk.
+- Gate 2 casualties `bend her`/`end her`/`transcend her` (WordNet lists no
+  somebody-frame) — same trade as the classifier's OW2 rainbow/elbow.
+- The geminate join type going dormant (see §5 above).
+
+### Playbook — how to debug / extend
+
+- **These bugs surface as user screenshots**, not test failures — fixtures
+  only ever cover bug classes already found. When you touch a gate, don't
+  trust green tests; **eyeball generation** across many rhyme families.
+- **Verify by probing generation, not by reading frames.** The pattern used
+  here: shim `fetch` to the local filesystem, `import` the real
+  `findRhymes`, dump `mosaics` for ~20–30 feminine words, and read the
+  output. WordNet's raw frames (dump `data.verb`) explain *why* but only the
+  generated output tells you the *effect*.
+- **To gate a new bad `V her`:** if the verb is prepositional/intransitive,
+  add it to `STRIP_BOTH` or `STRIP_PERSON` in `buildMosaicVerbs.mjs`, rerun
+  the build, add a golden fixture (both the bad phrase absent AND a good
+  neighbour present). If a whole tail class is wrong, it belongs in the tail
+  table / attestation gate instead.
+- **Any change to `buildMosaicVerbs.mjs` needs the build rerun + committed**
+  (`node scripts/buildMosaicVerbs.mjs`) — the JSON is the shipped artifact,
+  the script is not run on deploy.
 
 ---
 
@@ -638,7 +734,7 @@ Generation positives (assert membership + type + joinType):
 | reminder | find her | perfect | exact |
 | bottom | got them | perfect | exact (weak 'em) |
 | system | missed them | perfect | exact (weak 'em) |
-| delta | felt to | perfect | geminate (degeminated assembly) |
+| delta | felt to | perfect | geminate (degeminated assembly) — ⚠️ now dormant, see as-built §5/§1c: geminates are attestation-gated and none attest yet |
 | city | hit me | additive | additive-onset |
 | spaghetti | forget me | additive | additive-onset |
 | money | run me | additive | additive-onset |
