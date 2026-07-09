@@ -4,6 +4,7 @@
 // and cliché flags.
 
 import { findRhymes, TYPE_ORDER, prewarm } from "./rhymeFinder.js";
+import { classifyRhyme } from "./rhymeClassifier.js";
 import {
   hasQuotes,
   getQuotes,
@@ -1694,7 +1695,41 @@ function renderInlineInflectedList(tier2, popEl) {
 // to unfurl the surrounding stanza in place. See
 // design_handoff_corpus_gallery/README.md for the full design spec.
 
-function groupPairQuotes(quotes) {
+// Grade a corpus partner against the searched word with the SAME
+// dictionary taxonomy the Dictionary tab uses. The indexer's own partner
+// tag is deliberately looser (perfect | assonance, anchor-vowel only) —
+// it exists to capture what songwriters actually paired, so weak vowel
+// echoes (affected / surrender) are in the data on purpose. The views'
+// job is to say so: true rhymes lead, echoes trail behind an explicit
+// label instead of masquerading as rhymes.
+const GRADE_RANK = {
+  perfect: 0,
+  identity: 0,
+  family: 1,
+  additive: 2,
+  subtractive: 2,
+  assonance: 3,
+  consonance: 4,
+};
+
+function gradePartner(sourceWord, partnerWord, indexerType) {
+  let type = null;
+  try {
+    type = classifyRhyme(sourceWord, partnerWord).type;
+  } catch {}
+  if (!(type in GRADE_RANK)) {
+    // Not a dictionary tier (none / mismatched / unknown). Trust the
+    // indexer's full-key match if it claimed perfect (client dict drift);
+    // otherwise it's a bare stressed-vowel echo.
+    return indexerType === "perfect"
+      ? { rank: 0, label: "perfect", echo: false }
+      : { rank: 5, label: "vowel echo", echo: true };
+  }
+  const rank = GRADE_RANK[type];
+  return { rank, label: type, echo: rank >= 3 };
+}
+
+function groupPairQuotes(quotes, sourceWord) {
   // Keep only line-end quotes that have a partner — the gallery's whole
   // shape (couplet, partner mark) presumes both lines exist.
   const ends = quotes.filter(
@@ -1715,10 +1750,17 @@ function groupPairQuotes(quotes) {
       const bc = (b.credit || b.artist || "").toLowerCase();
       return ac.localeCompare(bc);
     });
+    g.grade = gradePartner(
+      sourceWord,
+      g.partner,
+      g.instances.find((q) => q.partner?.type)?.partner.type
+    );
   }
-  // Across groups: most-cited first; ties broken alpha.
+  // Across groups: rhyme strength first (a lone perfect beats a
+  // twice-cited vowel echo), then most-cited, then alpha.
   groups.sort(
     (a, b) =>
+      a.grade.rank - b.grade.rank ||
       b.instances.length - a.instances.length ||
       a.partner.localeCompare(b.partner)
   );
@@ -1748,7 +1790,7 @@ async function renderCorpusGallery(word) {
   mount.innerHTML = "";
 
   const quotes = await getQuotes(word);
-  const groups = groupPairQuotes(quotes);
+  const groups = groupPairQuotes(quotes, word);
   // groupPairQuotes only sees tier-1 (≤5 instances/pair). Attach the TRUE
   // total per pair from the cached source bucket so the UI shows the real
   // count; the rest (tier-2) pages in lazily as the user advances songs.
@@ -1779,7 +1821,7 @@ async function renderCorpusGallery(word) {
   document.documentElement.setAttribute("data-tweak-sep", "dash");
 
   // ── State ────────────────────────────────────────────────────
-  let pIdx = 0; // start at the most-cited partner
+  let pIdx = 0; // start at the strongest partner (grade, then citations)
   let iIdx = 0;
   let stanzaOpen = false;
   let wheelLock = false;
@@ -2077,7 +2119,7 @@ async function renderCorpusExplore(word) {
   if (!mount) return;
 
   const quotes = await getQuotes(word);
-  const groups = groupPairQuotes(quotes);
+  const groups = groupPairQuotes(quotes, word);
 
   // "Explore all" wants completeness, so page in the FULL set per pair
   // (tier-2 included) — getQuotes only returns the tier-1 preview (≤5). Only
@@ -2144,15 +2186,17 @@ async function renderCorpusExplore(word) {
   const metaCell = (num, lbl) =>
     `<div class="cd-explore-meta-cell"><div class="cd-explore-meta-num">${num}</div><div class="cd-explore-meta-lbl">${lbl}</div></div>`;
 
-  const atlasHTML = groups
-    .map(
-      (g, i) =>
-        `<button type="button" class="cd-explore-atlas-item tier-${tierOf(g.instances.length)}" data-gi="${i}">` +
-        `<span class="cd-explore-atlas-word">${escapeHtml(g.partner)}</span>` +
-        `<span class="cd-explore-atlas-count">${g.instances.length}</span>` +
-        `</button>`
-    )
-    .join("");
+  // One strip, ordered strongest-match-first (groups is pre-sorted by
+  // grade). Echo words carry .is-echo and read faded, so the match
+  // hierarchy is legible without splitting into a second labeled row —
+  // the grouped list below carries the explicit rhyme/echo divide.
+  const rhymeGroups = groups.filter((g) => !g.grade.echo);
+  const atlasItem = (g, i) =>
+    `<button type="button" class="cd-explore-atlas-item tier-${tierOf(g.instances.length)}${g.grade.echo ? " is-echo" : ""}" data-gi="${i}">` +
+    `<span class="cd-explore-atlas-word">${escapeHtml(g.partner)}</span>` +
+    `<span class="cd-explore-atlas-count">${g.instances.length}</span>` +
+    `</button>`;
+  const atlasHTML = `<div class="cd-explore-atlas-row">${groups.map(atlasItem).join("")}</div>`;
 
   const instanceHTML = (q) => {
     const hasStanza = Array.isArray(q.stanza) && q.stanza.length;
@@ -2195,13 +2239,21 @@ async function renderCorpusExplore(word) {
   };
 
   const groupHTML = (g, i) => {
-    const open = i < 2;
+    // Default-open the two strongest groups. Echo groups only auto-open
+    // when there are no true rhymes at all.
+    const open = rhymeGroups.length ? !g.grade.echo && i < 2 : i < 2;
     const shown = open ? Math.min(EXPLORE_INITIAL_BATCH, g.instances.length) : 0;
     const remaining = g.instances.length - shown;
+    const divider =
+      g.grade.echo && i === rhymeGroups.length
+        ? `<li class="cd-explore-echo-divider" aria-hidden="true">Vowel echoes — not full rhymes, but the stressed vowel carries</li>`
+        : "";
     return (
-      `<li class="cd-explore-group${open ? " is-open" : ""}" data-gi="${i}" data-shown="${shown}">` +
+      divider +
+      `<li class="cd-explore-group${open ? " is-open" : ""}${g.grade.echo ? " is-echo" : ""}" data-gi="${i}" data-shown="${shown}">` +
       `<div class="cd-explore-group-head${open ? " is-open" : ""}" role="button" tabindex="0" aria-expanded="${open}">` +
-      `<span class="cd-explore-group-partner">${escapeHtml(g.partner)}</span>` +
+      `<span class="cd-explore-group-partner">${escapeHtml(g.partner)}` +
+      `<span class="cd-explore-group-grade${g.grade.echo ? " is-echo" : ""}">${escapeHtml(g.grade.label)}</span></span>` +
       `<span class="cd-explore-group-count"><b>${g.instances.length}</b> ${g.instances.length === 1 ? "song" : "songs"}</span>` +
       `<span class="cd-explore-group-toggle">${open ? "−" : "+"}</span>` +
       `</div>` +
@@ -2230,8 +2282,8 @@ async function renderCorpusExplore(word) {
     `</div>` +
     `</header>` +
     `<nav class="cd-explore-atlas" aria-label="Partner-word atlas">` +
-    `<div class="cd-explore-atlas-label">All partner words, sized by frequency · click to jump</div>` +
-    `<div class="cd-explore-atlas-row">${atlasHTML}</div>` +
+    `<div class="cd-explore-atlas-label">All partner words, sorted by match · click to jump</div>` +
+    atlasHTML +
     `</nav>` +
     `<ul class="cd-explore-groups">${groups.map(groupHTML).join("")}</ul>` +
     `</section>`;

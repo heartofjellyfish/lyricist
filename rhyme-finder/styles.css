@@ -4967,6 +4967,15 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   text-underline-offset: 4px;
 }
 
+/* Vowel-echo partners in the strip — share only the stressed vowel.
+   Demoted inline: flat modest size regardless of citation count, faded
+   ink, so the match hierarchy reads without a separate row. */
+.cd-explore-atlas-item.is-echo .cd-explore-atlas-word {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink-faded);
+}
+
 /* Groups list. */
 .cd-explore-groups { list-style: none; margin: 0; padding: 0; }
 .cd-explore-group {
@@ -5013,6 +5022,35 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--vermilion);
+}
+
+/* Rhyme-grade tag on each group head — same taxonomy vocabulary as the
+   Dictionary tab (perfect / family / additive / subtractive / assonance). */
+.cd-explore-group-grade {
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  margin-left: 12px;
+  vertical-align: 4px;
+}
+.cd-explore-group.is-echo .cd-explore-group-partner {
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+/* Section divider before the first vowel-echo group. */
+.cd-explore-echo-divider {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  padding: 30px 4px 10px;
 }
 .cd-explore-group-body { display: none; padding: 0 0 18px 6px; }
 .cd-explore-group.is-open .cd-explore-group-body { display: block; }
