@@ -3471,6 +3471,7 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   background-size: 150px 150px, 600px 600px;
   background-blend-mode: multiply, normal;
   border: 1px solid var(--ink);
+  border-radius: 16px;
   box-shadow: 4px 4px 0 var(--ink-ghost);
   text-align: left;
 }
@@ -3989,7 +3990,7 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
 
 /* ── Coffee footer ─────────────────────────────────────────────── */
 .rf-colophon-foot {
-  margin: 0;
+  margin: 15px 0 0;
   padding-top: 14px;
   border-top: 1px dashed var(--ink-ghost);
 }
