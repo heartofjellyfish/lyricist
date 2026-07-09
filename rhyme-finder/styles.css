@@ -4016,6 +4016,39 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
 }
 .rf-colophon-coffee:hover { text-decoration-color: var(--vermilion); }
 
+/* Share — matches the coffee link; native share sheet on mobile,
+   in-place "link copied ✓" on desktop. Reset button chrome so it
+   reads as a link inside the italic footer line. */
+.rf-colophon-share {
+  font: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--vermilion);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(177, 59, 44, 0.4);
+  font-style: italic;
+  transition: text-decoration-color 140ms ease, color 140ms ease;
+}
+.rf-colophon-share:hover { text-decoration-color: var(--vermilion); }
+.rf-colophon-share-ic {
+  width: 11px;
+  height: 11px;
+  margin-right: 3px;
+  vertical-align: -1px;
+  opacity: 0.8;
+}
+.rf-colophon-share.is-copied {
+  color: var(--vermilion-deep);
+  text-decoration-color: transparent;
+  cursor: default;
+}
+.rf-colophon-share.is-copied .rf-colophon-share-ic { display: none; }
+.rf-colophon-share-check { margin-right: 3px; font-style: normal; }
+
 /* ── Responsive ────────────────────────────────────────────────── */
 @media (max-width: 720px) {
   .rf-colophon { top: 12px; right: 12px; }

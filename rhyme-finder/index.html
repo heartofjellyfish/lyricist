@@ -462,7 +462,9 @@
               <span class="rf-colophon-foot-prefix">Or, if you'd care to —</span>
               <a class="rf-colophon-coffee"
                  href="https://ko-fi.com/liuqi627"
-                 target="_blank" rel="noopener">leave a coffee</a>.
+                 target="_blank" rel="noopener">leave a coffee</a>,
+              or <button type="button" class="rf-colophon-share" data-share>
+                <svg class="rf-colophon-share-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8 15.7 6.4M8.3 13.2 15.7 17.6"/></svg><span class="rf-colophon-share-label">share it</span></button>.
             </p>
           </footer>
           </div>
@@ -611,6 +613,44 @@
         show(active);
         startTimer();
       })();
+
+      // ── Share ─────────────────────────────────────────────────
+      // Mobile: native share sheet. Desktop (no sheet): copy the URL
+      // to the clipboard and flip the word to "link copied ✓" for a
+      // beat. Functional path is independent of PostHog so an adblocker
+      // can't disable it — the "shared" event is captured separately.
+      (function () {
+        const btn = document.querySelector(".rf-colophon-share");
+        if (!btn) return;
+        const label = btn.querySelector(".rf-colophon-share-label");
+        const original = label ? label.innerHTML : "";
+        const URL_TO_SHARE = "https://rhyme.land/";
+        let resetTimer = null;
+
+        btn.addEventListener("click", async () => {
+          if (navigator.share) {
+            try {
+              await navigator.share({ title: "Rhyme Land", url: URL_TO_SHARE });
+              if (window.posthog) posthog.capture("shared", { via: "native" });
+              return;
+            } catch (e) {
+              if (e && e.name === "AbortError") return; // user dismissed
+            }
+          }
+          try {
+            await navigator.clipboard.writeText(URL_TO_SHARE);
+          } catch (e) { /* clipboard blocked — fall through to visual */ }
+          if (window.posthog) posthog.capture("shared", { via: "copy" });
+          if (!label) return;
+          btn.classList.add("is-copied");
+          label.innerHTML = '<span class="rf-colophon-share-check">✓</span>link copied';
+          clearTimeout(resetTimer);
+          resetTimer = setTimeout(() => {
+            btn.classList.remove("is-copied");
+            label.innerHTML = original;
+          }, 1900);
+        });
+      })();
     </script>
 
     <script type="module" src="/rhyme-finder/src/main.js"></script>
@@ -621,6 +661,8 @@
            · colophon_opened    — discovery of feedback/coffee surface
            · feedback_submitted — Formspree completion
            · coffee_clicked     — Ko-fi click-through
+           · shared             — native share / copy-link (fired in the
+                                   share IIFE above, not here)
            · outbound_berklee / outbound_school_of_song — resource click-through
          search_submitted + popover_opened are fired from src/main.js:
          runSearch() covers all three entry paths (form / ?q= deep link /
