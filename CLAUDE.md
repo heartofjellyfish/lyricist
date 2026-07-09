@@ -508,11 +508,18 @@ keys (headKey/tailKey — digit-stripped joins), never bucket filenames.
 Three data dependencies:
 - **Function-word tail table** (in-module) — the ~40 pronoun/particle tails
   with weak forms (`her → 'er`). Data, not code; prune/extend freely.
-- **`rhyme-finder/wordlists/mosaic-verbs.json`** — the verb-head gate.
-  Every mosaic head must be a verb (`know it`, `bought her` — not `oh it`,
-  `scott her`), because the productive pattern is verb + pronoun/particle.
-  Rebuild via `node scripts/buildMosaicVerbs.mjs` only when upgrading
-  wordnet-db or the irregular-verb list.
+- **`rhyme-finder/wordlists/mosaic-verbs.json`** — the verb-head gate,
+  `{form: objMask}`. Every mosaic head must be a verb (`know it`,
+  `bought her` — not `oh it`, `scott her`), AND — July 2026 — able to
+  take the tail as its object when the tail is an object pronoun:
+  bit 1 = WordNet somebody-frames (gates her/them/him/me/you/us),
+  bit 2 = something-frames (gates it). POS alone shipped `weekend her` /
+  `pretend her` / `spend her` (intransitive / clause-only / thing-only).
+  Copula-aux tails (are/or/is/did…) additionally rank behind all
+  object/particle readings: verb+aux is corpus-unattested, and the ER0
+  twin `pretend are` would otherwise inherit the exact slots the her-gate
+  frees. Rebuild via `node scripts/buildMosaicVerbs.mjs` only when
+  upgrading wordnet-db, the irregular list, or the frame→mask mapping.
 - **`wordlists/mosaic-phrases.json`** — corpus ATTESTATION (which generated
   phrases actually end lines in real songs). This is the "everyday" filter
   the verb gate can't do: `bought her`/`hit me` are attested, `caught there`

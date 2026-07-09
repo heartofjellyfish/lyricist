@@ -1,9 +1,9 @@
 # Mosaic Rhyme — design plan
 
-*Last updated: 2026-07-08. Status: **v1 shipped** (see "As-built" below).
+*Last updated: 2026-07-09. Status: **v1 shipped** (see "As-built" below).
 Implementer notes retained as the design record; deviations documented.*
 
-## As-built (2026-07-08) — deviations from the plan below
+## As-built (2026-07-08, object gate 2026-07-09) — deviations from the plan below
 
 Five things changed during the mockup-review pass with the user. The rest
 of this doc is accurate; these override where they conflict.
@@ -17,11 +17,37 @@ of this doc is accurate; these override where they conflict.
    `hit me`, `run me`). `scripts/buildMosaicVerbs.mjs` bakes WordNet verbs
    + irregular pasts (`got`/`bought`/`caught`) + regular inflections,
    intersected with CMU, into `rhyme-finder/wordlists/mosaic-verbs.json`
-   (~18k forms). `generateMosaics` gates every head via `deps.isVerb` in
+   (~24k forms). `generateMosaics` gates every head via `deps.isVerb` in
    `buildHeadIndex`. This is NOT the v2 bigram ranker — it's a cheap POS
    gate that kills the obvious trash. v2 bigram plausibility (§11.2) still
    wanted for ranking `hold me` over `mold me` and for the additive-tier
    fragments (`got for`, `lot your`) that the verb gate alone lets through.
+
+   **1b. Object-class gate (2026-07-09).** POS alone still shipped
+   `weekend her` / `pretend her` / `spend her` as top mosaics for
+   *surrender* — verbs, but ones that can't take a person object
+   (weekend is intransitive; pretend takes clauses; spend takes things).
+   `buildMosaicVerbs.mjs` now bakes a per-form bitmask from WordNet's
+   sentence frames (`{form: mask}`, bit 1 = somebody-object frames
+   9/14/17/18/20/24/25/30, bit 2 = something-object frames
+   8/11/15/16/19/21/31; frame 10 excluded — its subject is a thing, the
+   causative "the tent sleeps four" reading). Tail table rows carry
+   `obj: "person"` (her/them/him/me/you/us) or `obj: "thing"` (it);
+   `generateMosaics` checks `headEntry.objMask & fw.objMask` at pair
+   time via `deps.verbObjectMask`. Accepted casualties (WordNet lists no
+   somebody-frame): `bend her`, `end her`, `transcend her` — same trade
+   as the classifier's OW2 rainbow/elbow.
+
+   **Aux-twin demotion (same change).** Weak `'er` and `are`/`or` are the
+   same sound (bare ER0), so gating `pretend her` just promoted its twin
+   `pretend are` into the freed dedup slot. Corpus check: attested
+   `X are`/`X did`/`X will` line-endings all have NOUN heads (`muses
+   are`, `father did`) — verb + finite aux is essentially unattested. So
+   copula/aux tails (`are or is was do did can will not`) carry
+   `aux: true` and rank behind every object/particle reading in
+   `compareRows` (never in the MOSAIC_PREVIEW inline slots; still
+   reachable behind show-more). Noun-head aux mosaics (`love is`,
+   `promise is`) are untouched — attestation drives their display.
 
 2. **Corpus attestation (the "everyday" filter + mosaic red dots).** The
    verb gate (1) kills grammatical trash but still leaves phrases that are

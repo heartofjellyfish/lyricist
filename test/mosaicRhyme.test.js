@@ -141,6 +141,46 @@ test("verb gate: verb heads (incl. irregular pasts) survive", async () => {
   }
 });
 
+// ── Object-class gate (WordNet frames baked into mosaic-verbs.json) ──
+
+test("object gate: person-pronoun tails need a somebody-frame head", async () => {
+  // WordNet frames: weekend is intransitive, pretend takes only clauses/
+  // infinitives, spend and mend take only things — none can take "her".
+  // send / defend / tend / lend carry somebody-frames and survive.
+  const mosaics = await mosaicsFor("surrender");
+  for (const bad of ["weekend her", "pretend her", "spend her", "mend her"]) {
+    assert.ok(!find(mosaics, bad), `"${bad}" leaked past the object gate`);
+  }
+  for (const good of ["send her", "defend her", "tend her", "lend her"]) {
+    assert.ok(
+      find(mosaics, good),
+      `"${good}" missing — have: ${mosaics.slice(0, 10).map((m) => m.display).join(", ")}`,
+    );
+  }
+});
+
+test("object gate: thing tail 'it' accepts thing-only verbs", async () => {
+  // said → say has thing-frames but no somebody-frame: "said it" must
+  // survive — the gate is per-tail-class, not blanket transitivity.
+  const edit = await mosaicsFor("edit");
+  assert.ok(find(edit, "said it"), `"said it" missing (thing-only verb + it)`);
+});
+
+test("object gate: aux twins don't inherit the freed preview slots", async () => {
+  // Weak 'er and "are"/"or" are the same sound (bare ER0). Gating
+  // "pretend her" must not just promote its twin "pretend are" into the
+  // top slots — aux tails rank behind every object/particle reading.
+  // 6 = MOSAIC_PREVIEW (main.js), the inline chips when nothing is attested.
+  const mosaics = await mosaicsFor("surrender");
+  const nonAttested = mosaics.filter((m) => !(m.songs > 0));
+  for (const m of nonAttested.slice(0, 6)) {
+    assert.ok(
+      !/ (are|or|is|was|do|did|can|will|not)$/u.test(m.display),
+      `aux twin "${m.display}" occupies a preview slot`,
+    );
+  }
+});
+
 test("head words clear the quality gate (no junk tokens as heads)", async () => {
   const junk = new Set(["sie", "naif", "klee", "fae", "che", "ya", "brunn", "chun", "jun", "kai", "doi", "foy", "hoy", "loy"]);
   const mosaics = await mosaicsFor("water");

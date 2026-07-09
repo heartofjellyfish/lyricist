@@ -44,15 +44,31 @@ import {
 //
 // Deliberately excluded: he/she/we (subject pronouns — "hit he" is junk),
 // the/an (never line-final). See MOSAIC-PLAN.md §5.3.
+//
+// `obj` marks OBJECT-PRONOUN tails: the head verb must be able to take that
+// object ("person" → somebody-frames, "thing" → something-frames, per the
+// masks baked into mosaic-verbs.json). Without it the verb gate alone ships
+// "weekend her" (intransitive), "pretend her" / "spend her" (no person
+// object). Non-object tails (particles, determiners, auxiliaries) stay
+// ungated — "her" as a possessive reading is NOT credited because a
+// line-final "her" reads as the object.
+//
+// `aux` marks copula/auxiliary tails whose natural line-ending reading is
+// SUBJECT + aux ("muses are", "father did", "love is" — corpus-attested
+// heads are all nouns); after a VERB head they're a stretch ("pretend
+// are"). They rank behind every object/particle reading so they never
+// occupy un-attested preview slots — without this, gating "pretend her"
+// just promotes its same-sound twin "pretend are" into the freed slot
+// (weak 'er and are are both bare ER0).
 const FUNCTION_WORDS = [
-  { word: "it",   variants: [["IH0 T"]] },
-  { word: "her",  variants: [["ER0", true], ["HH ER0"]] },
-  { word: "them", variants: [["AH0 M", true], ["DH AH0 M"]] },
-  { word: "him",  variants: [["IH0 M", true], ["HH IH0 M"]] },
+  { word: "it",   obj: "thing",  variants: [["IH0 T"]] },
+  { word: "her",  obj: "person", variants: [["ER0", true], ["HH ER0"]] },
+  { word: "them", obj: "person", variants: [["AH0 M", true], ["DH AH0 M"]] },
+  { word: "him",  obj: "person", variants: [["IH0 M", true], ["HH IH0 M"]] },
   { word: "his",  variants: [["IH0 Z", true], ["HH IH0 Z"]] },
-  { word: "me",   variants: [["M IY0"]] },
-  { word: "you",  variants: [["Y AH0", true], ["Y UW0"]] },
-  { word: "us",   variants: [["AH0 S"]] },
+  { word: "me",   obj: "person", variants: [["M IY0"]] },
+  { word: "you",  obj: "person", variants: [["Y AH0", true], ["Y UW0"]] },
+  { word: "us",   obj: "person", variants: [["AH0 S"]] },
   { word: "a",    variants: [["AH0"]] },
   { word: "of",   variants: [["AH0 V"], ["AH0", true]] },
   { word: "to",   variants: [["T UW0"], ["T AH0", true]] },
@@ -64,11 +80,11 @@ const FUNCTION_WORDS = [
   { word: "out",  variants: [["AW0 T"]] },
   { word: "off",  variants: [["AA0 F"]] },
   { word: "all",  variants: [["AA0 L"]] },
-  { word: "is",   variants: [["IH0 Z"]] },
+  { word: "is",   aux: true, variants: [["IH0 Z"]] },
   { word: "as",   variants: [["AH0 Z"]] },
-  { word: "was",  variants: [["W AH0 Z"]] },
-  { word: "are",  variants: [["ER0"]] },
-  { word: "or",   variants: [["ER0"]] },
+  { word: "was",  aux: true, variants: [["W AH0 Z"]] },
+  { word: "are",  aux: true, variants: [["ER0"]] },
+  { word: "or",   aux: true, variants: [["ER0"]] },
   { word: "for",  variants: [["F ER0"]] },
   { word: "your", variants: [["Y ER0"]] },
   { word: "from", variants: [["F R AH0 M"]] },
@@ -77,21 +93,27 @@ const FUNCTION_WORDS = [
   { word: "my",   variants: [["M AY0"]] },
   { word: "by",   variants: [["B AY0"]] },
   { word: "so",   variants: [["S OW0"]] },
-  { word: "do",   variants: [["D UW0"], ["D AH0"]] },
-  { word: "did",  variants: [["D IH0 D"]] },
-  { word: "can",  variants: [["K AH0 N"]] },
-  { word: "will", variants: [["W AH0 L"]] },
-  { word: "not",  variants: [["N AA0 T"]] },
+  { word: "do",   aux: true, variants: [["D UW0"], ["D AH0"]] },
+  { word: "did",  aux: true, variants: [["D IH0 D"]] },
+  { word: "can",  aux: true, variants: [["K AH0 N"]] },
+  { word: "will", aux: true, variants: [["W AH0 L"]] },
+  { word: "not",  aux: true, variants: [["N AA0 T"]] },
   { word: "what", variants: [["W AH0 T"]] },
   { word: "that", variants: [["DH AH0 T"]] },
   { word: "this", variants: [["DH IH0 S"]] },
   { word: "there", variants: [["DH ER0", true]] },
 ];
 
+// Object-class bitmask, mirrored by scripts/buildMosaicVerbs.mjs.
+const OBJ_PERSON = 1;
+const OBJ_THING = 2;
+
 // Realized table: variants split + normalized once, priority index attached.
 const FW_TABLE = FUNCTION_WORDS.map((row, priority) => ({
   word: row.word,
   priority,
+  objMask: row.obj === "person" ? OBJ_PERSON : row.obj === "thing" ? OBJ_THING : 0,
+  aux: !!row.aux,
   variants: row.variants.map(([ph, weak]) => ({
     phonemes: normalizePhonemes(ph).split(" "),
     weak: !!weak,
@@ -155,7 +177,7 @@ function isVowelPhoneme(ph) {
 let HEAD_INDEX = null;
 let HEAD_INDEX_SRC = null;
 
-function buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb) {
+function buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbObjectMask) {
   const index = new Map();
   for (const entry of corpusEntries) {
     if (!entry.rhymeTail || entry.rhymeTail.length === 0) continue;
@@ -176,6 +198,9 @@ function buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb) {
       phonemes: entry.phonemes,
       syllables: entry.syllables,
       score,
+      // Object-class bits (person/thing) — checked against the TAIL's
+      // requirement at pair time, since the same head serves many tails.
+      objMask: verbObjectMask(entry.text),
     });
   }
   // Pre-sort each bucket by score desc so per-split take is a cheap slice.
@@ -185,9 +210,9 @@ function buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb) {
   return index;
 }
 
-function ensureHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb) {
+function ensureHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbObjectMask) {
   if (HEAD_INDEX && HEAD_INDEX_SRC === corpusEntries) return HEAD_INDEX;
-  HEAD_INDEX = buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb);
+  HEAD_INDEX = buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbObjectMask);
   HEAD_INDEX_SRC = corpusEntries;
   return HEAD_INDEX;
 }
@@ -245,8 +270,10 @@ export function generateMosaics(source, corpusEntries, deps) {
 
   const { isAcceptableWord, scoreOf } = deps;
   const isVerb = deps.isVerb ?? (() => true); // grammatical head gate (§5.3)
+  // Object-class gate (§5.3): permissive default mirrors isVerb's.
+  const verbObjectMask = deps.verbObjectMask ?? (() => OBJ_PERSON | OBJ_THING);
   const exclude = deps.exclude ?? new Set();
-  const index = ensureHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb);
+  const index = ensureHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbObjectMask);
 
   const anchorIdx = rhymeAnchorIndex(source.phonemes);
   if (anchorIdx === -1) return [];
@@ -281,6 +308,11 @@ export function generateMosaics(source, corpusEntries, deps) {
         );
 
         for (const headEntry of heads) {
+          // Object gate (§5.3): an object-pronoun tail needs a head verb
+          // that can take that object class — kills "weekend her"
+          // (no object), "pretend her" / "spend her" (thing-only) while
+          // keeping "send her", "pretend it".
+          if (fw.objMask && !(headEntry.objMask & fw.objMask)) continue;
           // Assembly (§5.4): use the MATCHED variant, not citation. Geminate
           // joins degeminate (drop the variant's initial consonant — English
           // collapses the doubled boundary consonant).
@@ -299,6 +331,7 @@ export function generateMosaics(source, corpusEntries, deps) {
             display: `${headEntry.text} ${fw.word}`,
             type: cls.type,
             joinType: m.joinType,
+            aux: fw.aux,
             weakForm: variant.weak,
             stability: cls.stability,
             explanation: cls.explanation,
@@ -313,7 +346,8 @@ export function generateMosaics(source, corpusEntries, deps) {
     }
   }
 
-  // Rank (§5.5): tier → joinType → head score desc → tail priority → alpha.
+  // Rank (§5.5): tier → joinType → non-aux first → head score desc →
+// tail priority → alpha.
   const ranked = [...byKey.values()].sort(compareRows);
 
   // Suppress twin surfaces: the same phrase can arise as a perfect (weak
@@ -346,6 +380,7 @@ function compareRows(a, b) {
   if (t !== 0) return t;
   const j = (JOIN_RANK[a.joinType] ?? 9) - (JOIN_RANK[b.joinType] ?? 9);
   if (j !== 0) return j;
+  if (a.aux !== b.aux) return a.aux ? 1 : -1;
   if (a.score !== b.score) return b.score - a.score;
   if (a.priority !== b.priority) return a.priority - b.priority;
   return a.display.localeCompare(b.display);

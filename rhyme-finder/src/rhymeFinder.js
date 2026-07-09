@@ -25,7 +25,7 @@ let CORPUS_ENTRIES = null;
 let WORD_LEX = null;          // Map<word, "common"|"person"|"place"|"science">
 let COMMON_RANK = null;
 let LYRIC_FREQ = null;
-let MOSAIC_VERBS = null;      // Set<word> — verb-form gate for mosaic heads
+let MOSAIC_VERBS = null;      // Map<form, objMask> — verb gate + object-class for mosaic heads
 let MOSAIC_PHRASES = null;    // { "bought her": {n, q:[…]} } — corpus attestation
 let WORDLISTS_PROMISE = null;
 
@@ -52,7 +52,9 @@ async function loadWordlists() {
       // mosaic-verbs / mosaic-phrases are non-fatal — without them the mosaic
       // head verb-gate passes everything and no mosaic is attested (no red
       // dot), but the app still works.
-      MOSAIC_VERBS = verbResp.ok ? new Set(await verbResp.json()) : new Set();
+      MOSAIC_VERBS = verbResp.ok
+        ? new Map(Object.entries(await verbResp.json()))
+        : new Map();
       MOSAIC_PHRASES = phraseResp.ok ? await phraseResp.json() : {};
       // wordnet-categories.json is the source of truth for "real word"
       // membership AND lex category. Built by scripts/buildWordnetCategories.mjs;
@@ -443,6 +445,7 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
     isAcceptableWord,
     scoreOf,
     isVerb: (w) => MOSAIC_VERBS.has(w),
+    verbObjectMask: (w) => MOSAIC_VERBS.get(w) ?? 0,
     exclude,
   });
   // Corpus attestation: a mosaic phrase that actually ends lines in real
