@@ -446,6 +446,10 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
     scoreOf,
     isVerb: (w) => MOSAIC_VERBS.has(w),
     verbObjectMask: (w) => MOSAIC_VERBS.get(w) ?? 0,
+    // Attestation gate (§5.3b): non-object-pronoun tails (spend for,
+    // pretend are, call so) require a real line-ending in the corpus.
+    isAttested: (display) =>
+      Object.prototype.hasOwnProperty.call(MOSAIC_PHRASES, display),
     exclude,
   });
   // Corpus attestation: a mosaic phrase that actually ends lines in real

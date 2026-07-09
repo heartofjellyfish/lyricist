@@ -58,13 +58,14 @@ const POSITIVES = [
   ["city", "hit me", "additive", "additive-onset"],
   ["spaghetti", "forget me", "additive", "additive-onset"],
   ["money", "run me", "additive", "additive-onset"],
-  // Geminate (shared boundary consonant, assembled degeminated). NOTE: the
-  // plan's delta/felt-to example is shadowed by the identical-sounding
-  // "felt a" (exact join → same F EH L T AH phonemes), which wins the
-  // (headWord, tail-token) dedup on join quality. These sources surface a
-  // geminate cleanly because no bare-schwa tail produces the same sound.
-  ["splendid", "spend did", "perfect", "geminate"],
-  ["candid", "hand did", "perfect", "geminate"],
+  // Geminate join (shared boundary consonant, assembled degeminated) is a
+  // consonant-initial-tail phenomenon, so every geminate uses a FUNCTION
+  // tail (to/did/them…) — which the §5.3b attestation gate now requires
+  // corpus evidence for. The old splendid/spend-did, candid/hand-did
+  // fixtures were un-attested fragments and are gone with the rest of the
+  // "spend for / pretend are" noise. The join TYPE survives in code
+  // (matchTail) for attested or object-pronoun geminates; there's just no
+  // corpus example today. Re-add a fixture here if one ever attests.
 ];
 
 for (const [source, display, tier, join] of POSITIVES) {
@@ -90,13 +91,17 @@ test("weakForm flag is set on h-dropped / reduced tails", async () => {
   assert.equal(find(bottom, "got them").weakForm, true, "got them is 'got 'em'");
 });
 
-test("delta surfaces a 'felt'-headed perfect mosaic (head match + degemination)", async () => {
-  // The geminate join for delta/felt-to is deduped into the identical-
-  // sounding exact "felt a"; either way a felt-headed PERFECT mosaic proves
-  // the head index + tail matching fire for the delta split.
+test("delta surfaces mosaics via both post-gate paths", async () => {
+  // Proves the head index + tail matching still fire for the delta split
+  // after the §5.3b gate, through the two surviving routes: an ATTESTED
+  // function tail ("fell to", corpus-backed) and a speculative OBJECT-
+  // pronoun tail ("felt you" — feel takes a person object). The un-attested
+  // function-tail readings ("felt to" geminate, "felt a") are gone.
   const mosaics = await mosaicsFor("delta");
-  const felt = mosaics.find((m) => m.words[0] === "felt" && m.type === "perfect");
-  assert.ok(felt, `no felt-headed perfect mosaic for delta — have: ${mosaics.slice(0, 8).map((m) => m.display).join(", ")}`);
+  const fellTo = mosaics.find((m) => m.display === "fell to");
+  assert.ok(fellTo && fellTo.songs > 0, `attested "fell to" missing — have: ${mosaics.map((m) => m.display).join(", ")}`);
+  const feltYou = mosaics.find((m) => m.display === "felt you");
+  assert.ok(feltYou, `object-pronoun "felt you" missing — have: ${mosaics.map((m) => m.display).join(", ")}`);
 });
 
 // ── Generation negatives ────────────────────────────────────────────
@@ -166,18 +171,38 @@ test("object gate: thing tail 'it' accepts thing-only verbs", async () => {
   assert.ok(find(edit, "said it"), `"said it" missing (thing-only verb + it)`);
 });
 
-test("object gate: aux twins don't inherit the freed preview slots", async () => {
-  // Weak 'er and "are"/"or" are the same sound (bare ER0). Gating
-  // "pretend her" must not just promote its twin "pretend are" into the
-  // top slots — aux tails rank behind every object/particle reading.
-  // 6 = MOSAIC_PREVIEW (main.js), the inline chips when nothing is attested.
-  const mosaics = await mosaicsFor("surrender");
-  const nonAttested = mosaics.filter((m) => !(m.songs > 0));
-  for (const m of nonAttested.slice(0, 6)) {
-    assert.ok(
-      !/ (are|or|is|was|do|did|can|will|not)$/u.test(m.display),
-      `aux twin "${m.display}" occupies a preview slot`,
-    );
+test("attestation gate: un-attested non-object-pronoun tails are suppressed", async () => {
+  // A tail with no grammatical object-frame model (preposition/possessive/
+  // locative/conjunction/aux) only surfaces when the corpus attests it.
+  // This is where "spend for", "weekend your", "bend there", "call so" and
+  // the ER0 twin "pretend are" all die — the aux-twin problem dissolves
+  // because the twin is un-attested too, not merely demoted.
+  const surrender = await mosaicsFor("surrender");
+  for (const bad of ["spend for", "weekend your", "bend there", "pretend are", "end for"]) {
+    assert.ok(!find(surrender, bad), `un-attested func-tail "${bad}" leaked`);
+  }
+  // Every surviving non-object-pronoun mosaic must be attested.
+  const OBJ = new Set(["it", "her", "them", "him", "me", "you", "us"]);
+  for (const m of surrender) {
+    const tail = m.words[m.words.length - 1];
+    if (!OBJ.has(tail)) {
+      assert.ok(m.songs > 0, `un-attested func-tail "${m.display}" survived (songs=${m.songs})`);
+    }
+  }
+  // "follow" / "yellow" had only "call so" / "tell so" junk — now empty.
+  assert.equal((await mosaicsFor("follow")).length, 0, "follow has no attested mosaics");
+});
+
+test("attestation gate: attested non-object-pronoun tails DO come through", async () => {
+  // The gate keeps real corpus line-endings — it's a filter on speculation,
+  // not a ban on the tail class.
+  const surrender = await mosaicsFor("surrender");
+  const endThere = find(surrender, "end there");
+  assert.ok(endThere && endThere.songs > 0, "attested 'end there' should survive the gate");
+  const poet = await mosaicsFor("poet");
+  for (const good of ["know that", "know what"]) {
+    const m = find(poet, good);
+    assert.ok(m && m.songs > 0, `attested "${good}" should survive`);
   }
 });
 
@@ -199,11 +224,14 @@ test("attestation: everyday mosaics carry a song count + real quotes", async () 
   assert.ok(q.line && q.credit && q.songTitle && q.surface === "know it", "quote shape");
 });
 
-test("attestation: un-everyday (but verb-gated) mosaics get 0 songs", async () => {
+test("attestation: un-everyday object-pronoun mosaics get 0 songs", async () => {
   const poet = await mosaicsFor("poet");
-  // "snow it" is grammatical (snow is a verb) but not an everyday corpus phrase.
-  const snowIt = poet.find((m) => m.display === "snow it");
-  if (snowIt) assert.equal(snowIt.songs, 0, "snow it is generated but not attested");
+  // "grow it" is grammatical (grow takes a thing object) but not an everyday
+  // corpus phrase — object-pronoun tails keep speculative generation, so it
+  // still surfaces, just with songs=0.
+  const growIt = poet.find((m) => m.display === "grow it");
+  assert.ok(growIt, "grow it should generate (object-pronoun tail, ungated)");
+  assert.equal(growIt.songs, 0, "grow it is generated but not attested");
 });
 
 test("dup-twin suppression: no display string appears twice", async () => {

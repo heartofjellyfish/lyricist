@@ -49,17 +49,17 @@ import {
 // object ("person" → somebody-frames, "thing" → something-frames, per the
 // masks baked into mosaic-verbs.json). Without it the verb gate alone ships
 // "weekend her" (intransitive), "pretend her" / "spend her" (no person
-// object). Non-object tails (particles, determiners, auxiliaries) stay
-// ungated — "her" as a possessive reading is NOT credited because a
+// object). "her" as a possessive reading is NOT credited because a
 // line-final "her" reads as the object.
 //
-// `aux` marks copula/auxiliary tails whose natural line-ending reading is
-// SUBJECT + aux ("muses are", "father did", "love is" — corpus-attested
-// heads are all nouns); after a VERB head they're a stretch ("pretend
-// are"). They rank behind every object/particle reading so they never
-// occupy un-attested preview slots — without this, gating "pretend her"
-// just promotes its same-sound twin "pretend are" into the freed slot
-// (weak 'er and are are both bare ER0).
+// Every tail WITHOUT `obj` (particle, preposition, determiner, possessive,
+// conjunction, auxiliary) is subject to the attestation gate (§5.3b): it
+// only surfaces when a real song ends a line that way. There's no
+// grammatical model for whether "spend for" / "pretend are" / "call so"
+// reads as a natural line-ending — corpus evidence is the only signal,
+// unlike object-pronoun tails which the verb-frame gate clears. This also
+// dissolves the ER0-twin problem: gating "pretend her" can't promote its
+// same-sound twin "pretend are", because that twin is now un-attested too.
 const FUNCTION_WORDS = [
   { word: "it",   obj: "thing",  variants: [["IH0 T"]] },
   { word: "her",  obj: "person", variants: [["ER0", true], ["HH ER0"]] },
@@ -80,11 +80,11 @@ const FUNCTION_WORDS = [
   { word: "out",  variants: [["AW0 T"]] },
   { word: "off",  variants: [["AA0 F"]] },
   { word: "all",  variants: [["AA0 L"]] },
-  { word: "is",   aux: true, variants: [["IH0 Z"]] },
+  { word: "is",   variants: [["IH0 Z"]] },
   { word: "as",   variants: [["AH0 Z"]] },
-  { word: "was",  aux: true, variants: [["W AH0 Z"]] },
-  { word: "are",  aux: true, variants: [["ER0"]] },
-  { word: "or",   aux: true, variants: [["ER0"]] },
+  { word: "was",  variants: [["W AH0 Z"]] },
+  { word: "are",  variants: [["ER0"]] },
+  { word: "or",   variants: [["ER0"]] },
   { word: "for",  variants: [["F ER0"]] },
   { word: "your", variants: [["Y ER0"]] },
   { word: "from", variants: [["F R AH0 M"]] },
@@ -93,11 +93,11 @@ const FUNCTION_WORDS = [
   { word: "my",   variants: [["M AY0"]] },
   { word: "by",   variants: [["B AY0"]] },
   { word: "so",   variants: [["S OW0"]] },
-  { word: "do",   aux: true, variants: [["D UW0"], ["D AH0"]] },
-  { word: "did",  aux: true, variants: [["D IH0 D"]] },
-  { word: "can",  aux: true, variants: [["K AH0 N"]] },
-  { word: "will", aux: true, variants: [["W AH0 L"]] },
-  { word: "not",  aux: true, variants: [["N AA0 T"]] },
+  { word: "do",   variants: [["D UW0"], ["D AH0"]] },
+  { word: "did",  variants: [["D IH0 D"]] },
+  { word: "can",  variants: [["K AH0 N"]] },
+  { word: "will", variants: [["W AH0 L"]] },
+  { word: "not",  variants: [["N AA0 T"]] },
   { word: "what", variants: [["W AH0 T"]] },
   { word: "that", variants: [["DH AH0 T"]] },
   { word: "this", variants: [["DH IH0 S"]] },
@@ -113,7 +113,6 @@ const FW_TABLE = FUNCTION_WORDS.map((row, priority) => ({
   word: row.word,
   priority,
   objMask: row.obj === "person" ? OBJ_PERSON : row.obj === "thing" ? OBJ_THING : 0,
-  aux: !!row.aux,
   variants: row.variants.map(([ph, weak]) => ({
     phonemes: normalizePhonemes(ph).split(" "),
     weak: !!weak,
@@ -259,6 +258,7 @@ function matchTail(variantPhonemes, tail, prevPhoneme) {
  * @param {object} deps
  * @param {(word:string, syll:number)=>boolean} deps.isAcceptableWord
  * @param {(word:string)=>number} deps.scoreOf   lyric-familiarity score
+ * @param {(display:string)=>boolean} [deps.isAttested]  phrase ends a real song line
  * @param {Set<string>} [deps.exclude]           head words to reject (source + phrase constituents)
  * @returns {object[]} emitted mosaic rows (see §5.5 shape)
  */
@@ -272,6 +272,9 @@ export function generateMosaics(source, corpusEntries, deps) {
   const isVerb = deps.isVerb ?? (() => true); // grammatical head gate (§5.3)
   // Object-class gate (§5.3): permissive default mirrors isVerb's.
   const verbObjectMask = deps.verbObjectMask ?? (() => OBJ_PERSON | OBJ_THING);
+  // Attestation gate (§5.3b): non-object-pronoun tails require corpus
+  // evidence. Permissive default (tests without corpus keep all rows).
+  const isAttested = deps.isAttested ?? (() => true);
   const exclude = deps.exclude ?? new Set();
   const index = ensureHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbObjectMask);
 
@@ -308,18 +311,29 @@ export function generateMosaics(source, corpusEntries, deps) {
         );
 
         for (const headEntry of heads) {
-          // Object gate (§5.3): an object-pronoun tail needs a head verb
-          // that can take that object class — kills "weekend her"
-          // (no object), "pretend her" / "spend her" (thing-only) while
-          // keeping "send her", "pretend it".
-          if (fw.objMask && !(headEntry.objMask & fw.objMask)) continue;
+          const label = `${headEntry.text} ${fw.word}`;
+          if (fw.objMask) {
+            // Object gate (§5.3): an object-pronoun tail needs a head verb
+            // that can take that object class — kills "weekend her" (no
+            // object), "pretend her" / "spend her" (thing-only) while
+            // keeping "send her", "pretend it".
+            if (!(headEntry.objMask & fw.objMask)) continue;
+          } else if (!isAttested(label)) {
+            // Attestation gate (§5.3b): a NON-object-pronoun tail (particle,
+            // preposition, possessive, locative, aux) has no grammatical
+            // model saying the combination is a natural line-ending, so it
+            // only surfaces when a real song attests it. Without this the
+            // additive tier fills with fragments — "spend for", "weekend
+            // your", "bend there", "pretend are", "call so". Attested peers
+            // ("end there", "get there", "know that") still come through.
+            continue;
+          }
           // Assembly (§5.4): use the MATCHED variant, not citation. Geminate
           // joins degeminate (drop the variant's initial consonant — English
           // collapses the doubled boundary consonant).
           const tailPart =
             m.joinType === "geminate" ? variant.phonemes.slice(1) : variant.phonemes;
           const phonemes = [...headEntry.phonemes, ...tailPart];
-          const label = `${headEntry.text} ${fw.word}`;
           const analysis = analyzeFromPhonemes(label, phonemes);
           if (!analysis) continue;
           const cls = classifyRhymeAnalyzed(source, analysis);
@@ -328,10 +342,9 @@ export function generateMosaics(source, corpusEntries, deps) {
           const dedupKey = `${headEntry.text}|${dedupTail}`;
           const row = {
             words: [headEntry.text, fw.word],
-            display: `${headEntry.text} ${fw.word}`,
+            display: label,
             type: cls.type,
             joinType: m.joinType,
-            aux: fw.aux,
             weakForm: variant.weak,
             stability: cls.stability,
             explanation: cls.explanation,
@@ -346,8 +359,7 @@ export function generateMosaics(source, corpusEntries, deps) {
     }
   }
 
-  // Rank (§5.5): tier → joinType → non-aux first → head score desc →
-// tail priority → alpha.
+  // Rank (§5.5): tier → joinType → head score desc → tail priority → alpha.
   const ranked = [...byKey.values()].sort(compareRows);
 
   // Suppress twin surfaces: the same phrase can arise as a perfect (weak
@@ -380,7 +392,6 @@ function compareRows(a, b) {
   if (t !== 0) return t;
   const j = (JOIN_RANK[a.joinType] ?? 9) - (JOIN_RANK[b.joinType] ?? 9);
   if (j !== 0) return j;
-  if (a.aux !== b.aux) return a.aux ? 1 : -1;
   if (a.score !== b.score) return b.score - a.score;
   if (a.priority !== b.priority) return a.priority - b.priority;
   return a.display.localeCompare(b.display);

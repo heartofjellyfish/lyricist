@@ -515,17 +515,23 @@ Three data dependencies:
   bit 1 = WordNet somebody-frames (gates her/them/him/me/you/us),
   bit 2 = something-frames (gates it). POS alone shipped `weekend her` /
   `pretend her` / `spend her` (intransitive / clause-only / thing-only).
-  Copula-aux tails (are/or/is/did…) additionally rank behind all
-  object/particle readings: verb+aux is corpus-unattested, and the ER0
-  twin `pretend are` would otherwise inherit the exact slots the her-gate
-  frees. Rebuild via `node scripts/buildMosaicVerbs.mjs` only when
-  upgrading wordnet-db, the irregular list, or the frame→mask mapping.
-- **`wordlists/mosaic-phrases.json`** — corpus ATTESTATION (which generated
-  phrases actually end lines in real songs). This is the "everyday" filter
-  the verb gate can't do: `bought her`/`hit me` are attested, `caught there`
-  isn't. Attested → shown in the syllable groups with a red dot + real song
-  quotes; un-attested → folded. Rebuilt from the lyric corpus (in the
-  derived re-run protocol above).
+  Rebuild via `node scripts/buildMosaicVerbs.mjs` only when upgrading
+  wordnet-db, the irregular list, or the frame→mask mapping.
+- **`wordlists/mosaic-phrases.json`** — corpus ATTESTATION. Two roles now:
+  (1) the "everyday" red-dot badge + quote source; (2) since July 2026 a
+  HARD GATE for every **non-object-pronoun tail** (prepositions, possessives,
+  locatives, conjunctions, auxiliaries). Object-pronoun tails have a
+  grammatical model (the verb-frame gate) so they generate speculatively;
+  any other tail has none, so `generateMosaics` only emits it when this file
+  attests the exact `head tail` line-ending. This is what kills `spend for`,
+  `weekend your`, `bend there`, `pretend are`, `call so`, `low at` while
+  keeping `end there`, `get there`, `know that`, `fought for`. Consequences:
+  words like `follow`/`yellow` emit zero mosaics (better than `call so`);
+  the aux-twin (`pretend are`) dissolves for free; and the geminate join
+  type is dormant (consonant-initial → always a function tail → needs
+  attestation, none in corpus yet). Rebuilt from the lyric corpus (derived
+  re-run protocol above) — expanding the corpus widens BOTH the badges and
+  which func-tail mosaics can appear at all.
 
 UI: mosaics render under their own **"MOSAIC RHYME" black label** — a peer of
 the "N syllables" groups (`renderMosaicSubgroup`), treated identically (no

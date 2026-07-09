@@ -38,16 +38,28 @@ of this doc is accurate; these override where they conflict.
    somebody-frame): `bend her`, `end her`, `transcend her` — same trade
    as the classifier's OW2 rainbow/elbow.
 
-   **Aux-twin demotion (same change).** Weak `'er` and `are`/`or` are the
-   same sound (bare ER0), so gating `pretend her` just promoted its twin
-   `pretend are` into the freed dedup slot. Corpus check: attested
-   `X are`/`X did`/`X will` line-endings all have NOUN heads (`muses
-   are`, `father did`) — verb + finite aux is essentially unattested. So
-   copula/aux tails (`are or is was do did can will not`) carry
-   `aux: true` and rank behind every object/particle reading in
-   `compareRows` (never in the MOSAIC_PREVIEW inline slots; still
-   reachable behind show-more). Noun-head aux mosaics (`love is`,
-   `promise is`) are untouched — attestation drives their display.
+   **1c. Attestation gate for non-object-pronoun tails (2026-07-09).**
+   The object gate cleaned up the pronoun tails, but the ADDITIVE tier was
+   still a wall of fragments: `spend for`, `weekend your`, `bend there`,
+   `pretend are`, and for other words `low at` (poet), `call so` (follow),
+   `tell so` (yellow). Root cause: only object-pronoun tails have a
+   grammatical model (the verb-frame gate) telling us the combination is a
+   natural line-ending. A preposition / possessive / locative / conjunction
+   / auxiliary tail has none — the ONLY signal that `die for` works but
+   `spend for` doesn't is corpus attestation. So `generateMosaics` now
+   gates every tail WITHOUT `obj` on `deps.isAttested(display)`: it must
+   end a real song line (be in `mosaic-phrases.json`) to surface. Object-
+   pronoun tails keep speculative generation. A 10-word audit found zero
+   false kills (every un-attested func-tail combo was junk) and kept every
+   good one (`end there`, `get there•7`, `know that•17`, `fought for`).
+   Side effects: (a) `follow`/`yellow` now emit **zero** mosaics — better
+   than `call so`/`tell so`; (b) this SUBSUMES the aux-twin problem — the
+   ER0 twin `pretend are` is un-attested, so gating `pretend her` can't
+   promote it (no separate `aux` demotion needed; that plumbing was
+   removed); (c) the **geminate join type goes dormant** — geminates are
+   consonant-initial-tail-only, hence always function tails, so with no
+   attested geminate in the corpus today they produce no output. The
+   `matchTail` mechanism stays; re-add a fixture when one attests.
 
 2. **Corpus attestation (the "everyday" filter + mosaic red dots).** The
    verb gate (1) kills grammatical trash but still leaves phrases that are
