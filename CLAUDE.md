@@ -283,7 +283,7 @@ assets and **must be rebuilt whenever the lyric library expands**.
 | `wordlists/lyric-frequency.json` | `scripts/buildLyricFrequency.mjs` | word → song-appearance count, drives the lyric-familiarity score |
 | `wordlists/cliche-pairs.json` | `scripts/buildClicheList.mjs` | top-50 most-co-occurring rhyme pairs at line-end, drives the cliché flag |
 | `wordlists/lyric-library/index.json` + `rhymed/`, `rhymed-more/`, `not-rhymed/` tier dirs | `scripts/buildLyricBuckets.mjs` | per-rhyme-key quote files (~4,100 tier-1) + upfront index — what rhyme-finder fetches at runtime. See "Lyric library on-the-wire" below. |
-| `wordlists/mosaic-phrases.json` | `scripts/buildMosaicPhrases.mjs` | corpus attestation for mosaic rhymes — line-ending verb+function-word bigrams → {song count, sample quotes}. Drives the mosaic red-dot badge + the "everyday" ordering (attested shown, un-attested folded). |
+| `wordlists/mosaic-phrases.json` | `scripts/buildMosaicPhrases.mjs` | corpus attestation for mosaic rhymes — line-ending verb+function-word bigrams → {song count, sample quotes, each with its rhyming `partner` line when the corpus detected one}. Drives the mosaic red-dot badge + the "everyday" ordering (attested shown, un-attested folded); the popover renders quotes via the shared `renderEndQuote` so mosaics show couplets like single words. Stanza is deliberately NOT shipped (whole file is init-fetched — stanzas ~tripled it). |
 | `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
 | `rhyme-finder/rhymes/{word}/index.html` + `rhyme-finder/sitemap*.xml` + `rhymes/manifest.json` | `scripts/buildSeoPages.mjs` | programmatic SEO pages (`rhyme.land/rhymes/{word}/`) — headless-Chrome snapshots of the REAL app rendering each word (needs local Chrome; puppeteer-core). Pages hydrate back into the live app via a generator-injected `?q=` boot script; app source carries no SEO code. Rerun after UI changes you want reflected (not required for function). Design doc: `rhyme-finder/SEO-PLAN.md`. Incremental (content-hashed, honest lastmod); pilot batch by default, `--full` for the whole derived set |
 
@@ -527,8 +527,14 @@ per-chip tag, no headline "＋N", not lex-filtered; `updateBucketCounts` skips
 perfect + additive tiers. Attested mosaics are the default row with the same
 red-dot lyric badge single words get (quotes ship inline on the mosaic — do
 NOT call `hasQuotes`/`getQuotes` with a phrase); un-attested ones are the
-"lower" row behind the group's show-more. Clicking a mosaic re-searches it as
-a phrase (closes the A/B loop).
+"lower" row behind the group's show-more. Clicking an attested mosaic opens
+its song popover — the SAME hover/pin interaction single-word chips use
+(shared `installPopoverPin`), NOT a re-search. (It used to re-search the
+phrase to close the A/B loop, but that made mosaics the only chip that
+navigated on click while every other chip shows its songs — the
+inconsistency was reverted July 2026.) When a mosaic group has no attested
+phrase, it previews `MOSAIC_PREVIEW` chips inline instead of hiding the
+whole set behind a lone button.
 
 Invariants worth knowing (verified 2026-07-08): mosaics are **feminine-only**
 (masculine sources → `[]`, structural) and land **only in perfect + additive**

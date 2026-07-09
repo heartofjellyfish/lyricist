@@ -652,36 +652,29 @@ function renderMosaicSubgroup(attested, nonAttested, source) {
   const row = document.createElement("div");
   row.className = "rf-words";
   for (const m of attested) row.appendChild(renderMosaicChip(m, source));
-  for (const m of nonAttested) {
+
+  // With no attested mosaic to anchor the group, don't hide the whole set
+  // behind a lone button — the label row is already spent, so preview a few
+  // inline and fold only the overflow. When there ARE attested chips, the
+  // un-attested ones stay lower (dimmed) as before.
+  const previewCount = attested.length ? 0 : Math.min(nonAttested.length, MOSAIC_PREVIEW);
+  nonAttested.forEach((m, i) => {
     const el = renderMosaicChip(m, source);
-    el.classList.add("rf-word--lower");
+    if (i >= previewCount) el.classList.add("rf-word--lower");
     row.appendChild(el);
-  }
+  });
   wrap.appendChild(row);
 
-  if (!nonAttested.length) return wrap;
+  const hidden = nonAttested.length - previewCount;
+  if (!hidden) return wrap;
   if (nonAttested.length <= LOWER_INLINE_THRESHOLD && attested.length) {
     wrap.classList.add("rf-subgroup--lower-shown");
-    return wrap;
-  }
-  // No attested at all, or many un-attested → hide behind a show-more.
-  if (!attested.length) {
-    // Nothing everyday to anchor the group — keep it collapsed by default.
-    const btn = document.createElement("button");
-    btn.className = "rf-subgroup-show-more";
-    btn.type = "button";
-    btn.textContent = `Show ${nonAttested.length} multi-word`;
-    btn.addEventListener("click", () => {
-      wrap.classList.add("rf-subgroup--lower-shown");
-      btn.remove();
-    });
-    wrap.appendChild(btn);
     return wrap;
   }
   const btn = document.createElement("button");
   btn.className = "rf-subgroup-show-more";
   btn.type = "button";
-  btn.textContent = `Show ${nonAttested.length} more`;
+  btn.textContent = `Show ${hidden} more`;
   btn.addEventListener("click", () => {
     wrap.classList.add("rf-subgroup--lower-shown");
     btn.remove();
@@ -707,7 +700,7 @@ function renderMosaicChip(mosaic, source) {
   el.textContent = mosaic.display;
 
   // Weak-form pronunciation hint (native tooltip — low-clutter).
-  const hintParts = [`${mosaic.syllables ?? "?"} syll.`, "click to search as a phrase"];
+  const hintParts = [`${mosaic.syllables ?? "?"} syll.`];
   if (mosaic.weakForm) {
     const tailWord = mosaic.words[mosaic.words.length - 1];
     const red = TAIL_REDUCED[tailWord];
@@ -731,23 +724,11 @@ function renderMosaicChip(mosaic, source) {
     badge.appendChild(count);
     el.appendChild(badge);
     el.appendChild(renderMosaicQuotePop(mosaic));
+    // Attested mosaics open their song popover on hover/tap — the SAME
+    // interaction single-word chips use, not a re-search (that inconsistency
+    // was the bug: every other chip shows its songs on click).
+    installPopoverPin(el);
   }
-
-  el.addEventListener("click", (e) => {
-    // Interactions inside the popover never navigate.
-    if (e.target.closest(".rf-lyric-pop")) return;
-    // Tapping the badge pins the quotes (mobile has no hover); tapping the
-    // word text re-searches the phrase.
-    if (e.target.closest(".rf-lyric-badge")) {
-      e.stopPropagation();
-      setPin(el, !el.classList.contains("rf-pinned"));
-      return;
-    }
-    e.stopPropagation();
-    track("mosaic_click", { source: source.word, phrase: mosaic.display, tier: mosaic.type });
-    wordInput.value = mosaic.display;
-    runSearch(mosaic.display);
-  });
   return el;
 }
 
@@ -767,24 +748,10 @@ function renderMosaicQuotePop(mosaic) {
 
   const list = document.createElement("div");
   list.className = "rf-lyric-list";
-  for (const q of mosaic.quotes) {
-    const item = document.createElement("article");
-    item.className = "rf-lyric-item";
-    const quote = document.createElement("div");
-    quote.className = "rf-lyric-quote rf-lyric-quote--static";
-    const line = document.createElement("p");
-    line.className = "rf-lyric-line";
-    line.innerHTML = highlightSurface(q.line, q.surface);
-    quote.appendChild(line);
-    const attr = document.createElement("div");
-    attr.className = "rf-lyric-attr";
-    attr.innerHTML =
-      `${escapeHtml(q.credit)} · ` +
-      `<span class="rf-lyric-attr-song">${escapeHtml(q.songTitle)}</span>`;
-    quote.appendChild(attr);
-    item.appendChild(quote);
-    list.appendChild(item);
-  }
+  // Same renderer single-word quotes use → couplet (matched line + rhyming
+  // partner line) with click-to-expand stanza, not a lone orphan line.
+  // mosaic-phrases.json now ships partner + stanza (see buildMosaicPhrases).
+  for (const q of mosaic.quotes) list.appendChild(renderEndQuote(q, mosaic.display));
   pop.appendChild(list);
   return pop;
 }
@@ -794,6 +761,9 @@ function renderMosaicQuotePop(mosaic) {
 // Above this threshold, hide them behind a "show N more" button so the
 // user explicitly opts in.
 const LOWER_INLINE_THRESHOLD = 8;
+// When a mosaic group has no attested (everyday) phrase to anchor it, preview
+// this many un-attested chips inline rather than folding the whole set away.
+const MOSAIC_PREVIEW = 6;
 
 function renderSubgroup(label, defaultWords, lowerWords, source) {
   const wrap = document.createElement("div");
@@ -1057,6 +1027,15 @@ function decorateWithLyrics(el, word, sourceWord) {
   el.addEventListener("focusin", materialise, { once: true });
   el.addEventListener("click", materialise);
 
+  installPopoverPin(el, reportOpen);
+}
+
+// Hover-intent + click-to-pin wiring shared by single-word chips and mosaic
+// chips, so both open their lyric popover the same way (hover settles on
+// desktop, tap pins on mobile) rather than a mosaic behaving differently
+// (it used to re-search on click). `reportOpen` is analytics-only and
+// optional — mosaics don't instrument the funnel.
+function installPopoverPin(el, reportOpen = () => {}) {
   // Hover-intent: don't reveal the moment the cursor touches the word — a
   // pointer crossing the dense candidate grid would trail a comet of
   // popovers. Sample pointer velocity (jQuery-hoverIntent style) and only

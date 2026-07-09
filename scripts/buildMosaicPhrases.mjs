@@ -77,6 +77,16 @@ function record(q) {
       songTitle: q.songTitle || q.song || "",
       line: q.line,
       surface: bigram,
+      // Carry the rhyming partner line so mosaic quotes render as full
+      // couplets (line + partner), the SAME shape single-word quotes use —
+      // not a lone orphan line. The tail (function word) is the line's end
+      // word, so this record's `partner` is exactly what the phrase rhymed
+      // with. Stanza is deliberately NOT shipped: this whole file is fetched
+      // at init (rhymeFinder.js), and full stanzas ~tripled it (686KB→1.75MB)
+      // — the couplet is the payload; verse-expand isn't worth the weight.
+      ...(q.partner && q.partner.line
+        ? { partner: { line: q.partner.line, word: q.partner.word } }
+        : {}),
     });
   }
 }

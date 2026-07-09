@@ -512,8 +512,11 @@ the user to pick from BEFORE wiring main.js. Content requirements:
   the row popover (*sounds like "bought 'er"*), not inline clutter.
 - No quote badges / cliché flags on mosaic rows (corpus indexes single
   words only) — do not call `hasQuotes` with phrases.
-- Delight (cheap, recommended): clicking a mosaic row re-searches it
-  as a phrase input, closing the loop between directions A and B.
+- Clicking an attested mosaic opens its song popover, matching every
+  other chip (shared `installPopoverPin`). (Originally clicking
+  re-searched the phrase to close the A/B loop, but that made mosaics
+  the only chip that navigated on click — reverted July 2026 for
+  consistency.)
 - Input affordance: placeholder or helper line mentioning phrases
   ("word or short phrase — *bought her*").
 
