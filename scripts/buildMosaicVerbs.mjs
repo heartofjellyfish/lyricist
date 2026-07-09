@@ -54,6 +54,36 @@ export const THING = 2;
 const PERSON_FRAMES = new Set([9, 14, 17, 18, 20, 24, 25, 30]);
 const THING_FRAMES = new Set([8, 11, 15, 16, 19, 21, 31]);
 
+// WordNet-frame false positives: PREPOSITIONAL / intransitive verbs that take
+// their object only through a preposition, so "depend her" / "condescend her"
+// read as broken English. They get a spurious object frame because WordNet
+// scores a whole polysemous synset — e.g. [count, depend, rely, bank,
+// calculate, reckon] "have faith or confidence in; you can count ON…" carries
+// frames 08 (something) + 09 (somebody), but the object there is a PP object
+// (depend ON her), not a direct one. There's no clean frame-level signal, so
+// this is a curated override, verified against generation. Two tiers:
+//
+//   STRIP_BOTH  — fully prepositional; neither "V it" nor "V her" is valid
+//                 (depend on / rely on / respond to / pray for).
+//   STRIP_PERSON — a real thing-object exists, only the person is prepositional
+//                 ("count the votes" ✓ but "count on her"; "calculate it" ✓).
+//
+// NOT included (valid bare person object — keep them): wish (wish her well),
+// refer (refer her to a specialist), and the ordinary transitives (ask,
+// search, believe, trust, call, deal, part, mind, serve, help, meet…).
+const STRIP_BOTH = new Set(
+  ("depend rely bank prey adhere appeal respond react reply belong pray yearn " +
+   "sympathize commune dwell cater subscribe resort object amount conform consist " +
+   "comply interfere tamper meddle participate specialize apologize complain collide " +
+   "coexist correspond conspire confide concentrate elaborate embark comment condescend " +
+   "insist wait lord gloat hanker languish lust pine pounce preside rebel rejoice reside " +
+   "scoff sneer snoop thrive trespass wince dote culminate gravitate hinge pertain succumb " +
+   "deviate digress coincide abound feast long hunger thirst").split(/\s+/),
+);
+const STRIP_PERSON = new Set(
+  "calculate count yield relate contribute plead adapt reckon approve".split(/\s+/),
+);
+
 // Parse WordNet data.verb → Map<lemma, objMask>. Every single-word lemma is
 // registered (mask 0 if it has no object frame anywhere). A frame entry's
 // w_num scopes it: 00 = every word in the synset, else that 1-based word.
@@ -163,6 +193,25 @@ for (const [v, mask] of [...verbs]) {
 }
 console.log(`  ${verbs.size} forms after irregulars + regular inflection`);
 
+// Clear the spurious object bit(s) from prepositional verbs — the lemma AND
+// every inflection (depend/depends/depended/depending). Order-independent:
+// runs after all propagation, right before the CMU intersection.
+let strippedP = 0;
+let strippedT = 0;
+for (const [lemma, clearMask] of [
+  ...[...STRIP_BOTH].map((w) => [w, PERSON | THING]),
+  ...[...STRIP_PERSON].map((w) => [w, PERSON]),
+]) {
+  for (const form of [lemma, ...regularForms(lemma)]) {
+    if (!verbs.has(form)) continue;
+    const before = verbs.get(form);
+    if (before & clearMask & PERSON) strippedP += 1;
+    if (before & clearMask & THING) strippedT += 1;
+    verbs.set(form, before & ~clearMask);
+  }
+}
+console.log(`  stripped PERSON from ${strippedP} + THING from ${strippedT} prepositional-verb forms`);
+
 // Intersect with the CMU dictionary (the universe of possible mosaic heads):
 // drops generated junk and shrinks the file to real words only.
 const cmu = JSON.parse(readFileSync(join(REPO, "wordlists", "cmu-dict.json"), "utf8"));
@@ -178,6 +227,12 @@ const spot = (w) => `${w}=${verbs.has(w) && cmuKeys.has(w) ? verbs.get(w) : "MIS
 console.log(
   "  spot-check (3=person+thing, 2=thing-only, 0=no object):",
   ["send", "know", "got", "bought", "caught", "thought", "spend", "pretend", "weekend", "tend", "lend"]
+    .map(spot)
+    .join(" "),
+);
+console.log(
+  "  prep-strip check (expect depend/rely/condescend=0, calculate/count=2, wish/refer/defend=3):",
+  ["depend", "rely", "condescend", "wait", "calculate", "count", "wish", "refer", "defend"]
     .map(spot)
     .join(" "),
 );

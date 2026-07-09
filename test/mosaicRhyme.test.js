@@ -164,6 +164,21 @@ test("object gate: person-pronoun tails need a somebody-frame head", async () =>
   }
 });
 
+test("object gate: prepositional verbs don't take a bare person object", async () => {
+  // WordNet scores a polysemous synset [count, depend, rely, bank, …] with a
+  // somebody-frame for the "rely ON" sense, but the object is prepositional —
+  // "depend her" / "condescend her" are broken. buildMosaicVerbs strips the
+  // spurious bit (STRIP_BOTH / STRIP_PERSON). Their transitive neighbours in
+  // the same rhyme family (send/defend/…) must stay.
+  const mosaics = await mosaicsFor("surrender");
+  for (const bad of ["depend her", "condescend her"]) {
+    assert.ok(!find(mosaics, bad), `prepositional "${bad}" leaked`);
+  }
+  for (const good of ["send her", "defend her", "recommend her", "suspend her"]) {
+    assert.ok(find(mosaics, good), `"${good}" wrongly stripped`);
+  }
+});
+
 test("object gate: thing tail 'it' accepts thing-only verbs", async () => {
   // said → say has thing-frames but no somebody-frame: "said it" must
   // survive — the gate is per-tail-class, not blanket transitivity.

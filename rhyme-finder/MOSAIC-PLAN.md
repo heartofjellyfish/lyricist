@@ -38,6 +38,21 @@ of this doc is accurate; these override where they conflict.
    somebody-frame): `bend her`, `end her`, `transcend her` — same trade
    as the classifier's OW2 rainbow/elbow.
 
+   **1b′. Prepositional-verb override (2026-07-09).** WordNet scores a whole
+   polysemous synset, so the "rely ON" cluster `[count, depend, rely, bank,
+   calculate, reckon]` carries object frames 08+09 even though the object is
+   a PP object (`depend ON her`) — shipping `depend her` / `condescend her` /
+   `rely her`. No clean frame-level signal exists, so `buildMosaicVerbs.mjs`
+   carries a curated two-tier override (verified against generation):
+   `STRIP_BOTH` (fully prepositional — `depend`, `rely`, `respond`, `pray`,
+   `wait`, `condescend`… — clears person AND thing, since `depend it` is
+   equally broken) and `STRIP_PERSON` (a real thing-object exists — `count`,
+   `calculate`, `yield`, `relate`… — keeps `count it`, drops `count her`).
+   `wish` (wish her well) and `refer` (refer her) are deliberately NOT
+   listed — they take a genuine bare person object. 120 person + 186 thing
+   forms stripped; audit across 28 rhyme families left zero prepositional
+   `V her` survivors.
+
    **1c. Attestation gate for non-object-pronoun tails (2026-07-09).**
    The object gate cleaned up the pronoun tails, but the ADDITIVE tier was
    still a wall of fragments: `spend for`, `weekend your`, `bend there`,
