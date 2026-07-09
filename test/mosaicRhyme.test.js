@@ -123,9 +123,10 @@ test("no identity / assonance / consonance types ever leak into output", async (
   }
 });
 
-test("verb gate: non-verb heads never leak (grammatical trash removed)", async () => {
-  // The productive mosaic pattern is verb + pronoun/particle. Non-verb heads
-  // produce grammatical nonsense the classifier can't distinguish.
+test("evidence gate: un-attested non-verb heads never leak (grammatical trash removed)", async () => {
+  // A non-verb head has no speculative license (objMask 0), so it can only
+  // surface when the corpus attests the exact phrase. None of these
+  // grammatical-nonsense combos end a real song line.
   const bad = {
     poet: ["oh", "no", "so", "hello", "mexico", "tokyo", "idaho"],
     water: ["scott", "apricot", "astronaut", "camelot"],
@@ -137,6 +138,33 @@ test("verb gate: non-verb heads never leak (grammatical trash removed)", async (
       assert.ok(!mosaics.some((m) => m.words[0] === h), `${src}: non-verb head "${h}" leaked`);
     }
   }
+});
+
+test("evidence gate: ATTESTED non-verb heads surface (the preposition mosaics)", async () => {
+  // The classic preposition-headed mosaics no verb gate can admit: the
+  // corpus itself is the evidence. "before me"·11 for glory/story,
+  // "behind her"·2 for reminder, "to you"·250 for hallelujah (Cohen's own
+  // "what's it to ya"). Each rides the attestation path with objMask 0.
+  const story = await mosaicsFor("story");
+  const beforeMe = find(story, "before me");
+  assert.ok(beforeMe && beforeMe.songs > 0, `"before me" missing for story — have: ${story.map((m) => m.display).join(", ")}`);
+  assert.equal(beforeMe.type, "additive", "before me: additive (M onset)");
+  const reminder = await mosaicsFor("reminder");
+  const behindHer = find(reminder, "behind her");
+  assert.ok(behindHer && behindHer.songs > 0, `"behind her" missing for reminder`);
+  assert.equal(behindHer.type, "perfect", "behind her: perfect (exact join)");
+  const hallelujah = await mosaicsFor("hallelujah");
+  const toYou = find(hallelujah, "to you");
+  assert.ok(toYou && toYou.songs > 0, `"to you" missing for hallelujah`);
+});
+
+test("evidence gate: pronoun/article heads are clause fragments, never mosaics", async () => {
+  // "…is it me" / "…you, you" / "…an A" end lines, but a pronoun or
+  // article head isn't a singable unit — blocked at the attestation
+  // builder (HEAD_BLOCK), so they can't ride the widened non-verb path.
+  assert.ok(!find(await mosaicsFor("city"), "it me"), '"it me" leaked');
+  assert.ok(!find(await mosaicsFor("hallelujah"), "you you"), '"you you" leaked');
+  assert.ok(!find(await mosaicsFor("banana"), "an a"), '"an a" leaked');
 });
 
 test("verb gate: verb heads (incl. irregular pasts) survive", async () => {
@@ -210,14 +238,58 @@ test("attestation gate: un-attested non-object-pronoun tails are suppressed", as
 
 test("attestation gate: attested non-object-pronoun tails DO come through", async () => {
   // The gate keeps real corpus line-endings — it's a filter on speculation,
-  // not a ban on the tail class.
+  // not a ban on the tail class. "end there"'s corpus partner is
+  // "pretender" — feminine proof that post-verbal "there" destresses.
   const surrender = await mosaicsFor("surrender");
   const endThere = find(surrender, "end there");
   assert.ok(endThere && endThere.songs > 0, "attested 'end there' should survive the gate");
+});
+
+test("line-final reducibility: stressed pro-form tails are gone, even attested", async () => {
+  // A mosaic sits in rhyme position = line-final, and line-final
+  // "that/what/do" are STRESSED pro-forms — the corpus's own partner
+  // detection proved the quotes rhyme the OTHER reading: lines ending
+  // "can do" partnered with you/too/true (stressed UW1, not a banana
+  // feminine), "been that"/"hear that" with at/flag/ass (stressed AE1 T),
+  // "know that" with exhale/have. Those rows were badge-bearing false
+  // rhymes; the tails are out of the table entirely (2026-07-09).
+  assert.ok(!find(await mosaicsFor("poet"), "know that"), '"know that" (stressed line-final THAT) leaked');
+  assert.ok(!find(await mosaicsFor("poet"), "know what"), '"know what" leaked');
+  assert.ok(!find(await mosaicsFor("banana"), "can do"), '"can do" (stressed line-final DO) leaked');
+  assert.ok(!find(await mosaicsFor("minute"), "been that"), '"been that" leaked');
+  assert.ok(!find(await mosaicsFor("spirit"), "hear that"), '"hear that" leaked');
+});
+
+test("identity-pair suppression: a citation-H reading can't resurrect an identity", async () => {
+  // "mind her" ≡ reminder, "let her" ≡ letter, "spied her" ≡ spider in
+  // their natural reduced reading (Pattison identity, excluded by design
+  // §2). The audible-H citation variant differs by one inserted consonant
+  // — the ear still hears repetition, so the whole pair is poisoned.
+  const reminder = await mosaicsFor("reminder");
+  for (const bad of ["mind her", "remind her"]) {
+    assert.ok(!find(reminder, bad), `identity pair "${bad}" leaked for reminder`);
+  }
+  assert.ok(!find(await mosaicsFor("spider"), "spied her"), '"spied her" leaked for spider');
+  assert.ok(!find(await mosaicsFor("letter"), "let her"), '"let her" leaked for letter');
+  // The other side of the boundary: a shared stressed syllable with REAL
+  // tail contrast is honest additive, not identity — the classifier judges
+  // the assembled phrase, not the head alone.
+  assert.ok(find(await mosaicsFor("spaghetti"), "forget me"), '"forget me" over-suppressed');
+  assert.ok(find(await mosaicsFor("city"), "sit me"), '"sit me" over-suppressed');
+});
+
+test("ranking: attested rows sort before speculative rows within a tier", async () => {
   const poet = await mosaicsFor("poet");
-  for (const good of ["know that", "know what"]) {
-    const m = find(poet, good);
-    assert.ok(m && m.songs > 0, `attested "${good}" should survive`);
+  assert.equal(poet[0].display, "know it", "poet's top mosaic is the corpus-proven one");
+  for (const w of ["poet", "water", "letter"]) {
+    const mosaics = await mosaicsFor(w);
+    for (const type of ["perfect", "additive"]) {
+      const tier = mosaics.filter((m) => m.type === type);
+      const firstUnattested = tier.findIndex((m) => !(m.songs > 0));
+      if (firstUnattested === -1) continue;
+      const laterAttested = tier.slice(firstUnattested).some((m) => m.songs > 0);
+      assert.ok(!laterAttested, `${w}/${type}: attested row ranked below un-attested`);
+    }
   }
 });
 
@@ -260,10 +332,12 @@ test("dup-twin suppression: no display string appears twice", async () => {
   }
 });
 
-test("mosaic caps: default ≤16, total ≤48", async () => {
+test("mosaic cap: total ≤48, and the cap can never squeeze out an attested row", async () => {
+  // No default/lower tier field on mosaic rows: the UI splits on songs>0
+  // (attested = default row). Attested-first ranking makes the cap safe.
   const mosaics = await mosaicsFor("water");
   assert.ok(mosaics.length <= 48, `total ${mosaics.length} > 48`);
-  assert.ok(mosaics.filter((m) => m.tier === "default").length <= 16, "default tier > 16");
+  assert.ok(mosaics.every((m) => m.tier === undefined), "tier field is gone from mosaic rows");
 });
 
 // ── Classifier seam unit ────────────────────────────────────────────

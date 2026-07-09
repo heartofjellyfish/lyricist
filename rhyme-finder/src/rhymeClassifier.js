@@ -629,6 +629,17 @@ function phonemeSuffixDifferentSyll(phA, phB) {
   const sylB = syllableCount(phB);
   if (sylA === sylB) return false;
   const [shorter, longer] = phA.length < phB.length ? [phA, phB] : [phB, phA];
+  // The shorter word must START WITH A CONSONANT. A vowel-initial shorter
+  // word has an EMPTY onset while the longer word necessarily has a
+  // consonant before the shared suffix — different onsets = a real rhyme,
+  // not identity. Without this guard, eyes/surprise, out/about, end/pretend,
+  // ice/advice, aid/afraid all classified as identity and vanished from the
+  // perfect bucket (found by the July 2026 mosaic audit: answer/"romance
+  // her" flagged identity while answer/"lance her" — same suffix relation,
+  // one syllable shorter — classified perfect). fuse/confuse, place/replace,
+  // part/apart keep firing: their shorter word starts with the same
+  // consonant onset the longer embeds.
+  if (VOWEL_RE.test(shorter[0])) return false;
   const offset = longer.length - shorter.length;
   for (let i = 0; i < shorter.length; i += 1) {
     if (vowelBase(shorter[i]) !== vowelBase(longer[offset + i])) return false;

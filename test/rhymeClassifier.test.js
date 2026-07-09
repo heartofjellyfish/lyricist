@@ -166,6 +166,26 @@ const GOLDEN = [
   ["dreaming", "demon", "assonance", "DISTINCT: NG≠N terminal still gates"],
   ["china", "miner", "assonance", "DISTINCT: AH vs ER trailing — no upgrade"],
   ["passion", "ashes", "assonance", "DISTINCT: AH0-N vs IH0-Z terminals differ"],
+
+  // ── identity Route B consonant guard (July 2026 mosaic audit) ──
+  // phonemeSuffixDifferentSyll fired whenever the shorter word's phonemes
+  // were a suffix of the longer's with fewer syllables — but a VOWEL-INITIAL
+  // shorter word has an empty onset while the longer word has a consonant
+  // before the shared suffix: different onsets = real rhyme, not identity.
+  // eyes/surprise sat in the IDENTITY bucket ("oops!") instead of perfect.
+  // The guard (shorter must start with a consonant) restores the rule
+  // CLAUDE.md documented for the action/fraction class. Both sides pinned:
+  ["eyes", "surprise", "perfect", "REGRESSION: was identity via unguarded suffix route"],
+  ["out", "about", "perfect", "REGRESSION: was identity (∅ vs B onset)"],
+  ["end", "pretend", "perfect", "REGRESSION: was identity (∅ vs T onset)"],
+  ["ice", "advice", "perfect", "REGRESSION: was identity (∅ vs V onset)"],
+  ["aid", "afraid", "perfect", "REGRESSION: was identity (∅ vs FR onset)"],
+  ["old", "behold", "perfect", "REGRESSION: was identity (∅ vs H onset)"],
+  ["art", "apart", "perfect", "REGRESSION: was identity (∅ vs P onset)"],
+  ["fuse", "confuse", "identity", "GUARD: consonant-initial suffix still identity"],
+  ["place", "birthplace", "identity", "GUARD: compound containment still identity"],
+  ["part", "apart", "identity", "GUARD: same P onset at the stressed syllable (Route A)"],
+  ["time", "sometime", "identity", "GUARD: compound containment still identity"],
 ];
 
 for (const [a, b, expected, note] of GOLDEN) {

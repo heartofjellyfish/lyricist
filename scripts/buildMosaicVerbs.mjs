@@ -54,22 +54,44 @@ export const THING = 2;
 const PERSON_FRAMES = new Set([9, 14, 17, 18, 20, 24, 25, 30]);
 const THING_FRAMES = new Set([8, 11, 15, 16, 19, 21, 31]);
 
-// WordNet-frame false positives: PREPOSITIONAL / intransitive verbs that take
-// their object only through a preposition, so "depend her" / "condescend her"
-// read as broken English. They get a spurious object frame because WordNet
-// scores a whole polysemous synset — e.g. [count, depend, rely, bank,
-// calculate, reckon] "have faith or confidence in; you can count ON…" carries
-// frames 08 (something) + 09 (somebody), but the object there is a PP object
-// (depend ON her), not a direct one. There's no clean frame-level signal, so
-// this is a curated override, verified against generation. Two tiers:
+// WordNet-frame false positives — curated overrides, verified against
+// generation. WordNet scores a whole polysemous synset, so a form can carry
+// an object frame its everyday reading doesn't license. Observed classes
+// (each example shipped as a top mosaic before its strip):
 //
-//   STRIP_BOTH  — fully prepositional; neither "V it" nor "V her" is valid
-//                 (depend on / rely on / respond to / pray for).
-//   STRIP_PERSON — a real thing-object exists, only the person is prepositional
-//                 ("count the votes" ✓ but "count on her"; "calculate it" ✓).
+//   * prepositional — the object needs a preposition: "depend her" (on),
+//     "rely her" (on), "trot her" (out), "kit her" (out), "pit me" (against).
+//   * reflexive-only — "pride her" (pride oneself ON), "sun me" (sun oneself).
+//   * passive-only participle — "born her" (borne is the active one).
+//   * clause/infinitive-taking — "intend her" (intend HER TO GO, never bare).
+//   * plain intransitive with a spurious frame — "subside her".
+//   * auxiliary homographs — "can you", "will her" read as aux + subject no
+//     matter what the verb sense is; the display string is unrescuable.
+//   * obscure denominal/archaic verb readings — "gin it", "tin it",
+//     "twin it", "rays me", "guy her" (mock, 1900s), "queer it", "trance
+//     her": real dictionary verbs whose verb reading is far too rare to
+//     survive next to the noun the listener actually hears.
+//
+// Two tiers (a strip only removes the SPECULATIVE license — a stripped form
+// still heads corpus-ATTESTED mosaics: born → "born there"):
+//
+//   STRIP_BOTH  — neither "V it" nor "V her" is sayable.
+//   STRIP_PERSON — a real thing-object exists, only the person is wrong
+//                 ("calculate it" ✓ / "calculate her" ✗; "blaze it" ✓;
+//                 "submit it" ✓; "intend it" ✓ "I never intended it").
+//   STRIP_THING — the mirror: person object real, thing spurious
+//                 ("could've been me" ✓ / "been it" ✗).
+//
+// The lists are keyed by FORM SPELLING: a lemma entry also strips its
+// regular inflections (depend → depends/depended/depending), but IRREGULAR
+// forms need their own row (go does not cover went/gone/goes — goes isn't a
+// regular form either, go+s spells "gos").
 //
 // NOT included (valid bare person object — keep them): wish (wish her well),
-// refer (refer her to a specialist), and the ordinary transitives (ask,
+// refer (refer her), bore ("bore him a son" OR "bores me" — both real),
+// been/was ("it was me", "could've been her" — copula + pronoun is a real
+// line-ending), done ("done me wrong"), fell ("one blow could fell you"),
+// entrance ("entrance her" = enchant), and the ordinary transitives (ask,
 // search, believe, trust, call, deal, part, mind, serve, help, meet…).
 const STRIP_BOTH = new Set(
   ("depend rely bank prey adhere appeal respond react reply belong pray yearn " +
@@ -78,10 +100,18 @@ const STRIP_BOTH = new Set(
    "coexist correspond conspire confide concentrate elaborate embark comment condescend " +
    "insist wait lord gloat hanker languish lust pine pounce preside rebel rejoice reside " +
    "scoff sneer snoop thrive trespass wince dote culminate gravitate hinge pertain succumb " +
-   "deviate digress coincide abound feast long hunger thirst").split(/\s+/),
+   "deviate digress coincide abound feast long hunger thirst " +
+   // July 2026 mosaic-audit batch (see class taxonomy above):
+   "go goes went gone born borne sun pride ally alibi guy kit pit subside " +
+   "trance gin tin twin bin queer sheer ray shit trot encore can will").split(/\s+/),
 );
 const STRIP_PERSON = new Set(
-  "calculate count yield relate contribute plead adapt reckon approve".split(/\s+/),
+  ("calculate count yield relate contribute plead adapt reckon approve " +
+   // July 2026 mosaic-audit batch:
+   "lance blaze thumb submit intend cry do did shoe apply").split(/\s+/),
+);
+const STRIP_THING = new Set(
+  "been".split(/\s+/),
 );
 
 // Parse WordNet data.verb → Map<lemma, objMask>. Every single-word lemma is
@@ -193,14 +223,15 @@ for (const [v, mask] of [...verbs]) {
 }
 console.log(`  ${verbs.size} forms after irregulars + regular inflection`);
 
-// Clear the spurious object bit(s) from prepositional verbs — the lemma AND
-// every inflection (depend/depends/depended/depending). Order-independent:
+// Clear the spurious object bit(s) — the listed form AND its regular
+// inflections (depend/depends/depended/depending). Order-independent:
 // runs after all propagation, right before the CMU intersection.
 let strippedP = 0;
 let strippedT = 0;
 for (const [lemma, clearMask] of [
   ...[...STRIP_BOTH].map((w) => [w, PERSON | THING]),
   ...[...STRIP_PERSON].map((w) => [w, PERSON]),
+  ...[...STRIP_THING].map((w) => [w, THING]),
 ]) {
   for (const form of [lemma, ...regularForms(lemma)]) {
     if (!verbs.has(form)) continue;

@@ -1,12 +1,14 @@
 # Mosaic Rhyme — design plan
 
-*Last updated: 2026-07-09. Status: **v1 shipped** (see "As-built" below).
-Implementer notes retained as the design record; deviations documented.*
+*Last updated: 2026-07-09 (evening: quality audit batch — unified evidence
+gate, tail reducibility prune, identity-pair suppression). Status: **v1
+shipped** (see "As-built" below). Implementer notes retained as the design
+record; deviations documented.*
 
-## As-built (2026-07-08, object gate 2026-07-09) — deviations from the plan below
+## As-built (2026-07-08, object gate 2026-07-09, audit batch 2026-07-09) — deviations from the plan below
 
-Five things changed during the mockup-review pass with the user. The rest
-of this doc is accurate; these override where they conflict.
+Things changed during the mockup-review pass and the quality audit. The
+rest of this doc is accurate; these override where they conflict.
 
 1. **Grammatical head gate (pulled forward from v2).** The plan shipped
    raw generation and deferred plausibility to v2 bigrams. In practice the
@@ -66,7 +68,9 @@ of this doc is accurate; these override where they conflict.
    end a real song line (be in `mosaic-phrases.json`) to surface. Object-
    pronoun tails keep speculative generation. A 10-word audit found zero
    false kills (every un-attested func-tail combo was junk) and kept every
-   good one (`end there`, `get there•7`, `know that•17`, `fought for`).
+   good one (`end there`, `get there•7`, `fought for`; `know that•17` was
+   also kept at the time — later shown prosodically bogus and removed with
+   its tail, see 1e).
    Side effects: (a) `follow`/`yellow` now emit **zero** mosaics — better
    than `call so`/`tell so`; (b) this SUBSUMES the aux-twin problem — the
    ER0 twin `pretend are` is un-attested, so gating `pretend her` can't
@@ -75,6 +79,81 @@ of this doc is accurate; these override where they conflict.
    consonant-initial-tail-only, hence always function tails, so with no
    attested geminate in the corpus today they produce no output. The
    `matchTail` mechanism stays; re-add a fixture when one attests.
+
+   **1d. Unified evidence gate — non-verb heads admitted via attestation
+   (2026-07-09 audit).** 1b/1c left an asymmetry: tails without a
+   grammatical model fell back to corpus attestation, but heads without one
+   (non-verbs) were hard-killed at index time — so "before me / glory",
+   "to you / hallelujah" (Cohen's own rhyme), "behind her / reminder",
+   "beside her / spider" were structurally impossible, and
+   `buildMosaicPhrases.mjs` didn't even record them. Now one rule at pair
+   time, and the head index carries every acceptable score>0 word:
+
+   > speculative iff (object-pronoun tail ∧ head's WordNet frames license
+   > that object class), else must be attested.
+
+   `isVerb` is deleted as a dep — membership in mosaic-verbs.json IS the
+   objMask, so non-verbs and frameless verbs (weekend, depend) naturally
+   ride the attestation-only path. The `HEADS_PER_SPLIT` pre-gate cap went
+   with it (it would have starved post-gate survivors; buckets are ≤~800
+   pre-filter, and only gate-passers pay a classifier call). The builder
+   records any well-formed head EXCEPT pronouns/articles (`HEAD_BLOCK`) —
+   those bigrams are clause fragments the line-end tokenizer can't see past
+   ("it me" ← *is it me*, "you you", "an a"). Copula/preposition/conjunction
+   heads stay: "was her", "not her"·2, "for me"·226, "or me", "than you"
+   are real sung units.
+
+   **1e. Tail table pruned to line-final-reducible words (2026-07-09
+   audit).** A mosaic sits in rhyme position = line-final, and most of the
+   original 41-row table is STRESSED there: pro-forms (that/what/this/so/
+   do/did/one/not…) and phrasal particles (up/out/on/in/off/at/all…) take
+   phrase-final stress, so the reduced reading the mosaic needs never
+   occurs where a rhyme sits. The corpus's own partner detection proved the
+   attested quotes were certifying the WRONG reading: lines ending "can do"
+   (n=41!) partnered with you/too/true — stressed UW1, not a banana/
+   "CAN-duh" feminine; "been that"/"hear that" partnered with at/flag/ass
+   (AE1 T); "get in"/"give in" with win/thin/skin (IH1 N). Those rows were
+   removed outright — an attested badge on a false rhyme is worse than no
+   row. 16 tails remain (object pronouns + a/of/to/and/or/for/your/there);
+   "there" survives on feminine partner evidence (end there ↔ pretender).
+   Accepted casualties, rainbow/elbow trade: rarities like "lived in /
+   forgiven" go down with the overwhelmingly-stressed majority. Side
+   effect: phrase INPUT of the dropped words now uses citation stress
+   ("give in" anchors on IN and rhymes with win — matching how it's sung).
+
+   **1f. Identity-pair suppression replaces nothing — it closes a leak
+   (2026-07-09 audit).** The weak reading of "mind her" ≡ *reminder* was
+   correctly dropped as identity, but its citation twin (audible HH,
+   `M AY1 N D HH ER0`) re-entered as "additive" — same for "remind her",
+   "spied her / spider", "let her / letter". When any reading of a
+   (head, fw) pair classifies identity, the pair is poisoned for all
+   variants (variants are ordered canonical-first, so the identity reading
+   is always seen first). The boundary holds the other way: "forget me /
+   spaghetti" and "sit me / city" share the source's stressed syllable but
+   the tail's M is real contrast in every reading — the classifier judges
+   the assembled phrase, per the §3 invariant, and they stay.
+
+   **1g. Attested-first ranking; `tier` field dropped (2026-07-09 audit).**
+   Ranking is tier → attested → join → head score → table priority. Before,
+   score alone let speculative junk outrank corpus-proven rows ("shit me"
+   above "hit me"·4; "sun me" above "done me") and MOSAIC_CAP could in
+   principle truncate an attested row. The emitted rows no longer carry the
+   `default`/`lower` tier field — main.js never read it (it splits on
+   `songs > 0`), and a dead field masquerading as a UI contract is worse
+   than none. `attested: bool` is emitted instead.
+
+   **Bundled classifier fix (2026-07-09 audit): identity Route B consonant
+   guard.** The §4-adjacent `phonemeSuffixDifferentSyll` fired for ANY
+   shorter-word-is-phoneme-suffix + fewer-syllables pair, but a
+   vowel-initial shorter word has an empty onset while the longer word has
+   a consonant before the shared suffix — different onsets = real rhyme.
+   eyes/surprise, out/about, end/pretend, ice/advice, aid/afraid sat in the
+   IDENTITY bucket ("oops!") of the main single-word results. CLAUDE.md had
+   documented the consonant-initial requirement for this rule; the code had
+   lost it. Found via the mosaic audit (answer/"romance her" identity while
+   answer/"lance her" perfect). Fixtures pinned both sides in the golden
+   suite; buckets restamped (comparison change only, `rhymeKeyOf`
+   untouched).
 
 2. **Corpus attestation (the "everyday" filter + mosaic red dots).** The
    verb gate (1) kills grammatical trash but still leaves phrases that are

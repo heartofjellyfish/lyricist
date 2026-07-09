@@ -49,9 +49,10 @@ async function loadWordlists() {
       if (!catResp.ok) throw new Error(`wordnet-categories.json ${catResp.status}`);
       if (!commonResp.ok) throw new Error(`common-10k.txt ${commonResp.status}`);
       if (!freqResp.ok) throw new Error(`lyric-frequency.json ${freqResp.status}`);
-      // mosaic-verbs / mosaic-phrases are non-fatal — without them the mosaic
-      // head verb-gate passes everything and no mosaic is attested (no red
-      // dot), but the app still works.
+      // mosaic-verbs / mosaic-phrases are non-fatal, and both fail CLOSED:
+      // without the verb file no head carries an object-frame license (no
+      // speculative mosaics); without the phrase file nothing is attested.
+      // Both missing → zero mosaics; the app otherwise works.
       MOSAIC_VERBS = verbResp.ok
         ? new Map(Object.entries(await verbResp.json()))
         : new Map();
@@ -444,10 +445,12 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
   const mosaics = generateMosaics(source, entries, {
     isAcceptableWord,
     scoreOf,
-    isVerb: (w) => MOSAIC_VERBS.has(w),
+    // Speculative license: WordNet object-frame bits (0 for non-verbs and
+    // frameless verbs — they can still surface via attestation).
     verbObjectMask: (w) => MOSAIC_VERBS.get(w) ?? 0,
-    // Attestation gate (§5.3b): non-object-pronoun tails (spend for,
-    // pretend are, call so) require a real line-ending in the corpus.
+    // Attestation: the phrase ends a real song line in the corpus. Serves
+    // both as the non-speculative evidence path (die for, before me, to
+    // you) and the ranking signal (attested rows sort first).
     isAttested: (display) =>
       Object.prototype.hasOwnProperty.call(MOSAIC_PHRASES, display),
     exclude,

@@ -53,13 +53,29 @@ import {
 // line-final "her" reads as the object.
 //
 // Every tail WITHOUT `obj` (particle, preposition, determiner, possessive,
-// conjunction, auxiliary) is subject to the attestation gate (§5.3b): it
-// only surfaces when a real song ends a line that way. There's no
-// grammatical model for whether "spend for" / "pretend are" / "call so"
-// reads as a natural line-ending — corpus evidence is the only signal,
-// unlike object-pronoun tails which the verb-frame gate clears. This also
-// dissolves the ER0-twin problem: gating "pretend her" can't promote its
-// same-sound twin "pretend are", because that twin is now un-attested too.
+// conjunction) is subject to the attestation gate (§5.3b): it only surfaces
+// when a real song ends a line that way. There's no grammatical model for
+// whether "spend for" reads as a natural line-ending — corpus evidence is
+// the only signal, unlike object-pronoun tails which the verb-frame gate
+// clears.
+//
+// LINE-FINAL REDUCIBILITY (2026-07-09) — every row must be a word that
+// stays PHONETICALLY REDUCED in line-final position, because rhyme position
+// IS line-final. Clitic object pronouns (know it, get 'er), stranded
+// prepositions (die for, made of, wanted to), post-verbal locative "there"
+// (end there) and enjambment "a/and/your/or" qualify. Pro-forms and
+// particles do NOT: line-final "that/what/this/so/do/did/one/not" (pronoun
+// or pro-verb) and "up/out/on/in/off/at/all" (phrasal particles) take
+// phrase-final stress, so the reduced reading the mosaic needs never occurs
+// where a rhyme sits. The corpus's own partner detection certified this
+// before the July 2026 prune: lines ending "can do" rhymed with you/too/
+// true (stressed UW1, not a banana/"CAN-duh" feminine), "been that"/"hear
+// that" with at/flag/ass (stressed AE1 T), "get in"/"give in" with win/thin/
+// skin (stressed IH1 N). Those rows were removed rather than kept as
+// badge-bearing false rhymes; "there" stays on the strength of feminine
+// partner evidence (end there ↔ pretender). Casualties accepted with the
+// usual trade (rainbow/elbow): rare genuinely-reduced line-finals like
+// "lived in / forgiven" go down with the overwhelmingly-stressed majority.
 const FUNCTION_WORDS = [
   { word: "it",   obj: "thing",  variants: [["IH0 T"]] },
   { word: "her",  obj: "person", variants: [["ER0", true], ["HH ER0"]] },
@@ -73,34 +89,9 @@ const FUNCTION_WORDS = [
   { word: "of",   variants: [["AH0 V"], ["AH0", true]] },
   { word: "to",   variants: [["T UW0"], ["T AH0", true]] },
   { word: "and",  variants: [["AH0 N", true], ["AH0 N D"]] },
-  { word: "in",   variants: [["IH0 N"]] },
-  { word: "on",   variants: [["AA0 N"]] },
-  { word: "at",   variants: [["AH0 T"], ["AE0 T"]] },
-  { word: "up",   variants: [["AH0 P"]] },
-  { word: "out",  variants: [["AW0 T"]] },
-  { word: "off",  variants: [["AA0 F"]] },
-  { word: "all",  variants: [["AA0 L"]] },
-  { word: "is",   variants: [["IH0 Z"]] },
-  { word: "as",   variants: [["AH0 Z"]] },
-  { word: "was",  variants: [["W AH0 Z"]] },
-  { word: "are",  variants: [["ER0"]] },
   { word: "or",   variants: [["ER0"]] },
   { word: "for",  variants: [["F ER0"]] },
   { word: "your", variants: [["Y ER0"]] },
-  { word: "from", variants: [["F R AH0 M"]] },
-  { word: "one",  variants: [["W AH0 N"]] },
-  { word: "some", variants: [["S AH0 M"]] },
-  { word: "my",   variants: [["M AY0"]] },
-  { word: "by",   variants: [["B AY0"]] },
-  { word: "so",   variants: [["S OW0"]] },
-  { word: "do",   variants: [["D UW0"], ["D AH0"]] },
-  { word: "did",  variants: [["D IH0 D"]] },
-  { word: "can",  variants: [["K AH0 N"]] },
-  { word: "will", variants: [["W AH0 L"]] },
-  { word: "not",  variants: [["N AA0 T"]] },
-  { word: "what", variants: [["W AH0 T"]] },
-  { word: "that", variants: [["DH AH0 T"]] },
-  { word: "this", variants: [["DH IH0 S"]] },
   { word: "there", variants: [["DH ER0", true]] },
 ];
 
@@ -176,17 +167,11 @@ function isVowelPhoneme(ph) {
 let HEAD_INDEX = null;
 let HEAD_INDEX_SRC = null;
 
-function buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbObjectMask) {
+function buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, verbObjectMask) {
   const index = new Map();
   for (const entry of corpusEntries) {
     if (!entry.rhymeTail || entry.rhymeTail.length === 0) continue;
     if (!isAcceptableWord(entry.text, entry.syllables)) continue;
-    // Grammatical head gate (§5.3): a mosaic reads as English only when the
-    // head is a VERB — "know it", "bought her", "hit me", "run me" — because
-    // the tail (a pronoun or particle) attaches to a verb. Without this the
-    // generator floods with grammatical nonsense: "oh it", "not are",
-    // "scott her", "apricot her". isVerb is backed by mosaic-verbs.json.
-    if (!isVerb(entry.text)) continue;
     const score = scoreOf(entry.text);
     if (score <= 0) continue; // quality gate — a junk head kills the feel
     const key = headKey(entry.rhymeTail);
@@ -197,27 +182,31 @@ function buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbOb
       phonemes: entry.phonemes,
       syllables: entry.syllables,
       score,
-      // Object-class bits (person/thing) — checked against the TAIL's
-      // requirement at pair time, since the same head serves many tails.
+      // Object-class bits (person/thing) from mosaic-verbs.json — checked
+      // against the TAIL's requirement at pair time, since the same head
+      // serves many tails. 0 for non-verbs AND for verbs with no bare-object
+      // frame (weekend, depend): both can still head a mosaic, but only an
+      // ATTESTED one (§5.3c) — the mask is the speculative-generation
+      // license, not a head gate. This is what admits "before me / glory",
+      // "to you / hallelujah", "behind her / reminder" once the corpus
+      // attests them, while "oh it" / "scott her" stay dead (never attested).
       objMask: verbObjectMask(entry.text),
     });
   }
-  // Pre-sort each bucket by score desc so per-split take is a cheap slice.
+  // Pre-sort each bucket by score desc so ranking ties are pre-broken.
   for (const bucket of index.values()) {
     bucket.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
   }
   return index;
 }
 
-function ensureHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbObjectMask) {
+function ensureHeadIndex(corpusEntries, isAcceptableWord, scoreOf, verbObjectMask) {
   if (HEAD_INDEX && HEAD_INDEX_SRC === corpusEntries) return HEAD_INDEX;
-  HEAD_INDEX = buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbObjectMask);
+  HEAD_INDEX = buildHeadIndex(corpusEntries, isAcceptableWord, scoreOf, verbObjectMask);
   HEAD_INDEX_SRC = corpusEntries;
   return HEAD_INDEX;
 }
 
-const HEADS_PER_SPLIT = 60;
-const MOSAIC_DEFAULT = 16;
 const MOSAIC_CAP = 48;
 
 const KEEP_TYPES = new Set(["perfect", "family", "additive", "subtractive"]);
@@ -253,11 +242,21 @@ function matchTail(variantPhonemes, tail, prevPhoneme) {
 /**
  * Generate mosaic rhymes for a source analysis (§5).
  *
+ * A candidate surfaces through exactly one of two evidence paths:
+ *   SPECULATIVE — object-pronoun tail + head verb whose WordNet frames
+ *     accept that object class ("bought her", "know it"). Grammar is the
+ *     evidence.
+ *   ATTESTED — any other (head, tail) combination, but ONLY when the exact
+ *     phrase ends a real song line in the corpus ("die for", "before me",
+ *     "to you"). Usage is the evidence.
+ * Everything else stays dead ("oh it", "spend for", "scott her").
+ *
  * @param {object} source           analysis object (analyzeWord / analyzeFromPhonemes)
  * @param {object[]} corpusEntries  the finder's CORPUS_ENTRIES (reused, not rebuilt)
  * @param {object} deps
  * @param {(word:string, syll:number)=>boolean} deps.isAcceptableWord
  * @param {(word:string)=>number} deps.scoreOf   lyric-familiarity score
+ * @param {(word:string)=>number} [deps.verbObjectMask]  WordNet object-frame bits (0 = no speculative license)
  * @param {(display:string)=>boolean} [deps.isAttested]  phrase ends a real song line
  * @param {Set<string>} [deps.exclude]           head words to reject (source + phrase constituents)
  * @returns {object[]} emitted mosaic rows (see §5.5 shape)
@@ -269,14 +268,13 @@ export function generateMosaics(source, corpusEntries, deps) {
   if (!source.trailing || source.trailing.length === 0) return [];
 
   const { isAcceptableWord, scoreOf } = deps;
-  const isVerb = deps.isVerb ?? (() => true); // grammatical head gate (§5.3)
-  // Object-class gate (§5.3): permissive default mirrors isVerb's.
+  // Speculative-generation license (§5.3): permissive default for tests
+  // without the verb file — every head may pair with object-pronoun tails.
   const verbObjectMask = deps.verbObjectMask ?? (() => OBJ_PERSON | OBJ_THING);
-  // Attestation gate (§5.3b): non-object-pronoun tails require corpus
-  // evidence. Permissive default (tests without corpus keep all rows).
+  // Attestation gate (§5.3b/c): permissive default mirrors verbObjectMask's.
   const isAttested = deps.isAttested ?? (() => true);
   const exclude = deps.exclude ?? new Set();
-  const index = ensureHeadIndex(corpusEntries, isAcceptableWord, scoreOf, isVerb, verbObjectMask);
+  const index = ensureHeadIndex(corpusEntries, isAcceptableWord, scoreOf, verbObjectMask);
 
   const anchorIdx = rhymeAnchorIndex(source.phonemes);
   if (anchorIdx === -1) return [];
@@ -284,6 +282,19 @@ export function generateMosaics(source, corpusEntries, deps) {
 
   // Winner-per-key map: (headWord | matched-tail token) → best row.
   const byKey = new Map();
+  // Identity-pair suppression: when a (head, function-word) pair's NATURAL
+  // reduced reading classifies as identity — "mind her" ≡ reminder,
+  // "let her" ≡ letter, "spied her" ≡ spider — its citation variant (the
+  // audible-H reading, one inserted consonant) must not resurrect the pair
+  // as "additive": the ear still hears repetition, and the design excludes
+  // identity mosaics outright (§2). Variants are ordered canonical-reduced
+  // first and the head loop nests inside the variant loop, so the identity
+  // reading is always seen before the citation reading of the same pair.
+  // Pairs whose EVERY reading carries real contrast stay: "forget me" /
+  // spaghetti and "sit me" / city share the source's stressed syllable but
+  // the tail's M contributes an honest additive consonant in all readings —
+  // the classifier, not a head-level rule, is the judge (§3 invariant).
+  const identityPairs = new Set();
 
   for (let i = 1; i < R.length; i += 1) {
     const head = R.slice(0, i);
@@ -293,15 +304,6 @@ export function generateMosaics(source, corpusEntries, deps) {
     const bucket = index.get(headKey(head));
     if (!bucket || bucket.length === 0) continue;
 
-    // Head candidates: skip excluded words, cap at HEADS_PER_SPLIT.
-    const heads = [];
-    for (const h of bucket) {
-      if (exclude.has(h.text)) continue;
-      heads.push(h);
-      if (heads.length >= HEADS_PER_SPLIT) break;
-    }
-    if (heads.length === 0) continue;
-
     for (const fw of FW_TABLE) {
       for (const variant of fw.variants) {
         const m = matchTail(variant.phonemes, tail, prevPhoneme);
@@ -310,24 +312,17 @@ export function generateMosaics(source, corpusEntries, deps) {
           m.joinType === "geminate" ? variant.phonemes.slice(1) : variant.phonemes,
         );
 
-        for (const headEntry of heads) {
+        for (const headEntry of bucket) {
+          if (exclude.has(headEntry.text)) continue;
           const label = `${headEntry.text} ${fw.word}`;
-          if (fw.objMask) {
-            // Object gate (§5.3): an object-pronoun tail needs a head verb
-            // that can take that object class — kills "weekend her" (no
-            // object), "pretend her" / "spend her" (thing-only) while
-            // keeping "send her", "pretend it".
-            if (!(headEntry.objMask & fw.objMask)) continue;
-          } else if (!isAttested(label)) {
-            // Attestation gate (§5.3b): a NON-object-pronoun tail (particle,
-            // preposition, possessive, locative, aux) has no grammatical
-            // model saying the combination is a natural line-ending, so it
-            // only surfaces when a real song attests it. Without this the
-            // additive tier fills with fragments — "spend for", "weekend
-            // your", "bend there", "pretend are", "call so". Attested peers
-            // ("end there", "get there", "know that") still come through.
-            continue;
-          }
+          if (identityPairs.has(label)) continue;
+          // Evidence gate: speculative path (object-pronoun tail + a head
+          // verb frame-licensed for that object class), else corpus
+          // attestation. Non-verbs and frameless verbs have objMask 0, so
+          // they ride the attestation path only.
+          const speculative = fw.objMask && headEntry.objMask & fw.objMask;
+          const attested = isAttested(label);
+          if (!speculative && !attested) continue;
           // Assembly (§5.4): use the MATCHED variant, not citation. Geminate
           // joins degeminate (drop the variant's initial consonant — English
           // collapses the doubled boundary consonant).
@@ -337,6 +332,10 @@ export function generateMosaics(source, corpusEntries, deps) {
           const analysis = analyzeFromPhonemes(label, phonemes);
           if (!analysis) continue;
           const cls = classifyRhymeAnalyzed(source, analysis);
+          if (cls.type === "identity") {
+            identityPairs.add(label); // poison the citation twin too
+            continue;
+          }
           if (!cls.isRhyme || !KEEP_TYPES.has(cls.type)) continue;
 
           const dedupKey = `${headEntry.text}|${dedupTail}`;
@@ -346,6 +345,7 @@ export function generateMosaics(source, corpusEntries, deps) {
             type: cls.type,
             joinType: m.joinType,
             weakForm: variant.weak,
+            attested,
             stability: cls.stability,
             explanation: cls.explanation,
             syllables: phonemes.filter(isVowelPhoneme).length || 1,
@@ -359,7 +359,10 @@ export function generateMosaics(source, corpusEntries, deps) {
     }
   }
 
-  // Rank (§5.5): tier → joinType → head score desc → tail priority → alpha.
+  // Rank (§5.5): tier → attested → joinType → head score desc → tail
+  // priority → alpha. Attested-before-speculative within a tier both puts
+  // corpus-proven rows first ("know it" over "grow it") and guarantees the
+  // MOSAIC_CAP can never truncate an attested row in favor of speculation.
   const ranked = [...byKey.values()].sort(compareRows);
 
   // Suppress twin surfaces: the same phrase can arise as a perfect (weak
@@ -372,10 +375,9 @@ export function generateMosaics(source, corpusEntries, deps) {
     return true;
   });
 
-  // Default/lower tiering, mirroring the main lists' convention.
-  return rows.slice(0, MOSAIC_CAP).map((row, idx) => {
+  return rows.slice(0, MOSAIC_CAP).map((row) => {
     const { priority, ...rest } = row; // drop the internal sort key
-    return { ...rest, tier: idx < MOSAIC_DEFAULT ? "default" : "lower" };
+    return rest;
   });
 }
 
@@ -390,6 +392,7 @@ function better(a, b) {
 function compareRows(a, b) {
   const t = (TIER_RANK[a.type] ?? 9) - (TIER_RANK[b.type] ?? 9);
   if (t !== 0) return t;
+  if (a.attested !== b.attested) return a.attested ? -1 : 1;
   const j = (JOIN_RANK[a.joinType] ?? 9) - (JOIN_RANK[b.joinType] ?? 9);
   if (j !== 0) return j;
   if (a.score !== b.score) return b.score - a.score;

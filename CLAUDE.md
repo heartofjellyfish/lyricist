@@ -283,7 +283,7 @@ assets and **must be rebuilt whenever the lyric library expands**.
 | `wordlists/lyric-frequency.json` | `scripts/buildLyricFrequency.mjs` | word → song-appearance count, drives the lyric-familiarity score |
 | `wordlists/cliche-pairs.json` | `scripts/buildClicheList.mjs` | top-50 most-co-occurring rhyme pairs at line-end, drives the cliché flag |
 | `wordlists/lyric-library/index.json` + `rhymed/`, `rhymed-more/`, `not-rhymed/` tier dirs | `scripts/buildLyricBuckets.mjs` | per-rhyme-key quote files (~4,100 tier-1) + upfront index — what rhyme-finder fetches at runtime. See "Lyric library on-the-wire" below. |
-| `wordlists/mosaic-phrases.json` | `scripts/buildMosaicPhrases.mjs` | corpus attestation for mosaic rhymes — line-ending verb+function-word bigrams → {song count, sample quotes, each with its rhyming `partner` line when the corpus detected one}. Drives the mosaic red-dot badge + the "everyday" ordering (attested shown, un-attested folded); the popover renders quotes via the shared `renderEndQuote` so mosaics show couplets like single words. Stanza is deliberately NOT shipped (whole file is init-fetched — stanzas ~tripled it). |
+| `wordlists/mosaic-phrases.json` | `scripts/buildMosaicPhrases.mjs` | corpus attestation for mosaic rhymes — line-ending bigrams (any well-formed head bar pronouns/articles + a line-final-REDUCIBLE function tail) → {song count, sample quotes, each with its rhyming `partner` line when the corpus detected one}. Since 2026-07-09 this is the evidence path that admits non-verb-head mosaics (`before me`, `to you`) — see the mosaic section. Drives the mosaic red-dot badge + the "everyday" ordering (attested shown first, un-attested folded); the popover renders quotes via the shared `renderEndQuote` so mosaics show couplets like single words. Stanza is deliberately NOT shipped (whole file is init-fetched — stanzas ~tripled it). |
 | `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
 | `rhyme-finder/rhymes/{word}/index.html` + `rhyme-finder/sitemap*.xml` + `rhymes/manifest.json` | `scripts/buildSeoPages.mjs` | programmatic SEO pages (`rhyme.land/rhymes/{word}/`) — headless-Chrome snapshots of the REAL app rendering each word (needs local Chrome; puppeteer-core). Pages hydrate back into the live app via a generator-injected `?q=` boot script; app source carries no SEO code. Rerun after UI changes you want reflected (not required for function). Design doc: `rhyme-finder/SEO-PLAN.md`. Incremental (content-hashed, honest lastmod); pilot batch by default, `--full` for the whole derived set |
 
@@ -399,8 +399,13 @@ The classifier already handles these patterns algorithmically:
   sound, different ARPAbet symbols) — normalized to a canonical
   token in `trailingsMatch`.
 - **Suffix-identity false positives** for vowel-initial shorter
-  words (action/fraction, eyes/lies) — `isSuffixOfOther` requires
-  the shorter word to start with a consonant.
+  words (action/fraction, eyes/lies) — the identity suffix route
+  (`phonemeSuffixDifferentSyll`) requires the shorter word to start
+  with a consonant phoneme. ⚠️ This guard was LOST in a refactor and
+  re-landed 2026-07-09: without it eyes/surprise, out/about,
+  end/pretend, ice/advice sat in the identity bucket for months while
+  the same-syllable-count pairs (action/fraction) masked the hole.
+  Golden fixtures now pin both sides — don't remove them.
 - **16 entries carry `" # comment"` suffixes** (aalborg → `…G # place,
   danish`). Both the runtime loader and `buildLyricBuckets.mjs` strip
   them before splitting into phonemes; keep that if you touch a loader.
@@ -505,33 +510,54 @@ assembles head-word + function-word phonemes into an analysis object the
 classifier grades normally. The only local derived strings are Map lookup
 keys (headKey/tailKey — digit-stripped joins), never bucket filenames.
 
+**The evidence model (unified 2026-07-09):** a candidate surfaces through
+exactly one of two paths —
+- *speculative*: object-pronoun tail + head verb whose WordNet frames
+  license that object class (`bought her`, `know it`);
+- *attested*: ANY other (head, tail) pair, but only when the exact phrase
+  ends a real song line (`die for`, `before me`, `to you`, `behind her`).
+
+There is NO standalone verb-head gate anymore — non-verb heads
+(prepositions `before me`/`beside her`, copulas `was her`/`not her`) ride
+the attestation path; `oh it` / `scott her` / `spend for` stay dead (never
+attested). One extra suppression: if any reading of a (head, tail) pair
+classifies as identity (`mind her` ≡ reminder weak), the citation-H twin is
+poisoned too — while true tail-contrast survives (`forget me / spaghetti`,
+`sit me / city`). Ranking: tier → attested → join → score; rows carry
+`attested`, and the old dead `tier: default/lower` field is gone (main.js
+splits on `songs > 0`).
+
 Three data dependencies:
-- **Function-word tail table** (in-module) — the ~40 pronoun/particle tails
-  with weak forms (`her → 'er`). Data, not code; prune/extend freely.
-- **`rhyme-finder/wordlists/mosaic-verbs.json`** — the verb-head gate,
-  `{form: objMask}`. Every mosaic head must be a verb (`know it`,
-  `bought her` — not `oh it`, `scott her`), AND — July 2026 — able to
-  take the tail as its object when the tail is an object pronoun:
-  bit 1 = WordNet somebody-frames (gates her/them/him/me/you/us),
-  bit 2 = something-frames (gates it). POS alone shipped `weekend her` /
-  `pretend her` / `spend her` (intransitive / clause-only / thing-only).
-  Rebuild via `node scripts/buildMosaicVerbs.mjs` only when upgrading
-  wordnet-db, the irregular list, or the frame→mask mapping.
-- **`wordlists/mosaic-phrases.json`** — corpus ATTESTATION. Two roles now:
-  (1) the "everyday" red-dot badge + quote source; (2) since July 2026 a
-  HARD GATE for every **non-object-pronoun tail** (prepositions, possessives,
-  locatives, conjunctions, auxiliaries). Object-pronoun tails have a
-  grammatical model (the verb-frame gate) so they generate speculatively;
-  any other tail has none, so `generateMosaics` only emits it when this file
-  attests the exact `head tail` line-ending. This is what kills `spend for`,
-  `weekend your`, `bend there`, `pretend are`, `call so`, `low at` while
-  keeping `end there`, `get there`, `know that`, `fought for`. Consequences:
-  words like `follow`/`yellow` emit zero mosaics (better than `call so`);
-  the aux-twin (`pretend are`) dissolves for free; and the geminate join
-  type is dormant (consonant-initial → always a function tail → needs
-  attestation, none in corpus yet). Rebuilt from the lyric corpus (derived
-  re-run protocol above) — expanding the corpus widens BOTH the badges and
-  which func-tail mosaics can appear at all.
+- **Function-word tail table** (in-module) — pronoun/particle tails with
+  weak forms (`her → 'er`). Pruned 41→16 rows (2026-07-09): a tail must
+  stay REDUCED line-finally, because rhyme position IS line-final. Dropped
+  `that/what/do/so/in/on/up/out…` — stressed pro-forms/particles there; the
+  corpus's own partner data proved their attested quotes certify the
+  stressed reading (`can do`↔you/too/true, `get in`↔win/thin), i.e.
+  badge-bearing false rhymes. Kept: object pronouns + `a/of/to/and/or/for/
+  your/there` (`there` on feminine partner proof: end there ↔ pretender).
+  Data, not code — but a re-added row must pass the reducibility test.
+- **`rhyme-finder/wordlists/mosaic-verbs.json`** — `{form: objMask}`, the
+  SPECULATIVE license: bit 1 = WordNet somebody-frames (her/them/him/me/
+  you/us), bit 2 = something-frames (it). objMask 0 (non-verb, intransitive,
+  curated strip) ⇒ attestation-only, NOT excluded. The builder's strip
+  lists cover WordNet polysemy false positives by class: prepositional
+  (`depend her`), reflexive-only (`pride her`, `sun me`), passive-only
+  participle (`born her` — but attested `born there` survives), clause-
+  taking (`intend her`), aux homographs (`can you`, `will her`), obscure
+  denominal readings (`gin it`, `rays me`). Strips are FORM-keyed: a lemma
+  covers its regular inflections only — irregulars need their own row
+  (go ≠ went/gone/goes). Rebuild via `node scripts/buildMosaicVerbs.mjs`
+  after editing strips or upgrading wordnet-db.
+- **`wordlists/mosaic-phrases.json`** — corpus ATTESTATION: line-ending
+  bigrams whose tail is a reducible function word, head = any well-formed
+  word except pronouns/articles (`HEAD_BLOCK` — clause fragments like
+  `it me` ← "is it me"). Three roles: the attested evidence path, the
+  red-dot badge + inline quote source, and the ranking signal. Notable:
+  `follow`/`yellow` emit zero mosaics; geminate joins stay dormant until a
+  geminate attests. Rebuilt from the lyric corpus (derived re-run protocol
+  above) — expanding the corpus widens both the badges and which
+  attested-path mosaics exist at all.
 
 UI: mosaics render under their own **"MOSAIC RHYME" black label** — a peer of
 the "N syllables" groups (`renderMosaicSubgroup`), treated identically (no

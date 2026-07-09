@@ -28,12 +28,25 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..");
 const LIB = path.join(ROOT, "wordlists/lyric-library");
 
-// Only verb-headed phrases are ever generated (the mosaic head verb-gate) and
-// therefore ever looked up. Restrict the index to verb heads so it doesn't
-// store thousands of never-queried "with me" / "i do" / "like that" entries.
-const VERBS = new Set(
-  JSON.parse(fs.readFileSync(path.join(ROOT, "rhyme-finder/wordlists/mosaic-verbs.json"), "utf8")),
-);
+// Heads are NOT restricted to verbs (since 2026-07-09): attestation is the
+// generator's evidence path for every combination WITHOUT a WordNet
+// object-frame license, and that includes non-verb heads — "before me",
+// "to you", "behind her" are classic mosaics no verb gate can admit. Size
+// stays bounded by the tail table itself: isFunctionWord now only accepts
+// the LINE-FINAL-REDUCIBLE tails (16 words), which cuts far more than
+// non-verb heads add ("like that" / "come on" / "give in" no longer
+// qualify as mosaic tails at all — their line-final tail is stressed).
+const HEAD_OK = /^[a-z][a-z'-]*$/u;
+
+// …but a PRONOUN or ARTICLE head is never a singable mosaic unit — those
+// bigrams are clause fragments the line-end tokenizer can't see past:
+// "it me" (…is it me), "you you" (…you, you), "an a" (…an A). Preposition
+// and conjunction heads stay ("for me", "or me", "than you", "from her" —
+// real sung units), as do copula forms ("was her" — it was her).
+const HEAD_BLOCK = new Set([
+  "i", "me", "you", "he", "she", "it", "we", "they", "him", "her", "us",
+  "them", "a", "an", "the", "my", "your", "his", "its", "our", "their",
+]);
 
 const QUOTES_PER_PHRASE = 6; // small popover sample, artist-diversified
 
@@ -61,11 +74,9 @@ function record(q) {
   if (w.length < 2) return;
   const head = w[w.length - 2];
   const tail = w[w.length - 1];
-  // A mosaic is VERB-HEAD + function-TAIL (matching the generator's gate).
-  // Require the tail to be a mosaic tail and the head to be a verb — that
-  // drops "to me" / "with you" / "i do" / "like that" (non-verb heads, never
-  // generated, never looked up), which are otherwise the bulk of the index.
-  if (!isFunctionWord(tail) || !VERBS.has(head)) return;
+  // Any well-formed head + a reducible function tail. The generator decides
+  // what's usable; this index just records the corpus's line-endings.
+  if (!isFunctionWord(tail) || !HEAD_OK.test(head) || HEAD_BLOCK.has(head)) return;
   const bigram = `${head} ${tail}`;
   let e = phrases.get(bigram);
   if (!e) phrases.set(bigram, (e = { songs: new Set(), quotes: [] }));
