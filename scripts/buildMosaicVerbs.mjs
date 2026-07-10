@@ -70,7 +70,15 @@ const THING_FRAMES = new Set([8, 11, 15, 16, 19, 21, 31]);
 //   * obscure denominal/archaic verb readings — "gin it", "tin it",
 //     "twin it", "rays me", "guy her" (mock, 1900s), "queer it", "trance
 //     her": real dictionary verbs whose verb reading is far too rare to
-//     survive next to the noun the listener actually hears.
+//     survive next to the noun the listener actually hears. The CONCRETE-NOUN
+//     subclass ("hat her", "cat her", "fat her") is the same thing with a
+//     louder noun: WordNet verbs hat/cat/fat/rat, but the listener hears the
+//     animal or the garment. ⚠️ There is NO blanket rule here — most common
+//     nouns with a PERSON frame have a genuine transitive reading ("fire her"
+//     = dismiss, "train her", "rock her", "ring her", "desert her" = abandon,
+//     "bug her", "book her", "floor her"). A sweep over the noun class would
+//     silently delete all of those. Strip ONLY what a generation probe has
+//     shown to be junk, one form at a time — see MOSAIC-EVAL.md.
 //
 // Two tiers (a strip only removes the SPECULATIVE license — a stripped form
 // still heads corpus-ATTESTED mosaics: born → "born there"):
@@ -103,12 +111,20 @@ const STRIP_BOTH = new Set(
    "deviate digress coincide abound feast long hunger thirst " +
    // July 2026 mosaic-audit batch (see class taxonomy above):
    "go goes went gone born borne sun pride ally alibi guy kit pit subside " +
-   "trance gin tin twin bin queer sheer ray shit trot encore can will").split(/\s+/),
+   "trance gin tin twin bin queer sheer ray shit trot encore can will " +
+   // 2026-07-09 quality-eval batch — concrete-noun denominals, each observed
+   // shipping as a top mosaic ("hat her"/"cat her"/"fat her" for MATTER) and
+   // judged junk in the blind eval. "rat her" is additionally prepositional
+   // (rat ON her). Neither "V it" nor "V her" is sayable for any of them.
+   "hat cat fat rat").split(/\s+/),
 );
 const STRIP_PERSON = new Set(
   ("calculate count yield relate contribute plead adapt reckon approve " +
    // July 2026 mosaic-audit batch:
-   "lance blaze thumb submit intend cry do did shoe apply").split(/\s+/),
+   "lance blaze thumb submit intend cry do did shoe apply " +
+   // 2026-07-09 quality-eval batch: "bat it" (strike / swat away) is real,
+   // "bat her" is not — the eyelash reading takes no object.
+   "bat").split(/\s+/),
 );
 const STRIP_THING = new Set(
   "been".split(/\s+/),

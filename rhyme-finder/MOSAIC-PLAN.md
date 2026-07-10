@@ -280,6 +280,17 @@ accepted on purpose:
 - **These bugs surface as user screenshots**, not test failures — fixtures
   only ever cover bug classes already found. When you touch a gate, don't
   trust green tests; **eyeball generation** across many rhyme families.
+  Since 2026-07-09 there's a harness for exactly this:
+  `scripts/evalMosaicQuality.mjs` (generation sweep + `MODE=raw`/`MODE=att`
+  gate ablation) and `scripts/evalMosaicDatamuse.mjs` (benchmark diff vs
+  RhymeZone's engine). Measured results, competitive position, and the
+  standing open questions live in **`rhyme-finder/MOSAIC-EVAL.md`** — read it
+  before adding a gate. It's how the concrete-noun denominal leak (`hat her`,
+  `cat her`) was found after four audits missed it.
+- **Never sweep a whole word class.** The denominal fix looked like it
+  generalized to "common nouns WordNet also verbs" — but `fire her`,
+  `train her`, `rock her`, `desert her`, `bug her` are all real. Strip one
+  verified form at a time; see MOSAIC-EVAL.md §"What this eval changed".
 - **Verify by probing generation, not by reading frames.** The pattern used
   here: shim `fetch` to the local filesystem, `import` the real
   `findRhymes`, dump `mosaics` for ~20–30 feminine words, and read the

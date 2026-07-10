@@ -495,7 +495,10 @@ spreading through every importer's promise chain.
 
 ### Mosaic (compound) rhyme (`rhyme-finder/src/mosaicRhyme.js`)
 
-*Added July 2026. Full design + as-built notes: `rhyme-finder/MOSAIC-PLAN.md`.*
+*Added July 2026. Full design + as-built notes: `rhyme-finder/MOSAIC-PLAN.md`.
+Measured quality, gate ablation, competitive benchmark, and the standing open
+questions: `rhyme-finder/MOSAIC-EVAL.md` — read it before touching a gate.
+Probes: `scripts/evalMosaicQuality.mjs`, `scripts/evalMosaicDatamuse.mjs`.*
 
 Multi-word rhymes for one word (`bought her / water`, `hit me / city`).
 Two directions: phrase INPUT (`findRhymes({word:"bought her"})`) and mosaic

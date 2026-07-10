@@ -174,6 +174,32 @@ test("verb gate: verb heads (incl. irregular pasts) survive", async () => {
   }
 });
 
+test("object gate: concrete-noun denominals don't head speculative mosaics", async () => {
+  // WordNet verbs hat/cat/fat/rat exist (to hat = provide with a hat, to cat =
+  // vomit, to fat = fatten, to rat = inform ON) and all four carried a PERSON
+  // frame — so "hat her" / "cat her" / "fat her" / "rat her" shipped as top
+  // mosaics for MATTER until the 2026-07-09 quality eval. The listener hears
+  // the noun. "bat" keeps its thing-object ("bat it away"), loses the person.
+  // Found by blind eval, not by a test — see MOSAIC-EVAL.md.
+  const matter = await mosaicsFor("matter");
+  for (const bad of ["hat her", "cat her", "fat her", "rat her", "bat her"]) {
+    assert.ok(!find(matter, bad), `denominal junk "${bad}" leaked for matter`);
+  }
+  // The other side of the boundary: the strip must not delete real transitives.
+  // Each of these is a common noun WordNet also verbs, WITH a genuine bare
+  // person object ("fire her" = dismiss, "desert her" = abandon). A blanket
+  // sweep over the noun class — the tempting fix — would have killed them all.
+  const verbs = await (await fetch(
+    new URL("../rhyme-finder/wordlists/mosaic-verbs.json", import.meta.url),
+  )).json();
+  for (const good of ["fire", "train", "rock", "ring", "desert", "bug", "book", "house"]) {
+    assert.ok(verbs[good] & 1, `real transitive "${good} her" lost its person frame`);
+  }
+  assert.equal(verbs.bat, 2, '"bat" keeps its thing-object only');
+  // And a real transitive still heads a mosaic for the same source word.
+  assert.ok(find(matter, "sat her"), '"sat her" (real transitive) missing for matter');
+});
+
 // ── Object-class gate (WordNet frames baked into mosaic-verbs.json) ──
 
 test("object gate: person-pronoun tails need a somebody-frame head", async () => {
