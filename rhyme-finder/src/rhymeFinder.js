@@ -258,24 +258,24 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
   let exclude;
   if (parts.length > 1) {
     if (parts.length > 4) {
-      throw new Error("Phrases are limited to 4 words.");
+      throw new Error("Phrases max out at four words.");
     }
     const lowered = parts.map((p) => p.toLowerCase());
     for (const w of lowered) {
       if (!phonemesFor(w)) {
-        throw new Error(`"${w}" not in pronouncing dictionary.`);
+        throw new Error(`Couldn't find “${w}” in the dictionary — is it spelled right?`);
       }
     }
     const phon = assemblePhrase(lowered);
     source = phon ? analyzeFromPhonemes(lowered.join(" "), phon) : null;
     if (!source) {
-      throw new Error(`Couldn't analyze "${raw}".`);
+      throw new Error(`Couldn't make sense of “${raw}”.`);
     }
     exclude = new Set(lowered);
   } else {
     source = analyzeWord(raw);
     if (!source) {
-      throw new Error(`"${raw}" not in pronouncing dictionary.`);
+      throw new Error(`Couldn't find “${raw}” in the dictionary — is it spelled right?`);
     }
     exclude = new Set([raw.toLowerCase()]);
   }

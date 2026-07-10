@@ -199,14 +199,14 @@ function setStatus(msg, isError = false) {
 // submit listener, so all three paths land in the same PostHog event.
 async function runSearch(word, { updateUrl = true, via = "form" } = {}) {
   if (!word) {
-    setStatus("Type a word to begin.", true);
+    setStatus("Type a word first.", true);
     return;
   }
 
   setStatus(`Searching ${word}…`);
   goBtn.disabled = true;
   goBtn.dataset.busy = "true";
-  results.innerHTML = `<div class="rf-loading"><span class="rf-spinner"></span> Searching · ranked by feel</div>`;
+  results.innerHTML = `<div class="rf-loading"><span class="rf-spinner"></span> Searching…</div>`;
   sourceSummary.innerHTML = "";
 
   let reported = false;
@@ -260,7 +260,7 @@ async function runSearch(word, { updateUrl = true, via = "form" } = {}) {
     // rare case where findRhymes succeeded but a renderer threw.
     if (!reported) track("search_submitted", { word, found: false, via });
     results.innerHTML = "";
-    setStatus(err.message || "Lookup failed.", true);
+    setStatus(err.message || "Search failed — try again.", true);
   } finally {
     goBtn.disabled = false;
     goBtn.dataset.busy = "false";
@@ -370,7 +370,7 @@ function renderStressPopover(currentIsMasculine) {
   const buildCol = (kind) => {
     const isMasculine = kind === "masculine";
     const def = isMasculine
-      ? "Ends on a stressed syllable — a one-syllable rhyme, or a multisyllable word whose primary stress lands last. The rhyme hits the final beat: common, clean, song-friendly."
+      ? "Ends on a stressed syllable — a one-syllable rhyme, or a multisyllable word whose primary stress lands last. The rhyme hits the final beat, the way most rhymes in songs do."
       : "Ends with an unstressed syllable trailing the stressed one — always at least two syllables. The rhyme lands a beat earlier and trails off softly.";
     const examples = isMasculine
       ? "love · dove · today · believe · forgot"
@@ -392,7 +392,7 @@ function renderStressPopover(currentIsMasculine) {
   const note = document.createElement("div");
   note.className = "rf-tier-pop-section";
   note.innerHTML =
-    `<p class="rf-tier-pop-note">Masculine and feminine endings rarely sing together — the rhyme lands on a different beat, so Rhyme Land keeps them in separate results.</p>`;
+    `<p class="rf-tier-pop-note">Masculine and feminine endings rarely sing together (the rhyme lands on a different beat), so they're kept apart here.</p>`;
   pop.appendChild(note);
 
   return pop;
@@ -405,7 +405,7 @@ function renderResults(source, buckets, mosaicsByType = {}) {
     0,
   );
   if (totalCount === 0) {
-    results.innerHTML = `<div class="rf-empty">No rhymes found. Try a more common word.</div>`;
+    results.innerHTML = `<div class="rf-empty">No rhymes found — try a more common word.</div>`;
     return;
   }
   for (const type of TYPE_ORDER) {
@@ -450,7 +450,7 @@ function renderTierPopover(type) {
     offScale.className = "rf-tier-pop-section";
     offScale.innerHTML =
       `<div class="rf-tier-pop-eyebrow">How it feels</div>` +
-      `<p class="rf-tier-pop-note">Off the rhyme scale — identity is repetition, not resolution. Listed here so you can recognize and avoid it.</p>`;
+      `<p class="rf-tier-pop-note">Off the rhyme scale — identity is repetition, not resolution. Shown so you can spot it, not reach for it.</p>`;
     pop.appendChild(offScale);
   } else {
     const spec = document.createElement("div");
@@ -604,7 +604,7 @@ function renderTier(type, candidates, source, mosaics = []) {
   empty.className = "rf-tier-empty";
   empty.hidden = true;
   empty.innerHTML =
-    `No words in this tier match the active filter.` +
+    `Your filters hide everything in this tier.` +
     `<span class="rf-tier-empty-hint">adjust filters to see ${totalCount} hidden</span>`;
   tier.appendChild(empty);
 
@@ -867,7 +867,7 @@ function renderWord(candidate, source) {
       candidate.masculine ? "masculine" : "feminine",
       `${candidate.syllables ?? "?"} syll.`,
       tier === "very-common" ? "very common" : tier === "common" ? "common" : "uncommon",
-      cliche ? "Pattison cliché — overworked pair" : "",
+      cliche ? "cliché — an overworked pair" : "",
     ].filter(Boolean).join(" · ");
   }
 
@@ -1798,7 +1798,7 @@ async function renderCorpusGallery(word) {
 
   if (!groups.length) {
     mount.innerHTML =
-      `<p class="cd-prim-empty">No paired line-end uses for <em>${escapeHtml(word)}</em> in songs yet — try the dictionary tab.</p>`;
+      `<p class="cd-prim-empty">The song library hasn't rhymed <em>${escapeHtml(word)}</em> yet — the dictionary tab has plenty.</p>`;
     return;
   }
 
@@ -2157,7 +2157,7 @@ async function renderCorpusExplore(word) {
   if (!groups.length) {
     mount.innerHTML =
       `<section class="cd-explore">${backHTML}` +
-      `<p class="cd-prim-empty">No paired line-end uses for <em>${escapeHtml(word)}</em> in songs yet.</p>` +
+      `<p class="cd-prim-empty">The song library hasn't rhymed <em>${escapeHtml(word)}</em> yet.</p>` +
       `</section>`;
     mount
       .querySelector(".cd-explore-back")
@@ -2417,7 +2417,7 @@ async function renderTabs(word, buckets) {
   if (corpusCounts) {
     corpusCounts.innerHTML = partnerCount
       ? `<b>${partnerCount}</b> pairing${partnerCount === 1 ? "" : "s"} in <b>${songCount}</b> song${songCount === 1 ? "" : "s"}`
-      : `no pairings in songs yet`;
+      : `nothing in songs yet`;
   }
 
   // ── Wire tab switching (idempotent — clones each button so a re-run
