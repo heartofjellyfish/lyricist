@@ -844,8 +844,8 @@ function recommendationTier(candidate) {
 function renderWord(candidate, source) {
   const el = document.createElement("span");
   el.className = "rf-word";
-  // Drives both the per-word lex marker (PERSON / PLACE / SCIENCE caps
-  // tag below the word) and the global filter chips up top — see the
+  // Drives both the per-word lex marker (NAME / PLACE caps tag beside the
+  // word) and the global filter chips up top — see the
   // .rf-app[data-filter-{lex}="false"] selectors in styles.css.
   el.dataset.lex = candidate.lex || "common";
 
@@ -871,7 +871,10 @@ function renderWord(candidate, source) {
     ].filter(Boolean).join(" · ");
   }
 
-  el.textContent = candidate.word;
+  // Proper names are shown the way English writes them — Madonna, Cuba, FBI.
+  // `candidate.word` stays lowercase and keys everything else on this chip
+  // (quotes, cliché lookup, the click-through search).
+  el.textContent = candidate.display ?? candidate.word;
 
   if (cliche) {
     // Cliché flag is rendered as a vermilion superscript "cliché" tag
@@ -2575,18 +2578,17 @@ function isCompanionsRelation(codaRelation) {
 // elements. The chip strip lives in two places — the inline copy
 // (#lex-filter, top of results) and a softer mirror inside the
 // #stickybar — and renderStickybar() keeps both in sync.
-const LEX_LABELS = { common: "Common", name: "Names", place: "Places", proper: "Proper" };
-// Hover tooltips — the one-word labels don't say where the line falls.
-// The only axis here is proper name vs common word: "Proper" is the
-// catch-all for proper names that are neither people nor places.
-// See buildWordnetCategories.mjs.
+const LEX_LABELS = { common: "Common", name: "Names", place: "Places" };
+// Hover tooltips — the one-word labels don't say where the line falls. The
+// only axis is proper name vs common word, and Names carries every proper
+// name that isn't a place, brands and acronyms included. See
+// buildWordnetCategories.mjs.
 const LEX_HINTS = {
   common: "Everyday English words",
-  name: "People, deities & nationalities",
+  name: "People, deities, brands & other names",
   place: "Cities, countries & regions",
-  proper: "Brands, groups, mythology & other proper names",
 };
-const LEX_ORDER = ["common", "name", "place", "proper"];
+const LEX_ORDER = ["common", "name", "place"];
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // Flip both the inline chip and the mirror chip to the same state,
@@ -2618,7 +2620,7 @@ function renderLexFilter(buckets) {
   const app = document.getElementById("app");
   if (!filter || !app) return;
 
-  const counts = { common: 0, name: 0, place: 0, proper: 0 };
+  const counts = { common: 0, name: 0, place: 0 };
   for (const t of TIER_TYPES) {
     for (const c of buckets[t] ?? []) {
       const lex = c.lex || "common";

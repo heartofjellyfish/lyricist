@@ -276,10 +276,13 @@ To add an override:
 
 *Redesigned July 2026. Audit +算法 + 决策记录: `rhyme-finder/LEX-TAXONOMY-PLAN.md`.*
 
-Four buckets — `{ common, name, place, proper }` — behind the lexicon filter
-chips. The file doubles as rhymeFinder's **real-word gate** (`isAcceptableWord`
-requires membership), so a word missing from every bucket can't be a candidate.
-It does NOT affect ranking; that's all `lyricScore`.
+Three buckets — `{ common, name, place }` — behind the lexicon filter chips,
+plus a `display` map giving each proper name its capitalized spelling
+(`madonna → Madonna`, `fbi → FBI`). Everything is keyed lowercase; the spelling
+is display-only and never reaches a rhyme key. The file doubles as
+rhymeFinder's **real-word gate** (`isAcceptableWord` requires membership), so a
+word missing from every bucket can't be a candidate. It does NOT affect
+ranking; that's all `lyricScore`.
 
 The one thing to preserve: **the field carries exactly one axis — proper name
 vs common word.** Two axes were once braided into it and both went wrong:
@@ -302,13 +305,34 @@ EVERY sense is capitalized-or-instance; one lowercase non-instance sense means
 it has an ordinary use (Baker the surname vs baker the occupation → common).
 `place` wins the person∩location overlap (states and cities dominate the
 frequent ones), with a ~10-word `NAME_OVERRIDE` for kennedy/hamilton/victoria…
-`CALENDAR` is the single hardcoded allowlist — proper nouns that sing like
+`CALENDAR` is one of three hardcoded allowlists — proper nouns that sing like
 common words ("Sunday morning").
 
-Latin taxa (truly proper, every sense in {animal, plant, substance}, unattested
-by either frequency source) are **dropped from the file entirely**, i.e. from
-the candidate pool. 103 of them used to have CMU pronunciations and leaked into
-results.
+**Where WordNet has no common word to find.** It holds no pronouns, no
+auxiliaries, no interjections and no inflected forms, so a lemma whose only
+noun sense is a capitalized homograph looks truly proper even when the
+lowercase string is everyday English: IT vs it, WHO vs who, LED vs led, Sat vs
+sat, Laws (the dialogue) vs laws. Frequency cannot separate these from real
+names — `fbi`, `cia` and `dna` sit in the same top-7k band as `it` and `who`,
+which is why the old blunt "frequent ⇒ common" override was never fixable.
+FORM can: `COMMON_HOMOGRAPHS` is a closed-class + vocable + irregular-inflection
+list, and a suffix-peeling rescue reaches the regular ones (laws → law). The
+peel checks its own boundary — `-es` only attaches to a sibilant stem, or
+`james` reduces to jam.
+
+**Places live in two lexnames.** WordNet files continents, ranges and peaks
+under `noun.object`, not `noun.location`, so africa/asia/europe/alps/everest
+need the `@i` instance hypernym (`GEO_HYPERNYM`) to be found at all. Two
+neighbours are deliberately excluded: the SKY (betelgeuse, cygnus) and WATER —
+rivers are named after people, so every familiar hydrographic instance is
+really a surname (charles, hudson, clyde, james). Peaks named after people
+yield to a person sense (Mount Adams, Mount Wilson). Accepted casualty: `logan`.
+
+**Dropped** (i.e. removed from the candidate pool): Latin taxa — truly proper,
+every sense in {animal, plant, substance}, unattested by either frequency
+source; and two-letter proper tokens — chemical symbols, initials,
+abbreviations (Ba, Se, Au, Wu, Mr). The vocables that share that shape (oh, ha,
+na, me) are taken by `COMMON_HOMOGRAPHS` first, so nothing singable is lost.
 
 `buildCmuDict.mjs` must share the truly-proper predicate: its `properOnlyNouns`
 gate decides which nouns get a synthesized `-s` plural. Asking instead for

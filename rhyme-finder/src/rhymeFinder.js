@@ -22,7 +22,8 @@ import {
 } from "./pronunciation.js";
 
 let CORPUS_ENTRIES = null;
-let WORD_LEX = null;          // Map<word, "common"|"name"|"place"|"proper">
+let WORD_LEX = null;          // Map<word, "common"|"name"|"place">
+let WORD_DISPLAY = null;      // Map<word, "Madonna"|"FBI"> — the proper-name spelling
 let COMMON_RANK = null;
 let LYRIC_FREQ = null;
 let MOSAIC_VERBS = null;      // Map<form, objMask> — verb gate + object-class for mosaic heads
@@ -58,14 +59,16 @@ async function loadWordlists() {
         : new Map();
       MOSAIC_PHRASES = phraseResp.ok ? await phraseResp.json() : {};
       // wordnet-categories.json is the source of truth for "real word"
-      // membership AND lex category. Built by scripts/buildWordnetCategories.mjs;
-      // already includes top-10k and lyric-corpus words classified as "common"
-      // via the corpus-override rule.
+      // membership AND lex category. Built by scripts/buildWordnetCategories.mjs,
+      // which also hands us the capitalized spelling of every proper name
+      // (madonna → Madonna, fbi → FBI). Everything is keyed lowercase; the
+      // spelling is for display only and never reaches a rhyme key.
       const cats = await catResp.json();
       WORD_LEX = new Map();
-      for (const lex of ["common", "name", "place", "proper"]) {
+      for (const lex of ["common", "name", "place"]) {
         for (const w of cats[lex] ?? []) WORD_LEX.set(w, lex);
       }
+      WORD_DISPLAY = new Map(Object.entries(cats.display ?? {}));
       const commonText = await commonResp.text();
       LYRIC_FREQ = await freqResp.json();
       COMMON_RANK = new Map();
@@ -317,7 +320,10 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
       codaRelation: cls.codaRelation,
       familyCloseness: cls.familyCloseness, // tight | medium | loose (family only)
       trailingSame: cls.trailingSame ?? true, // foot-level rhyme integrity for feminine pairs
-      lex: WORD_LEX.get(entry.text) ?? "common",  // common | name | place | proper
+      lex: WORD_LEX.get(entry.text) ?? "common",  // common | name | place
+      // How the word is spelled for a reader. `word` stays lowercase — it keys
+      // quotes, mosaics and rhyme lookups everywhere downstream.
+      display: WORD_DISPLAY.get(entry.text) ?? entry.text,
       commonRank,
       score: lyricScore(entry.text, commonRank),
     });

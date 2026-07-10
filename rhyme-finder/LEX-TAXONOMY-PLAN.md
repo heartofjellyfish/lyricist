@@ -1,10 +1,10 @@
 # Lex-category taxonomy redesign — audit + implementation plan
 
-**Status:** ✅ 已实施(2026-07-10)。§5 算法、§6 三个决策、§7 九步全部落地,
-§8 换成实测数字。此后本文件是**设计记录**,不是待办清单。
+**Status:** ✅ 已实施(2026-07-10),并在实施中发现 §5 算法有两个洞、§6 决策 2
+被推翻——见 §10。此后本文件是**设计记录**,不是待办清单。
 **Last updated:** 2026-07-10.
 **Owner context:** rhyme-finder's "lexicon" filter chips (Common / Names /
-Places / Sciences) and their data source
+Places) and their data source
 `rhyme-finder/wordlists/wordnet-categories.json`.
 
 This doc has two halves: (A) the **audit** — what's wrong today, with
@@ -270,9 +270,9 @@ CMU-backed),因为它同时是 rhymeFinder 的"真词门槛"。被 DROP 的拉�
 
 **已定:** (1) place 优先 + 10 词人名 override(`NAME_OVERRIDE`,见
 `buildWordnetCategories.mjs`);washington / lincoln / monroe / madison /
-jackson 按默认留在 Places——城市读法不弱于姓氏读法。(2) 合并桶标签
-**"Proper"**,tooltip "Brands, groups, mythology & other proper names"。
-(3) 键名重命名 `person→name`、`science→proper`。
+jackson 按默认留在 Places——城市读法不弱于姓氏读法。(2) 合并桶**取消**,
+并入 Names(见 §10.3;原建议的 "Proper" 标签已推翻)。(3) 键名重命名
+`person→name`,`science` 消失。
 
 ### 决策 1 — person ∩ place 重名词的归属(唯一的真·难点)
 
@@ -392,15 +392,17 @@ node scripts/buildSeoPages.mjs
 
 ## 8. 实测效果(2026-07-10 重建后)
 
-文件全量(含无发音的词——它同时是 rhymeFinder 的"真词门槛"):
+文件全量(含无发音的词——它同时是 rhymeFinder 的"真词门槛"),数字为 §10
+第二遍之后的最终值:
 
 | 桶 | 词数 | 其中有 CMU 发音(会真正出现) |
 |---|---|---|
-| common | 77,458 | 37,739 |
-| **name** | 3,609 | 2,017 |
-| place | 2,019 | 1,194 |
-| **proper** | 2,671 | 734 |
-| *(剔除 taxa)* | 5,126 词不写入 | 其中 103 个有发音,过去会泄漏进结果 |
+| common | 77,598 | 37,859 |
+| **name** | 5,979 | 2,564 |
+| place | 2,060 | 1,206 |
+| *(剔除)* | 5,060 拉丁属名 + 163 两字母 token | 过去会泄漏进结果 |
+
+另有 8,031 个专名带 `display` 规范拼写。
 
 `buildCmuDict` 的合成门槛同源修复后:**+818 个合成形式**
 (bakers / tsars / oboists / archdukes / abbes …),**−918 个专名复数噪音**
@@ -456,3 +458,61 @@ const wndb = createRequire("<repo>/package.json")("wordnet-db");
 
 完整审计脚本本次跑在 session scratchpad,产出上述所有数字;实现者可据
 §5 算法直接落进 `buildWordnetCategories.mjs` 并用 §8 抽查表回归。
+
+---
+
+## 10. 实施中发现的问题(2026-07-10,第二遍)
+
+§5 的算法在真实数据上跑通后,把 `proper` 桶按词频排开一看,前二十名是
+`it am ha who ho york na windows sam an mister er dna led mr mrs africa sat`
+——一眼过半是垃圾。两个洞:
+
+### 10.1 地名不止住在 noun.location
+
+WordNet 把**大陆、山脉、山峰**放在 `noun.object`(lex 17),不是 lex 15。
+§2.5 的审计其实点到了("colorado/africa/alps 被判成物件"),但 §5 的算法只查
+lex 15,于是 africa/asia/europe/alps/everest 全部漏出 Places。
+
+修法:用 `@i` 的 **instance hypernym** 补判(`GEO_HYPERNYM`)。同一个指针也
+挂着天空(constellation/star/planet)和水系(river/lake/bay)。两者都排除:
+
+- **天空**不是地球上的地点(betelgeuse、cygnus)。
+- **水系**是姓氏重灾区——所有"熟悉"的水文 instance 都是人名:charles、
+  james、hudson、clyde、lena、murray、chang。真正是地名的(kansas、jordan)
+  自带 lex 15 义项,根本走不到这条规则。
+- **以人名命名的山峰**(Mount Adams / Mount Wilson)让位给 person 义项。
+  遗留代价:`logan`——WordNet 里没有 Logan 这个人,压不过 Mount Logan。
+
+### 10.2 高频缩写的小写同形词被判成专名
+
+WordNet 不收代词、助动词、感叹词、屈折形。所以 `it` 唯一的名词义项是 IT
+(信息技术),`who` 是 WHO(世卫),`led` 是 LED,`sat` 是 Sat,`laws` 是
+柏拉图的《法律篇》——全部"每个义项都大写" ⇒ 真专名。
+
+**这里必须记死:频率救不了。** `fbi`/`cia`/`dna` 和 `it`/`who`/`am` 同处
+top-7k,旧的 corpus-override 之所以"有效"是因为它连 madonna 一起吞了。
+能区分的是**形式**:
+
+- `COMMON_HOMOGRAPHS` 闭集——闭类词 + 拟声/感叹 + 不规则屈折(sat/led/
+  sung/ate/drew/fed;`wordnet-db` 没打包 `noun.exc`/`verb.exc`)。
+- 规则屈折回退——`laws→law`、`judges→judge`、`acts→act`。这条规则自己
+  也有边界:`-es` 只接齿擦音词干,否则 `james→jam`、`abies→ab` 双双掉进
+  common。而且它必须**排在 place 判定之后**,否则 `alps→alp`、`wales→wale`
+  会把地名吸走。
+- 两字母专名 token 直接剔除(化学符号 Ba/Se/Au、缩写 Mr/WA、罗马化残片
+  Wu/Ji)。歌词里真正要用的同形词(oh/ha/na/me)已被闭集提前接走。
+
+### 10.3 决策 2 被推翻:没有第四个桶
+
+清完垃圾后 `proper` 只剩 ~700 个有发音的词,而其中高频的几乎全是 WordNet
+没归到 person 的名字(karen、vanessa、melissa、elvis、sam)和组织名。
+"这是个名字吗"本来就是 songwriter 唯一在问的问题,于是 **proper 并入
+name,只留三个 chip:Common / Names / Places**。少一个桶,也少一个要向读者
+解释的语法术语。
+
+### 10.4 顺带:专名按规范拼写显示
+
+分类可靠之后才知道该给谁大写。builder 从 WordNet 的原始义项拼写里取
+`display`(`madonna→Madonna`、`fbi→FBI`、`africa→Africa`),运行时只用于
+渲染 chip 文本;`word` 全程小写,继续给引文、mosaic、韵脚 key 当键。
+唯一的手工 override 是 `sam`——WordNet 只认 SAM(地对空导弹)。

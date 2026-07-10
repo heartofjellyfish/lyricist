@@ -127,7 +127,8 @@ const cats = JSON.parse(
 // `common` now absorbs the ordinary nature words the old `science` bucket
 // held (nitrogen, mongoose); Latin taxa are dropped from the file entirely.
 const commonishNouns = new Set(cats.common ?? []);
-const attested = new Set(Object.values(cats).flat());
+// Named buckets only — `cats.display` is a spelling map, not a word list.
+const attested = new Set([...(cats.common ?? []), ...(cats.name ?? []), ...(cats.place ?? [])]);
 for (const w of fs
   .readFileSync(path.join(REPO, "rhyme-finder/wordlists/common-10k.txt"), "utf8")
   .split(/\r?\n/u)) {
