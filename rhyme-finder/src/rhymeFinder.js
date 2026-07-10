@@ -22,7 +22,7 @@ import {
 } from "./pronunciation.js";
 
 let CORPUS_ENTRIES = null;
-let WORD_LEX = null;          // Map<word, "common"|"person"|"place"|"science">
+let WORD_LEX = null;          // Map<word, "common"|"name"|"place"|"proper">
 let COMMON_RANK = null;
 let LYRIC_FREQ = null;
 let MOSAIC_VERBS = null;      // Map<form, objMask> — verb gate + object-class for mosaic heads
@@ -63,7 +63,7 @@ async function loadWordlists() {
       // via the corpus-override rule.
       const cats = await catResp.json();
       WORD_LEX = new Map();
-      for (const lex of ["common", "person", "place", "science"]) {
+      for (const lex of ["common", "name", "place", "proper"]) {
         for (const w of cats[lex] ?? []) WORD_LEX.set(w, lex);
       }
       const commonText = await commonResp.text();
@@ -317,7 +317,7 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
       codaRelation: cls.codaRelation,
       familyCloseness: cls.familyCloseness, // tight | medium | loose (family only)
       trailingSame: cls.trailingSame ?? true, // foot-level rhyme integrity for feminine pairs
-      lex: WORD_LEX.get(entry.text) ?? "common",  // common | person | place | science
+      lex: WORD_LEX.get(entry.text) ?? "common",  // common | name | place | proper
       commonRank,
       score: lyricScore(entry.text, commonRank),
     });

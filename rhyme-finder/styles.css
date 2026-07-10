@@ -2511,9 +2511,9 @@ input[type="text"]::placeholder {
    ══════════════════════════════════════════════════════════════════ */
 
 :root {
-  --lex-person:  #6b4a2b;
+  --lex-name:  #6b4a2b;
   --lex-place:   #2a4a5e;
-  --lex-science: #3a5a3a;
+  --lex-proper: #3a5a3a;
 }
 
 /* ── Type-legibility floors ───────────────────────────────────────
@@ -2557,9 +2557,9 @@ input[type="text"]::placeholder {
    The marker stays inside the parent's line-box, so candidates that
    wrap to a new row keep tag+word together and row-gap stays clean.
    `common` is the unmarked default — no marker rendered. */
-.rf-word[data-lex="person"]::after,
+.rf-word[data-lex="name"]::after,
 .rf-word[data-lex="place"]::after,
-.rf-word[data-lex="science"]::after {
+.rf-word[data-lex="proper"]::after {
   content: attr(data-lex);
   font-family: var(--mono);
   font-size: 0.42em;
@@ -2572,16 +2572,16 @@ input[type="text"]::placeholder {
   white-space: nowrap;
   opacity: 0.7;
 }
-.rf-word[data-lex="person"]::after  { color: var(--lex-person); }
+.rf-word[data-lex="name"]::after  { color: var(--lex-name); }
 .rf-word[data-lex="place"]::after   { color: var(--lex-place); }
-.rf-word[data-lex="science"]::after { color: var(--lex-science); }
+.rf-word[data-lex="proper"]::after { color: var(--lex-proper); }
 
 /* Filter behaviour — chip toggle hides matching words globally. */
 .rf-app[data-filter-common="false"]  .rf-word:not([data-lex])     { display: none; }
 .rf-app[data-filter-common="false"]  .rf-word[data-lex="common"]  { display: none; }
-.rf-app[data-filter-person="false"]  .rf-word[data-lex="person"]  { display: none; }
+.rf-app[data-filter-name="false"]  .rf-word[data-lex="name"]  { display: none; }
 .rf-app[data-filter-place="false"]   .rf-word[data-lex="place"]   { display: none; }
-.rf-app[data-filter-science="false"] .rf-word[data-lex="science"] { display: none; }
+.rf-app[data-filter-proper="false"] .rf-word[data-lex="proper"] { display: none; }
 
 /* ── Inline lex filter strip (top of results, always visible) ─────
    Kept above the source-panel so the user always has a one-click
@@ -2685,17 +2685,17 @@ input[type="text"]::placeholder {
    the category ink. The checkmark colour is set unconditionally (it's
    only visible once :checked reveals the svg above). */
 .rf-lex-check[data-lex="common"]  input:checked ~ .rf-lex-box { border-color: var(--ink);         background: rgba(26, 20, 14, 0.10); }
-.rf-lex-check[data-lex="person"]  input:checked ~ .rf-lex-box { border-color: var(--lex-person);  background: rgba(107, 74, 43, 0.14); }
+.rf-lex-check[data-lex="name"]  input:checked ~ .rf-lex-box { border-color: var(--lex-name);  background: rgba(107, 74, 43, 0.14); }
 .rf-lex-check[data-lex="place"]   input:checked ~ .rf-lex-box { border-color: var(--lex-place);   background: rgba(42, 74, 94, 0.14); }
-.rf-lex-check[data-lex="science"] input:checked ~ .rf-lex-box { border-color: var(--lex-science); background: rgba(58, 90, 58, 0.14); }
+.rf-lex-check[data-lex="proper"] input:checked ~ .rf-lex-box { border-color: var(--lex-proper); background: rgba(58, 90, 58, 0.14); }
 .rf-lex-check[data-lex="common"]  .rf-lex-box svg path { stroke: var(--ink); }
-.rf-lex-check[data-lex="person"]  .rf-lex-box svg path { stroke: var(--lex-person); }
+.rf-lex-check[data-lex="name"]  .rf-lex-box svg path { stroke: var(--lex-name); }
 .rf-lex-check[data-lex="place"]   .rf-lex-box svg path { stroke: var(--lex-place); }
-.rf-lex-check[data-lex="science"] .rf-lex-box svg path { stroke: var(--lex-science); }
+.rf-lex-check[data-lex="proper"] .rf-lex-box svg path { stroke: var(--lex-proper); }
 .rf-lex-check[data-lex="common"]  input:checked ~ .rf-lex-check-label { color: var(--ink); }
-.rf-lex-check[data-lex="person"]  input:checked ~ .rf-lex-check-label { color: var(--lex-person); }
+.rf-lex-check[data-lex="name"]  input:checked ~ .rf-lex-check-label { color: var(--lex-name); }
 .rf-lex-check[data-lex="place"]   input:checked ~ .rf-lex-check-label { color: var(--lex-place); }
-.rf-lex-check[data-lex="science"] input:checked ~ .rf-lex-check-label { color: var(--lex-science); }
+.rf-lex-check[data-lex="proper"] input:checked ~ .rf-lex-check-label { color: var(--lex-proper); }
 
 /* ── Sticky tier bar (#stickybar) ─────────────────────────────────
    A separate fixed-position bar at the very top of the viewport.

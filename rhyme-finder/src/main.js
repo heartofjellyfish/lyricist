@@ -2575,17 +2575,18 @@ function isCompanionsRelation(codaRelation) {
 // elements. The chip strip lives in two places — the inline copy
 // (#lex-filter, top of results) and a softer mirror inside the
 // #stickybar — and renderStickybar() keeps both in sync.
-const LEX_LABELS = { common: "Common", person: "Names", place: "Places", science: "Sciences" };
-// Hover tooltips — spell out what each WordNet-derived category covers,
-// since the one-word labels alone don't say (e.g. "Sciences" = the
-// noun.substance/plant/animal/body lexnames). See buildWordnetCategories.mjs.
+const LEX_LABELS = { common: "Common", name: "Names", place: "Places", proper: "Proper" };
+// Hover tooltips — the one-word labels don't say where the line falls.
+// The only axis here is proper name vs common word: "Proper" is the
+// catch-all for proper names that are neither people nor places.
+// See buildWordnetCategories.mjs.
 const LEX_HINTS = {
   common: "Everyday English words",
-  person: "People's first & last names",
+  name: "People, deities & nationalities",
   place: "Cities, countries & regions",
-  science: "Plants, animals, substances & technical terms",
+  proper: "Brands, groups, mythology & other proper names",
 };
-const LEX_ORDER = ["common", "person", "place", "science"];
+const LEX_ORDER = ["common", "name", "place", "proper"];
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // Flip both the inline chip and the mirror chip to the same state,
@@ -2617,7 +2618,7 @@ function renderLexFilter(buckets) {
   const app = document.getElementById("app");
   if (!filter || !app) return;
 
-  const counts = { common: 0, person: 0, place: 0, science: 0 };
+  const counts = { common: 0, name: 0, place: 0, proper: 0 };
   for (const t of TIER_TYPES) {
     for (const c of buckets[t] ?? []) {
       const lex = c.lex || "common";

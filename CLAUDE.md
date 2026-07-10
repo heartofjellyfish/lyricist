@@ -272,6 +272,53 @@ To add an override:
    and a synthesized entry bakes the stem's phonemes — the load-time
    override application never reaches derived entries.
 
+### Lex categories (`rhyme-finder/wordlists/wordnet-categories.json`)
+
+*Redesigned July 2026. Audit +算法 + 决策记录: `rhyme-finder/LEX-TAXONOMY-PLAN.md`.*
+
+Four buckets — `{ common, name, place, proper }` — behind the lexicon filter
+chips. The file doubles as rhymeFinder's **real-word gate** (`isAcceptableWord`
+requires membership), so a word missing from every bucket can't be a candidate.
+It does NOT affect ranking; that's all `lyricScore`.
+
+The one thing to preserve: **the field carries exactly one axis — proper name
+vs common word.** Two axes were once braided into it and both went wrong:
+
+- *Semantic domain* (the old `person`/`science` buckets) came from WordNet's
+  dominant lexname, which is unreliable for proper names — venus and vanessa
+  own a clam and a butterfly genus, so the vote called them science words;
+  colorado and africa came out as objects. It also mislabelled 60% of the
+  `person` bucket, which was really occupation nouns (barrister, sorceress).
+- *Familiarity* ("is nitrogen more singable than telomere?") was smuggled in as
+  a corpus-frequency override that forced any frequent word to `common` — which
+  swallowed 1,097 real proper names (madonna, cuba) so the Names/Places chips
+  couldn't hide them. Familiarity is a continuum; ranking already sinks the rare
+  words into "show more". It must never be a chip.
+
+The reliable signals are per-SENSE capitalization (WordNet capitalizes
+proper-noun senses — the old builder lowercased on parse and threw this away)
+and the `@i` instance-hypernym pointer. A lemma is **truly proper** only when
+EVERY sense is capitalized-or-instance; one lowercase non-instance sense means
+it has an ordinary use (Baker the surname vs baker the occupation → common).
+`place` wins the person∩location overlap (states and cities dominate the
+frequent ones), with a ~10-word `NAME_OVERRIDE` for kennedy/hamilton/victoria…
+`CALENDAR` is the single hardcoded allowlist — proper nouns that sing like
+common words ("Sunday morning").
+
+Latin taxa (truly proper, every sense in {animal, plant, substance}, unattested
+by either frequency source) are **dropped from the file entirely**, i.e. from
+the candidate pool. 103 of them used to have CMU pronunciations and leaked into
+results.
+
+`buildCmuDict.mjs` must share the truly-proper predicate: its `properOnlyNouns`
+gate decides which nouns get a synthesized `-s` plural. Asking instead for
+"every sense in noun.person/noun.location" also caught role nouns with no other
+lexname (tsar, oboist, archduke) and cost 981 legitimate plurals.
+
+Boundary fixtures for both sides of every rule live in
+`test/lexCategories.test.js`. Changing the classification is a **full derived
+rebuild** (see the re-run protocol below) — the file is in the staleness hash.
+
 ### Lyric corpus & derived wordlists
 
 Rhyme Finder uses four artifacts derived from the lyric library
@@ -285,6 +332,7 @@ assets and **must be rebuilt whenever the lyric library expands**.
 | `wordlists/lyric-library/index.json` + `rhymed/`, `rhymed-more/`, `not-rhymed/` tier dirs | `scripts/buildLyricBuckets.mjs` | per-rhyme-key quote files (~4,100 tier-1) + upfront index — what rhyme-finder fetches at runtime. See "Lyric library on-the-wire" below. |
 | `wordlists/mosaic-phrases.json` | `scripts/buildMosaicPhrases.mjs` | corpus attestation for mosaic rhymes — line-ending bigrams (any well-formed head bar pronouns/articles + a line-final-REDUCIBLE function tail) → {song count, sample quotes, each with its rhyming `partner` line when the corpus detected one}. Since 2026-07-09 this is the evidence path that admits non-verb-head mosaics (`before me`, `to you`) — see the mosaic section. Drives the mosaic red-dot badge + the "everyday" ordering (attested shown first, un-attested folded); the popover renders quotes via the shared `renderEndQuote` so mosaics show couplets like single words. Stanza is deliberately NOT shipped (whole file is init-fetched — stanzas ~tripled it). |
 | `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
+| `rhyme-finder/wordlists/wordnet-categories.json` | `scripts/buildWordnetCategories.mjs` | the lex chips (Common / Names / Places / Proper) AND rhymeFinder's real-word gate. Reads the lyric corpus + top-10k, so a corpus expansion changes it. See "Lex categories" below. |
 | `rhyme-finder/rhymes/{word}/index.html` + `rhyme-finder/sitemap*.xml` + `rhymes/manifest.json` | `scripts/buildSeoPages.mjs` | programmatic SEO pages (`rhyme.land/rhymes/{word}/`) — headless-Chrome snapshots of the REAL app rendering each word (needs local Chrome; puppeteer-core). Pages hydrate back into the live app via a generator-injected `?q=` boot script; app source carries no SEO code. Rerun after UI changes you want reflected (not required for function). Design doc: `rhyme-finder/SEO-PLAN.md`. Incremental (content-hashed, honest lastmod); pilot batch by default, `--full` for the whole derived set |
 
 **Re-run protocol after corpus expansion:**
@@ -293,9 +341,12 @@ assets and **must be rebuilt whenever the lyric library expands**.
 # 1. Re-index raw lyrics (if you've added new song JSONs)
 node lyric-library/scripts/build-index.mjs
 
-# 2. Rebuild the derived wordlists from the new index
+# 2. Rebuild the derived wordlists from the new index. ORDER MATTERS:
+#    frequency → categories → dict → buckets. Each reads the one before it.
 node scripts/buildLyricFrequency.mjs
 node scripts/buildClicheList.mjs
+node scripts/buildWordnetCategories.mjs   # familiar() reads lyric-frequency
+node scripts/buildCmuDict.mjs             # synthesis gate reads the categories
 node scripts/buildLyricBuckets.mjs
 node scripts/buildMosaicPhrases.mjs   # mosaic attestation (reads per-letter index)
 
@@ -304,7 +355,8 @@ node scripts/buildSeoPages.mjs
 
 # 4. Commit the regenerated JSONs (and the underlying lyric-library/*.json)
 git add wordlists/lyric-frequency.json wordlists/cliche-pairs.json \
-        wordlists/mosaic-phrases.json \
+        wordlists/mosaic-phrases.json wordlists/cmu-dict.json \
+        rhyme-finder/wordlists/wordnet-categories.json \
         wordlists/lyric-library/ rhyme-finder/rhymes/ rhyme-finder/sitemap*.xml
 git commit -m "Corpus expansion: <which artists/songs added>"
 ```
@@ -317,15 +369,18 @@ pages keep serving the old classification.
 
 This is machine-enforced since July 2026: `buildLyricBuckets.mjs` stamps
 a hash of the FULL derived-input set — `rhymeClassifier.js` +
-`pronunciation.js` (the code) AND `cmu-dict.json` + `cmu-overrides.json`
-(the data) — into `wordlists/lyric-library/index.json`, and
+`pronunciation.js` (the code) AND `cmu-dict.json` + `cmu-overrides.json` +
+`wordnet-categories.json` (the data) — into `wordlists/lyric-library/index.json`, and
 `test/derivedConsistency.test.js` recomputes it. Touch the phonetic layer
 OR expand the dict (inflection synthesis, override edits) without
 rebuilding and the suite goes red with the exact rebuild commands in the
 failure message. (The data files were added to the hash after the
 inflection-synthesis batch shipped with stale buckets while a
 code-only hash stayed green — a dict expansion changes bucket contents
-without touching the code.)
+without touching the code. `wordnet-categories.json` joined the hash in
+July 2026 for the same reason one step removed: it's the real-word gate,
+so a reclassification changes which candidates exist — and its committed
+copy had silently rotted two corpus rebuilds behind.)
 
 Changes to the phonetic layer ALSO require re-running
 `lyric-library/scripts/build-index.mjs` first (needs `lyric-library/raw/`,
@@ -463,7 +518,8 @@ golden fixtures from Pattison's textbook plus these regressions. Run
 after ANY classifier/pronunciation/override change:
 
 ```bash
-node --test test/rhymeClassifier.test.js test/derivedConsistency.test.js
+node --test test/rhymeClassifier.test.js test/derivedConsistency.test.js \
+            test/lexCategories.test.js
 ```
 
 If you find a NEW class of CMU bug, prefer fixing the algorithm

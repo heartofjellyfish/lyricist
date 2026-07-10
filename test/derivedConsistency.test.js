@@ -7,8 +7,10 @@
 // (rhymeClassifier.js, pronunciation.js) but the pronunciation DATA it runs
 // on: cmu-dict.json and, crucially, cmu-overrides.json — a one-line override
 // re-transcription (writhe, commit 4291ac47) silently rotted its bucket for a
-// release because the hash used to cover only the .js. Keep this file list in
-// lockstep with phoneticsHash() in scripts/buildLyricBuckets.mjs.
+// release because the hash used to cover only the .js. wordnet-categories.json
+// counts too: it is the real-word gate, so a reclassification changes which
+// candidates exist. Keep this file list in lockstep with phoneticsHash() in
+// scripts/buildLyricBuckets.mjs.
 //
 // buildLyricBuckets.mjs stamps a hash of those sources into
 // index.json at build time; this test recomputes it. Red means:
@@ -37,6 +39,7 @@ test("lyric buckets were built with the current phonetic layer", () => {
     "rhyme-finder/src/pronunciation.js",
     "wordlists/cmu-overrides.json",
     "wordlists/cmu-dict.json",
+    "rhyme-finder/wordlists/wordnet-categories.json",
   ]) {
     h.update(fs.readFileSync(path.join(ROOT, f)));
   }

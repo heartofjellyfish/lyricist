@@ -33,6 +33,10 @@ import { normalizePhonemes } from "../rhyme-finder/src/pronunciation.js";
 // → its rhymeKey → its bucket, with zero code change (writhe's scythe-family
 // override, commit 4291ac47, moved it IH1_TH→AY1_DH but left the buckets stale
 // for a whole release — the guard was blind because it only hashed the .js).
+// wordnet-categories.json is in the list for the same reason one step removed:
+// it is rhymeFinder's real-word gate, so a reclassification changes which
+// candidates exist at all (and, through buildCmuDict's synthesis gate, which
+// entries the dict holds).
 // Must match the identical list in test/derivedConsistency.test.js.
 function phoneticsHash() {
   const h = crypto.createHash("sha256");
@@ -41,6 +45,7 @@ function phoneticsHash() {
     "rhyme-finder/src/pronunciation.js",
     "wordlists/cmu-overrides.json",
     "wordlists/cmu-dict.json",
+    "rhyme-finder/wordlists/wordnet-categories.json",
   ]) {
     h.update(fs.readFileSync(path.resolve(HERE, "..", f)));
   }

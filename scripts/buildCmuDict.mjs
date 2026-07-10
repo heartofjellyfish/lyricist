@@ -86,31 +86,34 @@ const anyLemma = new Set([
   ...lemmasOf("index.adv"),
 ]);
 
-// Noun lemmas whose EVERY synset is noun.person (18) or noun.location
-// (15) — pure proper nouns. wordnet-categories.json can't serve this
-// role: its corpus-override rule forces famous names into "common"
-// (diana, egypt), which would spawn plural-surname junk (dianas,
-// egypts). Recomputed here from raw WordNet so the synthesis gate uses
-// pure POS semantics, independent of the app's display categorization.
+// Truly-proper noun lemmas: EVERY synset is capitalized or an `@i`
+// instance. Blocks plural-surname junk (dianas, egypts). The predicate
+// must match buildWordnetCategories.mjs — an earlier version asked
+// instead for "every synset in noun.person/noun.location", which also
+// caught role nouns that merely happen to have no other lexname
+// (tsar, oboist, archduke) and cost 981 legitimate plurals.
 const properOnlyNouns = (() => {
-  const lemmaLex = new Map();
+  const lemmaSenses = new Map();
   const text = fs.readFileSync(path.join(wndb.path, "data.noun"), "utf8");
   for (const line of text.split("\n")) {
     if (!line || line.startsWith(" ")) continue;
-    const parts = line.split(/\s+/u);
-    const lexnum = parseInt(parts[1], 10);
+    const head = line.split(" | ")[0];
+    const parts = head.split(/\s+/u);
     const wCnt = parseInt(parts[3], 16);
     if (Number.isNaN(wCnt)) continue;
+    const instance = / @i /u.test(` ${head} `);
     for (let i = 0; i < wCnt; i += 1) {
-      const lemma = (parts[4 + i * 2] ?? "").toLowerCase();
+      const raw = parts[4 + i * 2] ?? "";
+      const lemma = raw.toLowerCase();
       if (!/^[a-z]+$/u.test(lemma)) continue;
-      if (!lemmaLex.has(lemma)) lemmaLex.set(lemma, new Set());
-      lemmaLex.get(lemma).add(lexnum);
+      const cap = raw[0] !== raw[0].toLowerCase();
+      if (!lemmaSenses.has(lemma)) lemmaSenses.set(lemma, []);
+      lemmaSenses.get(lemma).push(cap || instance);
     }
   }
   const set = new Set();
-  for (const [lemma, lexes] of lemmaLex) {
-    if ([...lexes].every((l) => l === 15 || l === 18)) set.add(lemma);
+  for (const [lemma, proper] of lemmaSenses) {
+    if (proper.every(Boolean)) set.add(lemma);
   }
   return set;
 })();
@@ -121,7 +124,9 @@ const cats = JSON.parse(
     "utf8",
   ),
 );
-const commonishNouns = new Set([...(cats.common ?? []), ...(cats.science ?? [])]);
+// `common` now absorbs the ordinary nature words the old `science` bucket
+// held (nitrogen, mongoose); Latin taxa are dropped from the file entirely.
+const commonishNouns = new Set(cats.common ?? []);
 const attested = new Set(Object.values(cats).flat());
 for (const w of fs
   .readFileSync(path.join(REPO, "rhyme-finder/wordlists/common-10k.txt"), "utf8")

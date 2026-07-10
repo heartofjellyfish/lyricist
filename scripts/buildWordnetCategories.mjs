@@ -1,118 +1,173 @@
 // Rebuild rhyme-finder/wordlists/wordnet-categories.json from WordNet data.
-// Replaces the flat wordnet-words.json with a four-bucket categorized list:
 //
-//   common  — verbs / adjectives / adverbs / common nouns. The default tier.
-//   person  — first names, last names, and other person lemmas (noun.person).
-//   place   — cities, countries, regions (noun.location).
-//   science — substances, plants, animals, body parts (noun.substance/plant/
-//             animal/body) — only when not already in top-10k or lyric corpus.
+// The file carries ONE axis: proper name vs common word. Not semantic
+// domain, not familiarity. See rhyme-finder/LEX-TAXONOMY-PLAN.md for the
+// audit that killed the old design; the short version:
 //
-// Override rule: any lemma in top-10k spoken or lyric corpus is forced to
-// "common" regardless of WordNet category — "cat" lives in noun.animal but
-// it's a perfectly common word. Songwriters use it freely.
+//   • WordNet's lexname is unreliable for proper names — venus/vanessa
+//     carry clam/butterfly-genus senses, so a "dominant lexname" vote
+//     called them science words; colorado/africa came out as objects.
+//   • The old "any corpus word is common" override swallowed 1097 real
+//     proper names (madonna, cuba), so the Names/Places chips couldn't
+//     hide them.
+//   • Familiarity (nitrogen vs telomere) is a continuum the ranking
+//     system already handles (lyricScore → "show more"). It is not a chip.
 //
-// Output: { common: [...], person: [...], place: [...], science: [...] }
+// The reliable signals are per-SENSE capitalization (WordNet capitalizes
+// proper-noun senses) and the `@i` instance-hypernym pointer. A lemma is
+// "truly proper" only when EVERY sense is capitalized-or-instance; one
+// lowercase non-instance sense means it has an ordinary use (baker the
+// occupation alongside Baker the surname → common).
+//
+//   common  — verbs / adjectives / adverbs + any noun with a common sense.
+//             Includes ordinary nature words (nitrogen, mongoose) and
+//             obscure ones (telomere, feldspar) — ranking sinks those.
+//   name    — truly proper + has a noun.person sense (people, deities,
+//             nationalities).
+//   place   — truly proper + has a noun.location sense.
+//   proper  — every other truly-proper lemma: brands, organizations,
+//             acronyms, mythological objects, religions, languages, works.
+//   (dropped) — Latin taxonomic genera: truly proper, every sense in
+//             {animal, plant, substance}, absent from both frequency
+//             sources. abies/accipiter/pseudomonas are dictionary residue,
+//             not candidates. Dropping them from this file removes them
+//             from rhymeFinder's candidate pool (it doubles as the
+//             real-word gate).
+//
+// Output: { common: [...], name: [...], place: [...], proper: [...] }
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import wndb from "wordnet-db";
 
-// WordNet lex_filenum values for the noun categories we care about.
-// Full list is in WordNet's lexnames file. We only special-case four:
-const PERSON_LEX = 18;  // noun.person
-const PLACE_LEX = 15;   // noun.location
-const SCIENCE_LEX = new Set([
-  5,   // noun.animal
-  8,   // noun.body
-  20,  // noun.plant
-  27,  // noun.substance
+// WordNet lex_filenum values. Full list is in WordNet's lexnames file.
+const PERSON_LEX = 18; // noun.person
+const PLACE_LEX = 15; // noun.location
+// The three lexnames a Latin genus name can live in. noun.body (8) is
+// deliberately absent — no taxon lands there, and every body-part word is
+// a common word anyway.
+const TAXON_LEX = new Set([
+  5, // noun.animal
+  20, // noun.plant
+  27, // noun.substance
+]);
+
+// Calendar words are proper nouns that sing like common ones ("September",
+// "Sunday morning", "December"). A closed, hand-checked set — the one
+// hardcoded list this classifier gets.
+const CALENDAR = new Set([
+  "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+  "january", "february", "march", "april", "may", "june", "july", "august",
+  "september", "october", "november", "december",
+  "spring", "summer", "autumn", "fall", "winter",
+  "christmas", "xmas", "easter", "halloween", "thanksgiving", "hanukkah",
+  "passover", "ramadan", "noel", "yule", "sabbath", "advent", "lent",
+]);
+
+// person ∩ location overlaps default to `place` (see §6 decision 1 of the
+// plan: among the 46 frequent overlaps the states and cities dominate).
+// These are the ones a songwriter means as a person. washington / lincoln /
+// monroe / madison / jackson stay Places — the city reading is at least as
+// strong as the surname.
+const NAME_OVERRIDE = new Set([
+  "kennedy", "hamilton", "clinton", "lawrence", "victoria",
+  "constantine", "judah", "molotov", "sherman", "tyler",
 ]);
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO = join(here, "..");
 
-function parseWordnetData(text) {
-  const lemmaToLex = new Map();
+// Parse data.{noun,verb,adj,adv} into lemma → [{cap, instance, lex}].
+// CRITICAL: keep the original casing of each sense's lemma. The old
+// builder lowercased on the way in, which threw away the single most
+// reliable proper-name signal in the whole file.
+function parseSenses(text) {
+  const lemmaToSenses = new Map();
   for (const line of text.split("\n")) {
     if (!line || line.startsWith(" ") || line.startsWith("/")) continue;
-    const parts = line.split(/\s+/);
+    const head = line.split(" | ")[0];
+    const parts = head.split(/\s+/u);
     if (parts.length < 5) continue;
-    const lexFilenum = parseInt(parts[1], 10);
+    const lex = parseInt(parts[1], 10);
     const wCnt = parseInt(parts[3], 16);
     if (Number.isNaN(wCnt)) continue;
+    const instance = / @i /u.test(` ${head} `);
     for (let i = 0; i < wCnt; i += 1) {
       const raw = parts[4 + i * 2];
       if (!raw) continue;
+      if (raw.includes("_")) continue; // skip multi-word lemmas
+      const cap = raw[0] !== raw[0].toLowerCase();
       const word = raw.toLowerCase();
-      if (word.includes("_")) continue; // skip multi-word lemmas
-      if (!lemmaToLex.has(word)) lemmaToLex.set(word, new Set());
-      lemmaToLex.get(word).add(lexFilenum);
+      if (!lemmaToSenses.has(word)) lemmaToSenses.set(word, []);
+      lemmaToSenses.get(word).push({ cap, instance, lex });
     }
   }
-  return lemmaToLex;
-}
-
-function classifyLemma(lexSet) {
-  // If any synset is in a "common" noun category (anything not in
-  // person/place/science), classify as common — the word has at least
-  // one ordinary use (e.g., "miller" the occupation alongside "Miller"
-  // the surname → common, the surname role is incidental).
-  for (const lex of lexSet) {
-    if (lex !== PERSON_LEX && lex !== PLACE_LEX && !SCIENCE_LEX.has(lex)) {
-      return "common";
-    }
-  }
-  // All synsets are in special categories. Pick the dominant one:
-  if (lexSet.size === 1) {
-    if (lexSet.has(PERSON_LEX)) return "person";
-    if (lexSet.has(PLACE_LEX)) return "place";
-  }
-  // Mixed within special categories OR all in science
-  if ([...lexSet].every((x) => SCIENCE_LEX.has(x))) return "science";
-  // Mixed person+place+science — rare; default to common to be safe
-  return "common";
+  return lemmaToSenses;
 }
 
 console.log("Reading data.noun…");
-const nounLex = parseWordnetData(readFileSync(join(wndb.path, "data.noun"), "utf8"));
-console.log(`  ${nounLex.size} noun lemmas`);
+const nounSenses = parseSenses(readFileSync(join(wndb.path, "data.noun"), "utf8"));
+console.log(`  ${nounSenses.size} noun lemmas`);
 
 console.log("Reading data.verb / data.adj / data.adv…");
-const verbLex = parseWordnetData(readFileSync(join(wndb.path, "data.verb"), "utf8"));
-const adjLex = parseWordnetData(readFileSync(join(wndb.path, "data.adj"), "utf8"));
-const advLex = parseWordnetData(readFileSync(join(wndb.path, "data.adv"), "utf8"));
-const verbAdjAdvWords = new Set([
-  ...verbLex.keys(), ...adjLex.keys(), ...advLex.keys(),
-]);
+const verbAdjAdvWords = new Set();
+for (const f of ["data.verb", "data.adj", "data.adv"]) {
+  for (const k of parseSenses(readFileSync(join(wndb.path, f), "utf8")).keys()) {
+    verbAdjAdvWords.add(k);
+  }
+}
 console.log(`  ${verbAdjAdvWords.size} verb/adj/adv lemmas`);
 
-console.log("Loading override sources (top-10k, lyric corpus)…");
-const top10k = new Set(
-  readFileSync(join(REPO, "rhyme-finder", "wordlists", "common-10k.txt"), "utf8")
-    .split(/\r?\n/u).filter(Boolean).map((w) => w.toLowerCase())
+console.log("Loading frequency sources (top-10k, lyric corpus)…");
+const top10k = readFileSync(
+  join(REPO, "rhyme-finder", "wordlists", "common-10k.txt"), "utf8",
+).split(/\r?\n/u).filter(Boolean).map((w) => w.toLowerCase());
+const top10kSet = new Set(top10k);
+// Mirrors lyricScore()'s rank<7000 cutoff in rhymeFinder.js — past that the
+// top-10k tail is noisy enough that we don't call a word familiar.
+const top7k = new Set(top10k.slice(0, 7000));
+const lyricFreq = JSON.parse(
+  readFileSync(join(REPO, "wordlists", "lyric-frequency.json"), "utf8"),
 );
-const lyricFreq = JSON.parse(readFileSync(join(REPO, "wordlists", "lyric-frequency.json"), "utf8"));
 const lyricWords = new Set(Object.keys(lyricFreq));
 
-const buckets = { common: [], person: [], place: [], science: [] };
+// Only ever used to rescue a taxon-shaped lemma that a real corpus attests
+// (§5: never to decide common vs proper).
+const familiar = (w) => lyricWords.has(w) || top7k.has(w);
+
+const DROP = Symbol("drop");
+
+function classify(word) {
+  if (verbAdjAdvWords.has(word)) return "common";
+  const senses = nounSenses.get(word);
+  if (!senses || senses.length === 0) {
+    // No WordNet entry at all. Corpus attestation makes it a real word
+    // (gonna, ok) — and a common one. Otherwise it isn't a word.
+    return top10kSet.has(word) || lyricWords.has(word) ? "common" : null;
+  }
+  if (senses.some((s) => !s.cap && !s.instance)) return "common";
+  // ── from here: truly proper (every sense capitalized or an instance) ──
+  if (senses.every((s) => TAXON_LEX.has(s.lex)) && !familiar(word)) return DROP;
+  if (CALENDAR.has(word)) return "common";
+  if (NAME_OVERRIDE.has(word)) return "name";
+  if (senses.some((s) => s.lex === PLACE_LEX)) return "place";
+  if (senses.some((s) => s.lex === PERSON_LEX)) return "name";
+  return "proper";
+}
+
+const buckets = { common: [], name: [], place: [], proper: [] };
 const allLemmas = new Set([
-  ...nounLex.keys(), ...verbAdjAdvWords, ...top10k, ...lyricWords,
+  ...nounSenses.keys(), ...verbAdjAdvWords, ...top10kSet, ...lyricWords,
 ]);
 
 const TOKEN_OK = /^[a-z][a-z'\-]*$/u;
+let dropped = 0;
 for (const word of allLemmas) {
   if (!TOKEN_OK.test(word)) continue;
-  let lex;
-  if (top10k.has(word) || lyricWords.has(word)) {
-    lex = "common"; // corpus override
-  } else if (verbAdjAdvWords.has(word)) {
-    lex = "common";
-  } else if (nounLex.has(word)) {
-    lex = classifyLemma(nounLex.get(word));
-  } else {
-    continue;
-  }
+  const lex = classify(word);
+  if (lex === DROP) { dropped += 1; continue; }
+  if (!lex) continue;
   buckets[lex].push(word);
 }
 
@@ -121,19 +176,24 @@ for (const k of Object.keys(buckets)) buckets[k].sort();
 console.log("\nResult:");
 const total = Object.values(buckets).reduce((s, arr) => s + arr.length, 0);
 for (const [k, v] of Object.entries(buckets)) {
-  const pct = (v.length / total * 100).toFixed(1);
+  const pct = ((v.length / total) * 100).toFixed(1);
   console.log(`  ${k.padEnd(8)} ${String(v.length).padStart(6)}  (${pct}%)`);
 }
 console.log(`  ${"total".padEnd(8)} ${String(total).padStart(6)}`);
+console.log(`  ${"dropped".padEnd(8)} ${String(dropped).padStart(6)}  (latin taxa)`);
 
 const outPath = join(REPO, "rhyme-finder", "wordlists", "wordnet-categories.json");
 const json = JSON.stringify(buckets);
 writeFileSync(outPath, json);
 console.log(`\nWrote ${outPath} (${(json.length / 1024).toFixed(1)} KB)`);
 
-// Sample a few entries from each non-common bucket to sanity check
-console.log("\nSamples:");
-for (const cat of ["person", "place", "science"]) {
-  const sample = buckets[cat].slice(0, 15);
-  console.log(`  ${cat}: ${sample.join(", ")}`);
-}
+console.log("\nSpot checks:");
+const lexOf = (w) => {
+  for (const [k, v] of Object.entries(buckets)) if (v.includes(w)) return k;
+  return "(absent)";
+};
+for (const w of [
+  "madonna", "cuba", "baker", "venus", "monday", "dane", "nitrogen",
+  "feldspar", "telomere", "fbi", "tylenol", "abies", "borough", "mongoose",
+  "paris", "kennedy",
+]) console.log(`  ${w.padEnd(10)} → ${lexOf(w)}`);
