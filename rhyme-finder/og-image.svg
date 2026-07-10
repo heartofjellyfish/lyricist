@@ -1,5 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
-  <rect width="1200" height="630" fill="#dcc28e"/>
+  <defs>
+    <!-- warm paper base: subtle vertical warmth -->
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e0c795"/>
+      <stop offset="0.5" stop-color="#dcc28e"/>
+      <stop offset="1" stop-color="#d3b881"/>
+    </linearGradient>
+    <!-- center bloom (lighter middle) -->
+    <radialGradient id="bloom" cx="0.46" cy="0.42" r="0.62" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#f2ddb0" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#f2ddb0" stop-opacity="0"/>
+    </radialGradient>
+    <!-- edge vignette (darker warm corners) -->
+    <radialGradient id="vig" cx="0.5" cy="0.46" r="0.72" gradientUnits="objectBoundingBox">
+      <stop offset="0.5" stop-color="#3a2410" stop-opacity="0"/>
+      <stop offset="1" stop-color="#33200e" stop-opacity="0.38"/>
+    </radialGradient>
+    <!-- mountain vertical gradient: dark peak → warm at waterline -->
+    <linearGradient id="mtn" x1="0" y1="93" x2="0" y2="308" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#180f08"/>
+      <stop offset="1" stop-color="#463523"/>
+    </linearGradient>
+    <!-- reflection: fades to nothing toward the lower tip -->
+    <linearGradient id="refl" x1="0" y1="312" x2="0" y2="527" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#463523" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#463523" stop-opacity="0.03"/>
+    </linearGradient>
+    <!-- film grain -->
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" stitchTiles="stitch" result="n"/>
+      <feColorMatrix in="n" type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0" intercept="1"/></feComponentTransfer>
+    </filter>
+  </defs>
+
+  <!-- paper -->
+  <rect width="1200" height="630" fill="url(#paper)"/>
+  <rect width="1200" height="630" fill="url(#bloom)"/>
+
+  <!-- faint ruled paper lines -->
   <g stroke="#1a140e" stroke-width="0.4" opacity="0.05">
     <line x1="0" y1="120" x2="1200" y2="118"/>
     <line x1="0" y1="220" x2="1200" y2="223"/>
@@ -7,16 +46,20 @@
     <line x1="0" y1="450" x2="1200" y2="452"/>
     <line x1="0" y1="540" x2="1200" y2="538"/>
   </g>
-  <path d="M75 308 C 130 275, 170 235, 220 170 C 260 120, 290 93, 305 93 C 320 93, 350 120, 390 170 C 440 235, 480 275, 535 308 Z" fill="#1a140e" opacity="0.88"/>
+
+  <!-- mountain + reflection -->
+  <path d="M75 308 C 130 275, 170 235, 220 170 C 260 120, 290 93, 305 93 C 320 93, 350 120, 390 170 C 440 235, 480 275, 535 308 Z" fill="url(#mtn)"/>
   <circle cx="385" cy="140" r="22" fill="#b13b2c"/>
-  <line x1="55" y1="310" x2="555" y2="310" stroke="#1a140e" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
-  <path d="M75 312 C 130 345, 170 385, 220 450 C 260 500, 290 527, 305 527 C 320 527, 350 500, 390 450 C 440 385, 480 345, 535 312 Z" fill="#1a140e" opacity="0.32"/>
-  <circle cx="385" cy="480" r="22" fill="#b13b2c" opacity="0.6"/>
-  <g stroke="#1a140e" stroke-width="1.2" stroke-linecap="round" opacity="0.22" fill="none">
+  <line x1="55" y1="310" x2="555" y2="310" stroke="#1a140e" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
+  <path d="M75 312 C 130 345, 170 385, 220 450 C 260 500, 290 527, 305 527 C 320 527, 350 500, 390 450 C 440 385, 480 345, 535 312 Z" fill="url(#refl)"/>
+  <circle cx="385" cy="480" r="22" fill="#b13b2c" opacity="0.55"/>
+  <g stroke="#1a140e" stroke-width="1.2" stroke-linecap="round" opacity="0.2" fill="none">
     <path d="M120 390 L 220 390"/>
     <path d="M310 445 L 420 445"/>
     <path d="M150 490 L 250 490"/>
   </g>
+
+  <!-- wordmark -->
   <g transform="translate(640 195)">
     <text font-family="'Cormorant Garamond', 'STSong', serif" font-style="normal" font-weight="500" font-size="96" fill="#1a140e" letter-spacing="-1">
       <tspan x="0" y="0">Rhyme</tspan>
@@ -32,4 +75,8 @@
   <text x="640" y="400" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#3a2e1f">the rhymes —</text>
   <text x="640" y="440" font-family="'Cormorant Garamond', serif" font-style="italic" font-weight="400" font-size="34" fill="#6e5a3c">and the <tspan fill="#8a2a1e">songs</tspan> that used them</text>
   <text x="640" y="495" font-family="'DM Mono', ui-monospace, monospace" font-size="16" font-weight="500" fill="#6e5a3c" letter-spacing="0.1em">rhyme.land</text>
+
+  <!-- vignette + grain on top of everything -->
+  <rect width="1200" height="630" fill="url(#vig)"/>
+  <rect width="1200" height="630" filter="url(#grain)" opacity="0.09" style="mix-blend-mode:overlay"/>
 </svg>
