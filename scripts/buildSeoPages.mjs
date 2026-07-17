@@ -79,6 +79,7 @@ await ensurePronunciation();
 
 const MIN_CANDIDATES = 30; // density gate, across all rhyme tiers (identity excluded)
 const COMMON_RANK_MAX = 5000; // general-English fallback gate
+const MIN_SONG_FREQ = 5; // sung-vocabulary gate: word appears in ≥5 corpus songs
 const PILOT_CAP = 100;
 
 // Words nobody searches rhymes for — single letters + the app's
@@ -188,9 +189,14 @@ function passesWordGate(word) {
   if (EXCLUDED_FUNCTION.has(word)) return false;
   if (EXCLUDED_PROFANITY.has(word)) return false;
   if (!analyzeWord(word)) return false; // must be in CMU dict
-  const inLyrics = (LYRIC_FREQ[word] ?? 0) > 0;
+  // Search-worthiness gate (tightened 2026-07-17): "appears in lyrics
+  // at all" admitted 10.8k words — a long tail (phylum, walkman,
+  // barns) with no "words that rhyme with X" search volume that
+  // bloated the repo by ~800 MB and pushed the deploy past Vercel's
+  // 15k-file limit. A page must be common English (top-5k) or
+  // genuinely sung vocabulary (≥MIN_SONG_FREQ corpus songs).
   const rank = COMMON_RANK.get(word) ?? Infinity;
-  return inLyrics || rank < COMMON_RANK_MAX;
+  return rank < COMMON_RANK_MAX || (LYRIC_FREQ[word] ?? 0) >= MIN_SONG_FREQ;
 }
 
 const RHYME_TIERS = TYPE_ORDER.filter((t) => t !== "identity");
@@ -264,7 +270,7 @@ function highlightWord(line, word) {
   );
 }
 
-function extrasHtml({ word, buckets, quotes, related, total }) {
+function extrasHtml({ word, tierCounts, quotes, related, total }) {
   const figures = quotes
     .map(({ quote }) => {
       const surface = quote.surface || word;
@@ -287,10 +293,10 @@ function extrasHtml({ word, buckets, quotes, related, total }) {
     })
     .join("\n");
 
-  const tierDefs = TYPE_ORDER.filter((t) => (buckets[t]?.length ?? 0) > 0)
+  const tierDefs = TYPE_ORDER.filter((t) => (tierCounts[t] ?? 0) > 0)
     .map(
       (t) =>
-        `<div class="sp-def"><dt>${esc(TIER_COPY[t].label)} <span class="sp-def-n">${buckets[t].length}</span></dt><dd>${esc(TIER_COPY[t].explainer)}</dd></div>`,
+        `<div class="sp-def"><dt>${esc(TIER_COPY[t].label)} <span class="sp-def-n">${tierCounts[t]}</span></dt><dd>${esc(TIER_COPY[t].explainer)}</dd></div>`,
     )
     .join("");
 
@@ -308,10 +314,10 @@ ${figures}
 <p class="sp-note">Tiers follow Pat Pattison's stability scale — pick the resolution your line needs, not just the closest sound. <strong>Bold</strong> words are common in lyrics; a struck-through <span class="sp-strike">word</span> with a <span class="sp-flag">cliché</span> flag is an overworked pair; a vermilion dot counts how often the pair appears at line end in our corpus of real songs.</p>
 <dl class="sp-defs">${tierDefs}</dl>
 </div>
-${related.length > 0 ? `<nav class="sp-block sp-related" aria-label="More rhyme pages">
+<nav class="sp-block sp-related" aria-label="More rhyme pages">
 <h2>More rhyme pages</h2>
-<ul>${relatedLinks}</ul>
-</nav>` : ""}
+<ul>${relatedLinks}<li><a href="${SITE}/rhymes">Browse all rhyme pages, A to Z</a></li></ul>
+</nav>
 </section>
 `;
 }
@@ -547,6 +553,10 @@ async function captureWord(page, word) {
     document
       .querySelectorAll("#results .rf-word--lower, #results .rf-subgroup-show-more, .rf-lyric-pop")
       .forEach((el) => el.remove());
+    // Tooltip/filter attributes carry no crawler value (hydration
+    // re-renders the chips with them restored) — ~12% of page bytes.
+    document.querySelectorAll("#results [title]").forEach((el) => el.removeAttribute("title"));
+    document.querySelectorAll("#results [data-lex]").forEach((el) => el.removeAttribute("data-lex"));
     const gallery = document.getElementById("corpus-gallery");
     if (gallery) gallery.innerHTML = "";
     const input = document.getElementById("word-input");
@@ -559,9 +569,199 @@ async function captureWord(page, word) {
   return page.content();
 }
 
+// ── Browse hub (/rhymes + /rhymes/{letter}) ──────────────────────────
+// Static nav pages giving the word pages an internal-link path from
+// the homepage (sitemap-only discovery is weak). Single-letter dirs
+// can never collide with word pages — the word gate requires length
+// ≥ 2. Self-contained document pages (inline CSS, xuan-paper palette
+// hardcoded from styles.css) — deliberately NOT coupled to app markup.
+
+const BROWSE_MANIFEST_PATH = path.join(OUT_DIR, "browse-manifest.json");
+
+const BROWSE_CSS = `
+:root{--paper:#dcc28e;--ink:#1a140e;--ink-soft:#3a2e1f;--ink-faded:#6e5a3c;--ink-ghost:rgba(26,20,14,.14);--vermilion:#b13b2c;--hair:rgba(26,20,14,.10)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Georgia,'Times New Roman',serif;line-height:1.6}
+main{max-width:640px;margin:0 auto;padding:28px 20px 72px}
+.wm{display:inline-block;margin:10px 0 34px;color:var(--ink);text-decoration:none;font-size:1.05rem;letter-spacing:.14em}
+.wm b{color:var(--vermilion);font-weight:400}
+.kicker{display:block;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faded);margin-bottom:6px}
+h1{font-size:1.7rem;font-weight:400;margin:0 0 10px;font-style:italic}
+.intro{color:var(--ink-soft);font-size:.95rem;margin:0 0 26px}
+.letters{display:flex;flex-wrap:wrap;gap:6px 4px;margin:0 0 30px;padding:14px 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.letters a,.letters span{padding:2px 7px;text-decoration:none;color:var(--ink-soft);font-size:.92rem;border-bottom:1px solid var(--ink-ghost)}
+.letters a:hover{color:var(--vermilion);border-color:currentColor}
+.letters .cur{color:var(--vermilion);border-color:var(--vermilion)}
+.letters .n{color:var(--ink-faded);font-size:.7rem;margin-left:2px}
+h2{font-size:.8rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faded);margin:34px 0 12px}
+.words{columns:3;column-gap:22px;margin:0;padding:0;list-style:none}
+.words li{margin:0 0 6px;break-inside:avoid}
+.words a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink-ghost);font-size:.95rem}
+.words a:hover{color:var(--vermilion);border-color:currentColor}
+.cta{margin:44px 0 0;font-size:.95rem}
+.cta a{color:var(--vermilion);text-decoration:none;border-bottom:1px solid currentColor}
+@media(max-width:560px){.words{columns:2}}
+`;
+
+function browsePage({ title, description, canonicalPath, h1, crumbs, body }) {
+  const canonical = `${SITE}${canonicalPath}`;
+  const ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": canonical,
+        url: canonical,
+        name: title,
+        description,
+        isPartOf: { "@type": "WebSite", name: "Rhyme Land", url: `${SITE}/` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: crumbs.map(([name, item], i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name,
+          item,
+        })),
+      },
+    ],
+  };
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(description)}">
+<link rel="canonical" href="${canonical}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rhyme Land">
+<meta property="og:url" content="${canonical}">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(description)}">
+<meta property="og:image" content="${SITE}/rhyme-finder/og-image.png">
+<script type="application/ld+json">${JSON.stringify(ld)}</script>
+<style>${BROWSE_CSS}</style>
+</head>
+<body>
+<main>
+<a class="wm" href="${SITE}/">Rhyme<b>·</b>Land</a>
+${h1}
+${body}
+<p class="cta"><a href="${SITE}/">Search any word in the live app →</a></p>
+</main>
+</body>
+</html>
+`;
+}
+
+function lettersNav(byLetter, current) {
+  return `<nav class="letters" aria-label="Browse by letter">${[...byLetter.keys()]
+    .sort()
+    .map((l) =>
+      l === current
+        ? `<span class="cur">${l}<span class="n">${byLetter.get(l).length}</span></span>`
+        : `<a href="${SITE}/rhymes/${l}">${l}<span class="n">${byLetter.get(l).length}</span></a>`,
+    )
+    .join("")}</nav>`;
+}
+
+function writeBrowsePages(manifest) {
+  const words = Object.keys(manifest).sort();
+  const byLetter = new Map();
+  for (const w of words) {
+    const l = w[0];
+    if (!byLetter.has(l)) byLetter.set(l, []);
+    byLetter.get(l).push(w);
+  }
+
+  let browseManifest = {};
+  try {
+    browseManifest = readJson(BROWSE_MANIFEST_PATH);
+  } catch {
+    browseManifest = {};
+  }
+  const today = new Date().toISOString().slice(0, 10);
+  const entries = [];
+
+  const emit = (relPath, canonicalPath, html) => {
+    const hash = crypto.createHash("sha256").update(html).digest("hex").slice(0, 16);
+    const prev = browseManifest[canonicalPath];
+    const outPath = path.join(OUT_DIR, relPath);
+    if (!prev || prev.hash !== hash || !fs.existsSync(outPath)) {
+      fs.mkdirSync(path.dirname(outPath), { recursive: true });
+      fs.writeFileSync(outPath, html);
+      browseManifest[canonicalPath] = { hash, lastmod: today };
+    }
+    entries.push({ loc: `${SITE}${canonicalPath}`, lastmod: browseManifest[canonicalPath].lastmod });
+  };
+
+  // Hub: /rhymes
+  const popular = PILOT_WORDS.filter((w) => manifest[w]).slice(0, 36);
+  emit(
+    "index.html",
+    "/rhymes",
+    browsePage({
+      title: `Browse rhyme pages A–Z — ${words.length} words | Rhyme Land`,
+      description:
+        `All ${words.length} “words that rhyme with…” pages on Rhyme Land, A to Z. ` +
+        `Every page sorts rhymes by strength — perfect, family, additive, assonance — ` +
+        `with cliché warnings and real lyric examples.`,
+      canonicalPath: "/rhymes",
+      h1: `<h1><span class="kicker">Rhyme Land index</span>Browse the rhyme pages</h1>
+<p class="intro">${words.length} words, each with its rhymes sorted by strength — and the songs that used them. Pick a letter, or start from a favourite.</p>`,
+      crumbs: [
+        ["Rhyme Land", `${SITE}/`],
+        ["Browse rhymes", `${SITE}/rhymes`],
+      ],
+      body: `${lettersNav(byLetter, null)}
+<h2>Often searched</h2>
+<ul class="words">${popular.map((w) => `<li><a href="${SITE}/rhymes/${encodeURIComponent(w)}">${esc(w)}</a></li>`).join("")}</ul>`,
+    }),
+  );
+
+  // Letter pages: /rhymes/{letter}
+  for (const [l, list] of [...byLetter.entries()].sort()) {
+    emit(
+      path.join(l, "index.html"),
+      `/rhymes/${l}`,
+      browsePage({
+        title: `Rhyme pages: ${l.toUpperCase()} — ${list.length} words | Rhyme Land`,
+        description:
+          `Words that start with ${l.toUpperCase()}: ${list.length} rhyme pages, ` +
+          `each sorting its rhymes by strength with real lyric examples.`,
+        canonicalPath: `/rhymes/${l}`,
+        h1: `<h1><span class="kicker">Rhyme Land index</span>Words that start with “${l}”</h1>
+<p class="intro">${list.length} rhyme pages. Each lists words that rhyme with the headword, sorted by rhyme strength.</p>`,
+        crumbs: [
+          ["Rhyme Land", `${SITE}/`],
+          ["Browse rhymes", `${SITE}/rhymes`],
+          [`Words starting with ${l.toUpperCase()}`, `${SITE}/rhymes/${l}`],
+        ],
+        body: `${lettersNav(byLetter, l)}
+<ul class="words">${list.map((w) => `<li><a href="${SITE}/rhymes/${encodeURIComponent(w)}">${esc(w)}</a></li>`).join("")}</ul>`,
+      }),
+    );
+  }
+
+  // Drop stale letter pages (a letter emptied by pruning).
+  for (const key of Object.keys(browseManifest)) {
+    if (key === "/rhymes") continue;
+    const l = key.replace("/rhymes/", "");
+    if (!byLetter.has(l)) {
+      fs.rmSync(path.join(OUT_DIR, l), { recursive: true, force: true });
+      delete browseManifest[key];
+    }
+  }
+
+  fs.writeFileSync(BROWSE_MANIFEST_PATH, `${JSON.stringify(browseManifest, null, 1)}\n`);
+  return entries;
+}
+
 // ── Sitemaps ─────────────────────────────────────────────────────────
 
-function writeSitemaps(manifest) {
+function writeSitemaps(manifest, browseEntries = []) {
   const today = new Date().toISOString().slice(0, 10);
   const pages = Object.entries(manifest)
     .sort(([a], [b]) => a.localeCompare(b))
@@ -582,6 +782,15 @@ ${pages}
 `,
   );
 
+  const browseUrls = browseEntries
+    .map(
+      (e) => `  <url>
+    <loc>${e.loc}</loc>
+    <lastmod>${e.lastmod}</lastmod>
+  </url>`,
+    )
+    .join("\n");
+
   fs.writeFileSync(
     path.join(SITEMAP_DIR, "sitemap-home.xml"),
     `<?xml version="1.0" encoding="UTF-8"?>
@@ -592,6 +801,7 @@ ${pages}
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
+${browseUrls}
 </urlset>
 `,
   );
@@ -628,8 +838,11 @@ console.log(`${FULL ? "full" : "pilot"} mode — ${candidates.length} words past
 
 // Selection + meta numbers from the engine (density gate ≥30, quote
 // gate ≥1). The buckets feed ONLY the description/extras copy — the
-// visible results come from the browser render.
-const selected = new Map(); // word → { buckets, quotes }
+// visible results come from the browser render. Only a COMPACT summary
+// is kept per word (tier counts + a capped word list + quotes): the
+// full-batch selection visits ~15k words, and holding every bucket
+// object OOM'd node's 4 GB default heap on the first --full run.
+const selected = new Map(); // word → { tierCounts, tierWords, quotes }
 for (const word of candidates) {
   if (!FULL && selected.size >= PILOT_CAP) break;
   let result;
@@ -646,7 +859,16 @@ for (const word of candidates) {
   if (countRhymes(result.buckets) < MIN_CANDIDATES) continue;
   const quotes = quotesFor(word);
   if (quotes.length === 0) continue;
-  selected.set(word, { buckets: result.buckets, quotes });
+  const tierCounts = {};
+  const tierWords = {};
+  for (const t of TYPE_ORDER) {
+    const arr = result.buckets[t] ?? [];
+    tierCounts[t] = arr.length;
+    if (t !== "identity") tierWords[t] = arr.slice(0, 40).map((c) => c.word);
+  }
+  selected.set(word, { tierCounts, tierWords, quotes });
+  // The quote-bucket cache also grows without bound across 15k words.
+  if (bucketCache.size > 256) bucketCache.clear();
 }
 
 console.log(`${selected.size} words past the density + quote gates`);
@@ -657,7 +879,12 @@ try {
 } catch {
   manifest = {};
 }
-const linkable = new Set([...Object.keys(manifest), ...selected.keys()]);
+// Related links may only target pages that will EXIST after this run:
+// with --prune, manifest words outside the current selection are about
+// to be deleted — linking them would ship dead links.
+const linkable = PRUNE
+  ? new Set(selected.keys())
+  : new Set([...Object.keys(manifest), ...selected.keys()]);
 
 const server = await startServer();
 const base = `http://127.0.0.1:${server.address().port}`;
@@ -687,10 +914,9 @@ try {
     const captured = await captureWord(page, word);
 
     const canonical = `${SITE}/rhymes/${encodeURIComponent(word)}`;
-    const total = countRhymes(data.buckets);
-    const perfectCount = data.buckets.perfect?.length ?? 0;
-    const examples = (data.buckets.perfect ?? [])
-      .map((c) => c.word)
+    const total = RHYME_TIERS.reduce((n, t) => n + (data.tierCounts[t] ?? 0), 0);
+    const perfectCount = data.tierCounts.perfect ?? 0;
+    const examples = (data.tierWords.perfect ?? [])
       .filter((w) => !EXCLUDED_FUNCTION.has(w) && w.length >= 3)
       .slice(0, 2);
     const exampleText = examples.length > 0 ? ` like ${examples.join(" and ")}` : "";
@@ -703,10 +929,10 @@ try {
     const related = [];
     for (const t of TYPE_ORDER) {
       if (t === "identity") continue;
-      for (const c of data.buckets[t] ?? []) {
-        if (related.includes(c.word)) continue;
-        if (!linkable.has(c.word)) continue;
-        related.push(c.word);
+      for (const w of data.tierWords[t] ?? []) {
+        if (related.includes(w)) continue;
+        if (!linkable.has(w)) continue;
+        related.push(w);
         if (related.length >= RELATED_N) break;
       }
       if (related.length >= RELATED_N) break;
@@ -733,7 +959,7 @@ try {
       ],
     };
 
-    const extras = extrasHtml({ word, buckets: data.buckets, quotes: data.quotes, related, total });
+    const extras = extrasHtml({ word, tierCounts: data.tierCounts, quotes: data.quotes, related, total });
     const html = `<!doctype html>\n${postProcess(captured.replace(/^<!DOCTYPE html>/iu, "").trim(), {
       word,
       title,
@@ -773,6 +999,10 @@ if (PRUNE) {
 }
 
 fs.writeFileSync(MANIFEST_PATH, `${JSON.stringify(manifest, null, 1)}\n`);
-writeSitemaps(manifest);
+const browseEntries = writeBrowsePages(manifest);
+writeSitemaps(manifest, browseEntries);
+console.log(
+  `done — ${written} written, ${unchanged} unchanged, ${Object.keys(manifest).length} pages, ${browseEntries.length} browse pages`,
+);
 
 console.log(`${written} pages written, ${unchanged} unchanged, ${Object.keys(manifest).length} total in sitemap`);

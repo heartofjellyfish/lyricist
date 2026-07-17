@@ -27,8 +27,17 @@
       "destination": "/rhyme-finder/sitemap-pages.xml"
     },
     {
+      "source": "/rhymes",
+      "destination": "/rhyme-finder/rhymes/index.html"
+    },
+    {
       "source": "/rhymes/:path*",
       "destination": "/rhyme-finder/rhymes/:path*"
+    },
+    {
+      "source": "/badd805108ef2b535f120c5a5b8549d4.txt",
+      "has": [{ "type": "host", "value": "rhyme.land" }],
+      "destination": "/rhyme-finder/badd805108ef2b535f120c5a5b8549d4.txt"
     },
     {
       "source": "/robots.txt",
