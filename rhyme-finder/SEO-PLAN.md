@@ -48,9 +48,59 @@ below. Pilot ran 2026-07-10→17 with Search Console attached.)
    --prune` (incremental: unchanged pages keep their lastmod; takes
    hours on the full set — `caffeinate -i` it).
 2. Commit `rhyme-finder/rhymes/` + `sitemap*.xml`, push (one deploy).
-3. `node scripts/pingIndexNow.mjs` after the deploy is live.
-4. Search Console (property rhyme.land) already has sitemap.xml
-   submitted — no action needed per deploy; check Coverage monthly.
+3. `node scripts/pingIndexNow.mjs` after the deploy is live. (First
+   ping on a brand-new key 403s with `SiteVerificationNotCompleted` —
+   normal; the key file just needs a few minutes to be crawlable.
+   Re-run and it returns 200.)
+4. Nudge Google — see the Search Console section below.
+
+## Search Console — per-deploy nudge & what to actually expect
+
+Property is `rhyme.land` (domain property). Verification is **persistent**
+— the `google46169d289ad3d09a.html` file (served via a vercel.json
+rewrite) keeps the property verified across deploys forever. You never
+re-verify or "re-activate."
+
+**After a deploy that changed the page set, do this once (~2 min):**
+
+1. **Re-submit the sitemap.** GSC only re-reads a sitemap on its own
+   schedule (the "Last read" date lags — it was Jul 16, a day *before*
+   the Jul 17 full deploy, so GSC still showed the old 101-page count).
+   Sitemaps → re-enter `sitemap.xml` → Submit. Forces an immediate
+   re-read so Google discovers the new URLs.
+2. **Seed a few flagship pages.** URL Inspection → inspect
+   `rhyme.land/rhymes/love` (and ~5–10 other high-volume words) →
+   Request indexing. There's a small daily quota — do NOT try to
+   request all ~4.7k pages; seeding the top handful is the point.
+
+**What to expect — set expectations honestly, don't panic:**
+
+- **"Discovered – currently not indexed" will balloon.** After GSC
+  re-reads the big sitemap, this bucket jumps from ~90 to potentially
+  thousands. That is a **crawl queue, not a rejection.** A young domain
+  with few backlinks gets little crawl budget; Google indexes a large
+  page set gradually (weeks→months), not all at once.
+- **On-site is necessary but not sufficient.** Everything on-site that
+  helps indexing is DONE: internal-link hub (`/rhymes`), unique
+  per-page content (quotes + tiers, so pages aren't thin), clean
+  self-referencing canonicals, sitemap with honest lastmod. The
+  remaining lever is **domain authority = external links**, which lives
+  in the GTM plan ([[project-launch-plan]]: Reddit maker posts, Show HN,
+  Pattison ecosystem), NOT in this generator. A handful of real
+  backlinks moves indexing *rate* more than any technical change. Be
+  candid about this: "generate pages and wait" builds the foundation
+  but does not manufacture the authority that gets them crawled fast.
+- **"Page with redirect" (a few URLs) is harmless.** Those are
+  trailing-slash / legacy-host variants Google found on its own. Our
+  sitemap URLs are slash-less and return 200 with zero redirects
+  (`trailingSlash: false` 308-redirects `/rhymes/love/` → `/rhymes/love`),
+  and canonicals are self-referencing. Nothing to fix.
+
+**Monitor (no action, just watch over weeks):** Sitemaps → "Discovered
+pages" climbs toward the sitemap total; Pages → "Indexed" count rises in
+batches; Performance → impressions on "rhymes with X" queries grow (4–8
+weeks). Baseline at 2026-07-17: 70 impressions / 2 clicks / avg pos 22
+over the prior 3 months, all on `land`-family queries (the domain name).
 
 ## v3 architecture (2026-07-06): render, don't reimplement
 
