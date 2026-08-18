@@ -10,6 +10,7 @@ import {
   hasQuotes,
   getQuotes,
   getCounts,
+  corpusSongCount,
   pairCount,
   getPairQuotes,
   getNotRhymed,
@@ -990,8 +991,8 @@ function decorateWithLyrics(el, word, sourceWord) {
   if (attested) {
     count.textContent = String(n);
   } else {
-    const c = getCounts(word);
-    count.textContent = String(c?.rhymed || c?.appearances || "");
+    const total = corpusSongCount(word);
+    count.textContent = total ? String(total) : "";
   }
   badge.appendChild(count);
   el.appendChild(badge);
@@ -2471,12 +2472,26 @@ async function renderTabs(word, buckets) {
   // rhymed appearances), not the display-capped getQuotes length.
   const c = getCounts(word);
   const partnerCount = c?.rhymeWords ?? 0;
-  const songCount = c?.rhymed ?? 0;
+  // Same figure as the chip badges and the search box — one definition,
+  // corpusSongCount(). The middle case matters: a word can end lines without
+  // ever rhyming (orange: four songs, no partner). Calling that "nothing in
+  // songs yet" contradicted the count the search box had just shown for it.
+  const songCount = corpusSongCount(word);
   const corpusCounts = tabs.querySelector('[data-counts="corpus"]');
   if (corpusCounts) {
+    const songs = `<b>${songCount}</b> song${songCount === 1 ? "" : "s"}`;
+    // "standalone uses" is the house term for this tier (see the popover's
+    // "+ N standalone uses" control) and it is the only honest one. The corpus
+    // tagger only pairs a line with ANOTHER SINGLE WORD ending a line ±4 lines
+    // away in the same stanza, matching on perfect or assonance — so no
+    // pairing means "this detector found none in these songs", NOT that the
+    // word doesn't rhyme. orange has 523 rhymes in the dictionary tab, and
+    // orange/door hinge is a rhyme no line-end word-to-word tagger can see.
     corpusCounts.innerHTML = partnerCount
-      ? `<b>${partnerCount}</b> pairing${partnerCount === 1 ? "" : "s"} in <b>${songCount}</b> song${songCount === 1 ? "" : "s"}`
-      : `nothing in songs yet`;
+      ? `<b>${partnerCount}</b> pairing${partnerCount === 1 ? "" : "s"} in ${songs}`
+      : songCount
+        ? `<b>${songCount}</b> standalone use${songCount === 1 ? "" : "s"}`
+        : `nothing in songs yet`;
   }
 
   // ── Wire tab switching (idempotent — clones each button so a re-run

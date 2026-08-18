@@ -506,6 +506,27 @@ export function prewarm() {
   return Promise.all([ensurePronunciation(), loadWordlists()]);
 }
 
+// ── Vocabulary hash (shared with scripts/buildRhymeCounts.mjs) ──────
+// rhyme-counts.json is a POSITIONAL artifact: counts packed in the
+// alphabetical order of this vocabulary, with no word keys (that packing is
+// what keeps it at ~186 KB brotli instead of ~340 KB). Positional means a
+// vocabulary drift silently shifts every number onto the wrong word, so the
+// file carries this hash of the exact word list it was built from and the
+// loader refuses to use a file whose hash doesn't match. One implementation,
+// imported by the build script — never a second copy.
+export function vocabularyHash(sortedWords) {
+  let h = 0x811c9dc5;                       // FNV-1a, 32-bit
+  for (const w of sortedWords) {
+    for (let i = 0; i < w.length; i += 1) {
+      h ^= w.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+    h ^= 10;                                // the "\n" separator
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16).padStart(8, "0");
+}
+
 // ── Input autocomplete index ────────────────────────────────────────
 // The suggestion list is the SAME vocabulary the classifier can return —
 // buildCorpus() gated by isAcceptableWord — so the box never proposes a word
@@ -544,10 +565,55 @@ export function ensureSuggestIndex() {
       }
       SUGGEST_BUCKETS = buckets;
       SUGGEST_BY_WORD = byWord;
+      await attachRhymeCounts(byWord);
     })();
     SUGGEST_PROMISE.catch(() => { SUGGEST_PROMISE = null; });
   }
   return SUGGEST_PROMISE;
+}
+
+// Per-word rhyme-tier counts for the autocomplete's perfect/near columns.
+// Precomputed by scripts/buildRhymeCounts.mjs because the live figure is a
+// full uncapped findRhymes — 30–150 ms per word, i.e. up to 1.2 s for the
+// eight rows a keystroke shows.
+//
+// The file packs its counts POSITIONALLY, in the alphabetical order of this
+// same vocabulary (no word keys — that is what keeps it small). So it is only
+// meaningful against the exact word list it was built from, and this loader
+// fails CLOSED: a missing file, a wrong length or a mismatched vocabulary hash
+// leaves every row's `counts` null and the columns simply don't render. Wrong
+// numbers are worse than no numbers.
+async function attachRhymeCounts(byWord) {
+  try {
+    const resp = await fetch(new URL("rhyme-counts.json", WORDLISTS_BASE));
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const sorted = [...byWord.keys()].sort();
+    if (data.n !== sorted.length) {
+      console.warn(`rhyme-counts.json is stale (${data.n} words vs ${sorted.length}); columns disabled`);
+      return;
+    }
+    if (data.hash !== vocabularyHash(sorted)) {
+      console.warn("rhyme-counts.json was built from a different vocabulary; columns disabled");
+      return;
+    }
+    const tiers = data.tiers;
+    for (let i = 0; i < sorted.length; i += 1) {
+      const c = data.counts[i];
+      const row = byWord.get(sorted[i]);
+      if (!row || !c) continue;
+      const by = {};
+      tiers.forEach((t, j) => { by[t] = c[j]; });
+      // `near` = every tier a songwriter can still use, minus identity, which
+      // is not in the file at all (a homophone is not a rhyme).
+      row.counts = {
+        ...by,
+        near: tiers.reduce((sum, t, j) => (t === "perfect" ? sum : sum + c[j]), 0),
+      };
+    }
+  } catch {
+    // No counts is a fine state — the box still suggests words.
+  }
 }
 
 /**

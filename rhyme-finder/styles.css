@@ -5219,7 +5219,8 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
 
 .rf-ac-row {
   display: grid;
-  grid-template-columns: 1fr 30px 50px;
+  /* word · syl · songs · perfect · near — px, not em: see the phone note below */
+  grid-template-columns: 1fr 30px 50px 46px 50px;
   align-items: baseline;
   column-gap: 14px;
   padding: 5px 15px;

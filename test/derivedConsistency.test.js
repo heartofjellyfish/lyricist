@@ -32,6 +32,15 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+// The rhyme-finder modules fetch their data by URL. Shim fetch → filesystem
+// before any of them is imported, exactly as rhymeClassifier.test.js does.
+globalThis.fetch = async (url) => {
+  let buf;
+  try { buf = fs.readFileSync(fileURLToPath(url)); }
+  catch { return { ok: false, status: 404 }; }
+  return { ok: true, status: 200, json: async () => JSON.parse(buf.toString()), text: async () => buf.toString() };
+};
+
 test("lyric buckets were built with the current phonetic layer", () => {
   const h = crypto.createHash("sha256");
   for (const f of [
@@ -55,5 +64,40 @@ test("lyric buckets were built with the current phonetic layer", () => {
       "changed after the last bucket build. Re-run the derived pipeline " +
       "(build-index → frequency → cliché → buckets → SEO pages) and commit. " +
       "See the header of this test file for the exact commands.",
+  );
+});
+
+// ── rhyme-counts.json ───────────────────────────────────────────────
+// The autocomplete's perfect/near columns read a POSITIONAL artifact: counts
+// packed in the alphabetical order of the suggest vocabulary, with no word
+// keys. If the vocabulary drifts (a dict entry, an override, a lex
+// reclassification) every number silently shifts onto the wrong word — so the
+// file stamps vocabularyHash() of the list it was built from, the loader
+// refuses a mismatch, and this test makes the mismatch loud at build time.
+//
+// Red means: node scripts/buildRhymeCounts.mjs   (~11 min, then commit)
+test("rhyme-counts.json was built from the current vocabulary", async () => {
+  const { prewarm, ensureSuggestIndex, suggestWords, vocabularyHash } = await import(
+    path.join(ROOT, "rhyme-finder/src/rhymeFinder.js")
+  );
+  await prewarm();
+  await ensureSuggestIndex();
+  const words = [];
+  for (const c of "abcdefghijklmnopqrstuvwxyz") {
+    for (const row of suggestWords(c, Number.MAX_SAFE_INTEGER)) words.push(row.text);
+  }
+  words.sort();
+
+  const art = JSON.parse(
+    fs.readFileSync(path.join(ROOT, "rhyme-finder/wordlists/rhyme-counts.json"), "utf8"),
+  );
+  assert.equal(art.n, words.length, "rhyme-counts.json covers a different number of words");
+  assert.equal(art.counts.length, words.length, "rhyme-counts.json rows != vocabulary size");
+  assert.equal(
+    art.hash,
+    vocabularyHash(words),
+    "rhyme-counts.json is stale: the suggest vocabulary changed since it was " +
+      "built, so its positional rows no longer line up. Re-run " +
+      "`node scripts/buildRhymeCounts.mjs` (~11 min) and commit the artifact.",
   );
 });

@@ -71,6 +71,24 @@ export function getCounts(word) {
   return { appearances: c[0], rhymed: c[1], notRhymed: c[2], rhymeWords: c[3] };
 }
 
+// The single definition of "how many songs is this word in", used by EVERY
+// surface that puts a figure next to a word: the results-page chip badge, the
+// tab strip under the source summary, and the input autocomplete. It has to be
+// one function — the three used to compute it three ways (rhymed, appearances,
+// and `rhymed || appearances`), so the same word could read 32 in the search
+// box and 29 on the page it opened.
+//
+// `rhymed` first: the songs where the word actually rhymed with something is
+// what the corpus view can show you. Fall back to `appearances` because 3,524
+// of the 15,146 corpus words (23%) end lines without ever rhyming — orange is
+// in four songs and rhymed in none, and reporting 0 for it would throw that
+// away. Callers that need to tell the two cases apart read getCounts().
+export function corpusSongCount(word) {
+  const c = getCounts(word);
+  if (!c) return 0;
+  return c.rhymed || c.appearances || 0;
+}
+
 // ── Tier fetch (cache + inflight, presence-gated) ────────────────────
 function fetchTier(tier, base, presence, key) {
   const c = cache[tier];

@@ -18,10 +18,22 @@
 //     "I typed the whole word, don't yank the list away" case.
 
 import { ensureSuggestIndex, suggestWords } from "./rhymeFinder.js";
-import { getCounts, ensureExistence } from "./lyricLibrary.js";
+import { corpusSongCount, ensureExistence } from "./lyricLibrary.js";
 
 const LIMIT = 8;
 
+const n = (v) => v.toLocaleString("en-US");
+
+// The four columns, left to right. `perfect` and `near` come from the
+// precomputed rhyme-counts artifact (see attachRhymeCounts in rhymeFinder.js)
+// and read "–" when it is absent or stale.
+//
+// `near` deliberately stays ONE column instead of splitting into the five
+// tiers it sums: five numbers in a dropdown row is a spreadsheet, and the
+// split is lopsided anyway — across the whole vocabulary assonance is 43% of
+// `near` and consonance 30%, while family, the tier a songwriter would most
+// want called out, is 4%. The full ladder is in the row's tooltip and its
+// screen-reader label instead, where it costs no width.
 const COLUMNS = [
   {
     key: "syl",
@@ -32,10 +44,36 @@ const COLUMNS = [
   {
     key: "songs",
     label: "songs",
-    value: (row) => getCounts(row.text)?.appearances ?? 0,
+    // corpusSongCount, not a local expression: this figure must be the same
+    // one the results page shows for the same word (see lyricLibrary.js).
+    value: (row) => corpusSongCount(row.text),
     title: (row, v) =>
-      v ? `${row.display}: ends a line ${v.toLocaleString("en-US")} time${v === 1 ? "" : "s"} in the lyric corpus`
-        : `${row.display}: never ends a line in the lyric corpus`,
+      v ? `${row.display}: in ${n(v)} song${v === 1 ? "" : "s"} in the lyric corpus`
+        : `${row.display}: not in the lyric corpus`,
+  },
+  {
+    key: "perfect",
+    label: "perfect",
+    value: (row) => row.counts?.perfect ?? null,
+    title: (row, v) =>
+      v === null ? "" : `${row.display}: ${n(v)} perfect rhyme${v === 1 ? "" : "s"} in the dictionary`,
+  },
+  {
+    key: "near",
+    label: "near",
+    value: (row) => row.counts?.near ?? null,
+    title: (row, v) => {
+      if (v === null) return "";
+      const c = row.counts;
+      const parts = [
+        `${n(c.family)} family`,
+        `${n(c.additive)} additive`,
+        `${n(c.subtractive)} subtractive`,
+        `${n(c.assonance)} assonance`,
+        `${n(c.consonance)} consonance`,
+      ];
+      return `${row.display}: ${n(v)} near rhymes — ${parts.join(", ")}`;
+    },
   },
 ];
 
@@ -95,10 +133,10 @@ export function initAutocomplete({ input, panel, onSearch, limit = LIMIT }) {
         const v = col.value(row);
         const cell = document.createElement("span");
         cell.className = `rf-ac-n rf-ac-n--${col.key}${v === 0 ? " rf-ac-n--zero" : ""}`;
-        cell.textContent = v.toLocaleString("en-US");
+        cell.textContent = v === null ? "–" : n(v);
         cell.title = col.title(row, v);
         li.append(cell);
-        described.push(col.title(row, v));
+        if (cell.title) described.push(cell.title);
       }
       li.setAttribute("aria-label", described.join(". "));
       list.append(li);
@@ -147,8 +185,19 @@ export function initAutocomplete({ input, panel, onSearch, limit = LIMIT }) {
     onSearch(word);
   }
 
-  input.addEventListener("input", refresh);
-  input.addEventListener("focus", () => { if (input.value.trim()) refresh(); });
+  // The panel opens for TYPING and nothing else. A ?q= deep link (and every
+  // SEO snapshot page, which boots through the same path) arrives with the
+  // word already in the box and the box focused by autofocus — offering to
+  // complete a word the visitor never typed, over results they already have,
+  // is noise. `isTrusted` is the honest test for "a human typed this": the
+  // only synthetic input events in this app are main.js emptying the box
+  // (clear x, home reset), which must still dismiss the list.
+  let typed = false;
+  input.addEventListener("input", (e) => {
+    if (!e.isTrusted) { close(); return; }
+    typed = true;
+    refresh();
+  });
 
   input.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") { e.preventDefault(); move(1); }
@@ -189,7 +238,8 @@ export function initAutocomplete({ input, panel, onSearch, limit = LIMIT }) {
   // an unconditional refresh popped the panel open over the results of a search
   // the visitor never typed.
   const build = () => ensureSuggestIndex().then(() => {
-    if (document.activeElement === input && input.value.trim()) refresh();
+    // Only catch up for someone who typed while the index was still building.
+    if (typed && document.activeElement === input && input.value.trim()) refresh();
   }).catch(() => {
     // A failed wordlist/dict fetch just means no suggestions — the search box
     // itself still works, so swallow it rather than raising an unhandled
@@ -201,7 +251,7 @@ export function initAutocomplete({ input, panel, onSearch, limit = LIMIT }) {
   // The songs column comes from lyric-library/index.json, fetched separately.
   // Until it lands getCounts() returns null and every row reads 0 — repaint
   // once, so someone who types during that window doesn't keep stale zeroes.
-  ensureExistence().then(() => { if (!list.hidden) refresh(); }).catch(() => {});
+  ensureExistence().then(() => { if (typed && !list.hidden) refresh(); }).catch(() => {});
 
   return { refresh, close };
 }

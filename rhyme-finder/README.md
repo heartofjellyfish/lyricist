@@ -217,18 +217,47 @@ one score-sorted first-letter bucket: 0.005–0.06 ms typical, 0.41 ms worst cas
   an existing node — otherwise the serialized DOM ships a second element
   carrying the id `aria-controls` points at.
 
-**Columns.** `syl` (syllables) and `songs` (line-end uses in the lyric corpus —
-the same figure the results-page red dot shows). Both are free.
+**Columns**, left to right: `syl` (syllables), `songs`, `perfect`, `near`. The
+first two are free from data already in memory; the last two come from
+`wordlists/rhyme-counts.json`.
 
-**Rhyme counts were considered and left out.** A `perfect` / `near` column per
-row can't be computed at runtime: one uncapped `findRhymes` costs 30–150 ms, so
-eight visible rows is 0.3–1.2 s. It needs a precomputed table (measured, per
-word, whole vocabulary: brotli 341 KB keyed by word; 151 KB packed in word
-order with a length+hash guard; `perfect` alone 54 KB). Two findings if this is
-ever revived: per-KEY counts would be wrong (love has 6 perfect rhymes, above
-8 — same key; same-onset candidates move to identity), and the *total* is a bad
-signal (dominated by assonance/consonance, so ninth/depth/orange all look rich,
-while `perfect` correctly reads 0 for every famously unrhymable word).
+**One definition of `songs`, app-wide.** `corpusSongCount()` in
+`src/lyricLibrary.js` is the only place that decides the figure printed next to
+a word — the chip badges, the tab strip under the source summary, and this box
+all call it. They used to compute it three ways (`rhymed`, `appearances`, and
+`rhymed || appearances`), so *rhyme* read **32** in the search box and **29** on
+the page that box opened. It is `rhymed` first (the songs the corpus view can
+actually show you), falling back to `appearances` because 3,524 of the 15,146
+corpus words end lines without ever rhyming — orange is in four songs and
+rhymed in none, and reporting 0 would throw that away. The tab strip names that
+same middle case explicitly (`in 4 songs, never rhymed`) instead of the old
+`nothing in songs yet`, which contradicted the count the box had just shown.
+
+**The panel opens for typing and nothing else.** It is gated on
+`event.isTrusted`, not on focus: a `?q=` deep link (and every SEO snapshot
+page, which boots the same way) arrives with the word already in the box and
+autofocus on it, and offering to complete a word nobody typed — over results
+already on screen — is noise. The only untrusted input events in the app are
+main.js emptying the box (clear ×, home reset), and those correctly dismiss it.
+
+**Why the rhyme counts are an artifact.** They're just what `findRhymes()`
+computes, but one uncapped search costs 30–150 ms — eight visible rows would be
+0.3–1.2 s of main-thread work per keystroke. `scripts/buildRhymeCounts.mjs`
+precomputes them (~11 min on 8 shards, 182 KB brotli). Two things that look
+like shortcuts but are wrong: **per-rhyme-key counts** (love has 6 perfect
+rhymes and above 8, same key — a candidate sharing the source's onset is
+classified identity, so the count is per WORD), and **shipping only the
+total** (it's dominated by assonance 43% + consonance 30%, so ninth/depth/
+orange all look rich, while `perfect` correctly reads 0 for every famously
+unrhymable word).
+
+**`near` stays one column.** It sums family + additive + subtractive +
+assonance + consonance — every tier a songwriter can still use, minus identity
+(a homophone is not a rhyme). Splitting it into five would make the row a
+spreadsheet, and the split is lopsided: family, the tier most worth calling
+out, is 4% of the sum. The full ladder rides in the row's `title` and its
+screen-reader label, where it costs no width. The artifact stores all six
+tiers, so promoting `family` to its own column later needs no rebuild.
 
 ---
 

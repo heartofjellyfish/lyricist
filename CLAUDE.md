@@ -357,6 +357,7 @@ assets and **must be rebuilt whenever the lyric library expands**.
 | `wordlists/mosaic-phrases.json` | `scripts/buildMosaicPhrases.mjs` | corpus attestation for mosaic rhymes — line-ending bigrams (any well-formed head bar pronouns/articles + a line-final-REDUCIBLE function tail) → {song count, sample quotes, each with its rhyming `partner` line when the corpus detected one}. Since 2026-07-09 this is the evidence path that admits non-verb-head mosaics (`before me`, `to you`) — see the mosaic section. Drives the mosaic red-dot badge + the "everyday" ordering (attested shown first, un-attested folded); the popover renders quotes via the shared `renderEndQuote` so mosaics show couplets like single words. Stanza is deliberately NOT shipped (whole file is init-fetched — stanzas ~tripled it). |
 | `rhyme-finder/wordlists/common-10k.txt` | `scripts/buildCommonTopK.mjs` | general-English fallback frequency (subtitle corpus, NOT derived from lyric library — only rebuild when the source list updates) |
 | `rhyme-finder/wordlists/wordnet-categories.json` | `scripts/buildWordnetCategories.mjs` | the lex chips (Common / Names / Places / Proper) AND rhymeFinder's real-word gate. Reads the lyric corpus + top-10k, so a corpus expansion changes it. See "Lex categories" below. |
+| `rhyme-finder/wordlists/rhyme-counts.json` | `scripts/buildRhymeCounts.mjs` | per-word rhyme-tier counts behind the input autocomplete's `perfect` / `near` columns. Counts are packed POSITIONALLY in the alphabetical order of the suggest vocabulary (no word keys — 182 KB brotli instead of ~340 KB), so the header stamps `vocabularyHash()` of that word list and the loader fails CLOSED on a mismatch (columns render `–`, never wrong numbers). ~11 min on 8 shards. Rebuild trigger is the same as the buckets: classifier, pronunciation, dict, overrides, or lex categories |
 | `rhyme-finder/rhymes/{word}/index.html` + browse hub (`rhymes/index.html`, `rhymes/{letter}/`) + `rhyme-finder/sitemap*.xml` + `rhymes/manifest.json` + `rhymes/browse-manifest.json` | `scripts/buildSeoPages.mjs` | programmatic SEO pages (`rhyme.land/rhymes/{word}/`) — headless-Chrome snapshots of the REAL app rendering each word (needs local Chrome; puppeteer-core). Pages hydrate back into the live app via a generator-injected `?q=` boot script; app source carries no SEO code. Rerun after UI changes you want reflected (not required for function). Design doc + ops runbook: `rhyme-finder/SEO-PLAN.md`. Incremental (content-hashed, honest lastmod); pilot batch by default, `--full --prune` for the whole derived set (July 2026: full set is live — always use `--full`). After each deploy that changes pages, `node scripts/pingIndexNow.mjs` tells the Bing family |
 
 **Re-run protocol after corpus expansion:**
@@ -373,6 +374,7 @@ node scripts/buildWordnetCategories.mjs   # familiar() reads lyric-frequency
 node scripts/buildCmuDict.mjs             # synthesis gate reads the categories
 node scripts/buildLyricBuckets.mjs
 node scripts/buildMosaicPhrases.mjs   # mosaic attestation (reads per-letter index)
+node scripts/buildRhymeCounts.mjs     # autocomplete perfect/near columns (~11 min)
 
 # 3. Regenerate the SEO pages (quotes/cliché/frequency baked into them)
 node scripts/buildSeoPages.mjs
@@ -381,15 +383,24 @@ node scripts/buildSeoPages.mjs
 git add wordlists/lyric-frequency.json wordlists/cliche-pairs.json \
         wordlists/mosaic-phrases.json wordlists/cmu-dict.json \
         rhyme-finder/wordlists/wordnet-categories.json \
+        rhyme-finder/wordlists/rhyme-counts.json \
         wordlists/lyric-library/ rhyme-finder/rhymes/ rhyme-finder/sitemap*.xml
 git commit -m "Corpus expansion: <which artists/songs added>"
 ```
 
 ⚠️ The bucket layout is keyed by `rhymeKeyOf()` — **any change to the
 classifier's anchor logic (artifact rules, overrides) also requires
-`node scripts/buildLyricBuckets.mjs` AND `node scripts/buildSeoPages.mjs`**,
+`node scripts/buildLyricBuckets.mjs`, `node scripts/buildRhymeCounts.mjs`
+AND `node scripts/buildSeoPages.mjs`**,
 or quote lookups miss for the words whose keys moved and the static SEO
 pages keep serving the old classification.
+
+`rhyme-counts.json` is guarded the same way, by its own test: it is keyed by
+POSITION, not by word, so a vocabulary drift would silently shift every count
+onto the wrong word. `test/derivedConsistency.test.js` recomputes
+`vocabularyHash()` over the live suggest vocabulary and fails with the rebuild
+command; the runtime loader repeats the check and disables the columns rather
+than showing numbers it can't vouch for.
 
 This is machine-enforced since July 2026: `buildLyricBuckets.mjs` stamps
 a hash of the FULL derived-input set — `rhymeClassifier.js` +
