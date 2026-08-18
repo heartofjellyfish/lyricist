@@ -559,6 +559,10 @@ async function captureWord(page, word) {
     document.querySelectorAll("#results [data-lex]").forEach((el) => el.removeAttribute("data-lex"));
     const gallery = document.getElementById("corpus-gallery");
     if (gallery) gallery.innerHTML = "";
+    // The autocomplete panel is empty and hidden at rest; hydration recreates
+    // it. Baking it in would ship a second element carrying the id that the
+    // input's aria-controls points to.
+    document.getElementById("word-autocomplete")?.remove();
     const input = document.getElementById("word-input");
     if (input) input.setAttribute("value", w);
     document

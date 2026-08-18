@@ -4,6 +4,7 @@
 // and cliché flags.
 
 import { findRhymes, TYPE_ORDER, prewarm } from "./rhymeFinder.js";
+import { initAutocomplete } from "./autocomplete.js";
 import { classifyRhyme } from "./rhymeClassifier.js";
 import {
   hasQuotes,
@@ -283,6 +284,7 @@ form.addEventListener("submit", (e) => {
 // :has(#results:not(:empty)) selector flips back to the empty hero.
 function goHome() {
   wordInput.value = "";
+  wordInput.dispatchEvent(new Event("input"));   // dismiss the autocomplete too
   sourceSummary.innerHTML = "";
   results.innerHTML = "";
   const corpus = document.getElementById("corpus-gallery");
@@ -319,7 +321,23 @@ document.getElementById("input-clear")?.addEventListener("click", () => {
     return;
   }
   wordInput.value = "";
+  // Tell the autocomplete the box is empty, or the list hangs there over
+  // nothing (it only recomputes on real input events).
+  wordInput.dispatchEvent(new Event("input"));
   wordInput.focus();
+});
+
+// ── Input autocomplete ─────────────────────────────────────────────
+// Prefix suggestions over the classifier's own vocabulary, ranked by the same
+// lyricScore as the results. Picking a row runs the search directly (the same
+// runSearch the form submit calls), so the list is a shortcut to results, not
+// just a typing aid. See src/autocomplete.js for the layout decisions.
+initAutocomplete({
+  input: wordInput,
+  // anchored to the FORM: it wraps the input row exactly, so the list can sit
+  // flush against it. .rf-panel also contains the status line below the input.
+  panel: document.getElementById("finder-form"),
+  onSearch: (word) => runSearch(word, { via: "autocomplete" }),
 });
 
 // ── Deep-link support ──────────────────────────────────────────────

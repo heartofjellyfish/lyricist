@@ -167,6 +167,71 @@ Driven by CSS `:has()` selectors on `.rf-app`. When `#results` or `#source-summa
 
 ---
 
+## Input autocomplete (added 2026-08-17)
+
+Prefix suggestions under the search box. `src/autocomplete.js` owns the DOM +
+keyboard; `suggestWords()` / `ensureSuggestIndex()` in `src/rhymeFinder.js` own
+the data (they sit next to the wordlists, so `WORD_LEX` / `COMMON_RANK` /
+`LYRIC_FREQ` never leak out of that module).
+
+**Why it costs no latency.** Every input is already in memory after
+`prewarm()` — the CMU dict, the lex categories, both frequency lists. The only
+new work is one pass to bucket + score the vocabulary (~170 ms, done once in
+`requestIdleCallback`, off the typing path). Per-keystroke lookup is a scan of
+one score-sorted first-letter bucket: 0.005–0.06 ms typical, 0.41 ms worst case
+(a no-hit prefix in the 7.3k-word `s` bucket). **No new network request.**
+
+**The two invariants:**
+
+1. *Same vocabulary as the classifier.* The index is `buildCorpus()` gated by
+   `isAcceptableWord` — 66,660 words — so the box can never propose a word the
+   search would then reject. Not the raw 138k dict.
+2. *Same ranking as the results.* `lyricScore`, so `lo` offers love/long/low,
+   not lobotomy.
+
+**Decisions that look arbitrary but aren't:**
+
+- **The exact match is kept, and is NOT hoisted.** Finishing a real word must
+  not yank the panel away; but hoisting floated the obscure "wat" (a Thai
+  temple) above "water". It keeps its natural rank, and is appended as the last
+  row when it would fall past the limit.
+- **The column labels are a FOOTER caption, not a header.** A header row reads
+  as spreadsheet chrome on a dropdown — and with 8 rows the panel never
+  scrolls, so the sticky header it started as was dead code.
+- **Column widths are px, not em.** Sized in em they follow the 19 px serif
+  word, outgrow a 375 px phone panel, and collapse the `1fr` word column to
+  zero width — the word literally disappears.
+- **The panel is anchored to the `<form>`, not `.rf-panel`.** The latter also
+  wraps the status line, which pushed `top: 100%` ~23 px below the input. It
+  sits at `calc(100% - 1px)` with a **vermilion** top border, so its edge *is*
+  the input's rule (grey hairline there read as a seam of the wrong colour).
+- **Picking a row searches**, and searching closes the panel — otherwise it
+  covers the results it just produced. Tab completes *without* searching and
+  leaves the panel open.
+- **Anything that empties the input must dispatch an `input` event**
+  (`clear ×`, `goHome()`), or the list hangs over an empty box.
+- **The refresh after the index builds is gated on focus.** Deep links and the
+  SEO snapshot pages boot with `?q=<word>` pre-filled, and an unconditional
+  refresh popped the panel open over results nobody typed.
+- **`buildSeoPages.mjs` strips the panel before snapshotting**, and init reuses
+  an existing node — otherwise the serialized DOM ships a second element
+  carrying the id `aria-controls` points at.
+
+**Columns.** `syl` (syllables) and `songs` (line-end uses in the lyric corpus —
+the same figure the results-page red dot shows). Both are free.
+
+**Rhyme counts were considered and left out.** A `perfect` / `near` column per
+row can't be computed at runtime: one uncapped `findRhymes` costs 30–150 ms, so
+eight visible rows is 0.3–1.2 s. It needs a precomputed table (measured, per
+word, whole vocabulary: brotli 341 KB keyed by word; 151 KB packed in word
+order with a length+hash guard; `perfect` alone 54 KB). Two findings if this is
+ever revived: per-KEY counts would be wrong (love has 6 perfect rhymes, above
+8 — same key; same-onset candidates move to identity), and the *total* is a bad
+signal (dominated by assonance/consonance, so ninth/depth/orange all look rich,
+while `perfect` correctly reads 0 for every famously unrhymable word).
+
+---
+
 ## Responsive
 
 Desktop-first with breakpoints at 980px and 640px. On small screens:

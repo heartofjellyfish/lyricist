@@ -491,3 +491,78 @@ export { TYPE_ORDER };
 export function prewarm() {
   return Promise.all([ensurePronunciation(), loadWordlists()]);
 }
+
+// ── Input autocomplete index ────────────────────────────────────────
+// The suggestion list is the SAME vocabulary the classifier can return —
+// buildCorpus() gated by isAcceptableWord — so the box never proposes a word
+// the search would then reject. Ranked by the SAME lyricScore the results use,
+// so "lo" offers love/long/low before lobotomy.
+//
+// Costs nothing on the network: every input (PRONUNCIATION_MAP, WORD_LEX,
+// COMMON_RANK, LYRIC_FREQ) is already in memory after prewarm(). The only new
+// work is one pass to bucket + sort, done once, off the typing path.
+let SUGGEST_BUCKETS = null;   // Map<firstLetter, row[]>, each list score-sorted
+let SUGGEST_BY_WORD = null;   // Map<word, row> — O(1) exact lookup
+let SUGGEST_PROMISE = null;
+
+export function ensureSuggestIndex() {
+  if (SUGGEST_BUCKETS) return Promise.resolve();
+  if (!SUGGEST_PROMISE) {
+    SUGGEST_PROMISE = (async () => {
+      await Promise.all([ensurePronunciation(), loadWordlists()]);
+      const buckets = new Map();
+      const byWord = new Map();
+      for (const entry of buildCorpus()) {
+        if (!isAcceptableWord(entry.text, entry.syllables)) continue;
+        const row = {
+          text: entry.text,
+          display: WORD_DISPLAY.get(entry.text) ?? entry.text,
+          syllables: entry.syllables,
+          score: lyricScore(entry.text, COMMON_RANK.get(entry.text) ?? Infinity),
+        };
+        const k = entry.text[0];
+        if (!buckets.has(k)) buckets.set(k, []);
+        buckets.get(k).push(row);
+        if (!byWord.has(entry.text)) byWord.set(entry.text, row);
+      }
+      for (const list of buckets.values()) {
+        list.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
+      }
+      SUGGEST_BUCKETS = buckets;
+      SUGGEST_BY_WORD = byWord;
+    })();
+  }
+  return SUGGEST_PROMISE;
+}
+
+/**
+ * Prefix lookup for the input box. Synchronous and cheap: the first-letter
+ * bucket is already score-sorted, so we stop at `limit` matches (worst case —
+ * a prefix with no hits in the biggest bucket — is a ~7k scan, under half a
+ * millisecond). Returns [] until ensureSuggestIndex() has resolved.
+ *
+ * The exact match is never filtered out — finishing a real word must not make
+ * the panel vanish — but it is NOT hoisted either: hoisting floated the
+ * obscure "wat" above "water". It keeps its natural rank, and is appended as
+ * the last row when it would fall past `limit`.
+ */
+export function suggestWords(prefix, limit = 8) {
+  if (!SUGGEST_BUCKETS) return [];
+  const p = String(prefix || "").trim().toLowerCase();
+  if (!p) return [];
+  const arr = SUGGEST_BUCKETS.get(p[0]);
+  if (!arr) return [];
+  const out = [];
+  let hasExact = false;
+  for (const row of arr) {
+    if (!row.text.startsWith(p)) continue;
+    out.push(row);
+    if (row.text === p) hasExact = true;
+    if (out.length === limit) break;
+  }
+  if (!hasExact && SUGGEST_BY_WORD.has(p)) {
+    if (out.length === limit) out.pop();
+    out.push(SUGGEST_BY_WORD.get(p));
+  }
+  return out;
+}

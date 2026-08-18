@@ -1034,7 +1034,7 @@ body::before {
   position: relative;
 }
 
-.rf-form { margin: 0; }
+.rf-form { margin: 0; position: relative; }   /* anchors the autocomplete panel */
 
 .rf-input-row {
   display: grid;
@@ -5169,4 +5169,111 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   .cd-explore-attr { grid-column: 2; text-align: left; }
   .cd-explore-a,
   .cd-explore-b { font-size: 15px; }
+}
+
+/* ── Input autocomplete ───────────────────────────────────────────
+   Prefix suggestions under the search box (src/autocomplete.js).
+   Sits inside .rf-panel (position: relative) so it tracks the input in
+   BOTH the centered hero and the collapsed sticky pill.
+
+   The two number columns are named by a faint FOOTER caption, not a
+   table header: a header on top reads as spreadsheet chrome, and with
+   8 rows the panel never scrolls, so a sticky header never fired. */
+.rf-ac {
+  position: absolute;
+  /* Flush against the input: the panel's top border lands ON the input's
+     bottom rule (hence the -1px) so the two read as one continuous edge,
+     with no strip of page showing through between them. */
+  top: calc(100% - 1px);
+  left: 0; right: auto;
+  /* at least as wide as the input, growing only if the rail needs it */
+  min-width: 100%;
+  width: max-content;
+  max-width: min(560px, 92vw);
+  z-index: 40;
+  margin: 0; padding: 5px 0;
+  list-style: none;
+  max-height: 420px; overflow-y: auto;
+  background: rgba(247, 238, 214, 0.95);
+  backdrop-filter: blur(3px);
+  border: 1px solid var(--hair);
+  /* The panel's top edge lands ON the input's bottom rule, so it has to BE
+     that rule — a hairline-grey top border read as a seam of the wrong colour
+     between the box and the list. Vermilion, not ink: the list is only ever
+     visible while the input has focus, and focus is exactly when the input's
+     own rule (and the collapsed pill's border) turns vermilion. */
+  border-top: 1px solid var(--vermilion);
+  box-shadow: 0 10px 26px rgba(60, 40, 15, 0.16);
+  font-variant-numeric: tabular-nums;
+  animation: rf-ac-in 140ms ease-out;
+  text-align: left;
+}
+@keyframes rf-ac-in { from { opacity: 0; transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .rf-ac { animation: none; } }
+.rf-ac[hidden] { display: none; }
+
+/* The decorative brush-stroke under the input sits 3px below its border —
+   with the panel flush it would be buried under the panel's first pixels.
+   Retire it while the list is open; the panel edge is the line now. */
+.rf-panel:has(.rf-ac:not([hidden])) .rf-input-row::after { opacity: 0; }
+
+.rf-ac-row {
+  display: grid;
+  grid-template-columns: 1fr 30px 50px;
+  align-items: baseline;
+  column-gap: 14px;
+  padding: 5px 15px;
+}
+.rf-ac-item {
+  cursor: pointer;
+  font-family: var(--display);
+  font-size: 19px; line-height: 1.35;
+  color: var(--ink);
+  border-left: 2px solid transparent;
+  transition: background-color 90ms ease;
+}
+.rf-ac-word {
+  min-width: 4.5em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rf-ac-pre { color: var(--ink-faded); }
+.rf-ac-item:hover { background: rgba(210, 180, 120, 0.2); }
+.rf-ac-item[aria-selected="true"] {
+  background: rgba(210, 180, 120, 0.38);
+  border-left-color: var(--vermilion);
+}
+
+.rf-ac-n {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .02em;
+  color: var(--ink-faded); text-align: right; white-space: nowrap;
+}
+.rf-ac-n--zero { opacity: .42; }
+.rf-ac-n--songs { color: var(--vermilion); font-weight: 500; }
+.rf-ac-n--songs::before {
+  content: "";
+  display: inline-block;
+  width: 5px; height: 5px; margin-right: 4px;
+  background: var(--vermilion); border-radius: 50%;
+  transform: translateY(-1px);
+}
+.rf-ac-n--songs.rf-ac-n--zero::before { background: var(--ink-ghost); }
+
+.rf-ac-legend {
+  padding-top: 7px; padding-bottom: 3px;
+  margin-top: 3px;
+  border-top: 1px solid var(--hair-soft);
+  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  letter-spacing: .11em; text-transform: uppercase;
+  color: var(--ink-faded); opacity: .8;
+  cursor: default;
+}
+.rf-ac-legend span { text-align: right; white-space: nowrap; }
+
+/* Phone: tighten the rail and keep the word's share readable. Column
+   widths are in px on purpose — sized in em they follow the 19px serif
+   word, outgrow a 375px panel, and collapse the word column to zero. */
+@media (max-width: 460px) {
+  .rf-ac-row { column-gap: 8px; padding: 5px 11px; }
+  .rf-ac-item { font-size: 17px; }
+  .rf-ac-n, .rf-ac-legend { font-size: 9.5px; }
 }
