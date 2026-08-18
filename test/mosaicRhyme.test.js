@@ -417,5 +417,5 @@ test("phrase: unknown word errors and names the offending word", async () => {
 });
 
 test("phrase: more than 4 words is a friendly error", async () => {
-  await assert.rejects(() => findRhymes({ word: "one two three four five" }), /4 words/);
+  await assert.rejects(() => findRhymes({ word: "one two three four five" }), /four words/);
 });

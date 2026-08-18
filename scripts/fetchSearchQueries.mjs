@@ -1,9 +1,21 @@
 #!/usr/bin/env node
 // fetchSearchQueries.mjs — pull what people are searching on rhyme.land from PostHog.
 //
-// Reads the `search_submitted` event (props: word, found, via) via HogQL and
-// aggregates per-word counts + miss rate over a window. This is the DATA half
-// of the search-quality audit; the Fable-judgement half consumes its JSON output.
+// Reads the `search_submitted` event (props: word, found, via, reason) via
+// HogQL and aggregates per-word counts + miss rate over a window. This is the
+// DATA half of the search-quality audit; the Fable-judgement half consumes its
+// JSON output.
+//
+// TWO filters keep this honest, both added Aug 2026 after the numbers turned
+// out to be mostly machines:
+//   · via IN (form, autocomplete) — page-initiated searches (?q= deep links,
+//     /rhymes/ SEO hydration) fire on load, so every JS-executing crawler was
+//     counted as a searcher. Those now emit `page_hydrated` instead, but the
+//     filter is kept so the script reads pre-cutover history correctly too.
+//   · miss = found:false AND reason != load_failed — `found:false` used to
+//     also mean "a wordlist fetch died", which put bed/science/concert in the
+//     vocabulary-gap list. Rows before the cutover have no `reason`; they're
+//     counted as misses, which is what they were assumed to be at the time.
 //
 // Auth: needs a PostHog *Personal API Key* (phx_...) with Query Read scope.
 //   The phc_... token baked into the client HTML is write-only and will 401 here.
@@ -13,7 +25,7 @@
 // Usage:
 //   node scripts/fetchSearchQueries.mjs [--days 30] [--limit 200] [--json out.json]
 //
-// Last updated: 2026-07-07
+// Last updated: 2026-08-18
 
 const HOST = (process.env.POSTHOG_HOST || "https://us.posthog.com").replace(/\/$/, "");
 const KEY = process.env.POSTHOG_PERSONAL_API_KEY;
@@ -76,14 +88,20 @@ async function main() {
 
   // Aggregate per searched word: total searches, distinct searchers, miss rate.
   // lower(trim(...)) so "Home", "home " and "home" collapse to one row.
+  // `errors` is broken out rather than folded into miss_pct — a word can be
+  // perfectly present and still fail when the dictionary doesn't download.
+  const HUMAN = `properties.via IN ('form', 'autocomplete')`;
+  const MISS = `properties.found = false AND properties.reason != 'load_failed'`;
   const query = `
     SELECT
       lower(trim(properties.word)) AS word,
       count() AS searches,
       count(DISTINCT person_id) AS people,
-      round(100 * countIf(properties.found = false) / count(), 1) AS miss_pct
+      round(100 * countIf(${MISS}) / count(), 1) AS miss_pct,
+      countIf(properties.reason = 'load_failed') AS errors
     FROM events
     WHERE event = 'search_submitted'
+      AND ${HUMAN}
       AND timestamp > now() - INTERVAL ${DAYS} DAY
       AND notEmpty(trim(properties.word))
     GROUP BY word
@@ -92,8 +110,9 @@ async function main() {
   `;
 
   const { results } = await hogql(projectId, query);
-  const rows = results.map(([word, searches, people, miss_pct]) => ({
-    word, searches: Number(searches), people: Number(people), miss_pct: Number(miss_pct),
+  const rows = results.map(([word, searches, people, miss_pct, errors]) => ({
+    word, searches: Number(searches), people: Number(people),
+    miss_pct: Number(miss_pct), errors: Number(errors),
   }));
 
   const totalSearches = rows.reduce((s, r) => s + r.searches, 0);
@@ -112,12 +131,13 @@ async function main() {
     console.error(`✓ wrote ${rows.length} words → ${JSON_OUT}`);
   } else {
     // Human-readable table to stderr, machine JSON to stdout (pipe-friendly).
-    console.error(`\nTop searches · last ${DAYS}d · ${rows.length} distinct words · ${totalSearches} searches\n`);
-    console.error("  rank  searches  people  miss%  word");
+    console.error(`\nTop HUMAN searches · last ${DAYS}d · ${rows.length} distinct words · ${totalSearches} searches\n`);
+    console.error("  rank  searches  people  miss%  err  word");
     rows.slice(0, 50).forEach((r, i) => {
       const miss = r.miss_pct > 0 ? String(r.miss_pct).padStart(5) : "    ·";
+      const err = r.errors > 0 ? String(r.errors).padStart(3) : "  ·";
       console.error(
-        `  ${String(i + 1).padStart(4)}  ${String(r.searches).padStart(8)}  ${String(r.people).padStart(6)}  ${miss}  ${r.word}`
+        `  ${String(i + 1).padStart(4)}  ${String(r.searches).padStart(8)}  ${String(r.people).padStart(6)}  ${miss}  ${err}  ${r.word}`
       );
     });
     console.log(JSON.stringify(payload));

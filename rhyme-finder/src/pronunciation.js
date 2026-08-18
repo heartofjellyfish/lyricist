@@ -109,6 +109,10 @@ export function ensurePronunciation() {
         }
       }
     })();
+    // Don't cache a REJECTED load: the dict is 4.1 MB and a visitor on a
+    // flaky connection would otherwise be stuck with a dead promise for the
+    // whole session, every search failing with a misleading "not found".
+    LOAD_PROMISE.catch(() => { LOAD_PROMISE = null; });
   }
   return LOAD_PROMISE;
 }

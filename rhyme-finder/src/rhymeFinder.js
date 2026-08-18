@@ -36,6 +36,16 @@ const WORDLISTS_BASE = new URL("../wordlists/", import.meta.url);
 // with the lyric-library quote viewer (lyricLibrary.js).
 const ROOT_WORDLISTS_BASE = new URL("../../wordlists/", import.meta.url);
 
+// Errors the VISITOR caused — the word isn't in CMU, the phrase is malformed.
+// Tagged so runSearch can tell them apart from a failed wordlist/dict fetch:
+// both used to surface as `found:false`, which hid a real ~5% error rate on
+// the SEO landing pages inside the dictionary-miss stats (PostHog, Aug 2026).
+function inputError(message, code) {
+  const err = new Error(message);
+  err.code = code;
+  return err;
+}
+
 async function loadWordlists() {
   if (WORD_LEX && COMMON_RANK && LYRIC_FREQ && MOSAIC_VERBS && MOSAIC_PHRASES) return;
   if (!WORDLISTS_PROMISE) {
@@ -77,6 +87,10 @@ async function loadWordlists() {
         COMMON_RANK.set(w.toLowerCase(), i);
       });
     })();
+    // A rejected promise stays cached forever otherwise, so ONE flaky fetch
+    // would poison every later search in the session — and the caller can
+    // only report it as "word not found". Clear it so a retry re-fetches.
+    WORDLISTS_PROMISE.catch(() => { WORDLISTS_PROMISE = null; });
   }
   await WORDLISTS_PROMISE;
 }
@@ -261,24 +275,24 @@ export async function findRhymes({ word, perBucket = 40, types = TYPE_ORDER } = 
   let exclude;
   if (parts.length > 1) {
     if (parts.length > 4) {
-      throw new Error("Phrases max out at four words.");
+      throw inputError("Phrases max out at four words.", "BAD_INPUT");
     }
     const lowered = parts.map((p) => p.toLowerCase());
     for (const w of lowered) {
       if (!phonemesFor(w)) {
-        throw new Error(`Couldn't find “${w}” in the dictionary — is it spelled right?`);
+        throw inputError(`Couldn't find “${w}” in the dictionary — is it spelled right?`, "NOT_IN_DICT");
       }
     }
     const phon = assemblePhrase(lowered);
     source = phon ? analyzeFromPhonemes(lowered.join(" "), phon) : null;
     if (!source) {
-      throw new Error(`Couldn't make sense of “${raw}”.`);
+      throw inputError(`Couldn't make sense of “${raw}”.`, "BAD_INPUT");
     }
     exclude = new Set(lowered);
   } else {
     source = analyzeWord(raw);
     if (!source) {
-      throw new Error(`Couldn't find “${raw}” in the dictionary — is it spelled right?`);
+      throw inputError(`Couldn't find “${raw}” in the dictionary — is it spelled right?`, "NOT_IN_DICT");
     }
     exclude = new Set([raw.toLowerCase()]);
   }
@@ -531,6 +545,7 @@ export function ensureSuggestIndex() {
       SUGGEST_BUCKETS = buckets;
       SUGGEST_BY_WORD = byWord;
     })();
+    SUGGEST_PROMISE.catch(() => { SUGGEST_PROMISE = null; });
   }
   return SUGGEST_PROMISE;
 }

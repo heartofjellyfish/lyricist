@@ -568,6 +568,19 @@ async function captureWord(page, word) {
     document
       .querySelectorAll('script[src*="posthog"], script[src*="/_vercel/"]')
       .forEach((s) => s.remove());
+    // Same reason, one snapshot-specific twist: the Quantcast tag injects
+    // quant.js at runtime, choosing its host from document.location.protocol.
+    // We snapshot over http://localhost, so the serializer froze BOTH the
+    // injected `http://edge.quantserve.com/quant.js` (mixed content — Chrome
+    // blocks it on https://rhyme.land) and the `rules-*.js` companion that
+    // quant.js loads afterwards. Baked in that order the companion runs
+    // first and every page threw "__qc is not defined"; ad measurement was
+    // dead on all 4,657 pages for a month until exception capture surfaced
+    // it (Aug 2026). Drop both — the inline bootstrap above is preserved and
+    // re-injects them at runtime, over the right scheme, in the right order.
+    document
+      .querySelectorAll('script[src*="quantserve.com"], script[src*="quantcount.com"]')
+      .forEach((s) => s.remove());
   }, word);
 
   return page.content();

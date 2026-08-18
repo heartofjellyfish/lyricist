@@ -22,6 +22,15 @@ function track(event, props) {
   try { window.posthog?.capture?.(event, props); } catch {}
 }
 
+// Which `via` values mean the PAGE ran the search, not a person. SEO landings
+// and ?q= deep links both call runSearch on boot, so counting them as
+// `search_submitted` made every JS-executing crawler look like a searcher —
+// on the /rhymes/ pages bots outnumbered humans roughly 2:1 (PostHog, Aug
+// 2026: Edge/Firefox on Windows, 1 pageview, zero clicks, 35 "searches"
+// between them). Auto-runs get their own event; `search_submitted` now means
+// a human asked for something.
+const AUTO_VIA = new Set(["seo", "deeplink"]);
+
 // Eager warmup — fire all heavy fetches in the background the moment main.js
 // runs, in parallel with the user reading the page. CMU dict (~500 KB br),
 // wordnet/lyric-frequency lists (~2 MB), and the lyric-library existence
@@ -195,9 +204,11 @@ function setStatus(msg, isError = false) {
 // Extracted from the submit handler so deep links (?q=love) can run
 // the same flow without going through a synthetic form-submit event.
 // `via` distinguishes how the search was initiated: "form" (typed +
-// submitted), "deeplink" (?q= share link), "seo" (a /rhymes/{word}/
-// landing hydrating itself). Tracking lives HERE, not on the form's
-// submit listener, so all three paths land in the same PostHog event.
+// submitted), "autocomplete" (picked a suggestion), "deeplink" (?q= share
+// link), "seo" (a /rhymes/{word}/ landing hydrating itself). Tracking lives
+// HERE, not on the form's submit listener, so every path is instrumented
+// exactly once — but the two PAGE-initiated ones report `page_hydrated`
+// rather than `search_submitted` (see AUTO_VIA).
 async function runSearch(word, { updateUrl = true, via = "form" } = {}) {
   if (!word) {
     setStatus("Type a word first.", true);
@@ -210,12 +221,15 @@ async function runSearch(word, { updateUrl = true, via = "form" } = {}) {
   results.innerHTML = `<div class="rf-loading"><span class="rf-spinner"></span> Searching…</div>`;
   sourceSummary.innerHTML = "";
 
+  // Human intent vs page-initiated hydration — see AUTO_VIA.
+  const searchEvent = AUTO_VIA.has(via) ? "page_hydrated" : "search_submitted";
+
   let reported = false;
   try {
     // Yield to the event loop so the loading UI paints before the scan.
     await new Promise((r) => setTimeout(r, 0));
     const { source, buckets, mosaics } = await findRhymes({ word, perBucket: 200 });
-    track("search_submitted", { word, found: true, via });
+    track(searchEvent, { word, found: true, via });
     reported = true;
 
     // Group mosaic (multi-word) rhymes by tier so they render merged into the
@@ -256,12 +270,34 @@ async function runSearch(word, { updateUrl = true, via = "form" } = {}) {
       window.history.replaceState({ word }, "", url);
     }
   } catch (err) {
-    // Dictionary miss (word not in CMU) lands here — report it with
-    // found:false so we can watch the miss rate. `reported` guards the
-    // rare case where findRhymes succeeded but a renderer threw.
-    if (!reported) track("search_submitted", { word, found: false, via });
+    // `found:false` used to mean BOTH "CMU doesn't have this word" and "a
+    // fetch blew up", so a genuine ~5% failure rate on SEO landings hid
+    // inside the miss stats — every one of them for a word that obviously
+    // rhymes (bed, science, concert). `reason` separates the two; only
+    // `not_in_dictionary` belongs in a vocabulary-gap report.
+    // `reported` guards the rare case where findRhymes succeeded but a
+    // renderer threw — that's our bug, not a miss, so it gets its own event.
+    if (!reported) {
+      const load = !err?.code;
+      track(searchEvent, {
+        word,
+        found: false,
+        via,
+        reason: load ? "load_failed" : err.code === "NOT_IN_DICT" ? "not_in_dictionary" : "bad_input",
+        ...(load ? { error: `${err?.name}: ${err?.message}`.slice(0, 200) } : {}),
+      });
+    } else {
+      track("render_failed", { word, via, error: `${err?.name}: ${err?.message}`.slice(0, 200) });
+    }
     results.innerHTML = "";
-    setStatus(err.message || "Search failed — try again.", true);
+    // An asset that failed to load isn't the visitor's spelling problem —
+    // "wordnet-categories.json 503" told them nothing and offered no way out.
+    setStatus(
+      err?.code
+        ? err.message
+        : "Couldn't load the rhyme dictionary — check your connection and search again.",
+      true,
+    );
   } finally {
     goBtn.disabled = false;
     goBtn.dataset.busy = "false";
@@ -350,7 +386,9 @@ initAutocomplete({
   if (initial) {
     wordInput.value = initial;
     // SEO snapshot pages (/rhymes/{word}/) hydrate through this same
-    // path — their boot script injects ?q= before this module runs.
+    // path — their boot script injects ?q= before this module runs. Both
+    // values are in AUTO_VIA, so this fires `page_hydrated`, never
+    // `search_submitted` — nobody typed anything here.
     const via = /\/rhymes\//.test(window.location.pathname) ? "seo" : "deeplink";
     // Don't push another URL state — we're already there.
     runSearch(initial, { updateUrl: false, via });

@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Start Quantcast Tag -->
-    <script src="https://rules.quantcount.com/rules-p-5q7v7yg_GqMrM.js" async=""></script><script src="http://edge.quantserve.com/quant.js" async="" type="text/javascript"></script><script type="text/javascript">
+    <script type="text/javascript">
       window._qevents = window._qevents || [];
       (function () {
         var elem = document.createElement('script');
@@ -70,6 +70,19 @@
         // gets a person profile and events bill at the identified rate
         // (~4x the anonymous rate).
         person_profiles: 'identified_only',
+        // Production JS errors. The first 90 days logged ZERO exceptions
+        // because nothing was ever wired to report them — we were blind to
+        // anything that threw outside the one try/catch in runSearch.
+        capture_exceptions: true,
+        // Headless automation is never a visitor: scrapers, preview bots,
+        // and our own puppeteer SEO-snapshot runs. Drop their events rather
+        // than let them dilute every rate on the dashboard. This only
+        // catches automation that admits it — UA-spoofing crawlers still
+        // get through, which is why the search metrics no longer trust a
+        // page-initiated search (see AUTO_VIA in src/main.js).
+        before_send: function (event) {
+          return navigator.webdriver ? null : event;
+        },
       });
     </script>
 
