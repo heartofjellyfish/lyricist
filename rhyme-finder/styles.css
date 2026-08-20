@@ -5205,12 +5205,46 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   border-top: 1px solid var(--vermilion);
   box-shadow: 0 10px 26px rgba(60, 40, 15, 0.16);
   font-variant-numeric: tabular-nums;
-  animation: rf-ac-in 140ms ease-out;
   text-align: left;
 }
-@keyframes rf-ac-in { from { opacity: 0; transform: translateY(-3px); } }
-@media (prefers-reduced-motion: reduce) { .rf-ac { animation: none; } }
 .rf-ac[hidden] { display: none; }
+
+/* ── 逐行落笔 · the row cascade ──────────────────────────────────
+   The list doesn't arrive as a block; its rows land one at a time, 55ms
+   apart, 280ms each, so eight rows settle in ~720ms. The frame (border,
+   paper, shadow) is there from the first frame — only the rows fall into
+   it, which is what makes it read as ink on paper rather than a popup.
+
+   Two things keep it honest:
+
+   * Only `opacity` and `transform` animate — compositor work, no layout and
+     no paint. The panel's own `backdrop-filter` is by far the expensive
+     thing in this component and the cascade never touches it.
+   * It replays ONLY on open, via `.is-opening` (set in autocomplete.js when
+     the list goes hidden → shown). Replaying on every keystroke measures
+     identically and FEELS slow: you end up waiting for the list to stop
+     moving before you dare read it. That's the whole reason the class
+     exists — don't "simplify" it into an unconditional animation.
+
+   Tempo was picked against a side-by-side mockup (Aug 2026): the stagger is
+   what makes the rows readable AS a sequence, the per-row duration is what
+   gives each one weight. Half this stagger (26ms) blurs eight rows into one
+   twitch; much past it (75ms+) and a fast typist outruns the list. */
+.rf-ac.is-opening .rf-ac-item,
+.rf-ac.is-opening .rf-ac-legend {
+  animation: rf-ac-row 280ms cubic-bezier(.22, .7, .3, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+/* Lands ON the row's resting opacity (--fade, set inline per row), so there's
+   no snap between the end of the animation and the static state. */
+@keyframes rf-ac-row {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: var(--fade, 1); transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rf-ac.is-opening .rf-ac-item,
+  .rf-ac.is-opening .rf-ac-legend { animation: none; }
+}
 
 /* The decorative brush-stroke under the input sits 3px below its border —
    with the panel flush it would be buried under the panel's first pixels.
@@ -5231,17 +5265,22 @@ body:has(#source-summary:not(:empty)) .rf-colophon::before {
   font-size: 19px; line-height: 1.35;
   color: var(--ink);
   border-left: 2px solid transparent;
-  transition: background-color 90ms ease;
+  /* Depth: each row 3.5% fainter than the one above (--fade, set inline by
+     autocomplete.js). Static opacity, no animation budget — it says visually
+     what the ranking already says, and the row you point at comes back full. */
+  opacity: var(--fade, 1);
+  transition: background-color 90ms ease, opacity 90ms ease;
 }
 .rf-ac-word {
   min-width: 4.5em;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .rf-ac-pre { color: var(--ink-faded); }
-.rf-ac-item:hover { background: rgba(210, 180, 120, 0.2); }
+.rf-ac-item:hover { background: rgba(210, 180, 120, 0.2); opacity: 1; }
 .rf-ac-item[aria-selected="true"] {
   background: rgba(210, 180, 120, 0.38);
   border-left-color: var(--vermilion);
+  opacity: 1;
 }
 
 .rf-ac-n {

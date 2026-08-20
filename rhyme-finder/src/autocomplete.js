@@ -22,6 +22,13 @@ import { corpusSongCount, ensureExistence } from "./lyricLibrary.js";
 
 const LIMIT = 8;
 
+// Resting opacity down the rail — row 0 full, each row 3.5% fainter, so the
+// eighth sits near 0.76. A depth cue, not an animation: it costs nothing and
+// says the same thing the ranking already says. The legend keeps the opacity
+// the stylesheet gives it.
+const FADE_STEP = 0.035;
+const LEGEND_FADE = 0.8;
+
 const n = (v) => v.toLocaleString("en-US");
 
 // The four columns, left to right. `perfect` and `near` come from the
@@ -108,6 +115,12 @@ export function initAutocomplete({ input, panel, onSearch, limit = LIMIT }) {
   }
 
   function render(prefix) {
+    // The row cascade (styles.css, "逐行落笔") replays only when the panel goes
+    // from CLOSED to OPEN. Re-running it on every keystroke costs the same
+    // frames but READS as lag — you wait for the list to stop moving before
+    // you dare read it. Capture the state before `hidden` is reassigned below.
+    const wasHidden = list.hidden;
+
     list.innerHTML = "";
     for (const [i, row] of items.entries()) {
       const li = document.createElement("li");
@@ -117,6 +130,10 @@ export function initAutocomplete({ input, panel, onSearch, limit = LIMIT }) {
       li.setAttribute("aria-selected", "false");
       li.dataset.word = row.text;
       li.dataset.idx = String(i);
+      // Position down the rail. Drives BOTH the cascade's stagger and the
+      // resting depth fade; the CSS owns the constants.
+      li.style.setProperty("--i", String(i));
+      li.style.setProperty("--fade", (1 - i * FADE_STEP).toFixed(3));
 
       const word = document.createElement("span");
       word.className = "rf-ac-word";
@@ -147,6 +164,10 @@ export function initAutocomplete({ input, panel, onSearch, limit = LIMIT }) {
       foot.className = "rf-ac-row rf-ac-legend";
       foot.setAttribute("role", "presentation");
       foot.setAttribute("aria-hidden", "true");
+      // Last in the cascade, and its --fade matches the resting opacity the
+      // stylesheet already gives it, so the animation lands where CSS ends.
+      foot.style.setProperty("--i", String(items.length));
+      foot.style.setProperty("--fade", String(LEGEND_FADE));
       foot.append(document.createElement("span"));   // spacer under the words
       for (const col of COLUMNS) {
         const s = document.createElement("span");
@@ -157,6 +178,7 @@ export function initAutocomplete({ input, panel, onSearch, limit = LIMIT }) {
     }
 
     list.hidden = items.length === 0;
+    list.classList.toggle("is-opening", wasHidden && !list.hidden);
     input.setAttribute("aria-expanded", String(!list.hidden));
   }
 

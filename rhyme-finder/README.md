@@ -240,6 +240,34 @@ autofocus on it, and offering to complete a word nobody typed — over results
 already on screen — is noise. The only untrusted input events in the app are
 main.js emptying the box (clear ×, home reset), and those correctly dismiss it.
 
+**逐行落笔 — the row cascade (added 2026-08-20).** The list doesn't arrive as a
+block; its rows land one at a time, 55 ms apart, 280 ms each, so eight rows
+settle in ~720 ms. The frame (border, paper, shadow) is there from the first
+frame — only the rows fall into it, which is what makes it read as ink on paper
+rather than a popup. Alongside it, a static depth fade: 3.5% fainter per row
+down the rail, the eighth near 0.76, full again on hover/highlight. That's a
+`--fade` custom property set inline per row; it costs no animation budget and
+says visually what the ranking already says.
+
+Two things about it are load-bearing:
+
+- **It replays ONLY when the panel goes closed → open** — the `is-opening`
+  class, set in `autocomplete.js` from the `hidden` state captured at the top of
+  `render()`. Replaying on every keystroke measures identically (same frames,
+  same compositor work) but *feels* slow: you end up waiting for the list to
+  stop moving before you dare read it. This is perceived latency, which no
+  profiler will show you. Don't "simplify" the class away into an unconditional
+  animation.
+- **Only `opacity` and `transform` animate** — compositor work, no layout and no
+  paint. The panel's own `backdrop-filter: blur(3px)` is by far the most
+  expensive thing in this component and the cascade never touches it.
+
+Tempo was chosen against a side-by-side mockup, not by taste alone. The two
+numbers do different jobs: the **stagger** is what makes the rows readable *as a
+sequence*, the **per-row duration** is what gives each one weight. Half this
+stagger (26 ms) blurs eight rows into a single twitch; much past it (75 ms+) and
+a fast typist outruns the list.
+
 **Why the rhyme counts are an artifact.** They're just what `findRhymes()`
 computes, but one uncapped search costs 30–150 ms — eight visible rows would be
 0.3–1.2 s of main-thread work per keystroke. `scripts/buildRhymeCounts.mjs`
